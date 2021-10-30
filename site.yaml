@@ -1,0 +1,82 @@
+---
+- name: Update Container Servers
+  hosts: ctrservers
+
+  tasks:
+  - name: Create base Downloads directory
+    ansible.builtin.file:
+      path: "{{ ansible_env['HOME'] }}/Downloads"
+      state: directory
+      mode: '700'
+
+  - name: Install Docker dependencies
+    ansible.builtin.apt:
+      pkg:
+      - ca-certificates
+      - curl
+      - gnupg
+      - curl
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Install debootstrap dependencies
+    ansible.builtin.apt:
+      pkg:
+      - debootstrap
+      - debian-archive-keyring
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Install systemd-container dependencies
+    ansible.builtin.apt:
+      pkg:
+      - systemd-container
+      - bridge-utils
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Remove Docker's Installed GPG key, If Exists
+    ansible.builtin.file:
+      path: "{{ docker_keyring_install_path }}"
+      state: absent
+    become: yes
+
+  - name: Grab Docker's Official GPG key
+    ansible.builtin.uri:
+      url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
+      method: GET
+      follow_redirects: safe
+      dest: "{{ docker_keyring_download_path }}"
+      # 304 redirect is ok
+      status_code: [200, 304]
+
+  # --batch option is needed for gpg due to odd "gpg: cannot open '/dev/tty'" error.
+  # For reference:
+  # https://github.com/pipech/erpnext-docker-debian/issues/26
+  - name: Install Docker's GPG key
+    ansible.builtin.shell: |
+      gpg --batch --output {{ docker_keyring_install_path }} --dearmor {{ docker_keyring_download_path }}
+    become: yes
+
+  - name: Add Docker's stable apt repository (x86_64)
+    ansible.builtin.apt_repository:
+      repo: >
+        deb [arch=amd64 signed-by={{ docker_keyring_install_path }}]
+        https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
+      state: present
+    become: yes
+    when: ansible_architecture == "x86_64"
+
+  - name: Install the Docker Engine
+    ansible.builtin.apt:
+      pkg:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      state: present
+      update_cache: yes
+    become: yes
+  
