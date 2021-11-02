@@ -79,4 +79,34 @@
       state: present
       update_cache: yes
     become: yes
-  
+
+- name: Setup systemd-networkd networking
+  hosts: ctrservers
+  become: true
+
+  # tasks:
+  #   - name: Stop and disable Debian networking daemon
+  #     ansible.builtin.systemd:
+  #       name: networking
+  #       enabled: no
+  #       state: stopped
+
+  roles:
+    - role: "systemd_networkd"
+      systemd_run_networkd: true
+      systemd_networkd_prefix: "{{ ansible_hostname }}"
+      systemd_networkd_filename: "{{ systemd_networkd_prefix }}-{{ item.1.NetDev.Name }}"
+      systemd_networkd_filename_alt: "{{ systemd_networkd_prefix }}-{{ item.1.interface }}"
+      systemd_netdevs:
+        - NetDev:
+            Name: br0
+            Kind: bridge
+
+      systemd_networks:
+        - interface: "enp7s0"
+          bridge: "br0"
+        - interface: "br0"
+          address: "dhcp"
+
+# - name: Customize <insert machine type> Nodes
+#   # TODO
