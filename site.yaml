@@ -9,6 +9,9 @@
       state: directory
       mode: '700'
 
+  # TODO(cavcrosby): currently this setup will have packages be installed in 
+  # conjunction with the system's python packages. Not a good idea, will need to
+  # look into implementing a virtual environment for ansible. 
   - name: Install base dependencies
     ansible.builtin.apt:
       pkg:
@@ -164,5 +167,7 @@
       state: restarted
 
 # - name: Customize <insert machine type> Nodes
-#   # TODO(cavcrosby)
+#
+# DISCUSS(cavcrosby): implement this play, essentially here is where each systemd
+# container will be created and along with its appropriate .nspawn file.
   
