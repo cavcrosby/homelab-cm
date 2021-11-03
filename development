@@ -2,7 +2,13 @@ all:
   children:
     ctrservers:
       hosts:
-        192.168.1.216:
-            ansible_user: ansible
-        192.168.1.222:
-            ansible_user: ansible
+        192.168.100.251
+        192.168.100.149
+    # altarias:
+    #   hosts:
+    #     altaria1:
+    #         ansible_host: 192.168.100.125
+    #         ansible_user: ansible
+    #     altaria2:
+    #         ansible_host: 192.168.100.126
+    #         ansible_user: ansible

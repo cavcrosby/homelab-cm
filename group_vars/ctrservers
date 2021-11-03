@@ -1,5 +1,6 @@
 ---
-systemd_container_path: /var/lib/machines/
+ansible_user: ansible
 docker_keyring_file: docker-archive-keyring.gpg
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_file }}
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_file }}"
+systemd_container_path: /var/lib/machines/

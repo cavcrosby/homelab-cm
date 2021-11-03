@@ -9,6 +9,18 @@
       state: directory
       mode: '700'
 
+  - name: Install base dependencies
+    ansible.builtin.apt:
+      pkg:
+      - python3-pip
+      state: present
+      update_cache: yes
+    become: yes
+
+  - name: Install base python packages
+    pip:
+      name: netaddr
+
   - name: Install Docker dependencies
     ansible.builtin.apt:
       pkg:
@@ -84,29 +96,73 @@
   hosts: ctrservers
   become: true
 
-  # tasks:
-  #   - name: Stop and disable Debian networking daemon
-  #     ansible.builtin.systemd:
-  #       name: networking
-  #       enabled: no
-  #       state: stopped
-
-  roles:
-    - role: "systemd_networkd"
-      systemd_run_networkd: true
-      systemd_networkd_prefix: "{{ ansible_hostname }}"
-      systemd_networkd_filename: "{{ systemd_networkd_prefix }}-{{ item.1.NetDev.Name }}"
-      systemd_networkd_filename_alt: "{{ systemd_networkd_prefix }}-{{ item.1.interface }}"
-      systemd_netdevs:
-        - NetDev:
+  tasks:
+    - name: Add systemd network files
+      ansible.builtin.template:
+        src: systemd.network.j2
+        dest: /etc/systemd/network/{{ ansible_hostname }}-{{ item.filename }}
+        owner: root
+        group: root
+        mode: '644'
+        force: yes
+      loop:
+        # Everything under 'filename' will be recorded in the systemd network files template.
+        # Each section header is determined by the top level key in each hash.
+        - filename: "{{ ansible_default_ipv4.interface }}.link"
+          Match:
+            MACAddress: "{{ ansible_default_ipv4.macaddress }}"
+          Link:
+            NamePolicy: keep
+        - filename: "{{ ansible_default_ipv4.interface }}.network"
+          Match:
+            Name: "{{ ansible_default_ipv4.interface }}"
+          Network:
+            Bridge: "br0"
+        - filename: 'br0.netdev'
+          NetDev:
             Name: br0
             Kind: bridge
+        - filename: 'br0.network'
+          Match:
+            Name: "br0"
+          Network:
+            DNS: "{{ ansible_default_ipv4.gateway }}"
+            Address: "{{ (ansible_default_ipv4.address + '/' + subnet_prefix) }}"
+            Gateway: "{{ ansible_default_ipv4.gateway }}"
+      vars:
+        subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
+      notify:
+        - Start and enable systemd-networkd
+        - Remove Debian's networking daemon interfaces file
+        - Stop and disable Debian networking daemon
+        - Restart systemd-networkd
 
-      systemd_networks:
-        - interface: "enp7s0"
-          bridge: "br0"
-        - interface: "br0"
-          address: "dhcp"
+  handlers:
+  - name: Start and enable systemd-networkd
+    ansible.builtin.systemd:
+      name: systemd-networkd
+      enabled: yes
+      state: started
+
+  - name: Remove Debian's networking daemon interfaces file
+    ansible.builtin.file:
+      path: "/etc/network/interfaces"
+      state: absent
+    when: ansible_distribution == "Debian"
+
+  - name: Stop and disable Debian networking daemon
+    ansible.builtin.systemd:
+      name: networking
+      enabled: no
+      state: stopped
+    when: ansible_distribution == "Debian"
+
+  - name: Restart systemd-networkd
+    ansible.builtin.systemd:
+      name: systemd-networkd
+      enabled: yes
+      state: restarted
 
 # - name: Customize <insert machine type> Nodes
-#   # TODO
+#   # TODO(cavcrosby)
+  
