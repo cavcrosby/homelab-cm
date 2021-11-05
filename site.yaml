@@ -116,15 +116,19 @@
             MACAddress: "{{ ansible_default_ipv4.macaddress }}"
           Link:
             NamePolicy: keep
+
         - filename: "{{ ansible_default_ipv4.interface }}.network"
           Match:
             Name: "{{ ansible_default_ipv4.interface }}"
           Network:
             Bridge: "br0"
+
         - filename: 'br0.netdev'
           NetDev:
             Name: br0
             Kind: bridge
+            MACAddress: "{{ '00:00:00' | community.general.random_mac }}"
+
         - filename: 'br0.network'
           Match:
             Name: "br0"
@@ -149,7 +153,7 @@
 
   - name: Remove Debian's networking daemon interfaces file
     ansible.builtin.file:
-      path: "/etc/network/interfaces"
+      path: /etc/network/interfaces
       state: absent
     when: ansible_distribution == "Debian"
 
