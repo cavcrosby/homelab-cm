@@ -53,12 +53,6 @@
       update_cache: yes
     become: yes
 
-  - name: Remove Docker's Installed GPG key, If Exists
-    ansible.builtin.file:
-      path: "{{ docker_keyring_install_path }}"
-      state: absent
-    become: yes
-
   - name: Grab Docker's Official GPG key
     ansible.builtin.uri:
       url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
@@ -67,6 +61,14 @@
       dest: "{{ docker_keyring_download_path }}"
       # 304 redirect is ok
       status_code: [200, 304]
+    register: docker_gpg_key
+
+  - name: Remove Docker's Installed GPG key, If Exists
+    ansible.builtin.file:
+      path: "{{ docker_keyring_install_path }}"
+      state: absent
+    become: yes
+    when: docker_gpg_key.changed == true
 
   # --batch option is needed for gpg due to odd "gpg: cannot open '/dev/tty'" error.
   # For reference:
@@ -75,6 +77,7 @@
     ansible.builtin.shell: |
       gpg --batch --output {{ docker_keyring_install_path }} --dearmor {{ docker_keyring_download_path }}
     become: yes
+    when: docker_gpg_key.changed == true
 
   - name: Add Docker's stable apt repository (x86_64)
     ansible.builtin.apt_repository:
@@ -107,7 +110,10 @@
         owner: root
         group: root
         mode: '644'
-        force: yes
+        force: no
+      vars:
+        subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
+        bridge_interface: "br0"
       loop:
         # Everything under 'filename' will be recorded in the systemd network files template.
         # Each section header is determined by the top level key in each hash.
@@ -121,28 +127,27 @@
           Match:
             Name: "{{ ansible_default_ipv4.interface }}"
           Network:
-            Bridge: "br0"
+            Bridge: "{{ bridge_interface }}"
 
-        - filename: 'br0.netdev'
+        - filename: "{{ bridge_interface }}.netdev"
           NetDev:
-            Name: br0
+            Name: "{{ bridge_interface }}"
             Kind: bridge
             MACAddress: "{{ '00:00:00' | community.general.random_mac }}"
 
-        - filename: 'br0.network'
+        - filename: "{{ bridge_interface }}.network"
           Match:
-            Name: "br0"
+            Name: "{{ bridge_interface }}"
           Network:
             DNS: "{{ ansible_default_ipv4.gateway }}"
             Address: "{{ (ansible_default_ipv4.address + '/' + subnet_prefix) }}"
             Gateway: "{{ ansible_default_ipv4.gateway }}"
-      vars:
-        subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
       notify:
         - Start and enable systemd-networkd
         - Remove Debian's networking daemon interfaces file
         - Stop and disable Debian networking daemon
         - Restart systemd-networkd
+      when: ansible_default_ipv4.interface != bridge_interface
 
   handlers:
   - name: Start and enable systemd-networkd
