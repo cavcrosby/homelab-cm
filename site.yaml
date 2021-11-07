@@ -113,7 +113,7 @@
         dest: /etc/systemd/network/{{ ansible_hostname }}-{{ item.filename }}
         owner: root
         group: root
-        mode: '644'
+        mode: "644"
         force: no
       vars:
         subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
