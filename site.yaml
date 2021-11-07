@@ -226,7 +226,7 @@
 
     - name: Add ansible user
       ansible.builtin.command: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "useradd --gid ansible --create-home --home-dir /home/ansible ansible"
+        systemd-run --machine {{ item.item }} /bin/sh -c "useradd --gid ansible --shell /bin/bash --create-home --home-dir /home/ansible ansible"
       become: yes
       when: item.changed
       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
