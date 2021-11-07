@@ -179,7 +179,61 @@
         enabled: yes
         state: restarted
 
-# - name: Customize <insert machine type> Nodes
+- name: Create Containers Nodes
+  hosts: ctrservers
+
+  tasks:
+    - name: Create systemd container bases
+      ansible.builtin.file:
+        path: /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
+        state: directory
+        mode: "755"
+      become: yes
+      register: create_systemd_containers_bases
+      loop: "{{ groups['containers'] }}"
+
+    - name: Generate systemd container contents
+      ansible.builtin.command: |
+        debootstrap --include=systemd-container,sudo bullseye {{ item.path }}
+      become: yes
+      when: item.changed
+      loop: "{{ create_systemd_containers_bases.results }}"
+
+    - name: Start newly created systemd containers
+      ansible.builtin.command: |
+        machinectl start {{ item.item }}
+      become: yes
+      when: item.changed
+      loop: "{{ create_systemd_containers_bases.results }}"
+
+    # - name: Perform initial systemd container configuration
+    #   ansible.builtin.shell: |
+    #     machinectl shell {{ item.item }} /bin/sh -c "groupadd ansible"
+    #     machinectl shell {{ item.item }} /bin/sh -c "useradd --gid ansible --create-home --home-dir /home/ansible ansible"
+    #     machinectl shell {{ item.item }} /bin/sh -c "echo ansible:Passw0rd! | chpasswd"
+    #     machinectl shell {{ item.item }} /bin/sh -c "passwd --lock --delete root"
+    #   become: yes
+    #   when: item.changed
+    #   loop: "{{ create_systemd_containers_bases.results }}"
+
+    # - name: Do initial container configuration
+    #   ansible.builtin.shell: |
+    #     mkdir --parents /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
+    #     debootstrap --include=systemd-container,sudo bullseye /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
+    #   become: yes
+    #   loop: "{{ groups['containers'] }}"
+
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     var: hostvars[item]['type']
+    #   loop: "{{ groups['containers'] }}"
+  # handlers:
+  #   - name: Generate systemd container contents
+  #     ansible.builtin.command: |
+  #       debootstrap --include=systemd-container,sudo bullseye item.path
+  #     become: yes
+  #     when: item.changed
+  #     loop: "{{ create_systemd_containers_results }}"
 #
 # DISCUSS(cavcrosby): implement this play, essentially here is where each systemd
 # container will be created and along with its appropriate .nspawn file.
