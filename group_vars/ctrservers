@@ -1,4 +1,6 @@
 ---
+ansible_python_virtualenv: ansible-client
+ansible_python_virtualenvs_path: "{{ ansible_env['HOME'] }}/python-venvs"
 ansible_user: ansible
 docker_keyring_file: docker-archive-keyring.gpg
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_file }}

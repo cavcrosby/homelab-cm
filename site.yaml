@@ -9,20 +9,37 @@
         state: directory
         mode: "700"
 
-    # TODO(cavcrosby): currently this setup will have packages be installed in
-    # conjunction with the system's python packages. Not a good idea, will need to
-    # look into implementing a virtual environment for ansible.
     - name: Install base dependencies
       ansible.builtin.apt:
         pkg:
-        - python3-pip
+        - python3-venv
         state: present
         update_cache: yes
       become: yes
 
+    - name: Create python-virtual environments directory
+      ansible.builtin.file:
+        path: "{{ ansible_python_virtualenvs_path }}"
+        state: directory
+        mode: "755"
+
+    # TODO(cavcrosby): need to work on making this task (and others related) idempotent
+    - name: Create ansible venv
+      ansible.builtin.command:
+        chdir: "{{ ansible_python_virtualenvs_path }}"
+        cmd: python3 -m venv {{ ansible_python_virtualenv }}
+
+    - name: Append .bashrc with command to activate ansible venv
+      ansible.builtin.blockinfile:
+        path: "{{ ansible_env['HOME'] }}/.bashrc"
+        marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
+        block: |
+          source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"
+
     - name: Install base python packages
-      pip:
+      ansible.builtin.pip:
         name: netaddr
+        virtualenv: "{{ ansible_env['HOME'] }}/python-venvs/ansible-client"
 
     - name: Install Docker dependencies
       ansible.builtin.apt:
