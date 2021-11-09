@@ -23,23 +23,29 @@
         state: directory
         mode: "755"
 
-    # TODO(cavcrosby): need to work on making this task (and others related) idempotent
-    - name: Create ansible venv
-      ansible.builtin.command:
-        chdir: "{{ ansible_python_virtualenvs_path }}"
-        cmd: python3 -m venv {{ ansible_python_virtualenv }}
-
-    - name: Append .bashrc with command to activate ansible venv
-      ansible.builtin.blockinfile:
+    - name: Check if sourcing virtualenv already in .bashrc
+      lineinfile:
+        state: absent
         path: "{{ ansible_env['HOME'] }}/.bashrc"
-        marker: "\n# {mark} ANSIBLE MANAGED BLOCK\n"
-        block: |
-          source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"
+        regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
+      check_mode: true
+      changed_when: false
+      register: sourcing_virtualenv_check
+
+    # one-liner inspired by (question not the answer):
+    # https://stackoverflow.com/questions/53951409/line-break-with-lineinfile-in-ansible
+    - name: Append .bashrc with command to activate ansible virtualenv
+      ansible.builtin.lineinfile:
+        path: "{{ ansible_env['HOME'] }}/.bashrc"
+        regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
+        line: "\n# ANSIBLE MANAGED\nsource \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
+      when: sourcing_virtualenv_check.found == 0
 
     - name: Install base python packages
       ansible.builtin.pip:
         name: netaddr
-        virtualenv: "{{ ansible_env['HOME'] }}/python-venvs/ansible-client"
+        virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
+        virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
 
     - name: Install Docker dependencies
       ansible.builtin.apt:
