@@ -9,7 +9,7 @@
         state: directory
         mode: "700"
 
-    - name: Install base dependencies
+    - name: Install python dependencies
       ansible.builtin.apt:
         pkg:
         - python3-venv
@@ -202,78 +202,78 @@
         enabled: yes
         state: restarted
 
-- name: Create Container Nodes
-  hosts: ctrservers
+# - name: Create Container Nodes
+#   hosts: ctrservers
 
-  tasks:
-    # DISCUSS(cavcrosby): this task sets if the rest of the task list should run.
-    # However, handlers doesn't quite work here because multiple changes could
-    # have occurred and I don't wise to delegate how to determine what changed to the
-    # handlers. That said, this could be refactored due to looping is needed now
-    # for each task.
-    - name: Create systemd container bases
-      ansible.builtin.file:
-        path: /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
-        state: directory
-        mode: "755"
-      become: yes
-      register: create_systemd_containers_bases
-      loop: "{{ groups['containers'] }}"
+#   tasks:
+#     # DISCUSS(cavcrosby): this task sets if the rest of the task list should run.
+#     # However, handlers doesn't quite work here because multiple changes could
+#     # have occurred and I don't wise to delegate how to determine what changed to the
+#     # handlers. That said, this could be refactored due to looping is needed now
+#     # for each task.
+#     - name: Create systemd container bases
+#       ansible.builtin.file:
+#         path: /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
+#         state: directory
+#         mode: "755"
+#       become: yes
+#       register: create_systemd_containers_bases
+#       loop: "{{ groups['containers'] }}"
 
-    - name: Generate systemd container contents
-      ansible.builtin.command: |
-        debootstrap --include=systemd-container,sudo bullseye {{ item.path }}
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Generate systemd container contents
+#       ansible.builtin.command: |
+#         debootstrap --include=systemd-container,sudo bullseye {{ item.path }}
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    - name: Start newly created systemd containers
-      ansible.builtin.command: |
-        machinectl start {{ item.item }}
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Start newly created systemd containers
+#       ansible.builtin.command: |
+#         machinectl start {{ item.item }}
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    # TODO(cavcrosby): this could be refactored due to each command needing the same
-    # boilerplate, but running everything in a shell module with a literal block
-    # scalar appeared to not work.
-    #
-    # inspired by:
-    # https://bbs.archlinux.org/viewtopic.php?id=237096
-    - name: Add ansible group
-      ansible.builtin.command: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "groupadd ansible"
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     # TODO(cavcrosby): this could be refactored due to each command needing the same
+#     # boilerplate, but running everything in a shell module with a literal block
+#     # scalar appeared to not work.
+#     #
+#     # inspired by:
+#     # https://bbs.archlinux.org/viewtopic.php?id=237096
+#     - name: Add ansible group
+#       ansible.builtin.command: |
+#         systemd-run --machine {{ item.item }} /bin/sh -c "groupadd ansible"
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    - name: Add ansible user
-      ansible.builtin.command: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "useradd --gid ansible --shell /bin/bash --create-home --home-dir /home/ansible ansible"
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Add ansible user
+#       ansible.builtin.command: |
+#         systemd-run --machine {{ item.item }} /bin/sh -c "useradd --gid ansible --shell /bin/bash --create-home --home-dir /home/ansible ansible"
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    - name: Configure ansible password
-      ansible.builtin.command: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "echo ansible:Passw0rd! | chpasswd"
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Configure ansible password
+#       ansible.builtin.command: |
+#         systemd-run --machine {{ item.item }} /bin/sh -c "echo ansible:Passw0rd! | chpasswd"
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    - name: Add ansible to sudoers
-      ansible.builtin.shell: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "echo 'ansible  ALL=(ALL:ALL) ALL' > /etc/sudoers.d/ansible"
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Add ansible to sudoers
+#       ansible.builtin.shell: |
+#         systemd-run --machine {{ item.item }} /bin/sh -c "echo 'ansible  ALL=(ALL:ALL) ALL' > /etc/sudoers.d/ansible"
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
-    - name: Lock root account
-      ansible.builtin.command: |
-        systemd-run --machine {{ item.item }} /bin/sh -c "passwd --lock --delete root"
-      become: yes
-      when: item.changed
-      loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
+#     - name: Lock root account
+#       ansible.builtin.command: |
+#         systemd-run --machine {{ item.item }} /bin/sh -c "passwd --lock --delete root"
+#       become: yes
+#       when: item.changed
+#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
     # - name: Debug
     #   ansible.builtin.debug:
