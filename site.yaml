@@ -32,7 +32,7 @@
       changed_when: false
       register: sourcing_virtualenv_check
 
-    # one-liner inspired by (question not the answer):
+    # one-liner inspired by (question not the answer, the line parameter):
     # https://stackoverflow.com/questions/53951409/line-break-with-lineinfile-in-ansible
     - name: Append .bashrc with command to activate ansible virtualenv
       ansible.builtin.lineinfile:
@@ -202,7 +202,7 @@
         enabled: yes
         state: restarted
 
-- name: Create Containers Nodes
+- name: Create Container Nodes
   hosts: ctrservers
 
   tasks:
@@ -279,6 +279,13 @@
     #   ansible.builtin.debug:
     #     var: hostvars[item]['type']
     #   loop: "{{ groups['containers'] }}"
+
+# - name: Configure Container Nodes
+#   hosts: altaria_containers
+  
+#   roles:
+#     - altaria
+
 #
 # DISCUSS(cavcrosby): implement this play, essentially here is where each systemd
 # container will be created and along with its appropriate .nspawn file.
