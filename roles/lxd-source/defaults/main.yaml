@@ -1,0 +1,52 @@
+---
+# The default bridge created when installing 'a' lxc package.
+default_lxc_bridge: lxcbr0
+
+global_go_path: "/usr/local/share/go"
+lxd_release_version: "4.0.8"
+lxd_cgo_cflags: "-I{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/include/ -I{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/include/"
+lxd_cgo_ldflags: "-L{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/ -L{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"
+lxd_cgo_ldflags_allow: "(-Wl,-wrap,pthread_create)|(-Wl,-z,now)"
+lxd_ld_library_path: "{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/:{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"
+lxd_remote_preseed_path: "{{ ansible_env['HOME'] }}/Downloads/lxd.yaml"
+lxd_tarball_download_path: "/usr/local/src"
+running_lxd_remote_preseed_path: "{{ ansible_env['HOME'] }}/Downloads/running-lxd.yaml"
+
+# The intention behind the wrapper is to have a place to set LD_LIBRARY_PATH
+# before calling lxd. As this env var will be wiped by sudo, even if appended to
+# env_keep in the sudoers file. If the wrapper path is to change, ensure the new
+# wrapper path is before the GOPATH/bin dir on the PATH.
+lxd_wrapper_path: "/usr/local/bin/lxd"
+
+lxd_preseed: |
+  config: 
+    core.https_address: {{ ansible_default_ipv4.address }}
+    core.trust_password: "Passw0rd!"
+  networks:
+  - config:
+      ipv4.address: 10.10.100.1/24
+      ipv4.nat: "true"
+      ipv6.address: fd42:cf87:377f:12aa::1/64
+      ipv6.nat: "true"
+    description: ""
+    name: lxdbr0
+    type: bridge
+  storage_pools:
+  - config:
+      source: /var/lib/lxd/storage-pools/default
+    description: ""
+    name: default
+    driver: dir
+  profiles:
+  - config: {}
+    description: Default LXD profile
+    devices:
+      eth0:
+        name: eth0
+        network: lxdbr0
+        type: nic
+      root:
+        path: /
+        pool: default
+        type: disk
+    name: default

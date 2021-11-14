@@ -1,0 +1,25 @@
+---
+- name: Grab a LXD release tarball, and extract the archive
+  ansible.builtin.unarchive:
+    src: https://github.com/lxc/lxd/releases/download/lxd-{{ lxd_release_version }}/lxd-{{ lxd_release_version }}.tar.gz
+    dest: "{{ lxd_tarball_download_path }}"
+    remote_src: yes
+  become: yes
+
+- name: Build the LXD libraries
+  ansible.builtin.shell:
+    chdir: "{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}"
+    cmd: make deps
+  become: yes
+
+- name: Build the LXD
+  ansible.builtin.shell:
+    chdir: "{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}"
+    cmd: make
+  become: yes
+  environment:
+    - CGO_CFLAGS: "{{ lxd_cgo_cflags }}"
+    - CGO_LDFLAGS: "{{ lxd_cgo_ldflags }}"
+    - CGO_LDFLAGS_ALLOW: "{{ lxd_cgo_ldflags_allow }}"
+    - LD_LIBRARY_PATH: "{{ lxd_ld_library_path }}"
+    - GOPATH: "{{ global_go_path }}"

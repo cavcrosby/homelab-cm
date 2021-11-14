@@ -2,8 +2,11 @@
 - name: Update Container Servers
   hosts: ctrservers
 
+  roles:
+    - lxd-source
+
   tasks:
-    - name: Create base Downloads directory
+    - name: Create {{ ansible_user_id }}'s Downloads directory
       ansible.builtin.file:
         path: "{{ ansible_env['HOME'] }}/Downloads"
         state: directory
@@ -23,23 +26,15 @@
         state: directory
         mode: "755"
 
-    - name: Check if sourcing virtualenv already in .bashrc
-      lineinfile:
-        state: absent
+    - name: Add sourcing the {{ ansible_python_virtualenv }} python virtualenv
+      ansible.builtin.import_role:
+        name: common
+        tasks_from: lbyl_lineinfile
+      vars:
         path: "{{ ansible_env['HOME'] }}/.bashrc"
         regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-      check_mode: true
-      changed_when: false
-      register: sourcing_virtualenv_check
-
-    # one-liner inspired by (question not the answer, the line parameter):
-    # https://stackoverflow.com/questions/53951409/line-break-with-lineinfile-in-ansible
-    - name: Append .bashrc with command to activate ansible virtualenv
-      ansible.builtin.lineinfile:
-        path: "{{ ansible_env['HOME'] }}/.bashrc"
-        regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-        line: "\n# ANSIBLE MANAGED\nsource \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
-      when: sourcing_virtualenv_check.found == 0
+        line: "source \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
+        line_identifier: "sourcing the {{ ansible_python_virtualenv }} python virtualenv"
 
     - name: Install base python packages
       ansible.builtin.pip:
@@ -54,24 +49,6 @@
         - curl
         - gnupg
         - curl
-        state: present
-        update_cache: yes
-      become: yes
-
-    - name: Install debootstrap dependencies
-      ansible.builtin.apt:
-        pkg:
-        - debootstrap
-        - debian-archive-keyring
-        state: present
-        update_cache: yes
-      become: yes
-
-    - name: Install systemd-container dependencies
-      ansible.builtin.apt:
-        pkg:
-        - systemd-container
-        - bridge-utils
         state: present
         update_cache: yes
       become: yes
@@ -138,9 +115,6 @@
         group: root
         mode: "644"
         force: no
-      vars:
-        subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
-        bridge_interface: "br0"
       loop:
         # Everything under 'filename' will be recorded in the systemd network files template.
         # Each section header is determined by the top level key in each hash.
@@ -154,27 +128,14 @@
           Match:
             Name: "{{ ansible_default_ipv4.interface }}"
           Network:
-            Bridge: "{{ bridge_interface }}"
-
-        - filename: "{{ bridge_interface }}.netdev"
-          NetDev:
-            Name: "{{ bridge_interface }}"
-            Kind: bridge
-            MACAddress: "{{ '00:00:00' | community.general.random_mac }}"
-
-        - filename: "{{ bridge_interface }}.network"
-          Match:
-            Name: "{{ bridge_interface }}"
-          Network:
-            DNS: "{{ ansible_default_ipv4.gateway }}"
-            Address: "{{ (ansible_default_ipv4.address + '/' + subnet_prefix) }}"
-            Gateway: "{{ ansible_default_ipv4.gateway }}"
+            DHCP: "ipv4"
+      vars:
+        subnet_prefix: "{{ (ansible_default_ipv4.address + '/' + ansible_default_ipv4.netmask) | ansible.netcommon.ipaddr('prefix') }}"
       notify:
         - Start and enable systemd-networkd
         - Remove Debian's networking daemon interfaces file
         - Stop and disable Debian networking daemon
         - Restart systemd-networkd
-      when: ansible_default_ipv4.interface != bridge_interface
 
   handlers:
     - name: Start and enable systemd-networkd
@@ -202,23 +163,35 @@
         enabled: yes
         state: restarted
 
-# - name: Create Container Nodes
-#   hosts: ctrservers
+- name: Create Container Nodes
+  hosts: localhost
+  connection: local
 
-#   tasks:
-#     # DISCUSS(cavcrosby): this task sets if the rest of the task list should run.
-#     # However, handlers doesn't quite work here because multiple changes could
-#     # have occurred and I don't wise to delegate how to determine what changed to the
-#     # handlers. That said, this could be refactored due to looping is needed now
-#     # for each task.
-#     - name: Create systemd container bases
-#       ansible.builtin.file:
-#         path: /var/lib/machines/{{ hostvars[item]['inventory_hostname'] }}
-#         state: directory
-#         mode: "755"
-#       become: yes
-#       register: create_systemd_containers_bases
-#       loop: "{{ groups['containers'] }}"
+  tasks:
+    # - name: Debug
+    #   ansible.builtin.debug:
+    #     var: hostvars[item]['type']
+    #   loop: "{{ groups['containers'] }}"
+
+    # DISCUSS(cavcrosby): this task sets if the rest of the task list should run.
+    # However, handlers doesn't quite work here because multiple changes could
+    # have occurred and I don't wise to delegate how to determine what changed to the
+    # handlers. That said, this could be refactored due to looping is needed now
+    # for each task.
+    - name: Create LXD containers
+      community.general.lxd_container:
+        name: item
+        state: started
+        source:
+          type: image
+          mode: pull
+          server: https://images.linuxcontainers.org
+          protocol: lxd
+          alias: ubuntu/xenial/amd64
+        url: https://192.168.100.149:8443
+        trust_password: "Passw0rd!"
+        profiles: ["default"]
+      loop: "{{ groups['containers'] }}"
 
 #     - name: Generate systemd container contents
 #       ansible.builtin.command: |

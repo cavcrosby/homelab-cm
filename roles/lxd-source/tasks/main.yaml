@@ -1,0 +1,202 @@
+---
+- name: Create {{ ansible_user_id }}'s Downloads directory
+  ansible.builtin.file:
+    path: "{{ ansible_env['HOME'] }}/Downloads"
+    state: directory
+    mode: "700"
+
+- name: Create GOPATH's bin directory
+  ansible.builtin.file:
+    path: "{{ global_go_path }}/bin"
+    state: directory
+    mode: "775"
+  become: yes
+
+- name: Append PATH with global GOPATH/bin for {{ ansible_user_id }}
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: lbyl_lineinfile
+  vars:
+    path: "{{ ansible_env['HOME'] }}/.bashrc"
+    regexp: '^export PATH="(.+:|)?{{ global_go_path }}/bin(:.+|)"'
+    line: "\n# ANSIBLE MANAGED\nexport PATH=\"${PATH}:{{ global_go_path }}/bin\""
+    line_identifier: "PATH appended with global GOPATH/bin"
+
+# This list is specific to Debian 11 at the moment. Can be expanded to a vars
+# directory to install dependencies based on the distro.
+- name: Install the LXD dependencies
+  ansible.builtin.apt:
+    pkg:
+    - acl
+    - attr
+    - autoconf
+    - dnsmasq-base
+    - git
+    - golang
+    - libacl1-dev
+    - libcap-dev
+    - liblxc1
+    # liblxc-dev would be lxc-dev in Debian repos
+    - lxc-dev
+    - libsqlite3-dev
+    - libtool
+    - libudev-dev
+    - liblz4-dev
+    - libuv1-dev
+    - make
+    - pkg-config
+    - rsync
+    - squashfs-tools
+    - tar
+    - tcl
+    - xz-utils
+    - ebtables
+    state: present
+    update_cache: yes
+  become: yes
+
+- name: Set USE_LXC_BRIDGE to false
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: lbyl_lineinfile
+  become: yes
+  vars:
+    path: /etc/default/lxc-net
+    regexp: '^export USE_LXC_BRIDGE=\"true\"$'
+    line: "export USE_LXC_BRIDGE=\"false\""
+    line_identifier: "USE_LXC_BRIDGE set to false"
+
+- name: Check if LXC bridge still exists
+  ansible.builtin.stat:
+    path: /sys/class/net/{{ default_lxc_bridge }}
+  become: yes
+  register: default_lxc_bridge_check
+  
+- name: Remove default LXC bridge
+  ansible.builtin.shell: |
+    ip link set {{ default_lxc_bridge }} down
+    ip link delete {{ default_lxc_bridge }} type bridge
+  become: yes
+  when: default_lxc_bridge_check.stat.exists
+
+- name: Check if the LXD is installed
+  ansible.builtin.shell: |
+    find "{{ global_go_path }}/bin" -name 'lxd' -type f
+  become: yes
+  register: lxd_check
+  changed_when: lxd_check.stdout == ""
+  notify:
+    - Grab a LXD release tarball, and extract the archive
+    - Build the LXD libraries
+    - Build the LXD
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Update secure path with {{ global_go_path }}
+  ansible.builtin.copy:
+    dest: "/etc/sudoers.d/ansible-lxd-source"
+    content: |
+      # ANSIBLE MANAGED
+      Defaults  secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{{ global_go_path }}/bin
+    mode: "440"
+  become: yes
+
+- name: Create wrapper for the LXD
+  ansible.builtin.copy:
+    dest: "{{ lxd_wrapper_path }}"
+    mode: "755"
+    content: |
+      #!/bin/sh
+      #
+      # ANSIBLE MANAGED
+
+      set -e
+      
+      # constants
+      PROGRAM_NAME="$(basename "$0")"
+      readonly PROGRAM_NAME
+      readonly ROOT_UID=0
+      readonly LD_LIBRARY_PATH="{{ lxd_ld_library_path }}"
+      export LD_LIBRARY_PATH
+
+      if [ "$(id --user)" != "${ROOT_UID}" ]; then
+          echo "${PROGRAM_NAME}: wrapper must be ran as root!" >&2
+          exit 1
+      fi
+
+      {{ global_go_path }}/bin/lxd "$@"
+  become: yes
+
+- name: Create subuid && subgid files
+  ansible.builtin.copy:
+    dest: "{{ item }}"
+    mode: "644"
+    content: |
+      # ANSIBLE MANAGED
+      root:100000:65536
+      ansible:100000:65536
+  become: yes
+  loop:
+    - /etc/subuid
+    - /etc/subgid
+
+- name: Create a LXD service file
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/lxd.service
+    mode: "644"
+    content: |
+      [Unit]
+      Description=Linux Container Daemon
+
+      [Service]
+      Type=exec
+      ExecStart={{ lxd_wrapper_path }} --group sudo
+
+      [Install]
+      WantedBy=multi-user.target
+  become: yes
+
+- name: Enable the LXD service
+  ansible.builtin.systemd:
+    name: lxd
+    enabled: yes
+    state: started
+    daemon_reload: yes
+  become: yes
+
+- name: Create the LXD preseed
+  ansible.builtin.copy:
+    dest: "{{ lxd_remote_preseed_path }}"
+    mode: "644"
+    content: "{{ lxd_preseed }}"
+
+- name: Get the LXD's preseed checksum
+  ansible.builtin.stat:
+    path: "{{ lxd_remote_preseed_path }}"
+  register: lxd_preseed_checksum
+
+# For reference on the shell command (it was either this, truncate, or dd):
+# https://unix.stackexchange.com/questions/254644/how-do-i-remove-the-newline-from-the-last-line-in-a-file-in-order-to-add-text-to
+# This was done as it doesn't seem possible to interject a final newline in the
+# preseed variable.
+- name: Create the running LXD's preseed
+  ansible.builtin.shell:
+    lxd init --dump | perl -pi -e 'chomp if eof' > "{{ running_lxd_remote_preseed_path }}"
+  become: yes
+  register: running_lxd_preseed_checksum
+  changed_when: running_lxd_preseed_checksum.rc != 0
+
+- name: Get the running LXD's preseed checksum
+  ansible.builtin.stat:
+    path: "{{ running_lxd_remote_preseed_path }}"
+  become: yes
+  register: running_lxd_preseed_checksum
+
+# LXD can be initialize 'n' number of times, meaning there is currently no
+# absolute way to determine if LXD has been initialize. For reference:
+# https://discuss.linuxcontainers.org/t/how-to-check-if-lxd-init-auto-already-ran/1635
+- name: Initialize the LXD
+  ansible.builtin.shell: lxd init --preseed < "{{ lxd_remote_preseed_path }}"
+  become: yes
+  changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum.stat.checksum
