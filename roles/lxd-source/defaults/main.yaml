@@ -1,7 +1,13 @@
 ---
 lxd_release_version: "4.0.8"
-lxd_trust_password: "Passw0rd!"
 lxd_extracted_tarball_path: "/usr/local/src"
+
+# TODO(cavcrosby): this will be overwritten at the playbook level. That said,
+# handling this secret (and others) should be done in a more private/secure
+# manner. For reference on some ideas:
+# https://www.redhat.com/sysadmin/ansible-playbooks-secrets
+lxd_trust_password: "Passw0rd!"
+
 
 # TODO(cavcrosby): it is possible that LXD is installed with a user whose
 # GOPATH is already set. This variable should respect that first and use the
