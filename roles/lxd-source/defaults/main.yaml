@@ -1,16 +1,13 @@
 ---
-# The default bridge created when installing 'a' lxc package.
-default_lxc_bridge: lxcbr0
-
-global_go_path: "/usr/local/share/go"
 lxd_release_version: "4.0.8"
-lxd_cgo_cflags: "-I{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/include/ -I{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/include/"
-lxd_cgo_ldflags: "-L{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/ -L{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"
-lxd_cgo_ldflags_allow: "(-Wl,-wrap,pthread_create)|(-Wl,-z,now)"
-lxd_ld_library_path: "{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/:{{ lxd_tarball_download_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"
-lxd_remote_preseed_path: "{{ ansible_env['HOME'] }}/Downloads/lxd.yaml"
-lxd_tarball_download_path: "/usr/local/src"
-running_lxd_remote_preseed_path: "{{ ansible_env['HOME'] }}/Downloads/running-lxd.yaml"
+lxd_trust_password: "Passw0rd!"
+lxd_extracted_tarball_path: "/usr/local/src"
+
+# TODO(cavcrosby): it is possible that LXD is installed with a user whose
+# GOPATH is already set. This variable should respect that first and use the
+# GOPATH already set. Using the hard-coded one as a default incase GOPATH is
+# not set.
+global_go_path: "/usr/local/share/go"
 
 # The intention behind the wrapper is to have a place to set LD_LIBRARY_PATH
 # before calling lxd. As this env var will be wiped by sudo, even if appended to
@@ -18,10 +15,12 @@ running_lxd_remote_preseed_path: "{{ ansible_env['HOME'] }}/Downloads/running-lx
 # wrapper path is before the GOPATH/bin dir on the PATH.
 lxd_wrapper_path: "/usr/local/bin/lxd"
 
+# TODO(cavcrosby): change the ipv4 address to a random private IP. Add the actual
+# preseed to 'site.yaml'.
 lxd_preseed: |
-  config: 
+  config:
     core.https_address: {{ ansible_default_ipv4.address }}
-    core.trust_password: "Passw0rd!"
+    core.trust_password: true
   networks:
   - config:
       ipv4.address: 10.10.100.1/24
@@ -50,3 +49,14 @@ lxd_preseed: |
         pool: default
         type: disk
     name: default
+
+# The default bridge created when installing 'a' lxc package.
+_default_lxc_bridge: lxcbr0
+
+_lxd_data_dir: "/run/ansible/lxc-source"
+_lxd_remote_preseed_path: "{{ _lxd_data_dir }}/lxd.yaml"
+_running_lxd_remote_preseed_path: "{{ _lxd_data_dir }}/running-lxd.yaml"
+_lxd_cgo_cflags: "-I{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/raft/include/ -I{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/include/"
+_lxd_cgo_ldflags: "-L{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/ -L{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"
+_lxd_cgo_ldflags_allow: "(-Wl,-wrap,pthread_create)|(-Wl,-z,now)"
+_lxd_ld_library_path: "{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/raft/.libs/:{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/.libs/"

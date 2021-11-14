@@ -1,9 +1,10 @@
 ---
-- name: Create {{ ansible_user_id }}'s Downloads directory
+- name: Create lxc-source's data directory
   ansible.builtin.file:
-    path: "{{ ansible_env['HOME'] }}/Downloads"
+    path: "{{ _lxd_data_dir }}"
     state: directory
     mode: "700"
+  become: yes
 
 - name: Create GOPATH's bin directory
   ansible.builtin.file:
@@ -12,7 +13,7 @@
     mode: "775"
   become: yes
 
-- name: Append PATH with global GOPATH/bin for {{ ansible_user_id }}
+- name: Append PATH with GOPATH/bin for {{ ansible_user_id }}
   ansible.builtin.import_role:
     name: common
     tasks_from: lbyl_lineinfile
@@ -20,7 +21,7 @@
     path: "{{ ansible_env['HOME'] }}/.bashrc"
     regexp: '^export PATH="(.+:|)?{{ global_go_path }}/bin(:.+|)"'
     line: "\n# ANSIBLE MANAGED\nexport PATH=\"${PATH}:{{ global_go_path }}/bin\""
-    line_identifier: "PATH appended with global GOPATH/bin"
+    line_identifier: "PATH appended with GOPATH/bin"
 
 # This list is specific to Debian 11 at the moment. Can be expanded to a vars
 # directory to install dependencies based on the distro.
@@ -68,14 +69,14 @@
 
 - name: Check if LXC bridge still exists
   ansible.builtin.stat:
-    path: /sys/class/net/{{ default_lxc_bridge }}
+    path: /sys/class/net/{{ _default_lxc_bridge }}
   become: yes
   register: default_lxc_bridge_check
   
 - name: Remove default LXC bridge
   ansible.builtin.shell: |
-    ip link set {{ default_lxc_bridge }} down
-    ip link delete {{ default_lxc_bridge }} type bridge
+    ip link set {{ _default_lxc_bridge }} down
+    ip link delete {{ _default_lxc_bridge }} type bridge
   become: yes
   when: default_lxc_bridge_check.stat.exists
 
@@ -117,7 +118,7 @@
       PROGRAM_NAME="$(basename "$0")"
       readonly PROGRAM_NAME
       readonly ROOT_UID=0
-      readonly LD_LIBRARY_PATH="{{ lxd_ld_library_path }}"
+      readonly LD_LIBRARY_PATH="{{ _lxd_ld_library_path }}"
       export LD_LIBRARY_PATH
 
       if [ "$(id --user)" != "${ROOT_UID}" ]; then
@@ -167,13 +168,15 @@
 
 - name: Create the LXD preseed
   ansible.builtin.copy:
-    dest: "{{ lxd_remote_preseed_path }}"
+    dest: "{{ _lxd_remote_preseed_path }}"
     mode: "644"
     content: "{{ lxd_preseed }}"
+  become: yes
 
 - name: Get the LXD's preseed checksum
   ansible.builtin.stat:
-    path: "{{ lxd_remote_preseed_path }}"
+    path: "{{ _lxd_remote_preseed_path }}"
+  become: yes
   register: lxd_preseed_checksum
 
 # For reference on the shell command (it was either this, truncate, or dd):
@@ -182,14 +185,14 @@
 # preseed variable.
 - name: Create the running LXD's preseed
   ansible.builtin.shell:
-    lxd init --dump | perl -pi -e 'chomp if eof' > "{{ running_lxd_remote_preseed_path }}"
+    lxd init --dump | perl -pi -e 'chomp if eof' > "{{ _running_lxd_remote_preseed_path }}"
   become: yes
   register: running_lxd_preseed_checksum
   changed_when: running_lxd_preseed_checksum.rc != 0
 
 - name: Get the running LXD's preseed checksum
   ansible.builtin.stat:
-    path: "{{ running_lxd_remote_preseed_path }}"
+    path: "{{ _running_lxd_remote_preseed_path }}"
   become: yes
   register: running_lxd_preseed_checksum
 
@@ -197,6 +200,12 @@
 # absolute way to determine if LXD has been initialize. For reference:
 # https://discuss.linuxcontainers.org/t/how-to-check-if-lxd-init-auto-already-ran/1635
 - name: Initialize the LXD
-  ansible.builtin.shell: lxd init --preseed < "{{ lxd_remote_preseed_path }}"
+  ansible.builtin.shell: lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
   become: yes
   changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum.stat.checksum
+
+- name: Set the trust password for the LXD
+  ansible.builtin.shell: lxc config set core.trust_password '{{ lxd_trust_password }}'
+  become: yes
+  register: set_trust_password_check
+  changed_when: set_trust_password_check.rc != 0
