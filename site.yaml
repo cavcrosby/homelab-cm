@@ -163,102 +163,26 @@
         enabled: yes
         state: restarted
 
-- name: Create Container Nodes
+- name: Create container nodes on ctrservers
   hosts: localhost
   connection: local
+  vars_files:
+    - vars/lxd-containers.yaml
 
   tasks:
-    # - name: Debug
-    #   ansible.builtin.debug:
-    #     var: hostvars[item]['type']
-    #   loop: "{{ groups['containers'] }}"
-
-    # DISCUSS(cavcrosby): this task sets if the rest of the task list should run.
-    # However, handlers doesn't quite work here because multiple changes could
-    # have occurred and I don't wise to delegate how to determine what changed to the
-    # handlers. That said, this could be refactored due to looping is needed now
-    # for each task.
-    - name: Create LXD containers
-      community.general.lxd_container:
-        name: item
-        state: started
-        source:
-          type: image
-          mode: pull
-          server: https://images.linuxcontainers.org
-          protocol: lxd
-          alias: ubuntu/xenial/amd64
-        url: https://192.168.100.149:8443
-        trust_password: "Passw0rd!"
-        profiles: ["default"]
-      loop: "{{ groups['containers'] }}"
-
-#     - name: Generate systemd container contents
-#       ansible.builtin.command: |
-#         debootstrap --include=systemd-container,sudo bullseye {{ item.path }}
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     - name: Start newly created systemd containers
-#       ansible.builtin.command: |
-#         machinectl start {{ item.item }}
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     # TODO(cavcrosby): this could be refactored due to each command needing the same
-#     # boilerplate, but running everything in a shell module with a literal block
-#     # scalar appeared to not work.
-#     #
-#     # inspired by:
-#     # https://bbs.archlinux.org/viewtopic.php?id=237096
-#     - name: Add ansible group
-#       ansible.builtin.command: |
-#         systemd-run --machine {{ item.item }} /bin/sh -c "groupadd ansible"
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     - name: Add ansible user
-#       ansible.builtin.command: |
-#         systemd-run --machine {{ item.item }} /bin/sh -c "useradd --gid ansible --shell /bin/bash --create-home --home-dir /home/ansible ansible"
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     - name: Configure ansible password
-#       ansible.builtin.command: |
-#         systemd-run --machine {{ item.item }} /bin/sh -c "echo ansible:Passw0rd! | chpasswd"
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     - name: Add ansible to sudoers
-#       ansible.builtin.shell: |
-#         systemd-run --machine {{ item.item }} /bin/sh -c "echo 'ansible  ALL=(ALL:ALL) ALL' > /etc/sudoers.d/ansible"
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
-
-#     - name: Lock root account
-#       ansible.builtin.command: |
-#         systemd-run --machine {{ item.item }} /bin/sh -c "passwd --lock --delete root"
-#       become: yes
-#       when: item.changed
-#       loop: "{{ create_systemd_containers_bases.results }}" # noqa 503
 
     # - name: Debug
     #   ansible.builtin.debug:
-    #     var: hostvars[item]['type']
-    #   loop: "{{ groups['containers'] }}"
+    #     var: hostvars[item]['ansible_host']
+    #   loop: "{{ groups['ctrservers'] }}"
 
-# - name: Configure Container Nodes
-#   hosts: altaria_containers
-  
-#   roles:
-#     - altaria
-
-#
-# DISCUSS(cavcrosby): implement this play, essentially here is where each systemd
-# container will be created and along with its appropriate .nspawn file.
+    - name: Perform container creation and initial configuration
+      include_role:
+        name: lxd-container-caic
+      vars:
+        ctrserver_ipv4: "{{ hostvars[ctrserver]['ansible_host'] }}"
+        ctrserver_port: "8443"
+        lxd_trust_password: "Passw0rd!"
+      loop: "{{ groups['ctrservers'] }}"
+      loop_control:
+        loop_var: ctrserver

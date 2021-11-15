@@ -1,0 +1,22 @@
+---
+# caic ==> Creation And Initial Configuration
+- name: Create LXD container
+  community.general.lxd_container:
+    name: "{{ item.name }}"
+    url: https://{{ ctrserver_ipv4 }}:{{ ctrserver_port }}
+    trust_password: "{{ lxd_trust_password }}"
+    profiles: ["default"]
+    state: started
+    source:
+      type: image
+      mode: pull
+      alias: "{{ item.image }}"
+      protocol: simplestreams
+      server: https://images.linuxcontainers.org
+
+- name: Check python is installed in container
+  delegate_to: "{{ item.name }}"
+  ansible.builtin.raw: dpkg -s python
+  register: python_install_check
+  failed_when: python_install_check.rc not in [0, 1]
+  changed_when: false
