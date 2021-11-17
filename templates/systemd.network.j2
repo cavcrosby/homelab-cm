@@ -1,4 +1,8 @@
 # {{ ansible_managed }}
+{#  
+    a modified template from: 
+    https://github.com/openstack/ansible-role-systemd_networkd
+#}
 {% set _ignored_sections = ['filename'] %}
 {% for key, values in item.items() %}
 {%   if key not in _ignored_sections %}
