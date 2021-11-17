@@ -163,26 +163,70 @@
         enabled: yes
         state: restarted
 
-- name: Create container nodes on ctrservers
-  hosts: localhost
-  connection: local
+- name: Create LXD container nodes on ctrservers
+  hosts: ctrservers
   vars_files:
     - vars/lxd-containers.yaml
 
   tasks:
-
     # - name: Debug
     #   ansible.builtin.debug:
-    #     var: hostvars[item]['ansible_host']
-    #   loop: "{{ groups['ctrservers'] }}"
+    #     var: lxd_container.value.image
+    #   loop: "{{ query('dict', lxd_containers) }}"
+    #   loop_control:
+    #     loop_var: lxd_container
 
-    - name: Perform container creation and initial configuration
-      include_role:
-        name: lxd-container-caic
-      vars:
-        ctrserver_ipv4: "{{ hostvars[ctrserver]['ansible_host'] }}"
-        ctrserver_port: "8443"
-        lxd_trust_password: "Passw0rd!"
-      loop: "{{ groups['ctrservers'] }}"
-      loop_control:
-        loop_var: ctrserver
+    - name: Create LXD containers
+      community.general.lxd_container:
+        name: "{{ item.name }}"
+        state: started
+        profiles: ["default"]
+        source:
+          type: image
+          mode: pull
+          alias: "{{ item.image }}"
+          protocol: simplestreams
+          server: https://images.linuxcontainers.org
+      loop: "{{ lxd_containers }}"
+    
+    - name: Register LXD containers as inventory
+      ansible.builtin.add_host:
+        # The 'name' attribute makes Ansible happy, trying to combine
+        # name/ansible_lxd_host into ansible_host did not appear to work. For reference:
+        # https://docs.ansible.com/ansible/latest/collections/community/general/lxd_connection.html
+        #
+        # Also inspired by:
+        # https://www.reddit.com/r/ansible/comments/9b03l8/managing_lxd_containers_on_remote_machines/
+        name: "{{ item.name }}"
+        ansible_lxd_host: "{{ item.name }}"
+        ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
+        ansible_connection: lxd
+        groups: [lxd_containers]
+      loop: "{{ lxd_containers }}"
+
+- name: Check/install python on LXD container nodes
+  hosts: lxd_containers
+  # Ansible seems to fail at gathering facts from a container if the provided image
+  # does not have Python installed.
+  gather_facts: no
+
+  tasks:
+    - name: Check if python3 is installed in container
+      ansible.builtin.raw: dpkg -s python3
+      register: python_install_check
+      failed_when: python_install_check.rc not in [0, 1]
+      changed_when: false
+    
+    - name: Install python3 in container
+      ansible.builtin.raw: apt-get install --assume-yes python3
+      when: python_install_check.rc == 1
+
+- name: Perform initial configuration on LXD container nodes
+  hosts: lxd_containers
+
+  tasks:
+    - name: Check if python3 is installed in container
+      ansible.builtin.raw: dpkg -s python3
+      register: python_install_check
+      failed_when: python_install_check.rc not in [0, 1]
+      changed_when: false

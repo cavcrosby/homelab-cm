@@ -209,3 +209,11 @@
   become: yes
   register: set_trust_password_check
   changed_when: set_trust_password_check.rc != 0
+
+- name: Set LXD remote on this controller node
+  delegate_to: 127.0.0.1
+  ansible.builtin.shell: lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
+  register: lxc_remote_add_check
+  # 'Error: Remote x.x.x.x exists as <https://x.x.x.x:8443>'
+  failed_when: "'exists' not in lxc_remote_add_check.stderr"
+  changed_when: lxc_remote_add_check.rc == 0

@@ -1,3 +1,0 @@
----
-- include_tasks: caic.yaml
-  loop: "{{ lxd_containers }}"
