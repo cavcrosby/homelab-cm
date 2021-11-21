@@ -21,7 +21,7 @@ global_go_path: "/usr/local/share/go"
 # wrapper path is before the GOPATH/bin dir on the PATH.
 lxd_wrapper_path: "/usr/local/bin/lxd"
 
-# TODO(cavcrosby): change the ipv4 address to a random private IP. Add the actual
+# TODO(cavcrosby): change the ipv4.address to a random private IP. Add the actual
 # preseed to 'site.yaml'.
 lxd_preseed: |
   config:
@@ -29,7 +29,7 @@ lxd_preseed: |
     core.trust_password: true
   networks:
   - config:
-      ipv4.address: 10.10.100.1/24
+      ipv4.address: 172.16.1.1/24
       ipv4.nat: "true"
       ipv6.address: fd42:cf87:377f:12aa::1/64
       ipv6.nat: "true"

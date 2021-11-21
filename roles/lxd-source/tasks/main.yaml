@@ -19,6 +19,8 @@
     tasks_from: lbyl_lineinfile
   vars:
     path: "{{ ansible_env['HOME'] }}/.bashrc"
+    # TODO(cavcrosby): '# ANSIBLE MANAGED' header should also have a check to see
+    # if it exists first before adding it (possibly again).
     regexp: '^export PATH="(.+:|)?{{ global_go_path }}/bin(:.+|)"'
     line: "\n# ANSIBLE MANAGED\nexport PATH=\"${PATH}:{{ global_go_path }}/bin\""
     line_identifier: "PATH appended with GOPATH/bin"
@@ -142,6 +144,13 @@
     - /etc/subuid
     - /etc/subgid
 
+- name: Add {{ ansible_user_id }} to 'sudo' group
+  ansible.builtin.user:
+    append: yes
+    groups: sudo
+    name: "{{ ansible_user_id }}"
+  become: yes
+
 - name: Create a LXD service file
   ansible.builtin.copy:
     dest: /etc/systemd/system/lxd.service
@@ -214,6 +223,8 @@
   delegate_to: 127.0.0.1
   ansible.builtin.shell: lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
   register: lxc_remote_add_check
-  # 'Error: Remote x.x.x.x exists as <https://x.x.x.x:8443>'
-  failed_when: "'exists' not in lxc_remote_add_check.stderr"
+  failed_when: 
+    - lxc_remote_add_check.rc != 0
+    # 'Error: Remote x.x.x.x exists as <https://x.x.x.x:8443>'
+    - "'exists' not in lxc_remote_add_check.stderr"
   changed_when: lxc_remote_add_check.rc == 0
