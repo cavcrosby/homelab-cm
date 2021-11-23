@@ -93,8 +93,8 @@
     - Build the LXD libraries
     - Build the LXD
 
-- name: Flush handlers
-  meta: flush_handlers
+- name: Flush LXD installation handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Update secure path with {{ global_go_path }}
   ansible.builtin.copy:
@@ -151,6 +151,23 @@
     name: "{{ ansible_user_id }}"
   become: yes
 
+# MONITOR(cavcrosby): ideally this should only run when the ansible user is added
+# to the group that is allowed to interact with the LXD. That said, running this
+# meta module inside of handler appears to not be possible at the moment? A few
+# related GitHub issues are closed and are made part of ansible-core 2.11 or
+# higher that "should" resolve this but I am not having such luck. For reference:
+# https://github.com/ansible/ansible/issues/66414
+# https://github.com/ansible/ansible/issues/50306
+# https://docs.rackspace.com/blog/speeding-up-ssh-session-creation/
+#
+# When part of a handler as is, I get an error stating that the 'Shared connection to <client machine> closed'.
+# When adding async/poll (async: 1, poll: 0), while the task now does not fail,
+# the underlying connection does not seem to change (e.g. foo user is still not
+# part of the group bar). This will need to be watched incase things change.
+- name: Reset ssh connection
+  ansible.builtin.meta: reset_connection
+  changed_when: false
+
 - name: Create a LXD service file
   ansible.builtin.copy:
     dest: /etc/systemd/system/lxd.service
@@ -205,6 +222,16 @@
   become: yes
   register: running_lxd_preseed_checksum
 
+# MONITOR(cavcrosby): 'Initialize the LXD' task "sometimes" fails, but I am unsure
+# why. There could exist a race condition where the socket is created after
+# trying to initialize the LXD. This task will remain in place until I can narrow
+# down what the actual issue is.
+- name: Check if LXD's Unix socket exists on filesystem
+  ansible.builtin.stat:
+    path: /var/lib/lxd/unix.socket
+  become: yes
+  register: lxd_remote_preseed_stat
+
 # LXD can be initialize 'n' number of times, meaning there is currently no
 # absolute way to determine if LXD has been initialize. For reference:
 # https://discuss.linuxcontainers.org/t/how-to-check-if-lxd-init-auto-already-ran/1635
@@ -222,6 +249,12 @@
 - name: Set LXD remote on this controller node
   delegate_to: 127.0.0.1
   ansible.builtin.shell: lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
+  # It was observed that while ansible will say that each server was added (e.g.
+  # each command returns a exit status of 0, in parallel). Turns out that
+  # occasionally only one (out of N) remote would be added. I speculate this
+  # is because ${HOME}/.config/lxc/config.yml gets blocked to be written by one
+  # of the processes adding a remote. Thus this task should be ran sequentially.
+  throttle: 1
   register: lxc_remote_add_check
   failed_when: 
     - lxc_remote_add_check.rc != 0

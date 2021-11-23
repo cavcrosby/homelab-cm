@@ -25,4 +25,4 @@
       when: default_grub_config_check.stat.exists
 
     - name: Reboot ctrservers to have new boot parameter(s) take effect
-      reboot:
+      ansible.builtin.reboot:

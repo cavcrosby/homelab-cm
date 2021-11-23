@@ -165,22 +165,25 @@
 
 - name: Create LXD container nodes on ctrservers
   hosts: ctrservers
+  # Added as add_host only runs on one host out of all the hosts in a play.
+  # For reference: 
+  # https://stackoverflow.com/questions/42106527/ansible-how-to-call-module-add-host-for-all-hosts-of-the-play
+  serial: 1
   vars_files:
     - vars/lxd-containers.yaml
 
   tasks:
     # - name: Debug
     #   ansible.builtin.debug:
-    #     var: lxd_container.value.image
-    #   loop: "{{ query('dict', lxd_containers) }}"
-    #   loop_control:
-    #     loop_var: lxd_container
+    #     var: result
 
     - name: Create LXD containers
       community.general.lxd_container:
         name: "{{ item.name }}"
         state: started
         profiles: ["default"]
+        ignore_volatile_options: false
+        wait_for_ipv4_addresses: true
         source:
           type: image
           mode: pull
@@ -192,7 +195,7 @@
     - name: Register LXD containers as inventory
       ansible.builtin.add_host:
         # The 'name' attribute makes Ansible happy, trying to combine
-        # name/ansible_lxd_host into ansible_host did not appear to work. For reference:
+        # name/ansible_lxd_host into 'ansible_host' did not appear to work. For reference:
         # https://docs.ansible.com/ansible/latest/collections/community/general/lxd_connection.html
         #
         # Also inspired by:
