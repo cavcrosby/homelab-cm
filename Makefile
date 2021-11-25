@@ -4,119 +4,132 @@
 
 # recursive variables
 SHELL = /usr/bin/sh
-
-# shell template variables
-export LOCAL_GITCONFIG = .gitconfig_local
-export LOCAL_PROFILE = .profile_local
-local_config_files_vars = \
-	$${LOCAL_GITCONFIG}\
-	$${LOCAL_PROFILE}
-
-# dotfile pkg dirs, stow will complain if I give absolute paths
-BASH_PKG = bash
-GIT_PKG = git
-SHELL_PKG = shell
-MSMTP_PKG = msmtp
-SSH_PKG = .ssh
-
-# pkg groupings, requires at least two pkgs to use a group
-home_pkgs = \
-	${BASH_PKG}\
-	${GIT_PKG}\
-	${SHELL_PKG}\
-	${MSMTP_PKG}\
+export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant-ansible-vars.json
 
 # targets
 HELP = help
-DOTFILES = dotfiles
-LOCAL_DOTFILES = local-dotfiles
-INSTALL = install
-UNINSTALL = uninstall
-RMPLAIN_FILES = rmplain-files
+SETUP = setup
+ANSIPLAY = ansiplay
+ANSIPLAY_TEST = ansiplay-test
 CLEAN = clean
 
+# libvirt provider configurations
+LIBVIRT = libvirt
+export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_libvirt_
+
 # executables
-ENVSUBST = envsubst
-STOW = stow
+ANSIBLE_GALAXY = ansible-galaxy
+ANSIBLE_PLAYBOOK = ansible-playbook
+VIRSH = virsh
+VAGRANT = vagrant
+LXC = lxc
+GEM = gem
+PERL = perl
+PKILL = pkill
+JQ = jq
+SUDO = sudo
 executables = \
-	${STOW}
+	${VIRSH}\
+	${VAGRANT}\
+	${PKILL}\
+	${JQ}\
+	${PERL}\
+	${LXC}\
+	${ANSIBLE_PLAYBOOK}\
+	${ANSIBLE_GALAXY}\
+	${GEM}\
+	${SUDO}
+
+# to be (or can be) passed in at make runtime
+VAGRANT_PROVIDER = ${LIBVIRT}
+# ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
+# reference:
+# https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
+export ANSIBLE_VERBOSITY_OPT = -v
+
+# provider VM identifiers
+VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
+LIBVIRT_DOMAINS := $(shell for vm_name in ${VM_NAMES}; do echo ${LIBVIRT_PREFIX}$${vm_name}; done)
+CTRSERVERS := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[] | match("ctrserver[0-9]+"; "g").string')
+
+ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
+	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
+		VMS_EXISTS := 1
+	endif
+# else (${VAGRANT_PROVIDER},${VBOX})
+# 	ifneq ($(code that determines if virtualbox VMs exist),)
+# 		VMS_EXISTS=1
+# 	endif
+endif
 
 # simply expanded variables
-SHELL_TEMPLATE_EXT := .shtpl
-shell_template_wildcard := %${SHELL_TEMPLATE_EXT}
-DOTFILE_WILDCARD := .%
-dotfile_shell_templates := $(shell find . -name .*${SHELL_TEMPLATE_EXT})
-# Determines the dotfile name(s) to be generated from the template(s).
-# Short hand notation for string substitution: $(text:pattern=replacement).
-dotfile_paths := $(dotfile_shell_templates:${SHELL_TEMPLATE_EXT}=)
-
-# Find expression looks for dotfiles that are not based on templates, are in
-# stow packages, are not in the .git subdir, and are not any special dotfile
-# that stow uses.
-all_dotfiles := $(shell echo \
-	$(shell find . -mindepth 2 \( ! -path './.git*' \) \
-		-and \( ! -name .*${SHELL_TEMPLATE_EXT} \) \
-		-and \( ! -name .stow-local-ignore \) \
-		-and \( -name '.*' \) \
-		-and \( -execdir sh -c "echo \"${dotfile_shell_templates}\" \
-			| grep --invert-match --quiet '{}'" ';' \) \
-		-and \( -printf '%f ' \) \
-	) \
-	$(foreach dotfile_path, ${dotfile_paths}, $(shell echo "$$(basename ${dotfile_path})")) \
-)
-
-# inspired from:
-# https://stackoverflow.com/questions/5618615/check-if-a-program-exists-from-a-makefile#answer-25668869
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 
 .PHONY: ${HELP}
 ${HELP}:
 	# inspired by the makefiles of the Linux kernel and Mercurial
 >	@echo 'Common make targets:'
->	@echo '  ${DOTFILES}       - create dotfiles that are shell templates (${SHELL_TEMPLATE_EXT})'
->	@echo '  ${LOCAL_DOTFILES} - creates local dotfiles not tracked by version control'
->	@echo '  ${INSTALL}        - links all the dotfiles to their appropriate places'
->	@echo '  ${UNINSTALL}      - removes links that were inserted by the install target'
->	@echo '  ${CLEAN}          - removes files generated from the ${DOTFILES} target'
+>	@echo '  ${SETUP}          - installs the distro-independent dependencies for this'
+>	@echo '                   project'
+>	@echo '  ${ANSIPLAY}       - runs the main playbook for my homelab'
+>	@echo '  ${ANSIPLAY_TEST}  - runs the main playbook for my homelab, but in a'
+>	@echo '                   virtual environment setup by Vagrant'
+>	@echo '  ${CLEAN}          - removes files generated from targets'
+>	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
+>	@echo '  VAGRANT_PROVIDER       - set the provider used for the virtual environment'
+>	@echo '                           created by Vagrant (default: libvirt)'
+>	@echo '  ANSIBLE_VERBOSITY_OPT  - set the verbosity level when running ansible commands,'
+>	@echo '                           represented as the '-v' variant passed in (default: -v)'
 
-.PHONY: ${RMPLAIN_FILES}
-${RMPLAIN_FILES}:
->	@rm --force $(foreach dotfile,$(addprefix $${HOME}/, ${all_dotfiles}),$(shell if ! [ -L "${dotfile}" ]; then echo "${dotfile}"; fi))
+.PHONY: ${SETUP}
+${SETUP}:
+>	${ANSIBLE_GALAXY} collection install --requirements-file requirements.yaml
+>	${SUDO} ${GEM} install nokogiri
 
-.PHONY: ${DOTFILES}
-${DOTFILES}: ${dotfile_paths}
+.PHONY: ${ANSIPLAY}
+${ANSIPLAY}:
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production site.yaml --ask-become-pass
 
-.PHONY: ${LOCAL_DOTFILES}
-${LOCAL_DOTFILES}:
->	touch "$${HOME}/${LOCAL_PROFILE}"
->	touch "$${HOME}/${LOCAL_GITCONFIG}"
-
-.PHONY: ${INSTALL}
-${INSTALL}: ${dotfile_paths} ${RMPLAIN_FILES}
->	@for pkg in ${home_pkgs}; do \
->		echo ${STOW} --target="$${HOME}" "$${pkg}"; \
->		${STOW} --ignore=".*${SHELL_TEMPLATE_EXT}" --target="$${HOME}" "$${pkg}"; \
->	done
->
->	@echo ${STOW} --target="$${HOME}/.ssh" "${SSH_PKG}"
->	@${STOW} --ignore=".*${SHELL_TEMPLATE_EXT}" --target="$${HOME}/.ssh" "${SSH_PKG}"
-
-# MONITOR(cavcrosby): while the below works, it appears to generate 'BUG' warnings, this appears to be an issue with stow. Will probably want to monitor the following ticket:
-# https://github.com/aspiers/stow/issues/65
-.PHONY: ${UNINSTALL}
-${UNINSTALL}:
->	@for pkg in ${home_pkgs}; do \
->		echo ${STOW} --target="$${HOME}" --delete "$${pkg}"; \
->		${STOW} --ignore=".*${SHELL_TEMPLATE_EXT}" --target="$${HOME}" --delete "$${pkg}"; \
->	done
->
->	@echo ${STOW} --target="$${HOME}/.ssh" --delete "${SSH_PKG}"
->	@${STOW} --ignore=".*${SHELL_TEMPLATE_EXT}" --target="$${HOME}/.ssh" --delete "${SSH_PKG}"
-
-# custom implicit rules for the above targets
-${DOTFILE_WILDCARD}: ${DOTFILE_WILDCARD}${SHELL_TEMPLATE_EXT}
->	${ENVSUBST} '${local_config_files_vars}' < "$<" > "$@"
+.PHONY: ${ANSIPLAY_TEST}
+${ANSIPLAY_TEST}:
+ifdef VMS_EXISTS
+>	${VAGRANT} up --provision --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
+else
+>	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
+endif
 
 .PHONY: ${CLEAN}
 ${CLEAN}:
->	rm --force ${dotfile_paths}
+ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
+	# There are times where vagrant may get into defunct state and will be unable to
+	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
+	# to virsh destroy and undefine.
+>	-@for domain in ${LIBVIRT_DOMAINS}; do \
+>		echo ${VIRSH} destroy --domain $${domain}; \
+>		${VIRSH} destroy --domain $${domain}; \
+>	done
+
+>	-@for domain in ${LIBVIRT_DOMAINS}; do \
+>		echo ${VIRSH} undefine --domain $${domain}; \
+>		${VIRSH} undefine --domain $${domain}; \
+>	done
+>	${VAGRANT} destroy --force
+
+	# Redeploying LXD on new VMs may cause cert issues when trying to reuse their
+	# certs previously known the controller. The error would report something like,
+	# "x509: certificate is valid for 127.0.0.1, ::1, not <ipv4_addr>".
+>	-@for ctrserver in ${CTRSERVERS}; do \
+>		echo ${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+			--arg CTRSERVER "$${ctrserver}" \
+			--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+>		${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+			--arg CTRSERVER "$${ctrserver}" \
+			--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+>	done
+
+	# done in recommendation by vagrant when a domain fails to connect via ssh
+>	rm --recursive --force ./.vagrant
+>	${PKILL} ssh-agent
+else
+>	@echo make: unknown VAGRANT_PROVIDER \'${VAGRANT_PROVIDER}\' passed in
+endif

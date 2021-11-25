@@ -1,0 +1,27 @@
+{ 
+    "ansible_host_vars": {
+        "ctrserver1": {
+            "vagrant_vm_ipv4_addr": "10.10.100.50",
+            "vagrant_vm_mac_addr": "52:54:00:3a:17:49",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "debian/bullseye64"
+        },
+        "ctrserver2": {
+            "vagrant_vm_ipv4_addr": "10.10.100.51",
+            "vagrant_vm_mac_addr": "52:54:00:c8:03:13",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "debian/bullseye64"
+        }
+    },
+    "ansible_groups": {
+        "ctrservers": ["ctrserver1", "ctrserver2"],
+        "all:vars": {
+            "ansible_user": "vagrant",
+            "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
+        }
+    }
+}

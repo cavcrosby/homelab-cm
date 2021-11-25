@@ -20,6 +20,9 @@
         line_identifier: "append GRUB_CMDLINE_LINUX_DEFAULT with systemd.unified_cgroup_hierarchy=0"
       when: default_grub_config_check.stat.exists
 
+    # TODO(cavcrosby): running this task will always as a change to Ansible, which is
+    # not desireable. Figure out how to skip task if the default grub configuration
+    # file did not change.
     - name: Update grub.cfg
       ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
       when: default_grub_config_check.stat.exists

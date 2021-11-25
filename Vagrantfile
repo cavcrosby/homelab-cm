@@ -1,5 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
+require 'json'
 require 'nokogiri'
 require 'tempfile'
 
@@ -12,31 +13,13 @@ VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR = "52:54:00:4c:7a:ea"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "10.10.100.2"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "10.10.100.254"
 
-ANSIBLE_HOST_VARS = {
-  "ctrserver1" => {
-    "vagrant_vm_ipv4_addr" => "10.10.100.50",
-    "vagrant_vm_mac_addr" => "52:54:00:3a:17:49",
-    "vagrant_vm_cpus" => 2,
-    "vagrant_vm_memory" => 2048,
-    "vagrant_vm_libvirt_disk_size" => 25,
-    "vagrant_vm_box" => "debian/bullseye64"
-  },
-  "ctrserver2" => {
-    "vagrant_vm_ipv4_addr" => "10.10.100.51",
-    "vagrant_vm_mac_addr" => "52:54:00:c8:03:13",
-    "vagrant_vm_cpus" => 2,
-    "vagrant_vm_memory" => 2048,
-    "vagrant_vm_libvirt_disk_size" => 25,
-    "vagrant_vm_box" => "debian/bullseye64"
-  }
-}
-ANSIBLE_GROUPS = {
-  "ctrservers": ['ctrserver1', 'ctrserver2'],
-  "all:vars" => {
-    "ansible_user" => "vagrant",
-    "ansible_ssh_common_args" => "'-o StrictHostKeyChecking=no'"
-  }
-}
+ANSIBLE_HOST_VARS = JSON.parse(
+  File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
+)["ansible_host_vars"]
+
+ANSIBLE_GROUPS = JSON.parse(
+  File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
+)["ansible_groups"]
 
 @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
 <network connections='2' ipv6='yes'>
@@ -59,6 +42,10 @@ _EOF_
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.synced_folder ".", "/vagrant", disabled: true
+  # general provider configuration
+  config.vm.provider "libvirt" do |domains|
+    domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
+  end
 
   counter = 0
   ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
@@ -114,7 +101,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.ask_become_pass = true
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
-          ansible.raw_arguments = ['-vvv']
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          end
         end
 
         machine.vm.provision "ansible" do |ansible|
@@ -123,7 +112,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.ask_become_pass = true
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
-          ansible.raw_arguments = ['-vvv']
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          end
         end
       end
     end
