@@ -192,6 +192,14 @@
     daemon_reload: yes
   become: yes
 
+# MONITOR(cavcrosby): it was found that the LXD unix socket file would sometimes
+# not exist by the time certain tasks were ran, causing them to fail/behave
+# inappropriately. Time will tell if this task fixes the issue.
+- name: Wait until the LXD socket is present before continuing
+  wait_for:
+    path: /var/lib/lxd/unix.socket
+    timeout: 10
+
 - name: Create the LXD preseed
   ansible.builtin.copy:
     dest: "{{ _lxd_remote_preseed_path }}"
@@ -221,16 +229,6 @@
     path: "{{ _running_lxd_remote_preseed_path }}"
   become: yes
   register: running_lxd_preseed_checksum
-
-# MONITOR(cavcrosby): 'Initialize the LXD' task "sometimes" fails, but I am unsure
-# why. There could exist a race condition where the socket is created after
-# trying to initialize the LXD. This task will remain in place until I can narrow
-# down what the actual issue is.
-- name: Check if LXD's Unix socket exists on filesystem
-  ansible.builtin.stat:
-    path: /var/lib/lxd/unix.socket
-  become: yes
-  register: lxd_remote_preseed_stat
 
 # LXD can be initialize 'n' number of times, meaning there is currently no
 # absolute way to determine if LXD has been initialize. For reference:

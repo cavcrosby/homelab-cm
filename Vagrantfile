@@ -5,9 +5,9 @@ require 'tempfile'
 
 VAGRANTFILE_API_VERSION = 2
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "homelab-cm-libvirt"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "10.10.100.0/24"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR = "10.10.100.1"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_SUBNET = "10.10.100.0/24"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "255.255.255.0"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET_MASK = "255.255.255.0"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR = "52:54:00:4c:7a:ea"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "10.10.100.2"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "10.10.100.254"
@@ -34,6 +34,7 @@ ANSIBLE_GROUPS = {
   "ctrservers": ['ctrserver1', 'ctrserver2'],
   "all:vars" => {
     "ansible_user" => "vagrant",
+    "ansible_ssh_common_args" => "'-o StrictHostKeyChecking=no'"
   }
 }
 
@@ -48,7 +49,7 @@ ANSIBLE_GROUPS = {
   </forward>
   <bridge name='virbr2' stp='on' delay='0'/>
   <mac address='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR}'/>
-  <ip address='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR}' netmask='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET}'>
+  <ip address='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR}' netmask='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET_MASK}'>
     <dhcp>
       <range start='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND}' end='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND}'/>
     </dhcp>
@@ -95,7 +96,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         # generic provider configuration
         config.vm.provider "libvirt" do |domains|
           domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
-          domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_SUBNET
+          domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET
           domains.management_network_mac = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR
           management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
           if !management_network_defined

@@ -200,9 +200,9 @@
         #
         # Also inspired by:
         # https://www.reddit.com/r/ansible/comments/9b03l8/managing_lxd_containers_on_remote_machines/
-        name: "{{ item.name }}"
-        ansible_lxd_host: "{{ item.name }}"
+        name: "{{ inventory_hostname }}:{{ item.name }}"
         ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
+        ansible_lxd_host: "{{ item.name }}"
         ansible_connection: lxd
         groups: [lxd_containers]
       loop: "{{ lxd_containers }}"
