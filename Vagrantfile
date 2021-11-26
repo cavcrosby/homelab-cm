@@ -41,7 +41,9 @@ ANSIBLE_GROUPS = JSON.parse(
 _EOF_
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
+
   # general provider configuration
   config.vm.provider "libvirt" do |domains|
     domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
@@ -49,7 +51,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   counter = 0
   ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
-    # VM configuration
+    # specific VM configuration
     config.vm.define "#{machine_name}" do |machine|
       machine.vm.hostname = "#{machine_name}"
       machine.vm.box = machine_attrs["vagrant_vm_box"]
@@ -80,7 +82,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # taking advantage of Ansible's parallelism. Modified to my liking, for reference:
       # https://www.vagrantup.com/docs/provisioning/ansible#ansible-parallel-execution
       if counter == ANSIBLE_HOST_VARS.length
-        # generic provider configuration
+        # provider network configuration
         config.vm.provider "libvirt" do |domains|
           domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
           domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET
