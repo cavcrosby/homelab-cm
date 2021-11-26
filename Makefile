@@ -17,7 +17,7 @@ CLEAN = clean
 
 # libvirt provider configurations
 LIBVIRT = libvirt
-export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_libvirt_
+export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
 
 # executables
 ANSIBLE_GALAXY = ansible-galaxy
