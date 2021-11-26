@@ -11,6 +11,8 @@ HELP = help
 SETUP = setup
 ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
+ANSILINT = ansilint
+DEV_SHELL = dev-shell
 CLEAN = clean
 
 # libvirt provider configurations
@@ -19,7 +21,9 @@ export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_libvirt_
 
 # executables
 ANSIBLE_GALAXY = ansible-galaxy
+ANSIBLE_LINT = ansible-lint
 ANSIBLE_PLAYBOOK = ansible-playbook
+BASH = bash
 VIRSH = virsh
 VAGRANT = vagrant
 LXC = lxc
@@ -38,7 +42,8 @@ executables = \
 	${ANSIBLE_PLAYBOOK}\
 	${ANSIBLE_GALAXY}\
 	${GEM}\
-	${SUDO}
+	${SUDO}\
+	${BASH}
 
 # to be (or can be) passed in at make runtime
 VAGRANT_PROVIDER = ${LIBVIRT}
@@ -46,6 +51,12 @@ VAGRANT_PROVIDER = ${LIBVIRT}
 # reference:
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
 export ANSIBLE_VERBOSITY_OPT = -v
+
+# simply expanded variables
+_check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
+src_yaml := $(shell find . \( -type f \) \
+	-and \( -name '*.yaml' \) \
+)
 
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
@@ -62,9 +73,6 @@ ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 # 	endif
 endif
 
-# simply expanded variables
-_check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
-
 .PHONY: ${HELP}
 ${HELP}:
 	# inspired by the makefiles of the Linux kernel and Mercurial
@@ -74,6 +82,10 @@ ${HELP}:
 >	@echo '  ${ANSIPLAY}       - runs the main playbook for my homelab'
 >	@echo '  ${ANSIPLAY_TEST}  - runs the main playbook for my homelab, but in a'
 >	@echo '                   virtual environment setup by Vagrant'
+>	@echo '  ${ANSILINT}       - runs the yaml configuration code through a'
+>	@echo '                   ansible linter'
+>	@echo '  ${DEV_SHELL}      - runs a bash shell with make variables injected into'
+>	@echo '                   it to work with the project'\''s Vagrantfile'
 >	@echo '  ${CLEAN}          - removes files generated from targets'
 >	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
 >	@echo '  VAGRANT_PROVIDER       - set the provider used for the virtual environment'
@@ -97,6 +109,14 @@ ifdef VMS_EXISTS
 else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
 endif
+
+.PHONY: ${ANSILINT}
+${ANSILINT}:
+>	${ANSIBLE_LINT} ${src_yaml}
+
+.PHONY: ${DEV_SHELL}
+${DEV_SHELL}:
+>	${BASH} -i
 
 .PHONY: ${CLEAN}
 ${CLEAN}:

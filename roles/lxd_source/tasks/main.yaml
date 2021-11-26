@@ -74,7 +74,7 @@
     path: /sys/class/net/{{ _default_lxc_bridge }}
   become: yes
   register: default_lxc_bridge_check
-  
+
 - name: Remove default LXC bridge
   ansible.builtin.shell: |
     ip link set {{ _default_lxc_bridge }} down
@@ -87,7 +87,7 @@
     find "{{ global_go_path }}/bin" -name 'lxd' -type f
   become: yes
   register: lxd_check
-  changed_when: lxd_check.stdout == ""
+  changed_when: lxd_check.stdout | length == 0
   notify:
     - Grab a LXD release tarball, and extract the archive
     - Build the LXD libraries
@@ -98,7 +98,7 @@
 
 - name: Update secure path with {{ global_go_path }}
   ansible.builtin.copy:
-    dest: "/etc/sudoers.d/ansible-lxd-source"
+    dest: /etc/sudoers.d/ansible-lxd-source
     content: |
       # ANSIBLE MANAGED
       Defaults  secure_path=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{{ global_go_path }}/bin
@@ -115,7 +115,7 @@
       # ANSIBLE MANAGED
 
       set -e
-      
+
       # constants
       PROGRAM_NAME="$(basename "$0")"
       readonly PROGRAM_NAME
@@ -254,7 +254,7 @@
   # of the processes adding a remote. Thus this task should be ran sequentially.
   throttle: 1
   register: lxc_remote_add_check
-  failed_when: 
+  failed_when:
     - lxc_remote_add_check.rc != 0
     # 'Error: Remote x.x.x.x exists as <https://x.x.x.x:8443>'
     - "'exists' not in lxc_remote_add_check.stderr"

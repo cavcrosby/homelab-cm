@@ -3,7 +3,7 @@
   hosts: ctrservers
 
   roles:
-    - lxd-source
+    - lxd_source
 
   tasks:
     - name: Create {{ ansible_user_id }}'s Downloads directory
@@ -191,7 +191,7 @@
           protocol: simplestreams
           server: https://images.linuxcontainers.org
       loop: "{{ lxd_containers }}"
-    
+
     - name: Register LXD containers as inventory
       ansible.builtin.add_host:
         # The 'name' attribute makes Ansible happy, trying to combine
@@ -219,7 +219,7 @@
       register: python_install_check
       failed_when: python_install_check.rc not in [0, 1]
       changed_when: false
-    
+
     - name: Install python3 in container
       ansible.builtin.raw: apt-get install --assume-yes python3
       when: python_install_check.rc == 1

@@ -15,4 +15,3 @@
     regexp: "{{ regexp }}"
     line: "{{ line }}"
   when: line_check.found == 0
-  
