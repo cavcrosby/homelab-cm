@@ -1,0 +1,15 @@
+---
+# Everything under 'filename' will be recorded in the systemd network files template.
+# Each section header is determined by the top level key in each hash.
+systemd_networkd_files:
+  - filename: "{{ ansible_default_ipv4.interface }}.link"
+    Match:
+      MACAddress: "{{ ansible_default_ipv4.macaddress }}"
+    Link:
+      NamePolicy: keep
+
+  - filename: "{{ ansible_default_ipv4.interface }}.network"
+    Match:
+      Name: "{{ ansible_default_ipv4.interface }}"
+    Network:
+      DHCP: "ipv4"

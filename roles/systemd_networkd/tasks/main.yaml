@@ -1,0 +1,15 @@
+---
+- name: Add systemd network files
+  ansible.builtin.template:
+    src: systemd.network.j2
+    dest: /etc/systemd/network/{{ item.filename }}
+    owner: root
+    group: root
+    mode: "644"
+    force: no
+  loop: "{{ systemd_networkd_files }}"
+  notify:
+    - Start and enable systemd-networkd
+    - Remove Debian's networking daemon interfaces file
+    - Stop and disable Debian networking daemon
+    - Restart systemd-networkd
