@@ -12,7 +12,7 @@
         state: directory
         mode: "700"
 
-    - name: Install python dependencies
+    - name: Install Python dependencies
       ansible.builtin.apt:
         pkg:
         - python3-venv
@@ -20,13 +20,13 @@
         update_cache: yes
       become: yes
 
-    - name: Create python-virtual environments directory
+    - name: Create a python-virtual environments directory
       ansible.builtin.file:
         path: "{{ ansible_python_virtualenvs_path }}"
         state: directory
         mode: "755"
 
-    - name: Add sourcing the {{ ansible_python_virtualenv }} python virtualenv
+    - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
       ansible.builtin.import_role:
         name: common
         tasks_from: lbyl_lineinfile
@@ -34,9 +34,9 @@
         path: "{{ ansible_env['HOME'] }}/.bashrc"
         regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
         line: "source \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
-        line_identifier: "sourcing the {{ ansible_python_virtualenv }} python virtualenv"
+        line_identifier: "sourcing the {{ ansible_python_virtualenv }} Python virtualenv"
 
-    - name: Install base python packages
+    - name: Install base Python packages
       ansible.builtin.pip:
         name: netaddr
         virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
@@ -163,7 +163,7 @@
         enabled: yes
         state: restarted
 
-- name: Create LXD container nodes on ctrservers
+- name: Create LXD containers on ctrservers
   hosts: ctrservers
   # Added as add_host only runs on one host out of all the hosts in a play.
   # For reference: 
@@ -201,13 +201,14 @@
         # Also inspired by:
         # https://www.reddit.com/r/ansible/comments/9b03l8/managing_lxd_containers_on_remote_machines/
         name: "{{ inventory_hostname }}:{{ item.name }}"
+        lxd_container_type: "{{ item.type }}"
         ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
         ansible_lxd_host: "{{ item.name }}"
         ansible_connection: lxd
         groups: [lxd_containers]
       loop: "{{ lxd_containers }}"
 
-- name: Check/install python on LXD container nodes
+- name: Check/install Python on LXD containers
   hosts: lxd_containers
   # Ansible seems to fail at gathering facts from a container if the provided image
   # does not have Python installed.
@@ -224,12 +225,16 @@
       ansible.builtin.raw: apt-get install --assume-yes python3
       when: python_install_check.rc == 1
 
-- name: Perform initial configuration on LXD container nodes
+- name: Group LXD containers by type
   hosts: lxd_containers
-
   tasks:
-    - name: Check if python3 is installed in container
-      ansible.builtin.raw: dpkg -s python3
-      register: python_install_check
-      failed_when: python_install_check.rc not in [0, 1]
+    - name: Group LXD containers by type
+      ansible.builtin.group_by:
+        key: "lxd_{{ lxd_container_type }}_containers"
       changed_when: false
+
+- name: Perform initial configuration on LXD altaria containers
+  hosts: lxd_altaria_containers
+
+  roles:
+    - altaria

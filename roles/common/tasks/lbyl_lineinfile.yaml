@@ -1,3 +1,6 @@
+---
+# TODO(cavcrosby): path should change to line_file_path, here and other affected
+# areas.
 # inspired by:
 # https://stackoverflow.com/questions/29075287/ansible-insert-line-if-not-exists#answer-62609075
 - name: Check if {{ line_identifier }} already in {{ path }}
@@ -11,6 +14,7 @@
 
 - name: Append {{ path }} with {{ line_identifier }}
   ansible.builtin.lineinfile:
+    state: present
     path: "{{ path }}"
     regexp: "{{ regexp }}"
     line: "{{ line }}"

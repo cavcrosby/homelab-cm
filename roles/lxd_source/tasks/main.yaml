@@ -1,10 +1,12 @@
 ---
-- name: Create lxc-source's data directory
+- name: Create lxc_source's data directory
   ansible.builtin.file:
     path: "{{ _lxd_data_dir }}"
     state: directory
     mode: "700"
   become: yes
+  register: creating_lxd_source_dir_check
+  changed_when: creating_lxd_source_dir_check.state == "absent"
 
 - name: Create GOPATH's bin directory
   ansible.builtin.file:
@@ -206,6 +208,8 @@
     mode: "644"
     content: "{{ lxd_preseed }}"
   become: yes
+  register: create_lxd_preseed_check
+  changed_when: create_lxd_preseed_check.state == "absent"
 
 - name: Get the LXD's preseed checksum
   ansible.builtin.stat:
@@ -221,14 +225,14 @@
   ansible.builtin.shell:
     lxd init --dump | perl -pi -e 'chomp if eof' > "{{ _running_lxd_remote_preseed_path }}"
   become: yes
-  register: running_lxd_preseed_checksum
-  changed_when: running_lxd_preseed_checksum.rc != 0
+  register: create_running_lxd_preseed_check
+  changed_when: create_running_lxd_preseed_check.rc != 0
 
 - name: Get the running LXD's preseed checksum
   ansible.builtin.stat:
     path: "{{ _running_lxd_remote_preseed_path }}"
   become: yes
-  register: running_lxd_preseed_checksum
+  register: running_lxd_preseed_checksum_check
 
 # LXD can be initialize 'n' number of times, meaning there is currently no
 # absolute way to determine if LXD has been initialize. For reference:
@@ -236,7 +240,7 @@
 - name: Initialize the LXD
   ansible.builtin.shell: lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
   become: yes
-  changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum.stat.checksum
+  changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum_check.stat.checksum
 
 - name: Set the trust password for the LXD
   ansible.builtin.shell: lxc config set core.trust_password '{{ lxd_trust_password }}'

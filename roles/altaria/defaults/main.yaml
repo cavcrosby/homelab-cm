@@ -1,0 +1,9 @@
+---
+jenkins_user: "jenkins"
+default_pyenv_python: "3.9.5"
+
+_roots_home: "/root"
+_jenkins_user_home: "/home/{{ jenkins_user }}"
+_jenkins_pyenv_root_path: "{{ _jenkins_user_home }}/.pyenv"
+_altaria_data_dir: "/run/ansible/altaria"
+_pyenv_installer_path: "{{ _altaria_data_dir }}/pyenv_installer"
