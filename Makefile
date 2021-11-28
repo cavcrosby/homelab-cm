@@ -64,7 +64,7 @@ LIBVIRT_DOMAINS := $(shell for vm_name in ${VM_NAMES}; do echo ${LIBVIRT_PREFIX}
 CTRSERVERS := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[] | match("ctrserver[0-9]+"; "g").string')
 
 ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
-	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
+	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
 		VMS_EXISTS := 1
 	endif
 # else (${VAGRANT_PROVIDER},${VBOX})
