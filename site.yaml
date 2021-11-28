@@ -6,13 +6,13 @@
     - lxd_source
 
   tasks:
-    - name: Create {{ ansible_user_id }}'s Downloads directory
+    - name: Create {{ ansible_user_id }}'s 'Downloads' directory
       ansible.builtin.file:
         path: "{{ ansible_env['HOME'] }}/Downloads"
         state: directory
         mode: "700"
 
-    - name: Install Python dependencies
+    - name: Install other Python packages
       ansible.builtin.apt:
         pkg:
         - python3-venv
@@ -66,7 +66,7 @@
         - Install Docker's GPG key
 
     - name: Flush handlers
-      meta: flush_handlers
+      ansible.builtin.meta: flush_handlers
 
     - name: Add Docker's stable apt repository (x86_64)
       ansible.builtin.apt_repository:
@@ -173,10 +173,6 @@
     - vars/lxd-containers.yaml
 
   tasks:
-    # - name: Debug
-    #   ansible.builtin.debug:
-    #     var: result
-
     - name: Create LXD containers
       community.general.lxd_container:
         name: "{{ item.name }}"
@@ -192,7 +188,7 @@
           server: https://images.linuxcontainers.org
       loop: "{{ lxd_containers }}"
 
-    - name: Register LXD containers as inventory
+    - name: Register the LXD containers as inventory
       ansible.builtin.add_host:
         # The 'name' attribute makes Ansible happy, trying to combine
         # name/ansible_lxd_host into 'ansible_host' did not appear to work. For reference:
@@ -208,7 +204,7 @@
         groups: [lxd_containers]
       loop: "{{ lxd_containers }}"
 
-- name: Check/install Python on LXD containers
+- name: Check/install Python on the LXD containers
   hosts: lxd_containers
   # Ansible seems to fail at gathering facts from a container if the provided image
   # does not have Python installed.
@@ -225,15 +221,15 @@
       ansible.builtin.raw: apt-get install --assume-yes python3
       when: python_install_check.rc == 1
 
-- name: Group LXD containers by type
+- name: Group the LXD containers by type
   hosts: lxd_containers
   tasks:
-    - name: Group LXD containers by type
+    - name: Group the LXD containers by type
       ansible.builtin.group_by:
         key: "lxd_{{ lxd_container_type }}_containers"
       changed_when: false
 
-- name: Perform initial configuration on LXD altaria containers
+- name: Perform initial configuration on the LXD altaria containers
   hosts: lxd_altaria_containers
 
   roles:

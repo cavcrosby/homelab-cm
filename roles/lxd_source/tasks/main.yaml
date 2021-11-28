@@ -25,7 +25,7 @@
     # if it exists first before adding it (possibly again).
     regexp: '^export PATH="(.+:|)?{{ global_go_path }}/bin(:.+|)"'
     line: "\n# ANSIBLE MANAGED\nexport PATH=\"${PATH}:{{ global_go_path }}/bin\""
-    line_identifier: "PATH appended with GOPATH/bin"
+    line_identifier: "PATH that includes with GOPATH/bin"
 
 # This list is specific to Debian 11 at the moment. Can be expanded to a vars
 # directory to install dependencies based on the distro.
@@ -95,10 +95,10 @@
     - Build the LXD libraries
     - Build the LXD
 
-- name: Flush LXD installation handlers
+- name: Flush the LXD installation handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Update secure path with {{ global_go_path }}
+- name: Update secure path to add {{ global_go_path }}
   ansible.builtin.copy:
     dest: /etc/sudoers.d/ansible-lxd-source
     content: |
@@ -140,7 +140,7 @@
     content: |
       # ANSIBLE MANAGED
       root:100000:65536
-      ansible:100000:65536
+      {{ ansible_user_id }}:100000:65536
   become: yes
   loop:
     - /etc/subuid
