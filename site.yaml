@@ -36,12 +36,6 @@
         line: "source \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
         line_identifier: "sourcing the {{ ansible_python_virtualenv }} Python virtualenv"
 
-    - name: Install base Python packages
-      ansible.builtin.pip:
-        name: netaddr
-        virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-        virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-
     - name: Install Docker dependencies
       ansible.builtin.apt:
         pkg:
