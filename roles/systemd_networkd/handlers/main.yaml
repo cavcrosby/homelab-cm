@@ -4,12 +4,14 @@
     name: systemd-networkd
     enabled: yes
     state: started
+  become: yes
 
 - name: Remove Debian's networking daemon interfaces file
   ansible.builtin.file:
     path: /etc/network/interfaces
     state: absent
   when: ansible_distribution | lower == "debian"
+  become: yes
 
 - name: Stop and disable Debian networking daemon
   ansible.builtin.systemd:
@@ -17,9 +19,11 @@
     enabled: no
     state: stopped
   when: ansible_distribution | lower == "debian"
+  become: yes
 
 - name: Restart systemd-networkd
   ansible.builtin.systemd:
     name: systemd-networkd
     enabled: yes
     state: restarted
+  become: yes

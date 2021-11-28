@@ -14,8 +14,8 @@
 
     - name: Install other Python packages
       ansible.builtin.apt:
-        pkg:
-        - python3-venv
+        name:
+          - python3-venv
         state: present
         update_cache: yes
       become: yes
@@ -38,23 +38,21 @@
 
     - name: Install Docker dependencies
       ansible.builtin.apt:
-        pkg:
-        - ca-certificates
-        - curl
-        - gnupg
-        - curl
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - curl
         state: present
         update_cache: yes
       become: yes
 
+    # TODO(cavcrosby): in the event that the GPG key expires/changes on Docker's end,
+    # I would want the task to then reinstall Docker's GPG key.
     - name: Grab Docker's Official GPG key
-      ansible.builtin.uri:
+      ansible.builtin.get_url:
         url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
-        method: GET
-        follow_redirects: safe
         dest: "{{ docker_keyring_download_path }}"
-        # 304 redirect is ok
-        status_code: [200, 304]
       notify:
         - Remove Docker's Installed GPG key, If Exists
         - Install Docker's GPG key
@@ -73,10 +71,10 @@
 
     - name: Install the Docker Engine
       ansible.builtin.apt:
-        pkg:
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
         state: present
         update_cache: yes
       become: yes
@@ -98,7 +96,6 @@
 
 - name: Setup systemd-networkd networking
   hosts: ctrservers
-  become: true
 
   tasks:
     - name: Setup systemd-networkd networking

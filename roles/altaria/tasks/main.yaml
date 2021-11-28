@@ -12,7 +12,7 @@
 # directory to install dependencies based on the distro.
 - name: Install pyenv dependencies
   ansible.builtin.apt:
-    pkg:
+    name:
       - build-essential
       - curl
       - git
@@ -120,13 +120,10 @@
   register: jenkins_pyenv_root_check
 
 - name: Grab the pyenv installer
-  ansible.builtin.uri:
+  ansible.builtin.get_url:
     url: https://pyenv.run
-    method: GET
-    follow_redirects: safe
     dest: "{{ _pyenv_installer_path }}"
-    mode: '755'
-    status_code: 200
+    mode: "755"
   when: not jenkins_pyenv_root_check.stat.exists
 
 - name: Run the pyenv installer

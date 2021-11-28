@@ -7,6 +7,7 @@
     group: root
     mode: "644"
     force: no
+  become: yes
   loop: "{{ systemd_networkd_files }}"
   notify:
     - Start and enable systemd-networkd

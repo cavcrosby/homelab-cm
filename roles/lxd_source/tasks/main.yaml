@@ -32,30 +32,30 @@
 - name: Install the LXD dependencies
   ansible.builtin.apt:
     pkg:
-    - acl
-    - attr
-    - autoconf
-    - dnsmasq-base
-    - git
-    - golang
-    - libacl1-dev
-    - libcap-dev
-    - liblxc1
-    # liblxc-dev would be lxc-dev in Debian repos
-    - lxc-dev
-    - libsqlite3-dev
-    - libtool
-    - libudev-dev
-    - liblz4-dev
-    - libuv1-dev
-    - make
-    - pkg-config
-    - rsync
-    - squashfs-tools
-    - tar
-    - tcl
-    - xz-utils
-    - ebtables
+      - acl
+      - attr
+      - autoconf
+      - dnsmasq-base
+      - git
+      - golang
+      - libacl1-dev
+      - libcap-dev
+      - liblxc1
+      # liblxc-dev would be lxc-dev in Debian repos
+      - lxc-dev
+      - libsqlite3-dev
+      - libtool
+      - libudev-dev
+      - liblz4-dev
+      - libuv1-dev
+      - make
+      - pkg-config
+      - rsync
+      - squashfs-tools
+      - tar
+      - tcl
+      - xz-utils
+      - ebtables
     state: present
     update_cache: yes
   become: yes
@@ -250,7 +250,8 @@
 
 - name: Set LXD remote on this controller node
   delegate_to: 127.0.0.1
-  ansible.builtin.shell: lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
+  ansible.builtin.shell: >
+    lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
   # It was observed that while ansible will say that each server was added (e.g.
   # each command returns a exit status of 0, in parallel). Turns out that
   # occasionally only one (out of N) remote would be added. I speculate this
