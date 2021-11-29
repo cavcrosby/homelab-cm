@@ -18,13 +18,11 @@
 - name: Append PATH with GOPATH/bin for {{ ansible_user_id }}
   ansible.builtin.import_role:
     name: common
-    tasks_from: lbyl_lineinfile
+    tasks_from: managed_lineinfile
   vars:
     path: "{{ ansible_env['HOME'] }}/.bashrc"
-    # TODO(cavcrosby): '# ANSIBLE MANAGED' header should also have a check to see
-    # if it exists first before adding it (possibly again).
     regexp: '^export PATH="(.+:|)?{{ global_go_path }}/bin(:.+|)"'
-    line: "\n# ANSIBLE MANAGED\nexport PATH=\"${PATH}:{{ global_go_path }}/bin\""
+    line: "export PATH=\"${PATH}:{{ global_go_path }}/bin\""
     line_identifier: "PATH that includes with GOPATH/bin"
 
 # This list is specific to Debian 11 at the moment. Can be expanded to a vars
@@ -63,12 +61,12 @@
 - name: Set USE_LXC_BRIDGE to false
   ansible.builtin.import_role:
     name: common
-    tasks_from: lbyl_lineinfile
+    tasks_from: managed_lineinfile
   become: yes
   vars:
     path: /etc/default/lxc-net
-    regexp: '^export USE_LXC_BRIDGE=\"true\"$'
-    line: "export USE_LXC_BRIDGE=\"false\""
+    regexp: '^USE_LXC_BRIDGE=.+'
+    line: "USE_LXC_BRIDGE=\"false\""
     line_identifier: "USE_LXC_BRIDGE set to false"
 
 - name: Check if LXC bridge still exists

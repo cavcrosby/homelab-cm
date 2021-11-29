@@ -23,11 +23,11 @@
     - name: Add systemd.unified_cgroup_hierarchy=0 to GRUB_CMDLINE_LINUX_DEFAULT
       ansible.builtin.import_role:
         name: common
-        tasks_from: lbyl_lineinfile
+        tasks_from: managed_lineinfile
       vars:
         path: "{{ default_grub_path }}"
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"'
-        line: "\n# ANSIBLE MANAGED\nGRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0\""
+        line: "GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0\""
         line_identifier: "append GRUB_CMDLINE_LINUX_DEFAULT with systemd.unified_cgroup_hierarchy=0"
       when: default_grub_config_check.stat.exists
 

@@ -29,7 +29,7 @@
     - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
       ansible.builtin.import_role:
         name: common
-        tasks_from: lbyl_lineinfile
+        tasks_from: managed_lineinfile
       vars:
         path: "{{ ansible_env['HOME'] }}/.bashrc"
         regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'

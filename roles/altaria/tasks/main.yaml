@@ -106,9 +106,9 @@
 - name: Append pyenv setup to {{ jenkins_user }}'s .bashrc
   ansible.builtin.import_role:
     name: common
-    tasks_from: lbyl_blockinfile
+    tasks_from: managed_blockinfile
   vars:
-    block_file_path: "{{ _jenkins_user_home }}/.bashrc"
+    path: "{{ _jenkins_user_home }}/.bashrc"
     block_identifier: "pyenv setup"
     block_text: |
       eval "$(pyenv init -)"

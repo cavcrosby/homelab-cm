@@ -1,0 +1,39 @@
+---
+- name: Check if Ansible managed header already in {{ path }}
+  ansible.builtin.lineinfile:
+    state: absent
+    path: "{{ path }}"
+    regexp: '^### ANSIBLE MANAGED$'
+  check_mode: true
+  changed_when: false
+  register: ansible_managed_header_check
+
+- name: Append {{ path }} with Ansible managed header
+  ansible.builtin.lineinfile:
+    state: present
+    path: "{{ path }}"
+    regexp: '^### ANSIBLE MANAGED$'
+    line: "\n### ANSIBLE MANAGED\n"
+  when: ansible_managed_header_check.found == 0
+
+- name: Check if {{ block_identifier }} already in {{ path }}
+  ansible.builtin.blockinfile:
+    state: absent
+    path: "{{ path }}"
+    block: "{{ block_text }}"
+  check_mode: true
+  changed_when: false
+  register: block_check
+
+- name: Append {{ path }} with {{ block_identifier }}
+  ansible.builtin.blockinfile:
+    state: present
+    path: "{{ path }}"
+    block: "{{ block_text }}"
+  # blockinfile's check_mode does not return a 'found' attribute like lineinfile's
+  # check_mode. This alternative could be better.
+  when: block_check.msg | length == 0
+
+- name: Insert newline after block
+  ansible.builtin.shell: echo "" >> "{{ path }}"
+  when: block_check.msg | length == 0
