@@ -12,7 +12,7 @@
     cmd: make deps
   become: yes
 
-- name: Build the LXD
+- name: Build LXD
   ansible.builtin.shell:
     chdir: "{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}"
     cmd: make

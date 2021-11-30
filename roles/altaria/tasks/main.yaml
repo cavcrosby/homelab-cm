@@ -1,4 +1,9 @@
 ---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+
 - name: Create altaria's data directory
   ansible.builtin.file:
     path: "{{ _altaria_data_dir }}"
@@ -32,7 +37,6 @@
       - xz-utils
       - zlib1g-dev
     state: present
-    update_cache: yes
   become: yes
 
 - name: Install system dependencies
@@ -40,7 +44,6 @@
     pkg:
       - openjdk-11-jre-headless
     state: present
-    update_cache: yes
   become: yes
 
 - name: Create root's .profile

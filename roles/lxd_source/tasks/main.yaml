@@ -1,4 +1,9 @@
 ---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+
 - name: Create lxc_source's data directory
   ansible.builtin.file:
     path: "{{ _lxd_data_dir }}"
@@ -15,7 +20,7 @@
     mode: "775"
   become: yes
 
-- name: Append PATH with GOPATH/bin for {{ ansible_user_id }}
+- name: Append PATH with GOPATH/bin for the ansible user
   ansible.builtin.import_role:
     name: common
     tasks_from: managed_lineinfile
@@ -55,7 +60,6 @@
       - xz-utils
       - ebtables
     state: present
-    update_cache: yes
   become: yes
 
 - name: Set USE_LXC_BRIDGE to false
@@ -82,7 +86,7 @@
   become: yes
   when: default_lxc_bridge_check.stat.exists
 
-- name: Check if the LXD is installed
+- name: Check if LXD is installed
   ansible.builtin.shell: |
     find "{{ global_go_path }}/bin" -name 'lxd' -type f
   become: yes
@@ -91,7 +95,7 @@
   notify:
     - Grab a LXD release tarball, and extract the archive
     - Build the LXD libraries
-    - Build the LXD
+    - Build LXD
 
 - name: Flush the LXD installation handlers
   ansible.builtin.meta: flush_handlers
@@ -105,7 +109,7 @@
     mode: "440"
   become: yes
 
-- name: Create wrapper for the LXD
+- name: Create wrapper for LXD
   ansible.builtin.copy:
     dest: "{{ lxd_wrapper_path }}"
     mode: "755"
@@ -152,7 +156,7 @@
   become: yes
 
 # MONITOR(cavcrosby): ideally this should only run when the ansible user is added
-# to the group that is allowed to interact with the LXD. That said, running this
+# to the group that is allowed to interact with LXD. That said, running this
 # meta module inside of handler appears to not be possible at the moment? A few
 # related GitHub issues are closed and are made part of ansible-core 2.11 or
 # higher that "should" resolve this but I am not having such luck. For reference:
@@ -235,12 +239,12 @@
 # LXD can be initialize 'n' number of times, meaning there is currently no
 # absolute way to determine if LXD has been initialize. For reference:
 # https://discuss.linuxcontainers.org/t/how-to-check-if-lxd-init-auto-already-ran/1635
-- name: Initialize the LXD
+- name: Initialize LXD
   ansible.builtin.shell: lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
   become: yes
   changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum_check.stat.checksum
 
-- name: Set the trust password for the LXD
+- name: Set the trust password for LXD
   ansible.builtin.shell: lxc config set core.trust_password '{{ lxd_trust_password }}'
   become: yes
   register: set_trust_password_check
