@@ -5,6 +5,7 @@
 # recursive variables
 SHELL = /usr/bin/sh
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant-ansible-vars.json
+export ANSIBLE_CONFIG = ./ansible.cfg
 
 # targets
 HELP = help
