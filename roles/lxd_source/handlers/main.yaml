@@ -22,4 +22,4 @@
     - CGO_LDFLAGS: "{{ _lxd_cgo_ldflags }}"
     - CGO_LDFLAGS_ALLOW: "{{ _lxd_cgo_ldflags_allow }}"
     - LD_LIBRARY_PATH: "{{ _lxd_ld_library_path }}"
-    - GOPATH: "{{ global_go_path }}"
+    - GOPATH: "{{ lxd_go_path }}"

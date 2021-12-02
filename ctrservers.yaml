@@ -16,6 +16,9 @@
         state: present
       become: yes
 
+    # DISCUSS(cavcrosby): I discovered that without installing any additional Python
+    # packages, that the intended virtualenv would also not be created. At this point,
+    # it maybe best to discard this play entirely.
     - name: Create a python-virtual environments directory
       ansible.builtin.file:
         path: "{{ ansible_python_virtualenvs_path }}"
