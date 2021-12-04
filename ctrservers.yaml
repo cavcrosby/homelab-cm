@@ -1,5 +1,5 @@
 ---
-- name: Setup ansible user's virtual Python environment
+- name: Setup ansible user's Python virtual environment (virtualenv)
   hosts: ctrservers
 
   pre_tasks:
@@ -16,14 +16,19 @@
         state: present
       become: yes
 
-    # DISCUSS(cavcrosby): I discovered that without installing any additional Python
-    # packages, that the intended virtualenv would also not be created. At this point,
-    # it maybe best to discard this play entirely.
-    - name: Create a python-virtual environments directory
+    - name: Create a Python virtualenvs directory
       ansible.builtin.file:
         path: "{{ ansible_python_virtualenvs_path }}"
         state: directory
         mode: "755"
+
+    - name: Create the {{ ansible_python_virtualenv }} Python virtualenv
+      ansible.builtin.pip:
+        # requests might not actually be used but the module requires a package to
+        # install for initial virtualenv setup.
+        name: requests
+        virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
+        virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
 
     - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
       ansible.builtin.import_role:
@@ -118,7 +123,7 @@
 
   tasks:
     - name: Setup systemd-networkd networking
-      include_role:
+      ansible.builtin.include_role:
         name: systemd_networkd
       vars:
         systemd_networkd_files:
