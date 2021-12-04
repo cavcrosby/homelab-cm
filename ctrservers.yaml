@@ -37,6 +37,8 @@
 
 - name: Install LXD
   hosts: ctrservers
+  vars_files:
+    - vars/ansible-secrets.yaml
 
   roles:
     - lxd_source

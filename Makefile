@@ -4,6 +4,14 @@
 
 # recursive variables
 SHELL = /usr/bin/sh
+ANSIBLE_SECRETS_DIR_PATH = ./vars
+ANSIBLE_SECRETS_FILE = ansible-secrets.yaml
+ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
+BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
+BITWARDEN_CLI_VERSION = 1.19.1
+BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
+BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
+BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant-ansible-vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
@@ -12,9 +20,13 @@ HELP = help
 SETUP = setup
 ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
+ANSISCRTS = ansiscrts
 ANSILINT = ansilint
 DEV_SHELL = dev-shell
 CLEAN = clean
+
+# ansiscrts actions
+PUT = put
 
 # libvirt provider configurations
 LIBVIRT = libvirt
@@ -24,6 +36,7 @@ export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
 ANSIBLE_GALAXY = ansible-galaxy
 ANSIBLE_LINT = ansible-lint
 ANSIBLE_PLAYBOOK = ansible-playbook
+ANSIBLE_VAULT = ansible-vault
 BASH = bash
 VIRSH = virsh
 VAGRANT = vagrant
@@ -33,6 +46,7 @@ PERL = perl
 PKILL = pkill
 JQ = jq
 SUDO = sudo
+BW = bw
 executables = \
 	${VIRSH}\
 	${VAGRANT}\
@@ -42,6 +56,8 @@ executables = \
 	${LXC}\
 	${ANSIBLE_PLAYBOOK}\
 	${ANSIBLE_GALAXY}\
+	${ANSIBLE_LINT}\
+	${ANSIBLE_VAULT}\
 	${GEM}\
 	${SUDO}\
 	${BASH}
@@ -85,6 +101,8 @@ ${HELP}:
 >	@echo '                   virtual environment setup by Vagrant'
 >	@echo '  ${ANSILINT}       - runs the yaml configuration code through a'
 >	@echo '                   ansible linter'
+>	@echo '  ${ANSISCRTS}      - manage secrets used by this project, by default'
+>	@echo '                   secrets are pulled into the project'
 >	@echo '  ${DEV_SHELL}      - runs a bash shell with make variables injected into'
 >	@echo '                   it to work with the project'\''s Vagrantfile'
 >	@echo '  ${CLEAN}          - removes files generated from targets'
@@ -93,11 +111,16 @@ ${HELP}:
 >	@echo '                           created by Vagrant (default: libvirt)'
 >	@echo '  ANSIBLE_VERBOSITY_OPT  - set the verbosity level when running ansible commands,'
 >	@echo '                           represented as the '-v' variant passed in (default: -v)'
+>	@echo '  ANSISCRTS_ACTION       - determines the action to take concerning project'
+>	@echo '                           secrets (options: ${PUT})'
 
 .PHONY: ${SETUP}
 ${SETUP}:
 >	${ANSIBLE_GALAXY} collection install --requirements-file requirements.yaml
 >	${SUDO} ${GEM} install nokogiri
+>	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
+>	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
+>	chmod 755 "${BITWARDEN_CLI_PATH}"
 
 .PHONY: ${ANSIPLAY}
 ${ANSIPLAY}:
@@ -118,6 +141,26 @@ ${ANSILINT}:
 .PHONY: ${DEV_SHELL}
 ${DEV_SHELL}:
 >	${BASH} -i
+
+.PHONY: ${ANSISCRTS}
+${ANSISCRTS}:
+>	@${BW} login --check > /dev/null 2>&1 || \
+		{ \
+			echo "make: login to bitwarden and export BW_SESSION before running this target"; \
+			exit 1; \
+		}
+ifeq (${ANSISCRTS_ACTION}, ${PUT}) 
+>	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
+>	${BW} delete attachment \
+		"$$(${BW} list items \
+			| ${JQ} --raw-output '.[] | select(.attachments?).attachments[] | select(.fileName=="${ANSIBLE_SECRETS_FILE}").id' \
+		)" \
+		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
+>	${BW} create attachment --file "${ANSIBLE_SECRETS_FILE_PATH}" --itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
+else
+>	${BW} get attachment "${ANSIBLE_SECRETS_FILE}" --itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}" --output "${ANSIBLE_SECRETS_DIR_PATH}/"
+>	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
+endif
 
 .PHONY: ${CLEAN}
 ${CLEAN}:

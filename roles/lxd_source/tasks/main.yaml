@@ -224,7 +224,7 @@
 # This was done as it doesn't seem possible to interject a final newline in the
 # preseed variable.
 - name: Create the running LXD's preseed
-  ansible.builtin.shell:
+  ansible.builtin.shell: |
     lxd init --dump | perl -pi -e 'chomp if eof' > "{{ _running_lxd_remote_preseed_path }}"
   become: yes
   register: create_running_lxd_preseed_check
@@ -240,20 +240,24 @@
 # absolute way to determine if LXD has been initialize. For reference:
 # https://discuss.linuxcontainers.org/t/how-to-check-if-lxd-init-auto-already-ran/1635
 - name: Initialize LXD
-  ansible.builtin.shell: lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
+  ansible.builtin.shell: |
+    lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
   become: yes
-  changed_when: lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum_check.stat.checksum
+  changed_when:
+    - lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum_check.stat.checksum
 
 - name: Set the trust password for LXD
-  ansible.builtin.shell: lxc config set core.trust_password '{{ lxd_trust_password }}'
+  ansible.builtin.shell: |
+    lxc config set core.trust_password '{{ lxd_trust_password }}'
   become: yes
   register: set_trust_password_check
+  no_log: true
   changed_when: set_trust_password_check.rc != 0
 
 - name: Set LXD remote on this controller node
   delegate_to: 127.0.0.1
-  ansible.builtin.shell: >
-    lxc remote add --accept-certificate --password={{ lxd_trust_password }} {{ ansible_default_ipv4.address }}
+  ansible.builtin.shell: |
+    lxc remote add --accept-certificate --password='{{ lxd_trust_password }}' {{ ansible_default_ipv4.address }}
   # It was observed that while ansible will say that each server was added (e.g.
   # each command returns a exit status of 0, in parallel). Turns out that
   # occasionally only one (out of N) remote would be added. I speculate this
@@ -265,4 +269,5 @@
     - lxc_remote_add_check.rc != 0
     # 'Error: Remote x.x.x.x exists as <https://x.x.x.x:8443>'
     - "'exists' not in lxc_remote_add_check.stderr"
+  no_log: true
   changed_when: lxc_remote_add_check.rc == 0

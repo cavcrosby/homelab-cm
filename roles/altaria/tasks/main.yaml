@@ -144,7 +144,8 @@
   when: not jenkins_pyenv_root_check.stat.exists
 
 - name: Install a Python interpreter to be managed by pyenv
-  ansible.builtin.shell: . {{ _roots_home }}/.bashrc && pyenv install {{ default_pyenv_python }}
+  ansible.builtin.shell: |
+    . {{ _roots_home }}/.bashrc && pyenv install {{ default_pyenv_python }}
   when: not jenkins_pyenv_root_check.stat.exists
 
 - name: Add jenkins user to sudoers
