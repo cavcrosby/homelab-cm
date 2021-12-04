@@ -74,7 +74,7 @@
         state: present
       become: yes
 
-    - name: Grab Docker's Official GPG key
+    - name: Grab Docker's official GPG key
       ansible.builtin.get_url:
         url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
         dest: "{{ docker_keyring_download_path }}"
@@ -104,7 +104,7 @@
       become: yes
 
   handlers:
-    - name: Remove Docker's Installed GPG key, If Exists
+    - name: Remove Docker's installed GPG key
       ansible.builtin.file:
         path: "{{ docker_keyring_install_path }}"
         state: absent
