@@ -213,11 +213,11 @@
   register: create_lxd_preseed_check
   changed_when: create_lxd_preseed_check.state == "absent"
 
-- name: Get the LXD's preseed checksum
+- name: Get the LXD's preseed file inode
   ansible.builtin.stat:
     path: "{{ _lxd_remote_preseed_path }}"
   become: yes
-  register: lxd_preseed_checksum
+  register: lxd_preseed_inode
 
 # For reference on the shell command (it was either this, truncate, or dd):
 # https://unix.stackexchange.com/questions/254644/how-do-i-remove-the-newline-from-the-last-line-in-a-file-in-order-to-add-text-to
@@ -230,11 +230,11 @@
   register: create_running_lxd_preseed_check
   changed_when: create_running_lxd_preseed_check.rc != 0
 
-- name: Get the running LXD's preseed checksum
+- name: Get the running LXD's preseed file inode
   ansible.builtin.stat:
     path: "{{ _running_lxd_remote_preseed_path }}"
   become: yes
-  register: running_lxd_preseed_checksum_check
+  register: running_lxd_preseed_inode
 
 # LXD can be initialize 'n' number of times, meaning there is currently no
 # absolute way to determine if LXD has been initialize. For reference:
@@ -244,7 +244,7 @@
     lxd init --preseed < "{{ _lxd_remote_preseed_path }}"
   become: yes
   changed_when:
-    - lxd_preseed_checksum.stat.checksum != running_lxd_preseed_checksum_check.stat.checksum
+    - lxd_preseed_inode.stat.checksum != running_lxd_preseed_inode.stat.checksum
 
 - name: Set the trust password for LXD
   ansible.builtin.shell: |

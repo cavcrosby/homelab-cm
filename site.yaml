@@ -1,2 +1,2 @@
 ---
-- import_playbook: ctrservers.yaml
+- ansible.builtin.import_playbook: ctrservers.yaml
