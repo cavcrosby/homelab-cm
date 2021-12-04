@@ -73,18 +73,18 @@
     line: "USE_LXC_BRIDGE=\"false\""
     line_identifier: "USE_LXC_BRIDGE set to false"
 
-- name: Check if LXC bridge still exists
+- name: Register the LXC bridge file inode
   ansible.builtin.stat:
     path: /sys/class/net/{{ _default_lxc_bridge }}
   become: yes
-  register: default_lxc_bridge_check
+  register: default_lxc_bridge_inode
 
 - name: Remove default LXC bridge
   ansible.builtin.shell: |
     ip link set {{ _default_lxc_bridge }} down
     ip link delete {{ _default_lxc_bridge }} type bridge
   become: yes
-  when: default_lxc_bridge_check.stat.exists
+  when: default_lxc_bridge_inode.stat.exists
 
 - name: Check if LXD is installed
   ansible.builtin.shell: |

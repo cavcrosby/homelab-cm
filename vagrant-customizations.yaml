@@ -6,10 +6,10 @@
     default_grub_path: /etc/default/grub
 
   tasks:
-    - name: Check if the default grub configuration exists
+    - name: Register the default grub configuration file inode
       ansible.builtin.stat:
         path: "{{ default_grub_path }}"
-      register: default_grub_config_check
+      register: default_grub_config_inode
 
     - name: Initial check if systemd.unified_cgroup_hierarchy=0 is added to GRUB_CMDLINE_LINUX_DEFAULT
       ansible.builtin.lineinfile:
@@ -29,12 +29,12 @@
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"'
         line: "GRUB_CMDLINE_LINUX_DEFAULT=\"${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0\""
         line_identifier: "append GRUB_CMDLINE_LINUX_DEFAULT with systemd.unified_cgroup_hierarchy=0"
-      when: default_grub_config_check.stat.exists
+      when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg
       ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
       when:
-        - default_grub_config_check.stat.exists
+        - default_grub_config_inode.stat.exists
         - line_check.found == 0
 
     - name: Reboot ctrservers to have new boot parameter(s) take effect

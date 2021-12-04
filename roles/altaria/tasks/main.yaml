@@ -117,23 +117,23 @@
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
 
-- name: Check if the {{ _jenkins_pyenv_root_path }} exists
+- name: Register the {{ _jenkins_pyenv_root_path }} file inode
   ansible.builtin.stat:
     path: "{{ _jenkins_pyenv_root_path }}"
-  register: jenkins_pyenv_root_check
+  register: jenkins_pyenv_root_inode
 
 - name: Grab the pyenv installer
   ansible.builtin.get_url:
     url: https://pyenv.run
     dest: "{{ _pyenv_installer_path }}"
     mode: "755"
-  when: not jenkins_pyenv_root_check.stat.exists
+  when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Run the pyenv installer
   ansible.builtin.shell: "{{ _pyenv_installer_path }}"
   environment:
     PYENV_ROOT: "{{ _jenkins_pyenv_root_path }}"
-  when: not jenkins_pyenv_root_check.stat.exists
+  when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Give ownership {{ _jenkins_pyenv_root_path }} to {{ jenkins_user }}
   ansible.builtin.file:
@@ -141,12 +141,12 @@
     recurse: yes
     owner: "{{ jenkins_user }}"
     group: "{{ jenkins_user }}"
-  when: not jenkins_pyenv_root_check.stat.exists
+  when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Install a Python interpreter to be managed by pyenv
   ansible.builtin.shell: |
     . {{ _roots_home }}/.bashrc && pyenv install {{ default_pyenv_python }}
-  when: not jenkins_pyenv_root_check.stat.exists
+  when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Add jenkins user to sudoers
   ansible.builtin.copy:
