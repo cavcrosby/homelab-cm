@@ -79,7 +79,7 @@
         url: https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg
         dest: "{{ docker_keyring_download_path }}"
       notify:
-        - Remove Docker's Installed GPG key, If Exists
+        - Remove Docker's installed GPG key
         - Install Docker's GPG key
 
     - name: Flush handlers
