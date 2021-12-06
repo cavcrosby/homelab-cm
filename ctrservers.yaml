@@ -152,16 +152,17 @@
     - name: Create LXD containers
       community.general.lxd_container:
         name: "{{ item.name }}"
-        state: started
+        state: stopped
         profiles: ["default"]
         ignore_volatile_options: false
-        wait_for_ipv4_addresses: true
         source:
           type: image
           mode: pull
           alias: "{{ item.image }}"
           protocol: simplestreams
           server: https://images.linuxcontainers.org
+      register: lxd_container_check
+      changed_when: lxd_container_check.old_state == "absent"
       loop: "{{ lxd_containers }}"
 
     - name: Register the LXD containers as inventory
@@ -178,6 +179,39 @@
         ansible_lxd_host: "{{ item.name }}"
         ansible_connection: lxd
         groups: [lxd_containers]
+      loop: "{{ lxd_containers }}"
+
+- name: Perform LXD container instance configuration
+  hosts: ctrservers
+  vars_files:
+    - vars/lxd-containers.yaml
+
+  tasks:
+    # Allows all configs to be applicable (e.g. not having to use only those that
+    # are permitted as "Live Updates").
+    - name: Shut off LXD containers
+      community.general.lxd_container:
+        name: "{{ item.name }}"
+        state: stopped
+        ignore_volatile_options: false
+      loop: "{{ lxd_containers }}"
+
+    - name: Configure LXD container instances
+      community.general.lxd_container:
+        name: "{{ item.name }}"
+        state: stopped
+        ignore_volatile_options: false
+        config: "{{ item.instance_config }}"
+      loop: "{{ lxd_containers }}"
+
+    - name: Turn back on LXD containers
+      community.general.lxd_container:
+        name: "{{ item.name }}"
+        state: started
+        ignore_volatile_options: false
+        wait_for_ipv4_addresses: true
+      register: lxd_container_check
+      changed_when: lxd_container_check.old_state == "absent"
       loop: "{{ lxd_containers }}"
 
 - name: Check/install Python on the LXD containers
