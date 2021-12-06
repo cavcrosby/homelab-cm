@@ -27,8 +27,8 @@
   vars:
     path: "{{ ansible_env['HOME'] }}/.bashrc"
     regexp: '^export PATH="(.+:|)?{{ lxd_go_path }}/bin(:.+|)"'
-    line: "export PATH=\"${PATH}:{{ lxd_go_path }}/bin\""
-    line_identifier: "PATH that includes with GOPATH/bin"
+    line: 'export PATH="${PATH}:{{ lxd_go_path }}/bin"'
+    line_identifier: PATH that includes with GOPATH/bin
 
 # This list is specific to Debian 11 at the moment. Can be expanded to a vars
 # directory to install dependencies based on the distro.
@@ -70,8 +70,8 @@
   vars:
     path: /etc/default/lxc-net
     regexp: '^USE_LXC_BRIDGE=.+'
-    line: "USE_LXC_BRIDGE=\"false\""
-    line_identifier: "USE_LXC_BRIDGE set to false"
+    line: 'USE_LXC_BRIDGE="false"'
+    line_identifier: USE_LXC_BRIDGE set to false
 
 - name: Register the LXC bridge file inode
   ansible.builtin.stat:

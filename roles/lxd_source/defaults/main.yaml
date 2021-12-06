@@ -1,17 +1,17 @@
 ---
 lxd_release_version: "4.0.8"
-lxd_extracted_tarball_path: "/usr/local/src"
+lxd_extracted_tarball_path: /usr/local/src
 lxd_trust_password: "Passw0rd!"
 
 # The LXD binary should not be own by a non-root user (or group). Hence, the
 # preference is that the LXD GOPATH be somewhere that's considered global.
-lxd_go_path: "/usr/local/share/go"
+lxd_go_path: /usr/local/share/go
 
 # The intention behind the wrapper is to have a place to set LD_LIBRARY_PATH
 # before calling lxd. As this env var will be wiped by sudo, even if appended to
 # env_keep in the sudoers file. If the wrapper path is to change, ensure the new
 # wrapper path is before the GOPATH/bin dir on the PATH.
-lxd_wrapper_path: "/usr/local/bin/lxd"
+lxd_wrapper_path: /usr/local/bin/lxd
 
 # Used to automate the initialize of LXD.
 lxd_preseed: |
@@ -50,7 +50,7 @@ lxd_preseed: |
 # The default bridge created when installing 'a' lxc package.
 _default_lxc_bridge: lxcbr0
 
-_lxd_data_dir: "/run/ansible/lxd_source"
+_lxd_data_dir: /run/ansible/lxd_source
 _lxd_remote_preseed_path: "{{ _lxd_data_dir }}/lxd.yaml"
 _running_lxd_remote_preseed_path: "{{ _lxd_data_dir }}/running-lxd.yaml"
 _lxd_cgo_cflags: >

@@ -37,8 +37,8 @@
       vars:
         path: "{{ ansible_env['HOME'] }}/.bashrc"
         regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-        line: "source \"{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate\""
-        line_identifier: "sourcing the {{ ansible_python_virtualenv }} Python virtualenv"
+        line: 'source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
+        line_identifier: sourcing the {{ ansible_python_virtualenv }} Python virtualenv
 
 - name: Install LXD
   hosts: ctrservers
