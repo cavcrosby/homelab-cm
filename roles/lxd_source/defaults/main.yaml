@@ -1,5 +1,6 @@
 ---
 lxd_release_version: "4.0.8"
+lxd_access_group: sudo
 lxd_extracted_tarball_path: /usr/local/src
 lxd_trust_password: "Passw0rd!"
 

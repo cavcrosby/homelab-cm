@@ -148,10 +148,10 @@
     - /etc/subuid
     - /etc/subgid
 
-- name: Add {{ ansible_user_id }} to 'sudo' group
+- name: Add {{ ansible_user_id }} to '{{ lxd_access_group }}' group
   ansible.builtin.user:
     append: yes
-    groups: sudo
+    groups: "{{ lxd_access_group }}"
     name: "{{ ansible_user_id }}"
   become: yes
 
@@ -182,7 +182,7 @@
 
       [Service]
       Type=exec
-      ExecStart={{ lxd_wrapper_path }} --group sudo
+      ExecStart={{ lxd_wrapper_path }} --group {{ lxd_access_group }}
 
       [Install]
       WantedBy=multi-user.target
