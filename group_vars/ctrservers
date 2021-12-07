@@ -6,6 +6,10 @@ docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_prefix }}.asc"
 
+# jenkins-torkel Docker container related configurations
+jenkins_port_mapping: 8080:8080
+jenkins_agents_port_mapping: 50000:50000
+
 lxd_preseed: |
   config:
     core.https_address: {{ ansible_default_ipv4.address }}

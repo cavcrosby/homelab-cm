@@ -157,9 +157,9 @@
     mode: "440"
   become: yes
 
-- name: Create jenkins-agent node1 directory
+- name: Create jenkins-agent torkel1 directory
   ansible.builtin.file:
-    path: /var/lib/jenkins-agent/node1
+    path: /var/lib/jenkins-agent/torkel1
     state: directory
     mode: "755"
   become: yes

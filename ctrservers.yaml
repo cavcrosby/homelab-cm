@@ -26,7 +26,9 @@
       ansible.builtin.pip:
         # requests might not actually be used but the module requires a package to
         # install for initial virtualenv setup.
-        name: requests
+        name:
+          - docker
+          - requests
         virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
         virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
 
@@ -103,6 +105,17 @@
         state: present
       become: yes
 
+    - name: Add {{ ansible_user_id }} to 'docker' group
+      ansible.builtin.user:
+        append: yes
+        groups: docker
+        name: "{{ ansible_user_id }}"
+      become: yes
+
+    - name: Reset ssh connection
+      ansible.builtin.meta: reset_connection
+      changed_when: false
+
   handlers:
     - name: Remove Docker's installed GPG key
       ansible.builtin.file:
@@ -117,6 +130,41 @@
       ansible.builtin.shell: |
         gpg --batch --output {{ docker_keyring_install_path }} --dearmor {{ docker_keyring_download_path }}
       become: yes
+
+- name: Deploy Docker containers
+  hosts: ctrservers
+  vars_files:
+    - vars/ansible-secrets.yaml
+  vars:
+    ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
+
+  tasks:
+    - name: Deploy a jenkins-torkel container
+      community.docker.docker_container:
+        name: jenkins
+        image: cavcrosby/jenkins-torkel:latest
+        published_ports: 
+          - "{{ jenkins_port_mapping }}"
+          - "{{ jenkins_agents_port_mapping }}"
+        cpus: "1.0"
+        memory: 1G
+        volumes: jenkins_home:/var/jenkins_home
+        env:
+          JENKINS_URL: "{{ ansible_default_ipv4.address }}"
+          JENKINS_ADMIN_ID: cavcrosby
+          JENKINS_ADMIN_PASSWORD: "{{ jenkins_admin_password }}"
+          JENKINS_ADMIN_FULLNAME: Conner Crosby
+          JENKINS_ADMIN_EMAIL: conner@cavcrosby.tech
+          JENKINS_ADMIN_EMAIL_SECRET: "{{ jenkins_admin_email_secret }}"
+          SMTP_SERVER_ADDR: smtp.gmail.com
+          JENKINS_GITHUB_CREDENTIAL_ID: cavcrosby-github
+          JENKINS_GITHUB_CREDENTIAL_USERNAME: cavcrosby
+          JENKINS_GITHUB_CREDENTIAL_SECRET: "{{ jenkins_github_credential_secret }}"
+          JENKINS_MAIN_NUM_EXECUTORS: "0"
+          JENKINS_AGENT_NAME1: altaria1
+          JENKINS_AGENT_DESC1: General Build Node
+          JENKINS_AGENT_NUM_EXECUTORS1: "2"
+          JENKINS_AGENT_REMOTE_ROOT_DIR1: /var/lib/jenkins-agent/torkel1
 
 - name: Setup systemd-networkd networking
   hosts: ctrservers
