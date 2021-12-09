@@ -5,6 +5,7 @@ global_go_path: /usr/local/share/go
 docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_prefix }}.asc"
+lxd_bridge_device_name: lxdbr0
 
 # jenkins-torkel Docker container related configurations
 jenkins_port_mapping: 8080:8080
@@ -21,7 +22,7 @@ lxd_preseed: |
       ipv6.address: fd42:cf87:377f:12aa::1/64
       ipv6.nat: "true"
     description: ""
-    name: lxdbr0
+    name: {{ lxd_bridge_device_name }}
     type: bridge
   storage_pools:
   - config:
@@ -35,7 +36,7 @@ lxd_preseed: |
     devices:
       eth0:
         name: eth0
-        network: lxdbr0
+        network: {{ lxd_bridge_device_name }}
         type: nic
       root:
         path: /

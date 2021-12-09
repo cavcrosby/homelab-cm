@@ -4,6 +4,9 @@ lxd_access_group: sudo
 lxd_extracted_tarball_path: /usr/local/src
 lxd_trust_password: "Passw0rd!"
 
+# Bridge interface used by LXD to communicate with LXD containers.
+lxd_bridge_device_name: lxdbr0
+
 # The LXD binary should not be own by a non-root user (or group). Hence, the
 # preference is that the LXD GOPATH be somewhere that's considered global.
 lxd_go_path: /usr/local/share/go
@@ -26,7 +29,7 @@ lxd_preseed: |
       ipv6.address: fd00::1/64
       ipv6.nat: "true"
     description: ""
-    name: lxdbr0
+    name: {{ lxd_bridge_device_name }}
     type: bridge
   storage_pools:
   - config:
@@ -40,7 +43,7 @@ lxd_preseed: |
     devices:
       eth0:
         name: eth0
-        network: lxdbr0
+        network: {{ lxd_bridge_device_name }}
         type: nic
       root:
         path: /
