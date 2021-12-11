@@ -181,9 +181,9 @@
     - name: Install the Docker Engine
       ansible.builtin.apt:
         name:
-          - docker-ce
-          - docker-ce-cli
-          - containerd.io
+          - docker-ce={{ docker_ce_pkg_version }}
+          - docker-ce-cli={{ docker_ce_pkg_version }}
+          - containerd.io={{ containerd_io_pkg_version }}
         state: present
       become: yes
       notify:

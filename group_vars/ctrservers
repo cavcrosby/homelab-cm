@@ -3,13 +3,18 @@ ansible_user_home: /home/{{ ansible_user }}
 ansible_python_virtualenv: ansible-client
 ansible_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"
 
+docker_ce_pkg_version: 5:20.10.11~3-0~debian-bullseye
+containerd_io_pkg_version: 1.4.12-1
 docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_prefix }}.asc"
 
+lxd_release_version: "4.0.8"
+lxd_access_group: sudo
+lxd_bridge_device_name: lxdbr0
+
 iptables_up_path: /etc/iptables/rules.v4
 global_go_path: /usr/local/share/go
-lxd_bridge_device_name: lxdbr0
 
 # jenkins-torkel Docker container related configurations
 jenkins_port_mapping: 8080:8080
