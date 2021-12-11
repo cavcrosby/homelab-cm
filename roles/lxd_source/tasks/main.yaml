@@ -148,6 +148,12 @@
     - /etc/subuid
     - /etc/subgid
 
+- name: Create the '{{ lxd_access_group }}' group
+  ansible.builtin.group:
+    name: "{{ lxd_access_group }}"
+    state: present
+  become: yes
+
 - name: Add {{ ansible_user_id }} to '{{ lxd_access_group }}' group
   ansible.builtin.user:
     append: yes
