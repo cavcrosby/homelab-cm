@@ -34,7 +34,7 @@
 # directory to install dependencies based on the distro.
 - name: Install the LXD dependencies
   ansible.builtin.apt:
-    pkg:
+    name:
       - acl
       - attr
       - autoconf

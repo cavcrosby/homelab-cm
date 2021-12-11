@@ -41,7 +41,7 @@
 
 - name: Install system dependencies
   ansible.builtin.apt:
-    pkg:
+    name:
       - openjdk-11-jre-headless
     state: present
   become: yes
