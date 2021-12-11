@@ -1,6 +1,8 @@
 ---
+ansible_user_home: /home/{{ ansible_user }}
 ansible_python_virtualenv: ansible-client
-ansible_python_virtualenvs_path: "{{ ansible_env['HOME'] }}/python-venvs"
+ansible_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"
+iptables_up_path: /etc/iptables/rules.v4
 global_go_path: /usr/local/share/go
 docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg

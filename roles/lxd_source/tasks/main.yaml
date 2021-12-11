@@ -187,6 +187,8 @@
       [Install]
       WantedBy=multi-user.target
   become: yes
+  notify:
+    - Save the current iptables rules
 
 - name: Enable the LXD service
   ansible.builtin.systemd:

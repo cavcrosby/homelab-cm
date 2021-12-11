@@ -1,4 +1,62 @@
 ---
+# DISCUSS(cavcrosby): starting after Debian buster, nftables replaces iptables.
+# While I am sure support for the latter will stick around for quite sometime,
+# I'd like to look further into getting both Docker and LXD both using nftables.
+# On Debian bullseye nftables is installed by default but the service is
+# inactive. For reference on resources to look at when looking deeper into this:
+# https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/7#post_9
+# https://wiki.debian.org/nftables
+#
+# MONITOR(cavcrosby): having initially attempted to integrate nftables and
+# remove usage of iptables, I ran into the troublesome issue of Docker continuing
+# to use iptables. As of this writing, Docker can only use iptables as a backend
+# and converting the Docker iptables rules to a nft ruleset was easy. However,
+# the notion of having to continuously port (also knowing when to and not to)
+# over iptables rules to the nft ruleset will require a lot of work that I don't
+# think will be worth it once Docker natively supports nftables. For now, the
+# following ticket should be monitored:
+# https://github.com/moby/moby/issues/26824
+- name: Setup default legacy userland "iptables" tools
+  hosts: ctrservers
+  become: yes
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: yes
+      become: yes
+
+  tasks:
+    - name: Install legacy iptables dependencies
+      ansible.builtin.apt:
+        name:
+          - arptables
+          - ebtables
+          - iptables
+          - iptables-persistent
+        state: present
+      become: yes
+
+    - name: Setup legacy iptables
+      community.general.alternatives:
+        name: iptables
+        path: /usr/sbin/iptables-legacy
+
+    - name: Setup legacy ip6tables
+      community.general.alternatives:
+        name: ip6tables
+        path: /usr/sbin/ip6tables-legacy
+
+    - name: Setup legacy arptables
+      community.general.alternatives:
+        name: arptables
+        path: /usr/sbin/arptables-legacy
+
+    - name: Setup legacy ebtables
+      community.general.alternatives:
+        name: ebtables
+        path: /usr/sbin/ebtables-legacy
+
 - name: Setup ansible user's Python virtual environment (virtualenv)
   hosts: ctrservers
 
@@ -71,6 +129,17 @@
       ansible.builtin.apt:
         update_cache: yes
       become: yes
+    
+    # Trying to use include_role in the handlers section caused a bizarre error. That
+    # said, this appears to be a known issue. For reference, though the reported
+    # error message is different than what I saw:
+    # https://github.com/ansible/ansible/issues/37515
+    #
+    # This is only meant to add to the handler's section, not replace it.
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
 
   tasks:
     - name: Create {{ ansible_user_id }}'s 'Downloads' directory
@@ -117,6 +186,8 @@
           - containerd.io
         state: present
       become: yes
+      notify:
+        - Restart Docker
 
     - name: Add {{ ansible_user_id }} to 'docker' group
       ansible.builtin.user:
@@ -130,6 +201,14 @@
       changed_when: false
 
   handlers:
+    - name: Restart Docker
+      ansible.builtin.systemd:
+        name: docker
+        state: restarted
+      become: yes
+      notify:
+        - Save the current iptables rules
+
     - name: Remove Docker's installed GPG key
       ansible.builtin.file:
         path: "{{ docker_keyring_install_path }}"
@@ -156,7 +235,7 @@
       community.docker.docker_container:
         name: jenkins
         image: cavcrosby/jenkins-torkel:latest
-        published_ports: 
+        published_ports:
           - "{{ jenkins_port_mapping }}"
           - "{{ jenkins_agents_port_mapping }}"
         cpus: "1.0"
@@ -184,40 +263,14 @@
   vars_files:
     - vars/ansible-secrets.yaml
 
+  pre_tasks:
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
   roles:
     - lxd_source
-
-- name: Insert iptables rules for compatibility between LXD and Docker
-  hosts: ctrservers
-  become: yes
-  
-  # Using LXD alongside Docker can cause conflicts with LXD containers unable to
-  # unable to reach the internet. It appears this is because of the rules appended
-  # to iptables by Docker. In one instance, Docker did modify the FORWARD chain to
-  # drop any unmatched packets. Installing LXD from source will not include default
-  # rules, so these have to be added. For reference on what this configuration may
-  # look like when installing LXD and Docker (includes the fix):
-  # https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/4#post_5
-  #
-  # DISCUSS(cavcrosby): starting after Debian buster, nftables replaces iptables.
-  # While I am sure support for the latter will stick around for quite sometime,
-  # I'd like to look further into getting both Docker and LXD both using nftables.
-  # On Debian Bullseye nftables is installed by default but the service is
-  # inactive. For reference on resources to look at when looking deeper into this:
-  # https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/7#post_9
-  # https://wiki.debian.org/nftables
-  tasks:
-    - name: Forward packets going out on {{ lxd_bridge_device_name }}
-      ansible.builtin.iptables:
-        chain: FORWARD
-        in_interface: "{{ lxd_bridge_device_name }}"
-        jump: ACCEPT
-
-    - name: Forward packets coming into {{ lxd_bridge_device_name }}
-      ansible.builtin.iptables:
-        chain: FORWARD
-        out_interface: "{{ lxd_bridge_device_name }}"
-        jump: ACCEPT
 
 - name: Create LXD containers
   hosts: ctrservers
