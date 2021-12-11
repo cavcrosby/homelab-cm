@@ -21,7 +21,7 @@ SETUP = setup
 ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
 ANSISCRTS = ansiscrts
-ANSILINT = ansilint
+LINT = lint
 DEV_SHELL = dev-shell
 CLEAN = clean
 
@@ -99,8 +99,8 @@ ${HELP}:
 >	@echo '  ${ANSIPLAY}       - runs the main playbook for my homelab'
 >	@echo '  ${ANSIPLAY_TEST}  - runs the main playbook for my homelab, but in a'
 >	@echo '                   virtual environment setup by Vagrant'
->	@echo '  ${ANSILINT}       - runs the yaml configuration code through a'
->	@echo '                   ansible linter'
+>	@echo '  ${LINT}       	 - lints the yaml configuration code and json'
+>	@echo '                   configurations'
 >	@echo '  ${ANSISCRTS}      - manage secrets used by this project, by default'
 >	@echo '                   secrets are pulled into the project'
 >	@echo '  ${DEV_SHELL}      - runs a bash shell with make variables injected into'
@@ -134,8 +134,13 @@ else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
 endif
 
-.PHONY: ${ANSILINT}
-${ANSILINT}:
+.PHONY: ${LINT}
+${LINT}:
+>	@for fil in ${src_yaml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
+>		if echo $${fil} | grep --quiet '-'; then \
+>			echo "make: $${fil} should not contain a dash in the filename"; \
+>		fi \
+>	done
 >	${ANSIBLE_LINT} ${src_yaml}
 
 .PHONY: ${DEV_SHELL}
