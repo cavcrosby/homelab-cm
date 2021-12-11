@@ -83,6 +83,7 @@
     - name: Install other Python packages
       ansible.builtin.apt:
         name:
+          - python3-apt
           - python3-venv
         state: present
       become: yes
@@ -113,6 +114,55 @@
         line: 'source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
         line_identifier: sourcing the {{ ansible_python_virtualenv }} Python virtualenv
 
+    - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtualenv's site-packages
+      block:
+        # DISCUSS(cavcrosby): this maybe temporary depending on whether not a way can be found to direct the
+        # installation of python3-apt into the virtualenv site-packages directory.
+        - name: Determine the virtualenv site-packages directory
+          ansible.builtin.find:
+            paths: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/lib"
+            file_type: directory
+            patterns: python*
+            depth: 1
+          register: site_packages_find
+          failed_when: site_packages_find.files | length != 1
+
+        - name: Link python3-apt's apt
+          ansible.builtin.file:
+            state: link
+            path: "{{ site_packages_find.files[0].path }}/site-packages/apt"
+            src: /usr/lib/python3/dist-packages/apt
+
+        - name: Link python3-apt's aptsources
+          ansible.builtin.file:
+            state: link
+            path: "{{ site_packages_find.files[0].path }}/site-packages/aptsources"
+            src: /usr/lib/python3/dist-packages/aptsources
+
+        - name: Find python3-apt's apt_pkg shared object path
+          ansible.builtin.find:
+            paths: /usr/lib/python3/dist-packages
+            patterns: apt_pkg*.so
+          register: apt_pkg_find
+
+        - name: Link python3-apt's apt_pkg
+          ansible.builtin.file:
+            state: link
+            path: "{{ site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
+            src: "{{ apt_pkg_find.files[0].path }}"
+
+        - name: Find python3-apt's apt_inst shared object path
+          ansible.builtin.find:
+            paths: /usr/lib/python3/dist-packages
+            patterns: apt_inst*.so
+          register: apt_inst_find
+
+        - name: Link python3-apt's apt_inst
+          ansible.builtin.file:
+            state: link
+            path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
+            src: "{{ apt_inst_find.files[0].path }}"
+
 - name: Setup systemd-networkd networking
   hosts: ctrservers
 
@@ -136,6 +186,8 @@
 
 - name: Install Docker
   hosts: ctrservers
+  vars:
+    ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
 
   pre_tasks:
     - name: Update apt's package index
@@ -213,6 +265,20 @@
       ansible.builtin.meta: reset_connection
       changed_when: false
 
+    - name: Create the project's Docker network
+      community.docker.docker_network:
+        name: "{{ project_docker_network }}"
+        ipam_config:
+          - subnet: "{{ project_docker_bridge_ipv4_subnet }}"
+            iprange: "{{ project_docker_bridge_ipv4_subnet }}"
+            gateway: "{{ project_docker_bridge_ipv4_addr }}"
+        # for reference:
+        # https://docs.docker.com/engine/reference/commandline/network_create/#specify-advanced-options
+        driver_options:
+          com.docker.network.bridge.name: "docker1"
+      notify:
+        - Restart Docker
+
   handlers:
     - name: Restart Docker
       ansible.builtin.systemd:
@@ -254,6 +320,9 @@
         cpus: "1.0"
         memory: 1G
         volumes: jenkins_home:/var/jenkins_home
+        networks:
+          - name: "{{ project_docker_network }}"
+            ipv4_address: "{{ jenkins_torkel_ipv4_addr }}"
         env:
           JENKINS_URL: "{{ ansible_default_ipv4.address }}"
           JENKINS_ADMIN_ID: cavcrosby
