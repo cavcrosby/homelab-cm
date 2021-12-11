@@ -1,4 +1,4 @@
 # repo specfic
 .vagrant
 .python-version
-vars/ansible-secrets.yaml
+vars/ansible_secrets.yaml

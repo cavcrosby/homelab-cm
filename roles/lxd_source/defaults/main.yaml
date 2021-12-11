@@ -56,7 +56,7 @@ _default_lxc_bridge: lxcbr0
 
 _lxd_data_dir: /run/ansible/lxd_source
 _lxd_remote_preseed_path: "{{ _lxd_data_dir }}/lxd.yaml"
-_running_lxd_remote_preseed_path: "{{ _lxd_data_dir }}/running-lxd.yaml"
+_running_lxd_remote_preseed_path: "{{ _lxd_data_dir }}/running_lxd.yaml"
 _lxd_cgo_cflags: >
   -I{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/raft/include/
   -I{{ lxd_extracted_tarball_path }}/lxd-{{ lxd_release_version }}/vendor/dqlite/include/

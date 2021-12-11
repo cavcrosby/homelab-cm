@@ -98,7 +98,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
         
         machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "vagrant-customizations.yaml"
+          ansible.playbook = "vagrant_customizations.yaml"
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.host_vars = ANSIBLE_HOST_VARS

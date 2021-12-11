@@ -226,7 +226,7 @@
 - name: Deploy Docker containers
   hosts: ctrservers
   vars_files:
-    - vars/ansible-secrets.yaml
+    - vars/ansible_secrets.yaml
   vars:
     ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
 
@@ -261,7 +261,7 @@
 - name: Install LXD
   hosts: ctrservers
   vars_files:
-    - vars/ansible-secrets.yaml
+    - vars/ansible_secrets.yaml
 
   pre_tasks:
     - name: Add common handlers
@@ -279,7 +279,7 @@
   # https://stackoverflow.com/questions/42106527/ansible-how-to-call-module-add-host-for-all-hosts-of-the-play
   serial: 1
   vars_files:
-    - vars/lxd-containers.yaml
+    - vars/lxd_containers.yaml
 
   tasks:
     - name: Create LXD containers
@@ -317,7 +317,7 @@
 - name: Perform LXD container instance configuration
   hosts: ctrservers
   vars_files:
-    - vars/lxd-containers.yaml
+    - vars/lxd_containers.yaml
 
   tasks:
     # Allows all configs to be applicable (e.g. not having to use only those that
