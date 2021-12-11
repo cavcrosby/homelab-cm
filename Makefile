@@ -63,6 +63,8 @@ executables = \
 	${BASH}
 
 # to be (or can be) passed in at make runtime
+LOG =
+LOG_PATH = ./ansible.log
 VAGRANT_PROVIDER = ${LIBVIRT}
 # ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
 # reference:
@@ -90,6 +92,10 @@ ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 # 	endif
 endif
 
+ifdef LOG
+	override LOG := > ${LOG_PATH} 2>&1
+endif
+
 .PHONY: ${HELP}
 ${HELP}:
 	# inspired by the makefiles of the Linux kernel and Mercurial
@@ -113,6 +119,9 @@ ${HELP}:
 >	@echo '                           represented as the '-v' variant passed in (default: -v)'
 >	@echo '  ANSISCRTS_ACTION       - determines the action to take concerning project'
 >	@echo '                           secrets (options: ${PUT})'
+>	@echo '  LOG                    - when set, stdout/stderr will be redirected to a log'
+>	@echo '                           file (if the target supports it). LOG_PATH determines'
+>	@echo '                           log path (default: ./ansible.log)'
 
 .PHONY: ${SETUP}
 ${SETUP}:
@@ -129,9 +138,9 @@ ${ANSIPLAY}:
 .PHONY: ${ANSIPLAY_TEST}
 ${ANSIPLAY_TEST}:
 ifdef VMS_EXISTS
->	${VAGRANT} up --provision --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
+>	${VAGRANT} up --provision --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 else
->	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
+>	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 endif
 
 .PHONY: ${LINT}
@@ -169,6 +178,7 @@ endif
 
 .PHONY: ${CLEAN}
 ${CLEAN}:
+>	rm --force *.log
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls

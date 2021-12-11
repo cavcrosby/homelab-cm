@@ -1,4 +1,5 @@
 # repo specfic
 .vagrant
 .python-version
+*.log
 vars/ansible_secrets.yaml
