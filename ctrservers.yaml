@@ -1,4 +1,17 @@
 ---
+# DISCUSS(cavcrosby): the mindset of separating plays currently is to logically
+# split tasks based on intent/purpose. There has been some investigation to try
+# and condense plays that have the same connection settings into one play with
+# block sections. However, there will need to be some work done if the virtualenv
+# Python is to be used for many block sections as Ansible complained about
+# python3-apt missing. This package seems to ignore Python virtualenvs all
+# together when trying to install the package when my shell was in a Python
+# virtualenv.
+#
+# DISCUSS(cavcrosby): for maintenance purposes, it would be nice to tag logical
+# sections of tasks so I don't have to run the entire ctrserver playbook each
+# time.
+#
 # DISCUSS(cavcrosby): starting after Debian buster, nftables replaces iptables.
 # While I am sure support for the latter will stick around for quite sometime,
 # I'd like to look further into getting both Docker and LXD both using nftables.
