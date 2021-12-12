@@ -1,6 +1,6 @@
 ---
-jenkins_user: "jenkins"
-default_pyenv_python: "3.9.5"
+jenkins_user: jenkins
+default_pyenv_python: 3.9.5
 
 _roots_home: /root
 _jenkins_user_home: /home/{{ jenkins_user }}

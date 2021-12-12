@@ -13,7 +13,7 @@ docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_prefix }}.asc"
 
-lxd_release_version: "4.0.8"
+lxd_release_version: 4.0.8
 lxd_access_group: sudo
 lxd_bridge_device_name: lxdbr1
 

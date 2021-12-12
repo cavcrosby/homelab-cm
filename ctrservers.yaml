@@ -317,7 +317,7 @@
         published_ports:
           - "{{ jenkins_port_mapping }}"
           - "{{ jenkins_agents_port_mapping }}"
-        cpus: "1.0"
+        cpus: 1.0
         memory: 1G
         volumes: jenkins_home:/var/jenkins_home
         networks:
