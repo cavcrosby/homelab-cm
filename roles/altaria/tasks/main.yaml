@@ -211,7 +211,7 @@
         chdir: "{{ repo_dst }}"
         cmd: make clean
       when: current_project_config_inode.stat.checksum != project_config_inode.stat.checksum
-    
+
     - name: Make all {{ repo_name }}'s 'make' targets
       ansible.builtin.shell:
         chdir: "{{ repo_dst }}"
@@ -225,12 +225,12 @@
         mode: "755"
 
     - name: Run {{ connect_jenkins_agent_script_path }}
-      ansible.builtin.shell: 
+      ansible.builtin.shell:
         chdir: "{{ repo_dst }}/scripts"
         cmd: "{{ connect_jenkins_agent_script_path }}"
       register: connect_jenkins_agent_check
       changed_when: connect_jenkins_agent_check.rc != 0
-      
+
   vars:
     - repo_name: jenkins-infrastructure
     - repo_url: https://github.com/cavcrosby/jenkins-infrastructure
