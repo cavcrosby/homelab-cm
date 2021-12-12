@@ -324,8 +324,8 @@
           - name: "{{ project_docker_network }}"
             ipv4_address: "{{ jenkins_torkel_ipv4_addr }}"
         env:
-          JENKINS_URL: "{{ ansible_default_ipv4.address }}"
-          JENKINS_ADMIN_ID: cavcrosby
+          JENKINS_URL: "{{ ansible_default_ipv4.address }}:{{ jenkins_torkel_port }}"
+          JENKINS_ADMIN_ID: "{{ jenkins_admin_id }}"
           JENKINS_ADMIN_PASSWORD: "{{ jenkins_admin_password }}"
           JENKINS_ADMIN_FULLNAME: Conner Crosby
           JENKINS_ADMIN_EMAIL: conner@cavcrosby.tech
@@ -336,9 +336,9 @@
           JENKINS_GITHUB_CREDENTIAL_SECRET: "{{ jenkins_github_credential_secret }}"
           JENKINS_MAIN_NUM_EXECUTORS: "0"
           JENKINS_AGENT_NAME1: altaria1
-          JENKINS_AGENT_DESC1: General Build Node
+          JENKINS_AGENT_DESC1: General Linux Build Node
           JENKINS_AGENT_NUM_EXECUTORS1: "2"
-          JENKINS_AGENT_REMOTE_ROOT_DIR1: /var/lib/jenkins-agent/torkel1
+          JENKINS_AGENT_REMOTE_ROOT_DIR1: /var/lib/jenkins-agent/{{ jenkins_torkel_workingdir }}
 
 - name: Install LXD
   hosts: ctrservers
@@ -362,6 +362,7 @@
   serial: 1
   vars_files:
     - vars/lxd_containers.yaml
+    - vars/ansible_secrets.yaml
 
   tasks:
     - name: Create LXD containers
@@ -392,10 +393,19 @@
         lxd_container_type: "{{ item.type }}"
         ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
         ansible_lxd_host: "{{ item.name }}"
+        jenkins_main_node_admin_id: "{{ jenkins_admin_id }}"
+        jenkins_main_node_admin_password: "{{ jenkins_admin_password }}"
+        jenkins_main_node_ipv4_addr: "{{ jenkins_torkel_ipv4_addr }}"
+        jenkins_main_node_port: "{{ jenkins_torkel_port }}"
+        jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
         ansible_connection: lxd
         groups: [lxd_containers]
       loop: "{{ lxd_containers }}"
 
+# DISCUSS(cavcrosby): I noticed this play runs each time this playbook is ran.
+# This poses the same issue with stopping Docker on each run. In that, a container
+# could be utilized at the time the tasks below run. Which could cause mayhem
+# when turning the containers back on.
 - name: Perform LXD container instance configuration
   hosts: ctrservers
   vars_files:

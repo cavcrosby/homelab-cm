@@ -6,10 +6,3 @@ lxd_containers:
     instance_config:
       limits.cpu: "1"
       limits.memory: 2GB
-
-  - name: altaria2
-    type: altaria
-    image: debian/bullseye/amd64
-    instance_config:
-      limits.cpu: "1"
-      limits.memory: 2GB

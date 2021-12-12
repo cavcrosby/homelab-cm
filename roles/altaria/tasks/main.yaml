@@ -42,6 +42,7 @@
 - name: Install system dependencies
   ansible.builtin.apt:
     name:
+      - gettext-base # for envsubst
       - openjdk-11-jre-headless
     state: present
   become: yes
@@ -157,9 +158,82 @@
     mode: "440"
   become: yes
 
-- name: Create jenkins-agent torkel1 directory
+- name: Create jenkins-agent {{ jenkins_main_node_workingdir }} directory
   ansible.builtin.file:
-    path: /var/lib/jenkins-agent/torkel1
+    path: /var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}
     state: directory
     mode: "755"
   become: yes
+
+- name: Checkout the jenkins-infrastructure git repo, and configure it
+  block:
+    - name: Checkout the {{ repo_name }} repo
+      ansible.builtin.git:
+        dest: "{{ repo_dst }}"
+        repo: "{{ repo_url }}"
+
+    - name: Make {{ repo_name }}'s project configuration file
+      ansible.builtin.shell:
+        chdir: "{{ repo_dst }}"
+        cmd: make {{ project_config_file }}
+      register: make_all_targets_check
+      changed_when: make_all_targets_check.rc != 0
+
+    - name: Register the current {{ repo_name }}'s project configurations file inode
+      ansible.builtin.stat:
+        path: "{{ repo_dst }}/{{ project_config_file }}"
+      register: current_project_config_inode
+
+    - name: Append {{ repo_name }}'s project configurations
+      ansible.builtin.import_role:
+        name: common
+        tasks_from: managed_blockinfile
+      vars:
+        path: "{{ repo_dst }}/{{ project_config_file }}"
+        block_identifier: "{{ repo_name }}'s project configurations"
+        block_text: |
+          export JENKINS_MAIN_NODE_URL="http://{{ jenkins_main_node_ipv4_addr }}:{{ jenkins_main_node_port }}"
+          export JENKINS_AGENT_NAME="{{ ansible_lxd_host }}"
+          export JENKINS_USERNAME="{{ jenkins_main_node_admin_id }}"
+          export JENKINS_PASSWORD="{{ jenkins_main_node_admin_password }}"
+          export JENKINS_WORKINGDIR="/var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}"
+
+    # TODO(cavcrosby): make sure my usage of "current" in register variable names are
+    # consistent across the project (e.g. current_project_config_inode,
+    # running_lxd_preseed_inode).
+    - name: Register the {{ repo_name }}'s project configurations file inode
+      ansible.builtin.stat:
+        path: "{{ repo_dst }}/{{ project_config_file }}"
+      register: project_config_inode
+
+    - name: Run {{ repo_name }}'s 'make' clean
+      ansible.builtin.shell:
+        chdir: "{{ repo_dst }}"
+        cmd: make clean
+      when: current_project_config_inode.stat.checksum != project_config_inode.stat.checksum
+    
+    - name: Make all {{ repo_name }}'s 'make' targets
+      ansible.builtin.shell:
+        chdir: "{{ repo_dst }}"
+        cmd: make all
+      register: make_all_targets_check
+      changed_when: make_all_targets_check.rc != 0
+
+    - name: Make {{ connect_jenkins_agent_script_path }} executable
+      ansible.builtin.file:
+        path: "{{ connect_jenkins_agent_script_path }}"
+        mode: "755"
+
+    - name: Run {{ connect_jenkins_agent_script_path }}
+      ansible.builtin.shell: 
+        chdir: "{{ repo_dst }}/scripts"
+        cmd: "{{ connect_jenkins_agent_script_path }}"
+      register: connect_jenkins_agent_check
+      changed_when: connect_jenkins_agent_check.rc != 0
+      
+  vars:
+    - repo_name: jenkins-infrastructure
+    - repo_url: https://github.com/cavcrosby/jenkins-infrastructure
+    - repo_dst: "{{ _jenkins_user_home }}/{{ repo_name }}"
+    - project_config_file: .conf
+    - connect_jenkins_agent_script_path: "{{ repo_dst }}/scripts/connect_jenkins_agent"

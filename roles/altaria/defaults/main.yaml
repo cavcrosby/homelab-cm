@@ -1,5 +1,10 @@
 ---
 jenkins_user: jenkins
+jenkins_main_node_admin_id: root
+jenkins_main_node_admin_password: Passw0rd!
+jenkins_main_node_ipv4_addr: 127.0.0.1
+jenkins_main_node_port: 8080
+jenkins_main_node_workingdir: main
 default_pyenv_python: 3.9.5
 
 _roots_home: /root

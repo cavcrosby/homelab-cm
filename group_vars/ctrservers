@@ -21,9 +21,12 @@ iptables_up_path: /etc/iptables/rules.v4
 global_go_path: /usr/local/share/go
 
 # jenkins-torkel Docker container related configurations
-jenkins_port_mapping: 8080:8080
-jenkins_agents_port_mapping: 50000:50000
+jenkins_admin_id: cavcrosby
 jenkins_torkel_ipv4_addr: 172.16.0.2
+jenkins_torkel_port: 8080
+jenkins_torkel_workingdir: torkel1
+jenkins_port_mapping: 8080:{{ jenkins_torkel_port }}
+jenkins_agents_port_mapping: 50000:50000
 
 lxd_preseed: |
   config:
