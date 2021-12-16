@@ -13,6 +13,11 @@ docker_keyring_prefix: docker-archive-keyring
 docker_keyring_install_path: /usr/share/keyrings/{{ docker_keyring_prefix }}.gpg
 docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_keyring_prefix }}.asc"
 
+# LXD LTS releases before 4.0.8 (e.g. 4.0.7) do not use Golang's builtin module
+# dependency system. I ran into issues trying to make LXD and it appears 'go get'
+# installs the LXD repo (as a dependency) from the most recent commit, causing
+# Golang to be confused when trying to find certain packages that may no longer
+# exist (e.g. github.com/lxc/lxd/shared/subtest).
 lxd_release_version: 4.0.8
 lxd_access_group: sudo
 lxd_bridge_device_name: lxdbr1
