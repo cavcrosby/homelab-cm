@@ -165,12 +165,21 @@
     mode: "755"
   become: yes
 
-- name: Checkout the jenkins-infrastructure git repo, and configure it
+- name: Checkout the jenkins-infrastructure repo, and configure it
   block:
     - name: Checkout the {{ repo_name }} repo
       ansible.builtin.git:
         dest: "{{ repo_dst }}"
         repo: "{{ repo_url }}"
+        force: yes
+        version: "{{ jenkins_infrastructure_repo_tag }}"
+      register: checkout_repo_check
+
+    # Would have made this a handler for when the repo updates but unfortunately you
+    # cannot pass in parameters to handlers.
+    - name: Remove {{ repo_name }}'s project configuration file
+      ansible.builtin.shell: rm --force "{{ repo_dst }}/{{ project_config_file }}"
+      when: checkout_repo_check.before != checkout_repo_check.after
 
     - name: Make {{ repo_name }}'s project configuration file
       ansible.builtin.shell:

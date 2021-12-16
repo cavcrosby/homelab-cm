@@ -312,7 +312,7 @@
     - name: Deploy a jenkins-torkel container
       community.docker.docker_container:
         name: jenkins
-        image: cavcrosby/jenkins-torkel:latest
+        image: cavcrosby/jenkins-torkel:{{ jenkins_torkel_tag }}
         published_ports:
           - "{{ jenkins_port_mapping }}"
           - "{{ jenkins_agents_port_mapping }}"
@@ -383,24 +383,7 @@
       loop: "{{ lxd_containers }}"
 
     - name: Register the LXD containers as inventory
-      ansible.builtin.add_host:
-        # The 'name' attribute makes Ansible happy, trying to combine
-        # name/ansible_lxd_host into 'ansible_host' did not appear to work. For reference:
-        # https://docs.ansible.com/ansible/latest/collections/community/general/lxd_connection.html
-        #
-        # Also inspired by:
-        # https://www.reddit.com/r/ansible/comments/9b03l8/managing_lxd_containers_on_remote_machines/
-        name: "{{ inventory_hostname }}:{{ item.name }}"
-        lxd_container_type: "{{ item.type }}"
-        ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
-        ansible_lxd_host: "{{ item.name }}"
-        jenkins_main_node_admin_id: "{{ jenkins_admin_id }}"
-        jenkins_main_node_admin_password: "{{ jenkins_admin_password }}"
-        jenkins_main_node_ipv4_addr: "{{ jenkins_torkel_ipv4_addr }}"
-        jenkins_main_node_port: "{{ jenkins_torkel_port }}"
-        jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
-        ansible_connection: lxd
-        groups: [lxd_containers]
+      ansible.builtin.include_tasks: tasks/add_lxd_container_host.yaml
       loop: "{{ lxd_containers }}"
 
 - name: Check/install Python on the LXD containers
