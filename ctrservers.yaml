@@ -12,7 +12,7 @@
 # sections of tasks so I don't have to run the entire ctrserver playbook each
 # time.
 #
-# DISCUSS(cavcrosby): starting after Debian buster, nftables replaces iptables.
+# MONITOR(cavcrosby): starting after Debian buster, nftables replaces iptables.
 # While I am sure support for the latter will stick around for quite sometime,
 # I'd like to look further into getting both Docker and LXD both using nftables.
 # On Debian bullseye nftables is installed by default but the service is
@@ -20,15 +20,14 @@
 # https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/7#post_9
 # https://wiki.debian.org/nftables
 #
-# MONITOR(cavcrosby): having initially attempted to integrate nftables and
-# remove usage of iptables, I ran into the troublesome issue of Docker continuing
-# to use iptables. As of this writing, Docker can only use iptables as a backend
-# and converting the Docker iptables rules to a nft ruleset was easy. However,
-# the notion of having to continuously port (also knowing when to and not to)
-# over iptables rules to the nft ruleset will require a lot of work that I don't
-# think will be worth it once Docker natively supports nftables. For now, the
-# following ticket should be monitored:
-# https://github.com/moby/moby/issues/26824
+# Having initially attempted to integrate nftables and remove usage of iptables,
+# I ran into the troublesome issue of Docker continuing to use iptables. As of
+# this writing, Docker can only use iptables as a backend and converting the
+# Docker iptables rules to a nft ruleset was easy. However, the notion of having
+# to continuously port (also knowing when to and not to) over iptables rules to
+# the nft ruleset will require a lot of work that I don't think will be worth it
+# once Docker natively supports nftables. For now, the following ticket should
+# be monitored: https://github.com/moby/moby/issues/26824
 - name: Setup default legacy userland "iptables" tools
   hosts: ctrservers
   become: yes
@@ -368,9 +367,11 @@
     - name: Create LXD containers
       community.general.lxd_container:
         name: "{{ item.name }}"
-        state: stopped
+        state: started
+        config: "{{ item.instance_config }}"
         profiles: ["default"]
         ignore_volatile_options: false
+        wait_for_ipv4_addresses: true
         source:
           type: image
           mode: pull
@@ -400,43 +401,6 @@
         jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
         ansible_connection: lxd
         groups: [lxd_containers]
-      loop: "{{ lxd_containers }}"
-
-# DISCUSS(cavcrosby): I noticed this play runs each time this playbook is ran.
-# This poses the same issue with stopping Docker on each run. In that, a container
-# could be utilized at the time the tasks below run. Which could cause mayhem
-# when turning the containers back on.
-- name: Perform LXD container instance configuration
-  hosts: ctrservers
-  vars_files:
-    - vars/lxd_containers.yaml
-
-  tasks:
-    # Allows all configs to be applicable (e.g. not having to use only those that
-    # are permitted as "Live Updates").
-    - name: Shut off LXD containers
-      community.general.lxd_container:
-        name: "{{ item.name }}"
-        state: stopped
-        ignore_volatile_options: false
-      loop: "{{ lxd_containers }}"
-
-    - name: Configure LXD container instances
-      community.general.lxd_container:
-        name: "{{ item.name }}"
-        state: stopped
-        ignore_volatile_options: false
-        config: "{{ item.instance_config }}"
-      loop: "{{ lxd_containers }}"
-
-    - name: Turn back on LXD containers
-      community.general.lxd_container:
-        name: "{{ item.name }}"
-        state: started
-        ignore_volatile_options: false
-        wait_for_ipv4_addresses: true
-      register: lxd_container_check
-      changed_when: lxd_container_check.old_state == "absent"
       loop: "{{ lxd_containers }}"
 
 - name: Check/install Python on the LXD containers
