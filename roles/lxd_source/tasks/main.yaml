@@ -101,7 +101,8 @@
 
 - name: Check if LXD is installed
   ansible.builtin.shell: |
-    find "{{ lxd_go_path }}/bin" -name 'lxd' -type f
+    find "{{ lxd_go_path }}/bin" \( -name 'lxd' \) \
+      -and \( -type f \)
   become: yes
   register: lxd_check
   changed_when: lxd_check.stdout | length == 0
