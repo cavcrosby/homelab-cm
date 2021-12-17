@@ -185,7 +185,7 @@
     recurse: yes
     owner: "{{ jenkins_user }}"
     group: "{{ jenkins_user }}"
-    state: file
+    state: directory
   when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Install a Python interpreter to be managed by pyenv
