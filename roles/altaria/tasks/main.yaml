@@ -185,6 +185,7 @@
     recurse: yes
     owner: "{{ jenkins_user }}"
     group: "{{ jenkins_user }}"
+    state: file
   when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Install a Python interpreter to be managed by pyenv
@@ -275,6 +276,7 @@
       ansible.builtin.file:
         path: "{{ connect_jenkins_agent_script_path }}"
         mode: "755"
+        state: file
 
     - name: Run {{ connect_jenkins_agent_script_path }}
       ansible.builtin.shell:
