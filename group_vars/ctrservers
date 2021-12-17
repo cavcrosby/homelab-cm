@@ -26,6 +26,7 @@ iptables_up_path: /etc/iptables/rules.v4
 global_go_path: /usr/local/share/go
 
 altaria_jenkins_infrastructure_repo_tag: v1.0.0
+altaria_pyenv_version: v2.2.2
 
 # jenkins-torkel Docker container related configurations
 jenkins_admin_id: cavcrosby

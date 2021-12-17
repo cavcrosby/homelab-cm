@@ -123,18 +123,61 @@
     path: "{{ _jenkins_pyenv_root_path }}"
   register: jenkins_pyenv_root_inode
 
-- name: Grab the pyenv installer
-  ansible.builtin.get_url:
-    url: https://pyenv.run
-    dest: "{{ _pyenv_installer_path }}"
-    mode: "755"
-  when: not jenkins_pyenv_root_inode.stat.exists
+# MONITOR(cavcrosby): I anticipate that eventually I will no longer need to use
+# my forked version of the pyenv-installer repo. This depends ultimately on the
+# outcome of a particular pull request. Once a outcome is determined, this section
+# should be updated.
+# https://github.com/pyenv/pyenv-installer/pull/126
+#
+# - name: Grab the pyenv installer
+#   ansible.builtin.get_url:
+#     url: https://pyenv.run
+#     dest: "{{ _pyenv_installer_path }}"
+#     mode: "755"
+#   when: not jenkins_pyenv_root_inode.stat.exists
+
+- name: Checkout my pyenv-installer forked repo
+  block:
+    - name: Checkout the {{ repo_name }} repo
+      ansible.builtin.git:
+        dest: "{{ repo_dst }}"
+        repo: "{{ repo_url }}"
+        force: yes
+        version: pyenv-install-tag
+
+    - name: Copy the pyenv-installer to its intended location
+      ansible.builtin.copy:
+        dest: "{{ _pyenv_installer_path }}"
+        src: "{{ repo_dst }}/bin/pyenv-installer"
+        remote_src: yes
+        mode: "755"
+
+  vars:
+    - repo_name: pyenv-installer
+    - repo_url: https://github.com/cavcrosby/pyenv-installer
+    - repo_dst: "{{ _jenkins_user_home }}/{{ repo_name }}"
+
+- name: Get the running pyenv version
+  ansible.builtin.shell: |
+    . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
+  become: yes
+  register: running_pyenv_version
+  failed_when: false
+  changed_when: false
+
+- name: Remove pyenv from the system
+  ansible.builtin.file:
+    state: absent
+    path: "{{ _jenkins_pyenv_root_path }}"
+  when: running_pyenv_version.stdout != pyenv_version
 
 - name: Run the pyenv installer
   ansible.builtin.shell: "{{ _pyenv_installer_path }}"
   environment:
     PYENV_ROOT: "{{ _jenkins_pyenv_root_path }}"
+    PYENV_GIT_TAG: "{{ pyenv_version }}"
   when: not jenkins_pyenv_root_inode.stat.exists
+        or running_pyenv_version.stdout != pyenv_version
 
 - name: Give ownership {{ _jenkins_pyenv_root_path }} to {{ jenkins_user }}
   ansible.builtin.file:

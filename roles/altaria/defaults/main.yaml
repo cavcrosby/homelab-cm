@@ -6,6 +6,7 @@ jenkins_main_node_ipv4_addr: 127.0.0.1
 jenkins_main_node_port: 8080
 jenkins_main_node_workingdir: main
 jenkins_infrastructure_repo_tag: v1.0.0
+pyenv_version: v2.2.2
 default_pyenv_python: 3.9.5
 
 _roots_home: /root
