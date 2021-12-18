@@ -1,8 +1,4 @@
 ---
-# DISCUSS(cavcrosby): this applies else where too. Any program/application that
-# is upgraded/updated, we want to make sure the system can resume running in the
-# same state prior but with the upgraded package/application. Repos might be a
-# bit more tricky.
 - name: Update apt's package index
   ansible.builtin.apt:
     update_cache: yes

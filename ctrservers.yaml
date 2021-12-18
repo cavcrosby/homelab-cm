@@ -115,8 +115,6 @@
 
     - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtualenv's site-packages
       block:
-        # DISCUSS(cavcrosby): this maybe temporary depending on whether not a way can be found to direct the
-        # installation of python3-apt into the virtualenv site-packages directory.
         - name: Determine the virtualenv site-packages directory
           ansible.builtin.find:
             paths: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/lib"
