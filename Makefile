@@ -12,6 +12,10 @@ BITWARDEN_CLI_VERSION = 1.19.1
 BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
 BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
 BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
+VAGRANT_LIBVIRT_PLUGIN_VERSION = 0.7.0
+VAGRANT_LIBVIRT_PLUGIN_FILE = vagrant-libvirt-${VAGRANT_LIBVIRT_PLUGIN_VERSION}
+VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
+VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH = ${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_FILE}.tar.gz
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
@@ -130,6 +134,17 @@ ${SETUP}:
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
 >	chmod 755 "${BITWARDEN_CLI_PATH}"
+
+	# This was needed as it was observed that while one system already had the
+	# vagrant-libvirt plugin installed (version 0.0.45). The version of the plugin
+	# dates back to 2018, and has an issue where there is an additional underscore
+	# appended to any user defined libvirt prefix for a domain. Any version to be
+	# installed should be after the fix was pulled in or after commit c02905be.
+>	wget --quiet --output-document "${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH}" https://github.com/vagrant-libvirt/vagrant-libvirt/archive/refs/tags/${VAGRANT_LIBVIRT_PLUGIN_VERSION}.tar.gz
+>	tar zxvf "${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH}" --directory="${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}"
+>	cd "${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_FILE}" \
+>	&& ${GEM} build $$(find . -name '*.gemspec') \
+>	&& ${VAGRANT} plugin install $$(find . -name '*.gem')
 
 .PHONY: ${ANSIPLAY}
 ${ANSIPLAY}:
