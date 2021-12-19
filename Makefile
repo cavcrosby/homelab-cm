@@ -51,20 +51,28 @@ PKILL = pkill
 JQ = jq
 SUDO = sudo
 BW = bw
-executables = \
-	${VIRSH}\
-	${VAGRANT}\
-	${PKILL}\
-	${JQ}\
-	${PERL}\
-	${LXC}\
-	${ANSIBLE_PLAYBOOK}\
-	${ANSIBLE_GALAXY}\
-	${ANSIBLE_LINT}\
-	${ANSIBLE_VAULT}\
-	${GEM}\
-	${SUDO}\
-	${BASH}
+ifdef CONTROLLER_NODE
+	executables = \
+		${ANSIBLE_PLAYBOOK}\
+		${ANSIBLE_GALAXY}\
+		${ANSIBLE_VAULT}\
+		${JQ}
+else
+	executables = \
+		${VIRSH}\
+		${VAGRANT}\
+		${PKILL}\
+		${JQ}\
+		${PERL}\
+		${LXC}\
+		${ANSIBLE_PLAYBOOK}\
+		${ANSIBLE_GALAXY}\
+		${ANSIBLE_LINT}\
+		${ANSIBLE_VAULT}\
+		${GEM}\
+		${SUDO}\
+		${BASH}
+endif
 
 # to be (or can be) passed in at make runtime
 LOG =
@@ -130,10 +138,11 @@ ${HELP}:
 .PHONY: ${SETUP}
 ${SETUP}:
 >	${ANSIBLE_GALAXY} collection install --requirements-file requirements.yaml
->	${SUDO} ${GEM} install nokogiri
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
 >	chmod 755 "${BITWARDEN_CLI_PATH}"
+ifndef CONTROLLER_NODE
+>	${SUDO} ${GEM} install nokogiri
 
 	# This was needed as it was observed that while one system already had the
 	# vagrant-libvirt plugin installed (version 0.0.45). The version of the plugin
@@ -145,6 +154,7 @@ ${SETUP}:
 >	cd "${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_FILE}" \
 >	&& ${GEM} build $$(find . -name '*.gemspec') \
 >	&& ${VAGRANT} plugin install $$(find . -name '*.gem')
+endif
 
 .PHONY: ${ANSIPLAY}
 ${ANSIPLAY}:
@@ -194,36 +204,38 @@ endif
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
-ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
-	# There are times where vagrant may get into defunct state and will be unable to
-	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
-	# to virsh destroy and undefine.
->	-@for domain in ${LIBVIRT_DOMAINS}; do \
->		echo ${VIRSH} destroy --domain $${domain}; \
->		${VIRSH} destroy --domain $${domain}; \
->	done
+ifndef CONTROLLER_NODE
+	ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
+		# There are times where vagrant may get into defunct state and will be unable to
+		# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
+		# to virsh destroy and undefine.
+>		-@for domain in ${LIBVIRT_DOMAINS}; do \
+>			echo ${VIRSH} destroy --domain $${domain}; \
+>			${VIRSH} destroy --domain $${domain}; \
+>		done
 
->	-@for domain in ${LIBVIRT_DOMAINS}; do \
->		echo ${VIRSH} undefine --domain $${domain}; \
->		${VIRSH} undefine --domain $${domain}; \
->	done
->	${VAGRANT} destroy --force
+>		-@for domain in ${LIBVIRT_DOMAINS}; do \
+>			echo ${VIRSH} undefine --domain $${domain}; \
+>			${VIRSH} undefine --domain $${domain}; \
+>		done
+>		${VAGRANT} destroy --force
 
-	# Redeploying LXD on new VMs may cause cert issues when trying to reuse their
-	# certs previously known the controller. The error would report something like,
-	# "x509: certificate is valid for 127.0.0.1, ::1, not <ipv4_addr>".
->	-@for ctrserver in ${CTRSERVERS}; do \
->		echo ${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
-			--arg CTRSERVER "$${ctrserver}" \
-			--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
->		${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
-			--arg CTRSERVER "$${ctrserver}" \
-			--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
->	done
+		# Redeploying LXD on new VMs may cause cert issues when trying to reuse their
+		# certs previously known the controller. The error would report something like,
+		# "x509: certificate is valid for 127.0.0.1, ::1, not <ipv4_addr>".
+>		-@for ctrserver in ${CTRSERVERS}; do \
+>			echo ${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+				--arg CTRSERVER "$${ctrserver}" \
+				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+>			${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+				--arg CTRSERVER "$${ctrserver}" \
+				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+>		done
 
-	# done in recommendation by vagrant when a domain fails to connect via ssh
->	rm --recursive --force ./.vagrant
->	${PKILL} ssh-agent
-else
->	@echo make: unknown VAGRANT_PROVIDER \'${VAGRANT_PROVIDER}\' passed in
+		# done in recommendation by vagrant when a domain fails to connect via ssh
+>		rm --recursive --force ./.vagrant
+>		${PKILL} ssh-agent
+	else
+>		@echo make: unknown VAGRANT_PROVIDER \'${VAGRANT_PROVIDER}\' passed in
+	endif
 endif
