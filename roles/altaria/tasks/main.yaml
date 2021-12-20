@@ -83,7 +83,7 @@
     state: present
     home: /home/{{ jenkins_user }}
     shell: /bin/bash
-    password: '$6$1234$B4Ea6.5maChxdHpoCfkYFc8J7w8gfAowUfyjuATHSPawgcRn.jJExi6itqEhSMJLGdwTxKRlHX1XZ/SmDufT0.'
+    password: "{{ jenkins_user_password }}"
   become: yes
 
 - name: Create {{ jenkins_user }}'s .profile
