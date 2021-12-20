@@ -99,8 +99,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "vagrant_customizations.yaml"
+          ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
@@ -110,8 +112,10 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "site.yaml"
+          ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?

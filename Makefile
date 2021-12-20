@@ -78,6 +78,8 @@ endif
 LOG =
 LOG_PATH = ./ansible.log
 VAGRANT_PROVIDER = ${LIBVIRT}
+export ANSIBLE_TAGS = all
+
 # ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
 # reference:
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
@@ -125,6 +127,8 @@ ${HELP}:
 >	@echo '                   it to work with the project'\''s Vagrantfile'
 >	@echo '  ${CLEAN}          - removes files generated from targets'
 >	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
+>	@echo '  ANSIBLE_TAGS           - set the tags denoting the tasks/roles/plays for'
+>	@echo '                           Ansible to run (default: all)'
 >	@echo '  VAGRANT_PROVIDER       - set the provider used for the virtual environment'
 >	@echo '                           created by Vagrant (default: libvirt)'
 >	@echo '  ANSIBLE_VERBOSITY_OPT  - set the verbosity level when running ansible commands,'

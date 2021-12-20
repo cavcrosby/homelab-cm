@@ -1,17 +1,4 @@
 ---
-# DISCUSS(cavcrosby): the mindset of separating plays currently is to logically
-# split tasks based on intent/purpose. There has been some investigation to try
-# and condense plays that have the same connection settings into one play with
-# block sections. However, there will need to be some work done if the virtualenv
-# Python is to be used for many block sections as Ansible complained about
-# python3-apt missing. This package seems to ignore Python virtualenvs all
-# together when trying to install the package when my shell was in a Python
-# virtualenv.
-#
-# DISCUSS(cavcrosby): for maintenance purposes, it would be nice to tag logical
-# sections of tasks so I don't have to run the entire ctrserver playbook each
-# time.
-#
 # MONITOR(cavcrosby): starting after Debian buster, nftables replaces iptables.
 # While I am sure support for the latter will stick around for quite sometime,
 # I'd like to look further into getting both Docker and LXD both using nftables.
@@ -28,161 +15,158 @@
 # the nft ruleset will require a lot of work that I don't think will be worth it
 # once Docker natively supports nftables. For now, the following ticket should
 # be monitored: https://github.com/moby/moby/issues/26824
-- name: Setup default legacy userland "iptables" tools
+- name: Perform initial setup for ctrserver
   hosts: ctrservers
-  become: yes
+  tags: initial_setup
 
   pre_tasks:
     - name: Update apt's package index
       ansible.builtin.apt:
         update_cache: yes
       become: yes
-
+    
   tasks:
-    - name: Install legacy iptables dependencies
-      ansible.builtin.apt:
-        name:
-          - arptables
-          - ebtables
-          - iptables
-          - iptables-persistent
-        state: present
-      become: yes
-
-    - name: Setup legacy iptables
-      community.general.alternatives:
-        name: iptables
-        path: /usr/sbin/iptables-legacy
-
-    - name: Setup legacy ip6tables
-      community.general.alternatives:
-        name: ip6tables
-        path: /usr/sbin/ip6tables-legacy
-
-    - name: Setup legacy arptables
-      community.general.alternatives:
-        name: arptables
-        path: /usr/sbin/arptables-legacy
-
-    - name: Setup legacy ebtables
-      community.general.alternatives:
-        name: ebtables
-        path: /usr/sbin/ebtables-legacy
-
-- name: Setup ansible user's Python virtual environment (virtualenv)
-  hosts: ctrservers
-
-  pre_tasks:
-    - name: Update apt's package index
-      ansible.builtin.apt:
-        update_cache: yes
-      become: yes
-
-  tasks:
-    - name: Install other Python packages
-      ansible.builtin.apt:
-        name:
-          - python3-apt
-          - python3-venv
-        state: present
-      become: yes
-
-    - name: Create a Python virtualenvs directory
-      ansible.builtin.file:
-        path: "{{ ansible_python_virtualenvs_path }}"
-        state: directory
-        mode: "755"
-
-    - name: Create the {{ ansible_python_virtualenv }} Python virtualenv
-      ansible.builtin.pip:
-        # requests might not actually be used but the module requires a package to
-        # install for initial virtualenv setup.
-        name:
-          - docker
-          - requests
-        virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-        virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-
-    - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
-      ansible.builtin.import_role:
-        name: common
-        tasks_from: managed_lineinfile
-      vars:
-        path: "{{ ansible_env['HOME'] }}/.bashrc"
-        regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-        line: 'source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-        line_identifier: sourcing the {{ ansible_python_virtualenv }} Python virtualenv
-
-    - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtualenv's site-packages
+    - name: Setup ansible user's Python virtual environment (virtualenv)
       block:
-        - name: Determine the virtualenv site-packages directory
-          ansible.builtin.find:
-            paths: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/lib"
-            file_type: directory
-            patterns: python*
-            depth: 1
-          register: site_packages_find
-          failed_when: site_packages_find.files | length != 1
+        - name: Install other Python packages
+          ansible.builtin.apt:
+            name:
+              - python3-apt
+              - python3-venv
+            state: present
+          become: yes
 
-        - name: Link python3-apt's apt
+        - name: Create a Python virtualenvs directory
           ansible.builtin.file:
-            state: link
-            path: "{{ site_packages_find.files[0].path }}/site-packages/apt"
-            src: /usr/lib/python3/dist-packages/apt
+            path: "{{ ansible_python_virtualenvs_path }}"
+            state: directory
+            mode: "755"
 
-        - name: Link python3-apt's aptsources
-          ansible.builtin.file:
-            state: link
-            path: "{{ site_packages_find.files[0].path }}/site-packages/aptsources"
-            src: /usr/lib/python3/dist-packages/aptsources
+        - name: Create the {{ ansible_python_virtualenv }} Python virtualenv
+          ansible.builtin.pip:
+            # requests might not actually be used but the module requires a package to
+            # install for initial virtualenv setup.
+            name:
+              - docker
+              - requests
+            virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
+            virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
 
-        - name: Find python3-apt's apt_pkg shared object path
-          ansible.builtin.find:
-            paths: /usr/lib/python3/dist-packages
-            patterns: apt_pkg*.so
-          register: apt_pkg_find
+        - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
+          ansible.builtin.import_role:
+            name: common
+            tasks_from: managed_lineinfile
+          vars:
+            path: "{{ ansible_env['HOME'] }}/.bashrc"
+            regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
+            line: 'source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
+            line_identifier: sourcing the {{ ansible_python_virtualenv }} Python virtualenv
 
-        - name: Link python3-apt's apt_pkg
-          ansible.builtin.file:
-            state: link
-            path: "{{ site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
-            src: "{{ apt_pkg_find.files[0].path }}"
+        - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtualenv's site-packages
+          block:
+            - name: Determine the virtualenv site-packages directory
+              ansible.builtin.find:
+                paths: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/lib"
+                file_type: directory
+                patterns: python*
+                depth: 1
+              register: site_packages_find
+              failed_when: site_packages_find.files | length != 1
 
-        - name: Find python3-apt's apt_inst shared object path
-          ansible.builtin.find:
-            paths: /usr/lib/python3/dist-packages
-            patterns: apt_inst*.so
-          register: apt_inst_find
+            - name: Link python3-apt's apt
+              ansible.builtin.file:
+                state: link
+                path: "{{ site_packages_find.files[0].path }}/site-packages/apt"
+                src: /usr/lib/python3/dist-packages/apt
 
-        - name: Link python3-apt's apt_inst
-          ansible.builtin.file:
-            state: link
-            path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
-            src: "{{ apt_inst_find.files[0].path }}"
+            - name: Link python3-apt's aptsources
+              ansible.builtin.file:
+                state: link
+                path: "{{ site_packages_find.files[0].path }}/site-packages/aptsources"
+                src: /usr/lib/python3/dist-packages/aptsources
 
-- name: Setup systemd-networkd networking
-  hosts: ctrservers
+            - name: Find python3-apt's apt_pkg shared object path
+              ansible.builtin.find:
+                paths: /usr/lib/python3/dist-packages
+                patterns: apt_pkg*.so
+              register: apt_pkg_find
 
-  tasks:
+            - name: Link python3-apt's apt_pkg
+              ansible.builtin.file:
+                state: link
+                path: "{{ site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
+                src: "{{ apt_pkg_find.files[0].path }}"
+
+            - name: Find python3-apt's apt_inst shared object path
+              ansible.builtin.find:
+                paths: /usr/lib/python3/dist-packages
+                patterns: apt_inst*.so
+              register: apt_inst_find
+
+            - name: Link python3-apt's apt_inst
+              ansible.builtin.file:
+                state: link
+                path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
+                src: "{{ apt_inst_find.files[0].path }}"
+
+    - name: Setup default legacy userland "iptables" tools
+      block:
+        - name: Install legacy iptables dependencies
+          ansible.builtin.apt:
+            name:
+              - arptables
+              - ebtables
+              - iptables
+              - iptables-persistent
+            state: present
+          become: yes
+
+        - name: Setup legacy iptables
+          community.general.alternatives:
+            name: iptables
+            path: /usr/sbin/iptables-legacy
+          become: yes
+
+        - name: Setup legacy ip6tables
+          community.general.alternatives:
+            name: ip6tables
+            path: /usr/sbin/ip6tables-legacy
+          become: yes
+
+        - name: Setup legacy arptables
+          community.general.alternatives:
+            name: arptables
+            path: /usr/sbin/arptables-legacy
+          become: yes
+
+        - name: Setup legacy ebtables
+          community.general.alternatives:
+            name: ebtables
+            path: /usr/sbin/ebtables-legacy
+          become: yes
+
     - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files:
-          - filename: "{{ ansible_default_ipv4.interface }}.link"
-            Match:
-              MACAddress: "{{ ansible_default_ipv4.macaddress }}"
-            Link:
-              NamePolicy: keep
+      block:
+        - name: Setup systemd-networkd networking
+          ansible.builtin.include_role:
+            name: systemd_networkd
+          vars:
+            systemd_networkd_files:
+              - filename: "{{ ansible_default_ipv4.interface }}.link"
+                Match:
+                  MACAddress: "{{ ansible_default_ipv4.macaddress }}"
+                Link:
+                  NamePolicy: keep
 
-          - filename: "{{ ansible_default_ipv4.interface }}.network"
-            Match:
-              Name: "{{ ansible_default_ipv4.interface }}"
-            Network:
-              DHCP: "ipv4"
+              - filename: "{{ ansible_default_ipv4.interface }}.network"
+                Match:
+                  Name: "{{ ansible_default_ipv4.interface }}"
+                Network:
+                  DHCP: "ipv4"
 
 - name: Install Docker
   hosts: ctrservers
+  tags: install_docker
   vars:
     ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
 
@@ -301,6 +285,7 @@
 
 - name: Deploy Docker containers
   hosts: ctrservers
+  tags: deploy_docker_containers
   vars_files:
     - vars/ansible_secrets.yaml
   vars:
@@ -339,6 +324,7 @@
 
 - name: Install LXD
   hosts: ctrservers
+  tags: install_lxd
   vars_files:
     - vars/ansible_secrets.yaml
 
@@ -353,6 +339,7 @@
 
 - name: Create LXD containers
   hosts: ctrservers
+  tags: create_lxd_containers
   # Added as add_host only runs on one host out of all the hosts in a play.
   # For reference: 
   # https://stackoverflow.com/questions/42106527/ansible-how-to-call-module-add-host-for-all-hosts-of-the-play
@@ -386,6 +373,7 @@
 
 - name: Check/install Python on the LXD containers
   hosts: lxd_containers
+  tags: check_python_lxd_containers
   # Ansible seems to fail at gathering facts from a container if the provided image
   # does not have Python installed.
   gather_facts: no
@@ -403,14 +391,17 @@
 
 - name: Group the LXD containers by type
   hosts: lxd_containers
+  tags: group_lxd_containers
+
   tasks:
     - name: Group the LXD containers by type
       ansible.builtin.group_by:
         key: "lxd_{{ lxd_container_type }}_containers"
       changed_when: false
 
-- name: Perform initial configuration on the LXD altaria containers
+- name: Perform configuration on the LXD altaria containers
   hosts: lxd_altaria_containers
+  tags: configure_altaria_containers
 
   roles:
     - altaria
