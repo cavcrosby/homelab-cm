@@ -145,9 +145,6 @@
         force: yes
         version: pyenv-install-tag
 
-    # TODO(cavcrosby): consistency for appending a file to some destination will need
-    # to be checked. I don't usually give an absolute path for any destination unless
-    # I know the destination ending node must be different from the src.
     - name: Copy the pyenv-installer to its intended location
       ansible.builtin.copy:
         dest: "{{ _pyenv_installer_path }}"
