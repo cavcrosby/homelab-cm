@@ -54,8 +54,8 @@ lxd_preseed: |
 # The default bridge created when installing 'a' lxc package.
 _default_lxc_bridge: lxcbr0
 
-# The directory created from a extracted release tarball, which "should" also
-# serve as the prefix in the tarball name.
+# The directory created from a extracted lxd release tarball, which "should" also
+# serve as the prefix in said tarball name.
 _lxd_extracted_dir: lxd-{{ lxd_release_version }}
 
 _lxd_data_dir: /run/ansible/lxd_source
