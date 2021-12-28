@@ -200,6 +200,7 @@
       [Service]
       Type=exec
       ExecStart={{ lxd_wrapper_path }} --group {{ lxd_access_group }}
+      ExecStop={{ lxd_wrapper_path }} shutdown
 
       [Install]
       WantedBy=multi-user.target
