@@ -254,6 +254,8 @@
     # TODO(cavcrosby): make sure my usage of "current" in register variable names are
     # consistent across the project (e.g. current_project_config_inode,
     # running_lxd_preseed_inode).
+    # TODO(cavcrosby): make sure no_log is passed to all modules that may return
+    # results containing sensitive credentials.
     - name: Register the {{ repo_name }}'s project configurations file inode
       ansible.builtin.stat:
         path: "{{ repo_dst }}/{{ project_config_file }}"
