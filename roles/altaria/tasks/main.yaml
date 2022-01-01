@@ -109,7 +109,7 @@
 
 - name: Append pyenv setup to {{ jenkins_user }}'s .bashrc
   ansible.builtin.import_role:
-    name: common
+    name: cavcrosby.general.common
     tasks_from: managed_blockinfile
   vars:
     path: "{{ _jenkins_user_home }}/.bashrc"
@@ -239,7 +239,7 @@
 
     - name: Append {{ repo_name }}'s project configurations
       ansible.builtin.import_role:
-        name: common
+        name: cavcrosby.general.common
         tasks_from: managed_blockinfile
       vars:
         path: "{{ repo_dst }}/{{ project_config_file }}"

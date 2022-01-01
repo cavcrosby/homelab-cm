@@ -54,7 +54,7 @@
 
         - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
           ansible.builtin.import_role:
-            name: common
+            name: cavcrosby.general.common
             tasks_from: managed_lineinfile
           vars:
             path: "{{ ansible_env['HOME'] }}/.bashrc"
@@ -184,7 +184,7 @@
     # This is only meant to add to the handler's section, not replace it.
     - name: Add common handlers
       ansible.builtin.import_role:
-        name: common
+        name: cavcrosby.general.common
         handlers_from: main
 
   tasks:
@@ -331,11 +331,11 @@
   pre_tasks:
     - name: Add common handlers
       ansible.builtin.import_role:
-        name: common
+        name: cavcrosby.general.common
         handlers_from: main
 
   roles:
-    - lxd_source
+    - cavcrosby.general.lxd_source
 
 - name: Create LXD containers
   hosts: ctrservers

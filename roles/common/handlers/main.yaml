@@ -1,6 +1,0 @@
----
-- name: Save the current iptables rules
-  community.general.iptables_state:
-    path: "{{ iptables_up_path }}"
-    state: saved
-  become: yes
