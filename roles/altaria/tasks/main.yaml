@@ -158,8 +158,9 @@
     - repo_dst: "{{ _jenkins_user_home }}/{{ repo_name }}"
 
 - name: Get the running pyenv version
-  ansible.builtin.shell: |
-    . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: set -o pipefail && . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
   become: yes
   register: running_pyenv_version
   failed_when: false
@@ -172,7 +173,7 @@
   when: running_pyenv_version.stdout != pyenv_version
 
 - name: Run the pyenv installer
-  ansible.builtin.shell: "{{ _pyenv_installer_path }}"
+  ansible.builtin.command: "{{ _pyenv_installer_path }}"
   environment:
     PYENV_ROOT: "{{ _jenkins_pyenv_root_path }}"
     PYENV_GIT_TAG: "{{ pyenv_version }}"
@@ -222,11 +223,13 @@
     # Would have made this a handler for when the repo updates but unfortunately you
     # cannot pass in parameters to handlers.
     - name: Remove {{ repo_name }}'s project configuration file
-      ansible.builtin.shell: rm --force "{{ repo_dst }}/{{ project_config_file }}"
+      ansible.builtin.file:
+        path: "{{ repo_dst }}/{{ project_config_file }}"
+        state: absent
       when: checkout_repo_check.before != checkout_repo_check.after
 
     - name: Make {{ repo_name }}'s project configuration file
-      ansible.builtin.shell:
+      ansible.builtin.command:
         chdir: "{{ repo_dst }}"
         cmd: make {{ project_config_file }}
       register: make_all_targets_check
@@ -262,13 +265,13 @@
       register: project_config_inode
 
     - name: Run {{ repo_name }}'s 'make' clean
-      ansible.builtin.shell:
+      ansible.builtin.command:
         chdir: "{{ repo_dst }}"
         cmd: make clean
       when: current_project_config_inode.stat.checksum != project_config_inode.stat.checksum
 
     - name: Make all {{ repo_name }}'s 'make' targets
-      ansible.builtin.shell:
+      ansible.builtin.command:
         chdir: "{{ repo_dst }}"
         cmd: make all
       register: make_all_targets_check
@@ -281,7 +284,7 @@
         state: file
 
     - name: Run {{ connect_jenkins_agent_script_path }}
-      ansible.builtin.shell:
+      ansible.builtin.command:
         chdir: "{{ repo_dst }}/scripts"
         cmd: "{{ connect_jenkins_agent_script_path }}"
       register: connect_jenkins_agent_check

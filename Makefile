@@ -4,7 +4,7 @@
 
 # recursive variables
 SHELL = /usr/bin/sh
-ANSIBLE_SECRETS_DIR_PATH = ./vars
+ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SECRETS_FILE = ansible_secrets.yaml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
@@ -141,7 +141,7 @@ ${HELP}:
 
 .PHONY: ${SETUP}
 ${SETUP}:
->	${ANSIBLE_GALAXY} collection install --requirements-file requirements.yaml
+>	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yaml
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
 >	chmod 755 "${BITWARDEN_CLI_PATH}"
@@ -179,7 +179,7 @@ ${LINT}:
 >			echo "make: $${fil} should not contain a dash in the filename"; \
 >		fi \
 >	done
->	${ANSIBLE_LINT} ${src_yaml}
+>	${ANSIBLE_LINT}
 
 .PHONY: ${DEV_SHELL}
 ${DEV_SHELL}:

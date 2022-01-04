@@ -2,4 +2,4 @@
 .vagrant
 .python-version
 *.log
-vars/ansible_secrets.yaml
+/playbooks/vars/ansible_secrets.yaml
