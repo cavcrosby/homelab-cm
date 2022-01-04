@@ -139,6 +139,11 @@ ${HELP}:
 >	@echo '                           file (if the target supports it). LOG_PATH determines'
 >	@echo '                           log path (default: ./ansible.log)'
 
+# TODO(cavcrosby): it would be best to install a specific ansible and
+# ansible-lint version for the project instead installing random version(s).
+#
+# ansible (core) 2.12.1 and ansible-lint 5.3.1 would be good to use. Will need
+# to install them as Python packages.
 .PHONY: ${SETUP}
 ${SETUP}:
 >	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yaml
