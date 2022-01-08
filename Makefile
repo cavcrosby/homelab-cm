@@ -12,6 +12,7 @@ BITWARDEN_CLI_VERSION = 1.19.1
 BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
 BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
 BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
+VIRTUALENV_PYTHON_VERSION = 3.9.5
 VAGRANT_LIBVIRT_PLUGIN_VERSION = 0.7.0
 VAGRANT_LIBVIRT_PLUGIN_PREFIX = vagrant-libvirt-${VAGRANT_LIBVIRT_PLUGIN_VERSION}
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
@@ -22,6 +23,7 @@ export ANSIBLE_CONFIG = ./ansible.cfg
 # targets
 HELP = help
 SETUP = setup
+PYTHON_SETUP = python-setup
 ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
 ANSISCRTS = ansiscrts
@@ -51,12 +53,20 @@ PKILL = pkill
 JQ = jq
 SUDO = sudo
 BW = bw
+PYENV = pyenv
+PYTHON = python
+PIP = pip
+POETRY = poetry
 ifdef CONTROLLER_NODE
 	executables = \
 		${ANSIBLE_PLAYBOOK}\
 		${ANSIBLE_GALAXY}\
 		${ANSIBLE_VAULT}\
-		${JQ}
+		${JQ}\
+		${PYENV}\
+		${PYTHON}\
+		${PIP}\
+		${POETRY}
 else
 	executables = \
 		${VIRSH}\
@@ -71,7 +81,11 @@ else
 		${ANSIBLE_VAULT}\
 		${GEM}\
 		${SUDO}\
-		${BASH}
+		${BASH}\
+		${PYENV}\
+		${PYTHON}\
+		${PIP}\
+		${POETRY}
 endif
 
 # to be (or can be) passed in at make runtime
@@ -87,6 +101,7 @@ export ANSIBLE_VERBOSITY_OPT = -v
 
 # simply expanded variables
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
+python_virtualenv_name := $(shell basename ${CURDIR})
 src_yaml := $(shell find . \( -type f \) \
 	-and \( -name '*.yaml' \) \
 )
@@ -139,13 +154,29 @@ ${HELP}:
 >	@echo '                           file (if the target supports it). LOG_PATH determines'
 >	@echo '                           log path (default: ./ansible.log)'
 
-# TODO(cavcrosby): it would be best to install a specific ansible and
-# ansible-lint version for the project instead installing random version(s).
-#
-# ansible (core) 2.12.1 and ansible-lint 5.3.1 would be good to use. Will need
-# to install them as Python packages.
+.PHONY: ${PYTHON_SETUP}
+${PYTHON_SETUP}:
+>	@${PYENV} versions | grep --quiet '${VIRTUALENV_PYTHON_VERSION}$$' || { echo "make: python \"${VIRTUALENV_PYTHON_VERSION}\" is not installed by pyenv"; exit 1; }
+
+>	${PYENV} virtualenv "${VIRTUALENV_PYTHON_VERSION}" "${python_virtualenv_name}"
+	# mainly used to enter the virtualenv when in the repo
+>	${PYENV} local "${python_virtualenv_name}"
+>	export PYENV_VERSION="${python_virtualenv_name}"
+	# to ensure the most current versions of dependencies can be installed
+>	${PYTHON} -m ${PIP} install --upgrade ${PIP}
+>	${PYTHON} -m ${PIP} install ${POETRY}==1.1.7
+	# MONITOR(cavcrosby): temporary workaround due to poetry now breaking on some
+	# package installs. For reference:
+	# https://stackoverflow.com/questions/69836936/poetry-attributeerror-link-object-has-no-attribute-name#answer-69987715
+>	${PYTHON} -m ${PIP} install poetry-core==1.0.4
+	# --no-root because we only want to install dependencies. 'pyenv exec' is needed
+	# as poetry is installed into a virtualenv bin dir that is not added to the
+	# current shell PATH.
+>	${PYENV} exec ${POETRY} install --no-root || { echo "${POETRY} failed to install project dependencies"; exit 1; }
+>	unset PYENV_VERSION
+
 .PHONY: ${SETUP}
-${SETUP}:
+${SETUP}: ${PYTHON_SETUP}
 >	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yml
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
