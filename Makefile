@@ -146,7 +146,7 @@ ${HELP}:
 # to install them as Python packages.
 .PHONY: ${SETUP}
 ${SETUP}:
->	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yaml
+>	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yml
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
 >	chmod 755 "${BITWARDEN_CLI_PATH}"
