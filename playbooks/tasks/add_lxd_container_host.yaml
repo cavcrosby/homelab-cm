@@ -21,5 +21,6 @@
     pyenv_version: "{{ altaria_pyenv_version }}"
     ansible_connection: lxd
     groups: [lxd_containers]
+  no_log: true
   changed_when: false
   when: item.type == "altaria"

@@ -321,6 +321,7 @@
           JENKINS_AGENT_DESC1: General Linux Build Node
           JENKINS_AGENT_NUM_EXECUTORS1: "2"
           JENKINS_AGENT_REMOTE_ROOT_DIR1: /var/lib/jenkins-agent/{{ jenkins_torkel_workingdir }}
+      no_log: true
 
 - name: Install LXD
   hosts: ctrservers
