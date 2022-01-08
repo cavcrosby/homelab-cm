@@ -65,8 +65,7 @@ ifdef CONTROLLER_NODE
 		${JQ}\
 		${PYENV}\
 		${PYTHON}\
-		${PIP}\
-		${POETRY}
+		${PIP}
 else
 	executables = \
 		${VIRSH}\
@@ -84,8 +83,7 @@ else
 		${BASH}\
 		${PYENV}\
 		${PYTHON}\
-		${PIP}\
-		${POETRY}
+		${PIP}
 endif
 
 # to be (or can be) passed in at make runtime
