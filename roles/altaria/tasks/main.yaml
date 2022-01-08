@@ -254,9 +254,6 @@
           export JENKINS_PASSWORD="{{ jenkins_main_node_admin_password }}"
           export JENKINS_WORKINGDIR="/var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}"
 
-    # TODO(cavcrosby): make sure my usage of "current" in register variable names are
-    # consistent across the project (e.g. current_project_config_inode,
-    # running_lxd_preseed_inode).
     - name: Register the {{ repo_name }}'s project configurations file inode
       ansible.builtin.stat:
         path: "{{ repo_dst }}/{{ project_config_file }}"
