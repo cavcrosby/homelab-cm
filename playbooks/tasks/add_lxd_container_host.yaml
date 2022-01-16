@@ -11,6 +11,7 @@
     lxd_container_type: "{{ item.type }}"
     ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
     ansible_lxd_host: "{{ item.name }}"
+    jenkins_user: "{{ altaria_jenkins_user }}"
     jenkins_user_password: "{{ altaria_jenkins_system_user_password }}"
     jenkins_main_node_admin_id: "{{ jenkins_admin_id }}"
     jenkins_main_node_admin_password: "{{ jenkins_admin_password }}"
