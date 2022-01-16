@@ -228,6 +228,7 @@
     state: directory
     mode: "755"
   become: yes
+  changed_when: false
 
 - name: Checkout the jenkins-infrastructure repo, and configure it
   block:
@@ -238,6 +239,15 @@
         force: yes
         version: "{{ jenkins_infrastructure_repo_tag }}"
       register: checkout_repo_check
+
+    - name: Give ownership of {{ repo_name }} to {{ jenkins_user }}
+      ansible.builtin.file:
+        path: "{{ repo_dst }}"
+        recurse: yes
+        owner: "{{ jenkins_user }}"
+        group: "{{ jenkins_user }}"
+        state: directory
+      changed_when: false
 
     # Would have made this a handler for when the repo updates but unfortunately you
     # cannot pass in parameters to handlers.
