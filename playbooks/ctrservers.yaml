@@ -403,6 +403,8 @@
 - name: Perform configuration on the LXD altaria containers
   hosts: lxd_altaria_containers
   tags: configure_altaria_containers
+  vars_files:
+    - vars/ansible_secrets.yaml
 
   roles:
     - altaria

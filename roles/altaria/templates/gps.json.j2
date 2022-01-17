@@ -1,0 +1,42 @@
+{
+    "_comment": "{{ ansible_managed }}",
+    "github_username": "cavcrosby",
+    "github_api_token": "{{ gps_jenkins_project_github_credential_secret }}",
+    "script_configs": {
+        "update_remote_forks.py": {
+            "webhosted_git_account_url": "https://github.com/cavcrosby",
+            "forked_repos_to_upstream_urls": {
+                "i386-elf-toolchain": "https://github.com/nativeos/i386-elf-toolchain",
+                "mrepo": "https://github.com/dagwieers/mrepo",
+                "The-Stolen-Crown-RPG": "https://github.com/justinmeister/The-Stolen-Crown-RPG",
+                "VSCodeThemes": "https://github.com/gerane/VSCodeThemes",
+                "community.general": "https://github.com/ansible-collections/community.general",
+                "vagrant": "https://github.com/hashicorp/vagrant",
+                "shunit2": "https://github.com/kward/shunit2",
+                "styleguide": "https://github.com/google/styleguide",
+                "packer": "https://github.com/hashicorp/packer",
+                "ansible": "https://github.com/ansible/ansible",
+                "coreutils": "https://github.com/coreutils/coreutils",
+                "flake8-docstrings": "https://github.com/PyCQA/flake8-docstrings",
+                "cli": "https://github.com/urfave/cli"
+            }
+        },
+        "disable_github_actions.py": {
+            "repo_names": [
+                "i386-elf-toolchain",
+                "mrepo",
+                "The-Stolen-Crown-RPG",
+                "VSCodeThemes",
+                "community.general",
+                "vagrant",
+                "shunit2",
+                "styleguide",
+                "packer",
+                "ansible",
+                "coreutils",
+                "flake8-docstrings",
+                "cli"
+            ]
+        }
+    }
+}

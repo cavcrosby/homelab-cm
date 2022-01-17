@@ -8,6 +8,7 @@ jenkins_main_node_workingdir: main
 jenkins_user: jenkins
 jenkins_user_password: $6$1234$FK.dnaw1F49Lsr/7W0A8miXkoXxVzDEHBepDZA3kR8YHkj8O1Dv.lAXp8o0E6gaEJXryKUXgxxKAvIhHASoDe. # Passw0rd!
 jenkins_infrastructure_repo_tag: v1.0.0
+gps_config_file_path: /usr/local/etc/gps.json
 pyenv_version: v2.2.2
 default_pyenv_python: 3.9.5
 
