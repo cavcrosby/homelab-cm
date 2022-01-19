@@ -4,6 +4,8 @@
     update_cache: yes
   become: yes
 
+# TODO(cavcrosby): tmux isn't part of WeeChat, and is more so just for
+# convenience when running on a dedicated machine.
 - name: Install WeeChat
   ansible.builtin.apt:
     name:
