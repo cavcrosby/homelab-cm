@@ -5,6 +5,8 @@
 # recursive variables
 SHELL = /usr/bin/sh
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
+ANSIBLE_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
+ANSIBLE_TLS_CERTS_DIR_PATH = ./playbooks/certs
 ANSIBLE_SECRETS_FILE = ansible_secrets.yaml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
@@ -19,6 +21,15 @@ VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH = ${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_PREFIX}.tar.gz
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
+
+BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
+SSH_KEYS = \
+	LightsailDefaultKey-us-east-1.pem\
+	id_rsa_irc.pub
+
+BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
+TLS_CERTS = \
+	libera.pem
 
 # targets
 HELP = help
@@ -202,7 +213,7 @@ endif
 
 .PHONY: ${ANSIPLAY}
 ${ANSIPLAY}:
->	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production site.yaml --ask-become-pass
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production ./playbooks/site.yaml --ask-become-pass
 
 .PHONY: ${ANSIPLAY_TEST}
 ${ANSIPLAY_TEST}:
@@ -243,6 +254,16 @@ ifeq (${ANSISCRTS_ACTION}, ${PUT})
 else
 >	${BW} get attachment "${ANSIBLE_SECRETS_FILE}" --itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}" --output "${ANSIBLE_SECRETS_DIR_PATH}/"
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
+
+>	@for ssh_key in ${SSH_KEYS}; do \
+>		echo ${BW} get attachment $${ssh_key} --itemid "${BITWARDEN_SSH_KEYS_ITEMID}" --output "${ANSIBLE_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
+>		${BW} get attachment $${ssh_key} --itemid "${BITWARDEN_SSH_KEYS_ITEMID}" --output "${ANSIBLE_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
+>	done
+
+>	@for tls_cert in ${TLS_CERTS}; do \
+>		echo ${BW} get attachment $${tls_cert} --itemid "${BITWARDEN_TLS_CERTS_ITEMID}" --output "${ANSIBLE_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
+>		${BW} get attachment $${tls_cert} --itemid "${BITWARDEN_TLS_CERTS_ITEMID}" --output "${ANSIBLE_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
+>	done
 endif
 
 .PHONY: ${CLEAN}

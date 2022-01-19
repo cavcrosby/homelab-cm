@@ -1,0 +1,9 @@
+---
+typical_user: conner
+typical_user_password: "{{ irc_user_password }}"
+typical_user_home: /home/{{ typical_user }}
+typical_user_pubkey_controller_path: ssh_keys/id_rsa_irc.pub
+
+weechat_user: "{{ typical_user }}"
+weechat_tls_cert_controller_paths:
+  - certs/libera.pem

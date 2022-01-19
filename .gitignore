@@ -3,3 +3,5 @@
 .python-version
 *.log
 /playbooks/vars/ansible_secrets.yaml
+/playbooks/ssh_keys
+/playbooks/certs

@@ -1,0 +1,7 @@
+---
+weechat_user: conner
+weechat_user_home: /home/{{ typical_user }}
+weechat_tls_cert_controller_paths:
+  - ""
+
+_weechat_certs_directory: "{{ weechat_user_home }}/.weechat/certs"

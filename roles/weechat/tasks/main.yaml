@@ -1,0 +1,32 @@
+---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: yes
+  become: yes
+
+- name: Install WeeChat
+  ansible.builtin.apt:
+    name:
+      - tmux
+      - weechat
+    state: present
+  become: yes
+
+- name: Create WeeChat's certificates directory
+  ansible.builtin.file:
+    path: "{{ _weechat_certs_directory }}"
+    owner: "{{ weechat_user }}"
+    group: "{{ weechat_user }}"
+    state: directory
+    mode: "775"
+  become: yes
+
+- name: Add the WeeChat certificates
+  ansible.builtin.copy:
+    dest: "{{ _weechat_certs_directory }}/{{ item | basename }}"
+    src: "{{ item }}"
+    owner: "{{ weechat_user }}"
+    group: "{{ weechat_user }}"
+    mode: "600"
+  become: yes
+  loop: "{{ weechat_tls_cert_controller_paths }}"
