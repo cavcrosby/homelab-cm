@@ -15,11 +15,6 @@
     name: "{{ typical_user }}"
   become: yes
 
-- name: Set the hostname to the instance name
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}"
-  become: yes
-
 - name: Create {{ typical_user }}'s .ssh directory
   ansible.builtin.file:
     path: "{{ typical_user_home }}/.ssh"
@@ -36,4 +31,23 @@
     owner: "{{ typical_user }}"
     group: "{{ typical_user }}"
     mode: "600"
+  become: yes
+
+- name: Create customizations on top of the default cloud-init configurations
+  ansible.builtin.copy:
+    dest: /etc/cloud/cloud.cfg.d/99_{{ inventory_hostname }}.cfg
+    mode: "644"
+    content: |
+      #
+      #
+      # ANSIBLE MANAGED
+
+      hostname: "{{ inventory_hostname | capitalize }}"
+      manage_etc_hosts: true
+  become: yes
+
+- name: Rerun particular cloud-init modules
+  ansible.builtin.shell: |
+    cloud-init single --name cc_set_hostname
+    cloud-init single --name cc_update_etc_hosts
   become: yes
