@@ -405,6 +405,8 @@
   tags: configure_altaria_containers
   vars_files:
     - vars/ansible_secrets.yaml
+  vars:
+    github_key_controller_path: ssh_keys/id_rsa_github_1
 
   roles:
     - altaria

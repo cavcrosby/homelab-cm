@@ -25,7 +25,8 @@ export ANSIBLE_CONFIG = ./ansible.cfg
 BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
 SSH_KEYS = \
 	LightsailDefaultKey-us-east-1.pem\
-	id_rsa_irc.pub
+	id_rsa_irc.pub\
+	id_rsa_github_1
 
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 TLS_CERTS = \
