@@ -226,7 +226,9 @@
 - name: Get the running pyenv version
   ansible.builtin.shell:
     executable: /bin/bash
-    cmd: set -o pipefail && . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
+    cmd: |
+      set -o pipefail 
+      . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
   become: yes
   register: running_pyenv_version
   failed_when: false
