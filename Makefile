@@ -1,9 +1,6 @@
-# special makefile variables
-.DEFAULT_GOAL := help
-.RECIPEPREFIX := >
+include base.mk
 
 # recursive variables
-SHELL = /usr/bin/sh
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 ANSIBLE_TLS_CERTS_DIR_PATH = ./playbooks/certs
@@ -14,7 +11,6 @@ BITWARDEN_CLI_VERSION = 1.19.1
 BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
 BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
 BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
-VIRTUALENV_PYTHON_VERSION = 3.9.5
 VAGRANT_LIBVIRT_PLUGIN_VERSION = 0.7.0
 VAGRANT_LIBVIRT_PLUGIN_PREFIX = vagrant-libvirt-${VAGRANT_LIBVIRT_PLUGIN_VERSION}
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
@@ -33,15 +29,10 @@ TLS_CERTS = \
 	libera.pem
 
 # targets
-HELP = help
-SETUP = setup
-PYTHON_VIRTUALENV_SETUP = python-virtualenv-setup
 ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
 ANSISCRTS = ansiscrts
-LINT = lint
 DEV_SHELL = dev-shell
-CLEAN = clean
 
 # ansiscrts actions
 PUT = put
@@ -49,54 +40,6 @@ PUT = put
 # libvirt provider configurations
 LIBVIRT = libvirt
 export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
-
-# executables
-ANSIBLE_GALAXY = ansible-galaxy
-ANSIBLE_LINT = ansible-lint
-ANSIBLE_PLAYBOOK = ansible-playbook
-ANSIBLE_VAULT = ansible-vault
-BASH = bash
-VIRSH = virsh
-VAGRANT = vagrant
-LXC = lxc
-GEM = gem
-PERL = perl
-PKILL = pkill
-JQ = jq
-SUDO = sudo
-BW = bw
-PYENV = pyenv
-PYTHON = python
-PIP = pip
-POETRY = poetry
-ifdef CONTROLLER_NODE
-	executables = \
-		${ANSIBLE_PLAYBOOK}\
-		${ANSIBLE_GALAXY}\
-		${ANSIBLE_VAULT}\
-		${JQ}\
-		${PYENV}\
-		${PYTHON}\
-		${PIP}
-else
-	executables = \
-		${VIRSH}\
-		${VAGRANT}\
-		${PKILL}\
-		${JQ}\
-		${PERL}\
-		${LXC}\
-		${ANSIBLE_PLAYBOOK}\
-		${ANSIBLE_GALAXY}\
-		${ANSIBLE_LINT}\
-		${ANSIBLE_VAULT}\
-		${GEM}\
-		${SUDO}\
-		${BASH}\
-		${PYENV}\
-		${PYTHON}\
-		${PIP}
-endif
 
 # to be (or can be) passed in at make runtime
 LOG =
@@ -109,12 +52,47 @@ export ANSIBLE_TAGS = all
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
 export ANSIBLE_VERBOSITY_OPT = -v
 
-# simply expanded variables
-_check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
-python_virtualenv_name := $(shell basename ${CURDIR})
-src_yaml := $(shell find . \( -type f \) \
+# include other generic makefiles
+include python.mk
+# overrides defaults set by included makefiles
+VIRTUALENV_PYTHON_VERSION = 3.9.5
+
+include ansible.mk
+ANSISRC = $(shell find . \( -type f \) \
 	-and \( -name '*.yaml' \) \
 )
+
+# executables
+BASH = bash
+VIRSH = virsh
+VAGRANT = vagrant
+LXC = lxc
+GEM = gem
+PERL = perl
+PKILL = pkill
+JQ = jq
+SUDO = sudo
+BW = bw
+
+# simply expanded variables
+ifdef CONTROLLER_NODE
+	override executables := \
+		${JQ}\
+		${python_executables}
+else
+	override executables := \
+		${VIRSH}\
+		${VAGRANT}\
+		${PKILL}\
+		${JQ}\
+		${PERL}\
+		${LXC}\
+		${GEM}\
+		${SUDO}\
+		${BASH}\
+		${python_executables}
+endif
+_check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
@@ -144,7 +122,7 @@ ${HELP}:
 >	@echo '  ${ANSIPLAY}       - runs the main playbook for my homelab'
 >	@echo '  ${ANSIPLAY_TEST}  - runs the main playbook for my homelab, but in a'
 >	@echo '                   virtual environment setup by Vagrant'
->	@echo '  ${LINT}       	 - lints the yaml configuration code and json'
+>	@echo '  ${ANSILINT}       	 - lints the yaml configuration code and json'
 >	@echo '                   configurations'
 >	@echo '  ${ANSISCRTS}      - manage secrets used by this project, by default'
 >	@echo '                   secrets are pulled into the project'
@@ -167,32 +145,8 @@ ${HELP}:
 >	@echo '                           file (if the target supports it). LOG_PATH determines'
 >	@echo '                           log path (default: ./ansible.log)'
 
-.PHONY: ${PYTHON_VIRTUALENV_SETUP}
-${PYTHON_VIRTUALENV_SETUP}:
->	@${PYENV} versions | grep --quiet '${VIRTUALENV_PYTHON_VERSION}$$' || { echo "make: python \"${VIRTUALENV_PYTHON_VERSION}\" is not installed by pyenv"; exit 1; }
->	${PYENV} virtualenv "${VIRTUALENV_PYTHON_VERSION}" "${python_virtualenv_name}"
-
-	# mainly used to enter the virtualenv when in the repo
->	${PYENV} local "${python_virtualenv_name}"
->	export PYENV_VERSION="${python_virtualenv_name}"
-
-	# to ensure the most current versions of dependencies can be installed
->	${PYTHON} -m ${PIP} install --upgrade ${PIP}
->	${PYTHON} -m ${PIP} install ${POETRY}==1.1.7
-
-	# MONITOR(cavcrosby): temporary workaround due to poetry now breaking on some
-	# package installs. For reference:
-	# https://stackoverflow.com/questions/69836936/poetry-attributeerror-link-object-has-no-attribute-name#answer-69987715
->	${PYTHON} -m ${PIP} install poetry-core==1.0.4
-
-	# --no-root because we only want to install dependencies. 'pyenv exec' is needed
-	# as poetry is installed into a virtualenv bin dir that is not added to the
-	# current shell PATH.
->	${PYENV} exec ${POETRY} install --no-root || { echo "${POETRY} failed to install project dependencies"; exit 1; }
->	unset PYENV_VERSION
-
 .PHONY: ${SETUP}
-${SETUP}: ${PYTHON_VIRTUALENV_SETUP}
+${SETUP}: ${PYENV_POETRY_SETUP}
 >	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yml
 >	wget --quiet --output-document "${BITWARDEN_DOWNLOAD_PATH}" https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip
 >	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
@@ -224,8 +178,8 @@ else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 endif
 
-.PHONY: ${LINT}
-${LINT}:
+.PHONY: ${ANSILINT}
+${ANSILINT}:
 >	@for fil in ${src_yaml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
 >		if echo $${fil} | grep --quiet '-'; then \
 >			echo "make: $${fil} should not contain a dash in the filename"; \
