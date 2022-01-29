@@ -51,3 +51,4 @@
     cloud-init single --name cc_set_hostname
     cloud-init single --name cc_update_etc_hosts
   become: yes
+  changed_when: false
