@@ -380,13 +380,13 @@
   gather_facts: no
 
   tasks:
-    - name: Check if python3 is installed in container
+    - name: Check if python3 is installed in containers
       ansible.builtin.raw: dpkg -s python3
       register: python_install_check
       failed_when: python_install_check.rc not in [0, 1]
       changed_when: false
 
-    - name: Install python3 in container
+    - name: Install python3 in containers
       ansible.builtin.raw: apt-get install --assume-yes python3
       when: python_install_check.rc == 1
 
