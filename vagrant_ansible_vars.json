@@ -15,10 +15,19 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bullseye64"
+        },
+        "irc-client1": {
+            "vagrant_vm_ipv4_addr": "10.10.100.100",
+            "vagrant_vm_mac_addr": "52:54:00:A9:F3:C5",
+            "vagrant_vm_cpus": 1,
+            "vagrant_vm_memory": 512,
+            "vagrant_vm_libvirt_disk_size": 10,
+            "vagrant_vm_box": "debian/buster64"
         }
     },
     "ansible_groups": {
         "ctrservers": ["ctrserver1", "ctrserver2"],
+        "irc_clients": ["irc-client1"],
         "all:vars": {
             "ansible_user": "vagrant",
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"

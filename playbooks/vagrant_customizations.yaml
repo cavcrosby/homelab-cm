@@ -40,3 +40,20 @@
     - name: Reboot ctrservers to have new boot parameter(s) take effect
       ansible.builtin.reboot:
       when: line_check.found == 0
+
+- name: Provision VPS(s) setup on local VMs
+  hosts: irc_clients
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: yes
+      become: yes
+
+  tasks:
+    - name: Install cloud-init
+      ansible.builtin.apt:
+        name:
+          - cloud-init
+        state: present
+      become: yes
