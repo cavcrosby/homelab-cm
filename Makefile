@@ -33,6 +33,7 @@ ANSIPLAY = ansiplay
 ANSIPLAY_TEST = ansiplay-test
 ANSISCRTS = ansiscrts
 DEV_SHELL = dev-shell
+DIAGRAM = diagram
 
 # ansiscrts actions
 PUT = put
@@ -128,6 +129,7 @@ ${HELP}:
 >	@echo '                   secrets are pulled into the project'
 >	@echo '  ${DEV_SHELL}      - runs a bash shell with make variables injected into'
 >	@echo '                   it to work with the project'\''s Vagrantfile'
+>	@echo '  ${DIAGRAM}        - generate a infrastructure diagram of my homelab'
 >	@echo '  ${CLEAN}          - removes files generated from targets'
 >	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
 >	@echo '  ANSIBLE_TAGS           - set the tags denoting the tasks/roles/plays for'
@@ -191,6 +193,10 @@ ${ANSILINT}:
 ${DEV_SHELL}:
 >	${BASH} -i
 
+.PHONY: ${DIAGRAM}
+${DIAGRAM}:
+>	${PYTHON} hldiag.py
+
 .PHONY: ${ANSISCRTS}
 ${ANSISCRTS}:
 >	@${BW} login --check > /dev/null 2>&1 || \
@@ -224,6 +230,7 @@ endif
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
+>	rm --force homelab.png
 ifndef CONTROLLER_NODE
 	ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 		# There are times where vagrant may get into defunct state and will be unable to
