@@ -10,5 +10,22 @@
 - name: Install and configure WeeChat
   hosts: irc_clients
 
+  pre_tasks:
+    # TODO(cavcrosby): this particular task is duplicated in a lot of places. I should
+    # see about moving this task to a common place...perhaps my general Ansible
+    # collection.
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: yes
+      become: yes
+
   roles:
     - weechat
+    
+  tasks:
+    - name: Install "nice to haves"
+      ansible.builtin.apt:
+        name:
+          - tmux
+        state: present
+      become: yes
