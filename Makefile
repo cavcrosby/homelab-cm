@@ -77,11 +77,11 @@ BW = bw
 
 # simply expanded variables
 ifdef CONTROLLER_NODE
-	override executables := \
+	executables := \
 		${JQ}\
 		${python_executables}
 else
-	override executables := \
+	executables := \
 		${VIRSH}\
 		${VAGRANT}\
 		${PKILL}\
