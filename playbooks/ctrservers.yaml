@@ -246,20 +246,6 @@
       ansible.builtin.meta: reset_connection
       changed_when: false
 
-    - name: Create the project's Docker network
-      community.docker.docker_network:
-        name: "{{ project_docker_network }}"
-        ipam_config:
-          - subnet: "{{ project_docker_bridge_ipv4_subnet }}"
-            iprange: "{{ project_docker_bridge_ipv4_subnet }}"
-            gateway: "{{ project_docker_bridge_ipv4_addr }}"
-        # for reference:
-        # https://docs.docker.com/engine/reference/commandline/network_create/#specify-advanced-options
-        driver_options:
-          com.docker.network.bridge.name: "docker1"
-      notify:
-        - Restart Docker
-
   handlers:
     - name: Restart Docker
       ansible.builtin.systemd:
@@ -291,37 +277,40 @@
   vars:
     ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
 
-  tasks:
-    - name: Deploy a jenkins-torkel container
-      community.docker.docker_container:
-        name: jenkins
-        image: cavcrosby/jenkins-torkel:{{ jenkins_torkel_tag }}
-        published_ports:
-          - "{{ jenkins_port_mapping }}"
-          - "{{ jenkins_agents_port_mapping }}"
-        cpus: 1.0
-        memory: 1G
-        volumes: jenkins_home:/var/jenkins_home
-        networks:
-          - name: "{{ project_docker_network }}"
-            ipv4_address: "{{ jenkins_torkel_ipv4_addr }}"
-        env:
-          JENKINS_URL: "{{ ansible_default_ipv4.address }}:{{ jenkins_torkel_port }}"
-          JENKINS_ADMIN_ID: "{{ jenkins_admin_id }}"
-          JENKINS_ADMIN_PASSWORD: "{{ jenkins_admin_password }}"
-          JENKINS_ADMIN_FULLNAME: Conner Crosby
-          JENKINS_ADMIN_EMAIL: conner@cavcrosby.tech
-          JENKINS_ADMIN_EMAIL_SECRET: "{{ jenkins_admin_email_secret }}"
-          SMTP_SERVER_ADDR: smtp.gmail.com
-          JENKINS_GITHUB_CREDENTIAL_ID: cavcrosby-github
-          JENKINS_GITHUB_CREDENTIAL_USERNAME: cavcrosby
-          JENKINS_GITHUB_CREDENTIAL_SECRET: "{{ jenkins_github_credential_secret }}"
-          JENKINS_MAIN_NUM_EXECUTORS: "0"
-          JENKINS_AGENT_NAME1: altaria1
-          JENKINS_AGENT_DESC1: General Linux Build Node
-          JENKINS_AGENT_NUM_EXECUTORS1: "2"
-          JENKINS_AGENT_REMOTE_ROOT_DIR1: /var/lib/jenkins-agent/{{ jenkins_torkel_workingdir }}
-      no_log: true
+  roles:
+    - role: cavcrosby.general.jenkins_base_containers
+      vars:
+        image_to_deploy: torkel
+        image_tag: "{{ jenkins_torkel_tag }}"
+        create_container_network: true
+
+        # specific to the jenkins container
+        container_name: jenkins
+        container_cpus: 1.0
+        container_memory: 1G
+        container_network: "{{ project_docker_network }}"
+        container_bridge_ipv4_addr: "{{ project_docker_bridge_ipv4_addr }}"
+        container_bridge_ipv4_subnet: "{{ project_docker_bridge_ipv4_subnet }}"
+        container_ipv4_address: "{{ jenkins_torkel_ipv4_addr }}"
+        jenkins_port_mapping: "{{ jenkins_torkel_port_mapping }}"
+        jenkins_agents_port_mapping: "{{ jenkins_torkel_agents_port_mapping }}"
+
+        # specific to the jenkins instance
+        jenkins_url: "{{ ansible_default_ipv4.address }}:{{ jenkins_torkel_port }}"
+        jenkins_admin_id: "{{ jenkins_torkel_admin_id }}"
+        jenkins_admin_password: "{{ jenkins_torkel_admin_password }}"
+        jenkins_admin_fullname: Conner Crosby
+        jenkins_admin_email: conner@cavcrosby.tech
+        jenkins_admin_email_secret: "{{ jenkins_torkel_admin_email_secret }}"
+        smtp_server_addr: smtp.gmail.com
+        jenkins_github_credential_id: cavcrosby-github
+        jenkins_github_credential_username: cavcrosby
+        jenkins_github_credential_secret: "{{ jenkins_torkel_github_credential_secret }}"
+        jenkins_main_num_executors: "0"
+        jenkins_agent_name1: altaria1
+        jenkins_agent_desc1: General Linux Build Node
+        jenkins_agent_num_executors1: "2"
+        jenkins_agent_remote_root_dir1: /var/lib/jenkins-agent/{{ jenkins_torkel_workingdir }}
 
 - name: Install LXD
   hosts: ctrservers

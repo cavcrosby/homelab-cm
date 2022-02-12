@@ -30,13 +30,13 @@ altaria_jenkins_infrastructure_repo_tag: v1.0.0
 altaria_pyenv_version: v2.2.2
 
 # jenkins-torkel Docker container related configurations
-jenkins_admin_id: cavcrosby
-jenkins_torkel_tag: v2.1.1
+jenkins_torkel_admin_id: cavcrosby
+jenkins_torkel_tag: v2.2.0
 jenkins_torkel_ipv4_addr: 172.16.0.2
 jenkins_torkel_port: 8080
 jenkins_torkel_workingdir: torkel1
-jenkins_port_mapping: 8080:{{ jenkins_torkel_port }}
-jenkins_agents_port_mapping: 50000:50000
+jenkins_torkel_port_mapping: 8080:{{ jenkins_torkel_port }}
+jenkins_torkel_agents_port_mapping: 50000:50000
 
 lxd_preseed: |
   config:
