@@ -27,6 +27,7 @@ iptables_up_path: /etc/iptables/rules.v4
 
 altaria_jenkins_user: jenkins
 altaria_jenkins_infrastructure_repo_tag: v1.0.0
+altaria_makefiles_repo_tag: v1.0.0
 altaria_pyenv_version: v2.2.2
 
 # jenkins-torkel Docker container related configurations

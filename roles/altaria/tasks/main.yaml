@@ -64,7 +64,34 @@
       PATH="${PYENV_ROOT}/plugins/pyenv-virtualenv/shims:${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
       export PATH
 
-      /usr/bin/make "$@"
+      /usr/bin/make --include-dir "{{ _makefiles_install_path }}" "$@"
+
+- name: Checkout my common makefiles repo, and install makefiles
+  block:
+    - name: Checkout the {{ repo_name }} repo
+      ansible.builtin.git:
+        dest: "{{ repo_dst }}"
+        repo: "{{ repo_url }}"
+        force: yes
+        version: "{{ makefiles_repo_tag }}"
+      register: checkout_repo_check
+
+    - name: Register the makefile install path inode
+      ansible.builtin.stat:
+        path: "{{ _makefiles_install_path }}"
+      register: makefile_install_dest_inode
+
+    - name: Run {{ repo_name }}'s 'make' install
+      ansible.builtin.command:
+        chdir: "{{ repo_dst }}"
+        cmd: make INSTALL_PATH={{ _makefiles_install_path }} install
+      when: not makefile_install_dest_inode.stat.exists
+            or checkout_repo_check.before != checkout_repo_check.after
+
+  vars:
+    - repo_name: makefiles
+    - repo_url: https://github.com/cavcrosby/makefiles
+    - repo_dst: "{{ _roots_home }}/{{ repo_name }}"
 
 - name: Create root's .profile
   ansible.builtin.copy:
