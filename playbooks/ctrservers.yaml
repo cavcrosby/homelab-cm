@@ -370,7 +370,7 @@
 
   tasks:
     - name: Check if python3 is installed in containers
-      ansible.builtin.raw: dpkg -s python3
+      ansible.builtin.raw: dpkg --status python3
       register: python_install_check
       failed_when: python_install_check.rc not in [0, 1]
       changed_when: false
