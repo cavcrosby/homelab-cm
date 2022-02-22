@@ -46,14 +46,14 @@ def retrieve_cmd_args():
 def main(args):
     """Start the main program execution."""
     with Diagram("homelab", show=False):
-        gateway = Internet("gateway\nx.x.88.1\nx.x.90.1\n")
+        gateway = Internet("gateway\nx.x.x.1")
 
-        guest_subnet = Subnet("10.10.88.0/24")
         main_subnet = Subnet("10.10.90.0/24")
 
         gerald = Server("gerald\nx.x.x.3")
         ron = Client("ron\nx.x.x.50")
-        roxanne = Client("roxanne\nx.x.x.53")
+        dexter = Client("dexter\nx.x.x.51")
+        roxanne = Client("roxanne\nx.x.x.52")
 
         milo = Lightsail("milo\n35.168.24.181")
 
@@ -62,10 +62,10 @@ def main(args):
         # the flow of data to my primary gateway for my home network(s).
         #
         # internal machines
-        [gerald, ron, roxanne] >> main_subnet
+        [gerald, ron, dexter, roxanne] >> main_subnet
 
         # internal subnets
-        [guest_subnet, main_subnet] >> gateway
+        [main_subnet] >> gateway
 
         # external machines
         gateway << milo
