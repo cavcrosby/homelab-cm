@@ -3,9 +3,6 @@ ansible_user_home: /home/{{ ansible_user }}
 ansible_python_virtualenv: ansible-client
 ansible_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"
 
-docker_ce_pkg_version: 5:20.10.11~3-0~debian-bullseye
-containerd_io_pkg_version: 1.4.12-1
-
 project_docker_bridge_ipv4_addr: 172.16.0.1
 project_docker_bridge_ipv4_subnet: 172.16.0.0/24
 project_docker_network: homelab-cm
