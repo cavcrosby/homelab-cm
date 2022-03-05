@@ -308,95 +308,16 @@
   become: yes
   changed_when: false
 
-- name: Checkout the jenkins-infrastructure repo, and configure it
-  block:
-    - name: Checkout the {{ repo_name }} repo
-      ansible.builtin.git:
-        dest: "{{ repo_dst }}"
-        repo: "{{ repo_url }}"
-        force: yes
-        version: "{{ jenkins_infrastructure_repo_tag }}"
-      register: checkout_repo_check
-
-    - name: Give ownership of {{ repo_name }} to {{ jenkins_user }}
-      ansible.builtin.file:
-        path: "{{ repo_dst }}"
-        recurse: yes
-        owner: "{{ jenkins_user }}"
-        group: "{{ jenkins_user }}"
-        state: directory
-      changed_when: false
-
-    # Would have made this a handler for when the repo updates but unfortunately you
-    # cannot pass in parameters to handlers.
-    - name: Remove {{ repo_name }}'s project configuration file
-      ansible.builtin.file:
-        path: "{{ repo_dst }}/{{ project_config_file }}"
-        state: absent
-      when: checkout_repo_check.before != checkout_repo_check.after
-
-    - name: Make {{ repo_name }}'s project configuration file
-      ansible.builtin.command:
-        chdir: "{{ repo_dst }}"
-        cmd: make {{ project_config_file }}
-      register: make_all_targets_check
-      changed_when: make_all_targets_check.rc != 0
-
-    - name: Register the current {{ repo_name }}'s project configurations file inode
-      ansible.builtin.stat:
-        path: "{{ repo_dst }}/{{ project_config_file }}"
-      register: current_project_config_inode
-
-    - name: Append {{ repo_name }}'s project configurations
-      ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        tasks_from: managed_blockinfile
-      vars:
-        path: "{{ repo_dst }}/{{ project_config_file }}"
-        block_identifier: "{{ repo_name }}'s project configurations"
-        block_text: |
-          export JENKINS_MAIN_NODE_URL="http://{{ jenkins_main_node_ipv4_addr }}:{{ jenkins_main_node_port }}"
-          export JENKINS_AGENT_NAME="{{ ansible_lxd_host }}"
-          export JENKINS_USERNAME="{{ jenkins_main_node_admin_id }}"
-          export JENKINS_PASSWORD="{{ jenkins_main_node_admin_password }}"
-          export JENKINS_WORKINGDIR="/var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}"
-
-    - name: Register the {{ repo_name }}'s project configurations file inode
-      ansible.builtin.stat:
-        path: "{{ repo_dst }}/{{ project_config_file }}"
-      register: project_config_inode
-
-    - name: Run {{ repo_name }}'s 'make' clean
-      ansible.builtin.command:
-        chdir: "{{ repo_dst }}"
-        cmd: make clean
-      when: current_project_config_inode.stat.checksum != project_config_inode.stat.checksum
-
-    - name: Make all {{ repo_name }}'s 'make' targets
-      ansible.builtin.command:
-        chdir: "{{ repo_dst }}"
-        cmd: make all
-      register: make_all_targets_check
-      changed_when: make_all_targets_check.rc != 0
-
-    - name: Make {{ connect_jenkins_agent_script_path }} executable
-      ansible.builtin.file:
-        path: "{{ connect_jenkins_agent_script_path }}"
-        mode: "755"
-        state: file
-
-    - name: Run {{ connect_jenkins_agent_script_path }}
-      ansible.builtin.command:
-        chdir: "{{ repo_dst }}/scripts"
-        cmd: "{{ connect_jenkins_agent_script_path }}"
-      become: yes
-      become_user: "{{ jenkins_user }}"
-      register: connect_jenkins_agent_check
-      changed_when: connect_jenkins_agent_check.rc != 0
-
+- name: Connect to a Jenkins instance
+  ansible.builtin.import_role:
+    name: cavcrosby.general.jenkins
+    tasks_from: connect_to
   vars:
-    - repo_name: jenkins-infrastructure
-    - repo_url: https://github.com/cavcrosby/jenkins-infrastructure
-    - repo_dst: "{{ _jenkins_user_home }}/{{ repo_name }}"
-    - project_config_file: .conf
-    - connect_jenkins_agent_script_path: "{{ repo_dst }}/scripts/connect_jenkins_agent"
+    jenkins_system_user: "{{ jenkins_user }}"
+    jenkins_system_user_home: "{{ _jenkins_user_home }}"
+    jenkins_system_user_password: "{{ jenkins_user_password }}"
+    jenkins_main_node_url: http://{{ jenkins_main_node_ipv4_addr }}:{{ jenkins_main_node_port }}
+    jenkins_agent_name: "{{ ansible_lxd_host }}"
+    jenkins_username: "{{ jenkins_main_node_admin_id }}"
+    jenkins_password: "{{ jenkins_main_node_admin_password }}"
+    jenkins_workingdir: /var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}

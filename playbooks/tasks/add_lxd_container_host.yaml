@@ -18,7 +18,6 @@
     jenkins_main_node_ipv4_addr: "{{ jenkins_torkel_ipv4_addr }}"
     jenkins_main_node_port: "{{ jenkins_torkel_port }}"
     jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
-    jenkins_infrastructure_repo_tag: "{{ altaria_jenkins_infrastructure_repo_tag }}"
     makefiles_repo_tag: "{{ altaria_makefiles_repo_tag }}"
     pyenv_version: "{{ altaria_pyenv_version }}"
     ansible_connection: lxd

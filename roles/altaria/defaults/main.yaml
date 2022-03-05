@@ -7,7 +7,6 @@ jenkins_main_node_workingdir: main
 
 jenkins_user: jenkins
 jenkins_user_password: $6$1234$FK.dnaw1F49Lsr/7W0A8miXkoXxVzDEHBepDZA3kR8YHkj8O1Dv.lAXp8o0E6gaEJXryKUXgxxKAvIhHASoDe. # Passw0rd!
-jenkins_infrastructure_repo_tag: v1.0.0
 makefiles_repo_tag: v1.0.0
 github_key_controller_path: ""
 gps_config_file_path: /usr/local/etc/gps.json
