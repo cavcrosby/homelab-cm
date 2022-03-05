@@ -157,7 +157,7 @@ cython_debug/
 .vagrant
 .python-version
 *.log
-/playbooks/vars/ansible_secrets.yaml
+/playbooks/vars/ansible_secrets.yml
 /playbooks/ssh_keys
 /playbooks/certs
 /*.png

@@ -1,0 +1,3 @@
+---
+- ansible.builtin.import_playbook: ctrservers.yml
+- ansible.builtin.import_playbook: irc_clients.yml

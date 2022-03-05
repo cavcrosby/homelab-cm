@@ -98,7 +98,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
         
         machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/vagrant_customizations.yaml"
+          ansible.playbook = "./playbooks/vagrant_customizations.yml"
           ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true
@@ -111,7 +111,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/site.yaml"
+          ansible.playbook = "./playbooks/site.yml"
           ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true

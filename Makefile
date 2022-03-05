@@ -4,7 +4,7 @@ include base.mk
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 ANSIBLE_TLS_CERTS_DIR_PATH = ./playbooks/certs
-ANSIBLE_SECRETS_FILE = ansible_secrets.yaml
+ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 BITWARDEN_CLI_VERSION = 1.19.1
@@ -59,9 +59,6 @@ include python.mk
 VIRTUALENV_PYTHON_VERSION = 3.9.5
 
 include ansible.mk
-ANSISRC = $(shell find . \( -type f \) \
-	-and \( -name '*.yaml' \) \
-)
 
 # executables
 BASH = bash
@@ -170,7 +167,7 @@ endif
 
 .PHONY: ${ANSIPLAY}
 ${ANSIPLAY}:
->	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production ./playbooks/site.yaml --ask-become-pass
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production ./playbooks/site.yml --ask-become-pass
 
 .PHONY: ${ANSIPLAY_TEST}
 ${ANSIPLAY_TEST}:
