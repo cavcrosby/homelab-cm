@@ -273,7 +273,7 @@
   hosts: ctrservers
   tags: deploy_docker_containers
   vars_files:
-    - vars/ansible_secrets.yaml
+    - ./vars/ansible_secrets.yaml
   vars:
     ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
 
@@ -316,7 +316,7 @@
   hosts: ctrservers
   tags: install_lxd
   vars_files:
-    - vars/ansible_secrets.yaml
+    - ./vars/ansible_secrets.yaml
 
   pre_tasks:
     - name: Add common handlers
@@ -335,8 +335,8 @@
   # https://stackoverflow.com/questions/42106527/ansible-how-to-call-module-add-host-for-all-hosts-of-the-play
   serial: 1
   vars_files:
-    - vars/lxd_containers.yaml
-    - vars/ansible_secrets.yaml
+    - ./vars/lxd_containers.yaml
+    - ./vars/ansible_secrets.yaml
 
   tasks:
     - name: Create LXD containers
@@ -358,7 +358,7 @@
       loop: "{{ lxd_containers }}"
 
     - name: Register the LXD containers as inventory
-      ansible.builtin.include_tasks: tasks/add_lxd_container_host.yaml
+      ansible.builtin.include_tasks: ./tasks/add_lxd_container_host.yaml
       loop: "{{ lxd_containers }}"
 
 - name: Check/install Python on the LXD containers
@@ -393,9 +393,9 @@
   hosts: lxd_altaria_containers
   tags: configure_altaria_containers
   vars_files:
-    - vars/ansible_secrets.yaml
+    - ./vars/ansible_secrets.yaml
   vars:
-    github_key_controller_path: ssh_keys/id_rsa_github_1
+    github_key_controller_path: ./ssh_keys/id_rsa_github_1
 
   roles:
     - altaria

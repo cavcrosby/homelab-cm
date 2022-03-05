@@ -2,7 +2,7 @@
 - name: Perform customizations of lightsail instances
   hosts: irc_clients
   vars_files:
-    - vars/ansible_secrets.yaml
+    - ./vars/ansible_secrets.yaml
 
   roles:
     - lightsail
