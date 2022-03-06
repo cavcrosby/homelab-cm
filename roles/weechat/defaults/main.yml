@@ -1,4 +1,5 @@
 ---
+# designates who the WeeChat configurations are installed for
 weechat_user: conner
 weechat_user_home: /home/{{ weechat_user }}
 weechat_tls_cert_controller_paths:
