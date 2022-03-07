@@ -10,8 +10,6 @@
     state: directory
     mode: "700"
   become: yes
-  register: creating_altaria_source_dir_check
-  changed_when: creating_altaria_source_dir_check.state == "absent"
 
 # This list is specific to Ubuntu/Debian at the moment. Can be expanded to a vars
 # directory to install dependencies based on the distro.
