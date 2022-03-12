@@ -140,7 +140,7 @@
   become: yes
   become_user: root
 
-- name: Create jenkins user
+- name: Create the jenkins user
   ansible.builtin.user:
     name: "{{ jenkins_user }}"
     state: present
@@ -150,7 +150,7 @@
   become: yes
   become_user: root
 
-- name: Create {{ jenkins_user }}'s .profile
+- name: Create the jenkins_user's .profile
   ansible.builtin.copy:
     dest: "{{ _jenkins_user_home }}/.profile"
     mode: "644"
@@ -173,7 +173,7 @@
   become: yes
   become_user: root
 
-- name: Append pyenv setup to {{ jenkins_user }}'s .bashrc
+- name: Append pyenv setup to the jenkins_user's .bashrc
   ansible.builtin.import_role:
     name: cavcrosby.general.common
     tasks_from: managed_blockinfile
@@ -186,7 +186,7 @@
   become: yes
   become_user: root
 
-- name: Create {{ jenkins_user }}'s .ssh directory
+- name: Create the jenkins_user's .ssh directory
   ansible.builtin.file:
     path: "{{ _jenkins_user_home }}/.ssh"
     owner: "{{ jenkins_user }}"
@@ -196,7 +196,7 @@
   become: yes
   become_user: root
 
-- name: Create ssh config file for {{ jenkins_user }} 
+- name: Create ssh config file for jenkins_user
   ansible.builtin.copy:
     dest: "{{ _jenkins_user_home }}/.ssh/config"
     owner: "{{ jenkins_user }}"
@@ -320,7 +320,7 @@
   become_user: root
   when: not jenkins_pyenv_root_inode.stat.exists
 
-- name: Give ownership of {{ _jenkins_pyenv_root_path }} to {{ jenkins_user }}
+- name: Give ownership of {{ _jenkins_pyenv_root_path }} to the jenkins_user
   ansible.builtin.file:
     path: "{{ _jenkins_pyenv_root_path }}"
     recurse: yes

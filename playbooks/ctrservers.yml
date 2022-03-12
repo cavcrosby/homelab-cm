@@ -26,7 +26,7 @@
       become: yes
     
   tasks:
-    - name: Setup ansible user's Python virtual environment (virtualenv)
+    - name: Setup the ansible_user's Python virtual environment (virtualenv)
       block:
         - name: Install other Python packages
           ansible.builtin.apt:
@@ -36,13 +36,13 @@
             state: present
           become: yes
 
-        - name: Create a Python virtualenvs directory
+        - name: Create the ansible_user's Python virtualenvs directory
           ansible.builtin.file:
             path: "{{ ansible_python_virtualenvs_path }}"
             state: directory
             mode: "755"
 
-        - name: Create the {{ ansible_python_virtualenv }} Python virtualenv
+        - name: Create the ansible_user's Python virtualenv
           ansible.builtin.pip:
             # requests might not actually be used but the module requires a package to
             # install for initial virtualenv setup.
@@ -52,7 +52,7 @@
             virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
             virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
 
-        - name: Add sourcing the {{ ansible_python_virtualenv }} Python virtualenv
+        - name: Add sourcing the ansible_user's python_virtualenv
           ansible.builtin.import_role:
             name: cavcrosby.general.common
             tasks_from: managed_lineinfile
@@ -188,7 +188,7 @@
         handlers_from: main
 
   tasks:
-    - name: Create {{ ansible_user_id }}'s 'Downloads' directory
+    - name: Create the ansible_user's 'Downloads' directory
       ansible.builtin.file:
         path: "{{ ansible_env['HOME'] }}/Downloads"
         state: directory
@@ -235,11 +235,11 @@
       notify:
         - Restart Docker
 
-    - name: Add {{ ansible_user_id }} to 'docker' group
+    - name: Add the ansible_user to 'docker' group
       ansible.builtin.user:
         append: yes
         groups: docker
-        name: "{{ ansible_user_id }}"
+        name: "{{ ansible_user }}"
       become: yes
 
     - name: Reset ssh connection
