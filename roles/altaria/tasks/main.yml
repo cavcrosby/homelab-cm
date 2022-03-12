@@ -47,12 +47,10 @@
   become: yes
   become_user: root
 
-- name: Install system dependencies
+- name: Install general-purpose-scripts dependencies
   ansible.builtin.apt:
     name:
-      - gettext-base # for envsubst
       - jq
-      - openjdk-11-jre-headless
     state: present
   become: yes
   become_user: root
