@@ -397,5 +397,25 @@
   vars:
     github_key_controller_path: ./ssh_keys/id_rsa_github_1
 
+  pre_tasks:
+    - name: Create altaria's ansible user
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        state: present
+        shell: /bin/bash
+        password: "{{ altaria_ansible_user_password }}"
+      become: yes
+
+  # As of this writing, when using the lxd connection plugin, 'remote_user' is not
+  # supported and the root user is used by default. The following 'become_user' is
+  # to ensure that the following tasks within the role can attempt to follow the
+  # principle of least privilege.
+  #
+  # Tasks within the role will only inherit the become_user parameter if they do
+  # not already specify it. Since the default 'remote_user' is already a privilege
+  # user, privilege escalation is nonexistent, hence no need to specify a sudoers
+  # file for the 'ansible_user'.
   roles:
-    - altaria
+    - role: altaria
+      become: yes
+      become_user: "{{ ansible_user }}"
