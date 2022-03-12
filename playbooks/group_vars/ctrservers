@@ -16,15 +16,11 @@ docker_keyring_download_path: "{{ ansible_env['HOME'] }}/Downloads/{{ docker_key
 # Golang to be confused when trying to find certain packages that may no longer
 # exist (e.g. github.com/lxc/lxd/shared/subtest).
 lxd_release_version: 4.0.8
-lxd_go_path: /usr/local/share/go
+lxd_source_go_path: /usr/local/share/go
 lxd_access_group: sudo
 lxd_bridge_device_name: lxdbr1
 
 iptables_up_path: /etc/iptables/rules.v4
-
-altaria_jenkins_user: jenkins
-altaria_makefiles_repo_tag: v1.0.0
-altaria_pyenv_version: v2.2.2
 
 # jenkins-torkel Docker container related configurations
 jenkins_torkel_admin_id: cavcrosby

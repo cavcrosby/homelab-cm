@@ -11,15 +11,11 @@
     lxd_container_type: "{{ item.type }}"
     ansible_lxd_remote: "{{ ansible_default_ipv4.address }}"
     ansible_lxd_host: "{{ item.name }}"
-    jenkins_user: "{{ altaria_jenkins_user }}"
-    jenkins_user_password: "{{ altaria_jenkins_system_user_password }}"
     jenkins_main_node_admin_id: "{{ jenkins_torkel_admin_id }}"
     jenkins_main_node_admin_password: "{{ jenkins_torkel_admin_password }}"
     jenkins_main_node_ipv4_addr: "{{ jenkins_torkel_ipv4_addr }}"
     jenkins_main_node_port: "{{ jenkins_torkel_port }}"
     jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
-    makefiles_repo_tag: "{{ altaria_makefiles_repo_tag }}"
-    pyenv_version: "{{ altaria_pyenv_version }}"
     ansible_connection: lxd
     groups: [lxd_containers]
   no_log: true

@@ -142,17 +142,17 @@
 
 - name: Create the jenkins user
   ansible.builtin.user:
-    name: "{{ jenkins_user }}"
+    name: "{{ altaria_jenkins_system_user }}"
     state: present
-    home: /home/{{ jenkins_user }}
+    home: /home/{{ altaria_jenkins_system_user }}
     shell: /bin/bash
-    password: "{{ jenkins_user_password }}"
+    password: "{{ altaria_jenkins_system_user_password }}"
   become: yes
   become_user: root
 
-- name: Create the jenkins_user's .profile
+- name: Create the altaria_jenkins_system_user's .profile
   ansible.builtin.copy:
-    dest: "{{ _jenkins_user_home }}/.profile"
+    dest: "{{ _altaria_jenkins_system_user_home }}/.profile"
     mode: "644"
     force: yes
     content: |
@@ -173,12 +173,12 @@
   become: yes
   become_user: root
 
-- name: Append pyenv setup to the jenkins_user's .bashrc
+- name: Append pyenv setup to the altaria_jenkins_system_user's .bashrc
   ansible.builtin.import_role:
     name: cavcrosby.general.common
     tasks_from: managed_blockinfile
   vars:
-    path: "{{ _jenkins_user_home }}/.bashrc"
+    path: "{{ _altaria_jenkins_system_user_home }}/.bashrc"
     block_identifier: "pyenv setup"
     block_text: |
       eval "$(pyenv init -)"
@@ -186,21 +186,21 @@
   become: yes
   become_user: root
 
-- name: Create the jenkins_user's .ssh directory
+- name: Create the altaria_jenkins_system_user's .ssh directory
   ansible.builtin.file:
-    path: "{{ _jenkins_user_home }}/.ssh"
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    path: "{{ _altaria_jenkins_system_user_home }}/.ssh"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     state: directory
     mode: "700"
   become: yes
   become_user: root
 
-- name: Create ssh config file for jenkins_user
+- name: Create ssh config file for altaria_jenkins_system_user
   ansible.builtin.copy:
-    dest: "{{ _jenkins_user_home }}/.ssh/config"
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    dest: "{{ _altaria_jenkins_system_user_home }}/.ssh/config"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     mode: "600"
     content: |
       #
@@ -216,10 +216,10 @@
 
 - name: Add the private SSH key that can read/write from GitHub repos
   ansible.builtin.copy:
-    dest: "{{ _jenkins_user_home }}/.ssh/id_rsa_github"
+    dest: "{{ _altaria_jenkins_system_user_home }}/.ssh/id_rsa_github"
     src: "{{ github_key_controller_path }}"
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     mode: "600"
   become: yes
   become_user: root
@@ -227,15 +227,15 @@
 - name: Write the github.com host key to known_hosts
   ansible.builtin.shell: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
   become: yes
-  become_user: "{{ jenkins_user }}"
+  become_user: "{{ altaria_jenkins_system_user }}"
   changed_when: false
     
 - name: Create the gps configuration file
   ansible.builtin.template:
     src: gps.json.j2
     dest: "{{ gps_config_file_path }}"
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     mode: "600"
   become: yes
   become_user: root
@@ -281,7 +281,7 @@
   vars:
     - repo_name: pyenv-installer
     - repo_url: https://github.com/cavcrosby/pyenv-installer
-    - repo_dst: "{{ _jenkins_user_home }}/{{ repo_name }}"
+    - repo_dst: "{{ _altaria_jenkins_system_user_home }}/{{ repo_name }}"
 
 - name: Get the running pyenv version
   ansible.builtin.shell:
@@ -320,12 +320,12 @@
   become_user: root
   when: not jenkins_pyenv_root_inode.stat.exists
 
-- name: Give ownership of {{ _jenkins_pyenv_root_path }} to the jenkins_user
+- name: Give ownership of {{ _jenkins_pyenv_root_path }} to the altaria_jenkins_system_user
   ansible.builtin.file:
     path: "{{ _jenkins_pyenv_root_path }}"
     recurse: yes
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     state: directory
   become: yes
   become_user: root
@@ -334,8 +334,8 @@
   ansible.builtin.file:
     path: /var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}
     recurse: yes
-    owner: "{{ jenkins_user }}"
-    group: "{{ jenkins_user }}"
+    owner: "{{ altaria_jenkins_system_user }}"
+    group: "{{ altaria_jenkins_system_user }}"
     state: directory
     mode: "755"
   become: yes
@@ -347,9 +347,9 @@
     name: cavcrosby.general.jenkins
     tasks_from: connect_to
   vars:
-    jenkins_system_user: "{{ jenkins_user }}"
-    jenkins_system_user_home: "{{ _jenkins_user_home }}"
-    jenkins_system_user_password: "{{ jenkins_user_password }}"
+    jenkins_system_user: "{{ altaria_jenkins_system_user }}"
+    jenkins_system_user_home: "{{ _altaria_jenkins_system_user_home }}"
+    jenkins_system_user_password: "{{ altaria_jenkins_system_user_password }}"
     jenkins_main_node_url: http://{{ jenkins_main_node_ipv4_addr }}:{{ jenkins_main_node_port }}
     jenkins_agent_name: "{{ ansible_lxd_host }}"
     jenkins_username: "{{ jenkins_main_node_admin_id }}"

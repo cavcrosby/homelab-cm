@@ -8,8 +8,8 @@ jenkins_main_node_admin_id: root
 jenkins_main_node_admin_password: Passw0rd!
 
 # this will be the user that Jenkins performs builds as
-jenkins_user: jenkins
-jenkins_user_password: $6$1234$FK.dnaw1F49Lsr/7W0A8miXkoXxVzDEHBepDZA3kR8YHkj8O1Dv.lAXp8o0E6gaEJXryKUXgxxKAvIhHASoDe. # Passw0rd!
+altaria_jenkins_system_user: jenkins
+altaria_jenkins_system_user_password: $6$1234$FK.dnaw1F49Lsr/7W0A8miXkoXxVzDEHBepDZA3kR8YHkj8O1Dv.lAXp8o0E6gaEJXryKUXgxxKAvIhHASoDe. # Passw0rd!
 
 github_key_controller_path: ""
 gps_config_file_path: /usr/local/etc/gps.json
@@ -19,7 +19,7 @@ default_pyenv_python: 3.9.5
 
 _roots_home: /root
 _makefiles_install_path: /usr/local/include/cavcrosby-makefiles
-_jenkins_user_home: /home/{{ jenkins_user }}
-_jenkins_pyenv_root_path: "{{ _jenkins_user_home }}/.pyenv"
+_altaria_jenkins_system_user_home: /home/{{ altaria_jenkins_system_user }}
+_jenkins_pyenv_root_path: "{{ _altaria_jenkins_system_user_home }}/.pyenv"
 _altaria_data_dir: /tmp/ansible/altaria
 _pyenv_installer_path: "{{ _altaria_data_dir }}/pyenv_installer"

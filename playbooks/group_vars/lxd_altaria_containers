@@ -1,0 +1,4 @@
+---
+altaria_jenkins_system_user: jenkins
+makefiles_repo_tag: v1.0.0
+pyenv_version: v2.2.2
