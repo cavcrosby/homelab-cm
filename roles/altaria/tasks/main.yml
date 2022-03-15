@@ -66,6 +66,8 @@
       #
       # ANSIBLE MANAGED
 
+      set -e
+
       . "/etc/profile.d/cavcrosby-makefiles"
 
       export GPS_CONFIG_FILE_PATH="{{ gps_config_file_path }}"
