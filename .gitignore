@@ -152,12 +152,10 @@ cython_debug/
 #.idea/
 
 # repo specific
-# DISCUSS(cavcrosby): I need to see about being more consistent across projects
-# in specifying paths, at least in gitignores.
 .vagrant
 .python-version
+playbooks/vars/ansible_secrets.yml
+playbooks/ssh_keys
+playbooks/certs
 *.log
-/playbooks/vars/ansible_secrets.yml
-/playbooks/ssh_keys
-/playbooks/certs
-/*.png
+*.png
