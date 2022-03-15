@@ -66,45 +66,60 @@
       #
       # ANSIBLE MANAGED
 
+      . "/etc/profile.d/cavcrosby-makefiles"
+
       export GPS_CONFIG_FILE_PATH="{{ gps_config_file_path }}"
       export PYENV_ROOT="{{ _jenkins_pyenv_root_path }}"
       PATH="${PYENV_ROOT}/plugins/pyenv-virtualenv/shims:${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
       export PATH
 
-      /usr/bin/make --include-dir "{{ _makefiles_install_path }}" "$@"
+      /usr/bin/make --include-dir "${CAVCROSBY_MAKEFILES_PATH}" "$@"
   become: yes
   become_user: root
 
-- name: Checkout my common makefiles repo, and install makefiles
-  block:
-    - name: Checkout the {{ repo_name }} repo
-      ansible.builtin.git:
-        dest: "{{ repo_dst }}"
-        repo: "{{ repo_url }}"
-        force: yes
-        version: "{{ makefiles_repo_tag }}"
-      register: checkout_repo_check
-      become: yes
-      become_user: root
+# This list is specific to Debian at the moment. Can be expanded to a vars
+# directory to install dependencies based on the distro.
+#
+# For reference on list of dependencies:
+# https://packagecloud.io/cavcrosby/makefiles/install#manual
+- name: Install cavcrosby-makefiles dependencies
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - curl
+      - debian-archive-keyring
+      - gnupg
+    state: present
+  become: yes
+  become_user: root
 
-    - name: Register the makefile install path inode
-      ansible.builtin.stat:
-        path: "{{ _makefiles_install_path }}"
-      register: makefile_install_dest_inode
+- name: Grab cavcrosby-makefiles's official GPG key
+  ansible.builtin.get_url:
+    url: https://packagecloud.io/cavcrosby/makefiles/gpgkey
+    dest: "{{ cavcrosby_makefiles_keyring_download_path }}"
+  notify:
+    - Remove cavcrosby-makefiles's installed GPG key
+    - Install cavcrosby-makefiles's GPG key
 
-    - name: Run {{ repo_name }}'s 'make' install
-      ansible.builtin.command:
-        chdir: "{{ repo_dst }}"
-        cmd: make INSTALL_PATH={{ _makefiles_install_path }} install
-      become: yes
-      become_user: root
-      when: not makefile_install_dest_inode.stat.exists
-            or checkout_repo_check.before != checkout_repo_check.after
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
-  vars:
-    - repo_name: makefiles
-    - repo_url: https://github.com/cavcrosby/makefiles
-    - repo_dst: "{{ _roots_home }}/{{ repo_name }}"
+- name: Add cavcrosby-makefiles's main apt repository
+  ansible.builtin.apt_repository:
+    repo: >
+      deb [arch=amd64 signed-by={{ cavcrosby_makefiles_keyring_install_path }}]
+      https://packagecloud.io/cavcrosby/makefiles/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main
+    state: present
+  become: yes
+  become_user: root
+
+- name: Install cavcrosby-makefiles
+  ansible.builtin.apt:
+    name:
+      - cavcrosby-makefiles
+    state: present
+  become: yes
+  become_user: root
 
 - name: Create root's .profile
   ansible.builtin.copy:

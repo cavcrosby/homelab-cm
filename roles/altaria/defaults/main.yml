@@ -11,14 +11,16 @@ jenkins_main_node_admin_password: Passw0rd!
 altaria_jenkins_system_user: jenkins
 altaria_jenkins_system_user_password: $6$1234$FK.dnaw1F49Lsr/7W0A8miXkoXxVzDEHBepDZA3kR8YHkj8O1Dv.lAXp8o0E6gaEJXryKUXgxxKAvIhHASoDe. # Passw0rd!
 
+cavcrosby_makefiles_keyring_prefix: cavcrosby-makefiles-keyring
+cavcrosby_makefiles_keyring_install_path: /usr/share/keyrings/{{ cavcrosby_makefiles_keyring_prefix }}.gpg
+cavcrosby_makefiles_keyring_download_path: "{{ _altaria_data_dir }}/{{ cavcrosby_makefiles_keyring_prefix }}.asc"
+
 github_key_controller_path: ""
 gps_config_file_path: /usr/local/etc/gps.json
-makefiles_repo_tag: v1.0.0
 pyenv_version: v2.2.2
 default_pyenv_python: 3.9.5
 
 _roots_home: /root
-_makefiles_install_path: /usr/local/include/cavcrosby-makefiles
 _altaria_jenkins_system_user_home: /home/{{ altaria_jenkins_system_user }}
 _jenkins_pyenv_root_path: "{{ _altaria_jenkins_system_user_home }}/.pyenv"
 _altaria_data_dir: /tmp/ansible/altaria
