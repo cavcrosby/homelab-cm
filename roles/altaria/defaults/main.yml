@@ -23,5 +23,5 @@ default_pyenv_python: 3.9.5
 _roots_home: /root
 _altaria_jenkins_system_user_home: /home/{{ altaria_jenkins_system_user }}
 _jenkins_pyenv_root_path: "{{ _altaria_jenkins_system_user_home }}/.pyenv"
-_altaria_data_dir: /tmp/ansible/altaria
+_altaria_data_dir: /tmp/ansible_roles/altaria
 _pyenv_installer_path: "{{ _altaria_data_dir }}/pyenv_installer"
