@@ -59,7 +59,7 @@
       vars:
         weechat_user: "{{ irc_user }}"
         weechat_tls_cert_controller_paths: "{{ irc_weechat_tls_cert_controller_paths }}"
-    
+
   tasks:
     - name: Install "nice to haves"
       ansible.builtin.apt:

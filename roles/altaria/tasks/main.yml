@@ -100,6 +100,7 @@
   ansible.builtin.get_url:
     url: https://packagecloud.io/cavcrosby/makefiles/gpgkey
     dest: "{{ cavcrosby_makefiles_keyring_download_path }}"
+    mode: "644"
   notify:
     - Remove cavcrosby-makefiles's installed GPG key
     - Install cavcrosby-makefiles's GPG key
@@ -247,7 +248,7 @@
   become: true
   become_user: "{{ altaria_jenkins_system_user }}"
   changed_when: false
-    
+
 - name: Create the gps configuration file
   ansible.builtin.template:
     src: gps.json.j2
@@ -305,7 +306,7 @@
   ansible.builtin.shell:
     executable: /bin/bash
     cmd: |
-      set -o pipefail 
+      set -o pipefail
       . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
   become: true
   become_user: root
