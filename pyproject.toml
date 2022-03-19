@@ -12,7 +12,7 @@ ansible = "5.5.0"
 diagrams = "^0.21.0"
 
 [tool.poetry.dev-dependencies]
-ansible-lint = "5.3.1"
+ansible-lint = "5.4.0"
 flake8 = "^4.0.1"
 black = "^22.1.0"
 flake8-docstrings = "^1.6.0"
