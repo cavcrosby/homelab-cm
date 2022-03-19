@@ -10,11 +10,11 @@
 
       hostname: "{{ inventory_hostname | capitalize }}"
       manage_etc_hosts: true
-  become: yes
+  become: true
 
 - name: Rerun particular cloud-init modules
   ansible.builtin.shell: |
     cloud-init single --name cc_set_hostname
     cloud-init single --name cc_update_etc_hosts
-  become: yes
+  become: true
   changed_when: false

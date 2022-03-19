@@ -1,15 +1,15 @@
 ---
 - name: Update apt's package index
   ansible.builtin.apt:
-    update_cache: yes
-  become: yes
+    update_cache: true
+  become: true
 
 - name: Install WeeChat
   ansible.builtin.apt:
     name:
       - weechat
     state: present
-  become: yes
+  become: true
 
 - name: Create WeeChat's certificates directory
   ansible.builtin.file:
@@ -18,7 +18,7 @@
     group: "{{ weechat_user }}"
     state: directory
     mode: "775"
-  become: yes
+  become: true
 
 - name: Add the WeeChat certificates
   ansible.builtin.copy:
@@ -27,5 +27,5 @@
     owner: "{{ weechat_user }}"
     group: "{{ weechat_user }}"
     mode: "600"
-  become: yes
+  become: true
   loop: "{{ weechat_tls_cert_controller_paths }}"

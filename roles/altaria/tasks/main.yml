@@ -1,8 +1,8 @@
 ---
 - name: Update apt's package index
   ansible.builtin.apt:
-    update_cache: yes
-  become: yes
+    update_cache: true
+  become: true
   become_user: root
 
 # This file task may create a file in a location that does not actually require
@@ -17,7 +17,7 @@
     group: "{{ ansible_user }}"
     state: directory
     mode: "700"
-  become: yes
+  become: true
   become_user: root
 
 # This list is specific to Ubuntu/Debian at the moment. Can be expanded to a vars
@@ -44,7 +44,7 @@
       - xz-utils
       - zlib1g-dev
     state: present
-  become: yes
+  become: true
   become_user: root
 
 - name: Install general-purpose-scripts dependencies
@@ -52,7 +52,7 @@
     name:
       - jq
     state: present
-  become: yes
+  become: true
   become_user: root
 
 # Assumes /usr/local/bin comes before /usr/bin in the shell's default PATH (e.g.
@@ -77,7 +77,7 @@
       export PATH
 
       /usr/bin/make --include-dir "${CAVCROSBY_MAKEFILES_PATH}" "$@"
-  become: yes
+  become: true
   become_user: root
 
 # This list is specific to Debian at the moment. Can be expanded to a vars
@@ -93,7 +93,7 @@
       - debian-archive-keyring
       - gnupg
     state: present
-  become: yes
+  become: true
   become_user: root
 
 - name: Grab cavcrosby-makefiles's official GPG key
@@ -113,7 +113,7 @@
       deb [arch=amd64 signed-by={{ cavcrosby_makefiles_keyring_install_path }}]
       https://packagecloud.io/cavcrosby/makefiles/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} main
     state: present
-  become: yes
+  become: true
   become_user: root
 
 - name: Install cavcrosby-makefiles
@@ -121,14 +121,14 @@
     name:
       - cavcrosby-makefiles
     state: present
-  become: yes
+  become: true
   become_user: root
 
 - name: Create root's .profile
   ansible.builtin.copy:
     dest: "{{ _roots_home }}/.profile"
     mode: "644"
-    force: yes
+    force: true
     content: |
       #
       #
@@ -137,14 +137,14 @@
       export PYENV_ROOT="{{ _jenkins_pyenv_root_path }}"
       export PATH="${PYENV_ROOT}/bin:${PATH}"
       eval "$(pyenv init --path)"
-  become: yes
+  become: true
   become_user: root
 
 - name: Create root's .bashrc
   ansible.builtin.copy:
     dest: "{{ _roots_home }}/.bashrc"
     mode: "644"
-    force: yes
+    force: true
     content: |
       #
       #
@@ -155,7 +155,7 @@
 
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
-  become: yes
+  become: true
   become_user: root
 
 - name: Create the jenkins user
@@ -165,14 +165,14 @@
     home: /home/{{ altaria_jenkins_system_user }}
     shell: /bin/bash
     password: "{{ altaria_jenkins_system_user_password }}"
-  become: yes
+  become: true
   become_user: root
 
 - name: Create the altaria_jenkins_system_user's .profile
   ansible.builtin.copy:
     dest: "{{ _altaria_jenkins_system_user_home }}/.profile"
     mode: "644"
-    force: yes
+    force: true
     content: |
       #
       #
@@ -188,7 +188,7 @@
               . "${HOME}/.bashrc"
           fi
       fi
-  become: yes
+  become: true
   become_user: root
 
 - name: Append pyenv setup to the altaria_jenkins_system_user's .bashrc
@@ -201,7 +201,7 @@
     block_text: |
       eval "$(pyenv init -)"
       eval "$(pyenv virtualenv-init -)"
-  become: yes
+  become: true
   become_user: root
 
 - name: Create the altaria_jenkins_system_user's .ssh directory
@@ -211,7 +211,7 @@
     group: "{{ altaria_jenkins_system_user }}"
     state: directory
     mode: "700"
-  become: yes
+  become: true
   become_user: root
 
 - name: Create ssh config file for altaria_jenkins_system_user
@@ -229,7 +229,7 @@
           HostName github.com
           User git
           IdentityFile ~/.ssh/id_rsa_github
-  become: yes
+  become: true
   become_user: root
 
 - name: Add the private SSH key that can read/write from GitHub repos
@@ -239,12 +239,12 @@
     owner: "{{ altaria_jenkins_system_user }}"
     group: "{{ altaria_jenkins_system_user }}"
     mode: "600"
-  become: yes
+  become: true
   become_user: root
 
 - name: Write the github.com host key to known_hosts
   ansible.builtin.shell: ssh-keyscan -H github.com >> ~/.ssh/known_hosts
-  become: yes
+  become: true
   become_user: "{{ altaria_jenkins_system_user }}"
   changed_when: false
     
@@ -255,7 +255,7 @@
     owner: "{{ altaria_jenkins_system_user }}"
     group: "{{ altaria_jenkins_system_user }}"
     mode: "600"
-  become: yes
+  become: true
   become_user: root
 
 - name: Register the {{ _jenkins_pyenv_root_path }} file inode
@@ -282,18 +282,18 @@
       ansible.builtin.git:
         dest: "{{ repo_dst }}"
         repo: "{{ repo_url }}"
-        force: yes
+        force: true
         version: pyenv-install-tag
-      become: yes
+      become: true
       become_user: root
 
     - name: Copy the pyenv-installer to its intended location
       ansible.builtin.copy:
         dest: "{{ _pyenv_installer_path }}"
         src: "{{ repo_dst }}/bin/pyenv-installer"
-        remote_src: yes
+        remote_src: true
         mode: "755"
-      become: yes
+      become: true
       become_user: root
 
   vars:
@@ -307,7 +307,7 @@
     cmd: |
       set -o pipefail 
       . {{ _roots_home }}/.bashrc && pyenv --version | awk '{print "v"$2}'
-  become: yes
+  become: true
   become_user: root
   register: running_pyenv_version
   failed_when: false
@@ -317,7 +317,7 @@
   ansible.builtin.file:
     state: absent
     path: "{{ _jenkins_pyenv_root_path }}"
-  become: yes
+  become: true
   become_user: root
   when: running_pyenv_version.stdout != pyenv_version
 
@@ -326,7 +326,7 @@
   environment:
     PYENV_ROOT: "{{ _jenkins_pyenv_root_path }}"
     PYENV_GIT_TAG: "{{ pyenv_version }}"
-  become: yes
+  become: true
   become_user: root
   when: not jenkins_pyenv_root_inode.stat.exists
         or running_pyenv_version.stdout != pyenv_version
@@ -334,29 +334,29 @@
 - name: Install a Python interpreter to be managed by pyenv
   ansible.builtin.shell: |
     . {{ _roots_home }}/.bashrc && pyenv install {{ default_pyenv_python }}
-  become: yes
+  become: true
   become_user: root
   when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Give ownership of {{ _jenkins_pyenv_root_path }} to the altaria_jenkins_system_user
   ansible.builtin.file:
     path: "{{ _jenkins_pyenv_root_path }}"
-    recurse: yes
+    recurse: true
     owner: "{{ altaria_jenkins_system_user }}"
     group: "{{ altaria_jenkins_system_user }}"
     state: directory
-  become: yes
+  become: true
   become_user: root
 
 - name: Create jenkins-agent {{ jenkins_main_node_workingdir }} directory
   ansible.builtin.file:
     path: /var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}
-    recurse: yes
+    recurse: true
     owner: "{{ altaria_jenkins_system_user }}"
     group: "{{ altaria_jenkins_system_user }}"
     state: directory
     mode: "755"
-  become: yes
+  become: true
   become_user: root
   changed_when: false
 
@@ -373,7 +373,7 @@
     jenkins_username: "{{ jenkins_main_node_admin_id }}"
     jenkins_password: "{{ jenkins_main_node_admin_password }}"
     jenkins_workingdir: /var/lib/jenkins-agent/{{ jenkins_main_node_workingdir }}
-  become: yes
+  become: true
   # Regardless what portion of the role's tasks use/not use become, need to make
   # sure tasks become the right privileged user.
   become_user: root

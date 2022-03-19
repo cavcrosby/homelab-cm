@@ -7,8 +7,8 @@
   pre_tasks:
     - name: Update apt's package index
       ansible.builtin.apt:
-        update_cache: yes
-      become: yes
+        update_cache: true
+      become: true
 
   tasks:
     - name: Create the irc_user
@@ -18,14 +18,14 @@
         home: "{{ irc_user_home }}"
         shell: /bin/bash
         password: "{{ irc_user_password }}"
-      become: yes
+      become: true
 
     - name: Add the irc_user to "sudo" group
       ansible.builtin.user:
-        append: yes
+        append: true
         groups: sudo
         name: "{{ irc_user }}"
-      become: yes
+      become: true
 
     - name: Create irc_user's .ssh directory
       ansible.builtin.file:
@@ -34,7 +34,7 @@
         group: "{{ irc_user }}"
         state: directory
         mode: "700"
-      become: yes
+      become: true
 
     - name: Add the public SSH key to manage machine as irc_user
       ansible.builtin.copy:
@@ -43,7 +43,7 @@
         owner: "{{ irc_user }}"
         group: "{{ irc_user }}"
         mode: "600"
-      become: yes
+      become: true
 
 - name: Install and configure WeeChat
   hosts: irc_clients
@@ -51,8 +51,8 @@
   pre_tasks:
     - name: Update apt's package index
       ansible.builtin.apt:
-        update_cache: yes
-      become: yes
+        update_cache: true
+      become: true
 
   roles:
     - role: weechat
@@ -66,7 +66,7 @@
         name:
           - tmux
         state: present
-      become: yes
+      become: true
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances

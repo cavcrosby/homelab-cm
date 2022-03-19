@@ -22,8 +22,8 @@
   pre_tasks:
     - name: Update apt's package index
       ansible.builtin.apt:
-        update_cache: yes
-      become: yes
+        update_cache: true
+      become: true
     
   tasks:
     - name: Setup the ansible_user's Python virtual environment (virtualenv)
@@ -34,7 +34,7 @@
               - python3-apt
               - python3-venv
             state: present
-          become: yes
+          become: true
 
         - name: Create the ansible_user's Python virtualenvs directory
           ansible.builtin.file:
@@ -119,31 +119,31 @@
               - iptables
               - iptables-persistent
             state: present
-          become: yes
+          become: true
 
         - name: Setup legacy iptables
           community.general.alternatives:
             name: iptables
             path: /usr/sbin/iptables-legacy
-          become: yes
+          become: true
 
         - name: Setup legacy ip6tables
           community.general.alternatives:
             name: ip6tables
             path: /usr/sbin/ip6tables-legacy
-          become: yes
+          become: true
 
         - name: Setup legacy arptables
           community.general.alternatives:
             name: arptables
             path: /usr/sbin/arptables-legacy
-          become: yes
+          become: true
 
         - name: Setup legacy ebtables
           community.general.alternatives:
             name: ebtables
             path: /usr/sbin/ebtables-legacy
-          become: yes
+          become: true
 
     - name: Setup systemd-networkd networking
       block:
@@ -173,8 +173,8 @@
   pre_tasks:
     - name: Update apt's package index
       ansible.builtin.apt:
-        update_cache: yes
-      become: yes
+        update_cache: true
+      become: true
 
     # Trying to use include_role in the handlers section caused a bizarre error. That
     # said, this appears to be a known issue. For reference, though the reported
@@ -202,7 +202,7 @@
           - gnupg
           - curl
         state: present
-      become: yes
+      become: true
 
     - name: Grab Docker's official GPG key
       ansible.builtin.get_url:
@@ -221,7 +221,7 @@
           deb [arch=amd64 signed-by={{ docker_keyring_install_path }}]
           https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable
         state: present
-      become: yes
+      become: true
       when: ansible_architecture == "x86_64"
 
     - name: Install the Docker Engine
@@ -231,16 +231,16 @@
           - docker-ce-cli
           - containerd.io
         state: present
-      become: yes
+      become: true
       notify:
         - Restart Docker
 
     - name: Add the ansible_user to 'docker' group
       ansible.builtin.user:
-        append: yes
+        append: true
         groups: docker
         name: "{{ ansible_user }}"
-      become: yes
+      become: true
 
     - name: Reset ssh connection
       ansible.builtin.meta: reset_connection
@@ -251,7 +251,7 @@
       ansible.builtin.systemd:
         name: docker
         state: restarted
-      become: yes
+      become: true
       notify:
         - Save the current iptables rules
 
@@ -259,7 +259,7 @@
       ansible.builtin.file:
         path: "{{ docker_keyring_install_path }}"
         state: absent
-      become: yes
+      become: true
 
     # --batch option is needed for gpg due to odd "gpg: cannot open '/dev/tty'" error.
     # For reference:
@@ -267,7 +267,7 @@
     - name: Install Docker's GPG key
       ansible.builtin.shell: |
         gpg --batch --output {{ docker_keyring_install_path }} --dearmor {{ docker_keyring_download_path }}
-      become: yes
+      become: true
 
 - name: Deploy Docker containers
   hosts: ctrservers
@@ -366,7 +366,7 @@
   tags: check_python_lxd_containers
   # Ansible seems to fail at gathering facts from a container if the provided image
   # does not have Python installed.
-  gather_facts: no
+  gather_facts: false
 
   tasks:
     - name: Check if python3 is installed in containers
@@ -404,7 +404,7 @@
         state: present
         shell: /bin/bash
         password: "{{ altaria_ansible_user_password }}"
-      become: yes
+      become: true
 
   # As of this writing, when using the lxd connection plugin, 'remote_user' is not
   # supported and the root user is used by default. The following 'become_user' is
@@ -417,5 +417,5 @@
   # file for the 'ansible_user'.
   roles:
     - role: altaria
-      become: yes
+      become: true
       become_user: "{{ ansible_user }}"
