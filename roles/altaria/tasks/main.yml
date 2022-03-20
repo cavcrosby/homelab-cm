@@ -4,6 +4,7 @@
     update_cache: true
   become: true
   become_user: root
+  when: ansible_os_family | lower == "debian"
 
 # This file task may create a file in a location that does not actually require
 # privilege escalation. However, there exist a situation where if the remote_user
@@ -20,8 +21,6 @@
   become: true
   become_user: root
 
-# This list is specific to Ubuntu/Debian at the moment. Can be expanded to a vars
-# directory to install dependencies based on the distro.
 - name: Install pyenv dependencies
   ansible.builtin.apt:
     name:
@@ -46,6 +45,7 @@
     state: present
   become: true
   become_user: root
+  when: ansible_os_family | lower == "debian"
 
 - name: Install general-purpose-scripts dependencies
   ansible.builtin.apt:
@@ -54,6 +54,7 @@
     state: present
   become: true
   become_user: root
+  when: ansible_os_family | lower == "debian"
 
 # Assumes /usr/local/bin comes before /usr/bin in the shell's default PATH (e.g.
 # the one "hardcoded" into the shell binary).
@@ -80,9 +81,6 @@
   become: true
   become_user: root
 
-# This list is specific to Debian at the moment. Can be expanded to a vars
-# directory to install dependencies based on the distro.
-#
 # For reference on list of dependencies:
 # https://packagecloud.io/cavcrosby/makefiles/install#manual
 - name: Install cavcrosby-makefiles dependencies
@@ -95,6 +93,7 @@
     state: present
   become: true
   become_user: root
+  when: ansible_distribution | lower == "debian"
 
 - name: Grab cavcrosby-makefiles's official GPG key
   ansible.builtin.get_url:
@@ -124,6 +123,7 @@
     state: present
   become: true
   become_user: root
+  when: ansible_os_family | lower == "debian"
 
 - name: Create root's .profile
   ansible.builtin.copy:

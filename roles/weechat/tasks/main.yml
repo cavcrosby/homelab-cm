@@ -3,6 +3,7 @@
   ansible.builtin.apt:
     update_cache: true
   become: true
+  when: ansible_os_family | lower == "debian"
 
 - name: Install WeeChat
   ansible.builtin.apt:
@@ -10,6 +11,7 @@
       - weechat
     state: present
   become: true
+  when: ansible_os_family | lower == "debian"
 
 - name: Create WeeChat's certificates directory
   ansible.builtin.file:

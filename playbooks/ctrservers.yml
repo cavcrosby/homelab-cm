@@ -24,6 +24,7 @@
       ansible.builtin.apt:
         update_cache: true
       become: true
+      when: ansible_os_family | lower == "debian"
 
   tasks:
     - name: Setup the ansible_user's Python virtual environment (virtualenv)
@@ -35,6 +36,7 @@
               - python3-venv
             state: present
           become: true
+          when: ansible_os_family | lower == "debian"
 
         - name: Create the ansible_user's Python virtualenvs directory
           ansible.builtin.file:
@@ -120,6 +122,7 @@
               - iptables-persistent
             state: present
           become: true
+          when: ansible_os_family | lower == "debian"
 
         - name: Setup legacy iptables
           community.general.alternatives:
@@ -175,6 +178,7 @@
       ansible.builtin.apt:
         update_cache: true
       become: true
+      when: ansible_os_family | lower == "debian"
 
     # Trying to use include_role in the handlers section caused a bizarre error. That
     # said, this appears to be a known issue. For reference, though the reported
@@ -202,6 +206,7 @@
           - gnupg
         state: present
       become: true
+      when: ansible_os_family | lower == "debian"
 
     - name: Grab Docker's official GPG key
       ansible.builtin.get_url:
@@ -234,6 +239,7 @@
       become: true
       notify:
         - Restart Docker
+      when: ansible_os_family | lower == "debian"
 
     - name: Add the ansible_user to 'docker' group
       ansible.builtin.user:
@@ -369,15 +375,34 @@
   gather_facts: false
 
   tasks:
-    - name: Check if python3 is installed in containers
+    - name: Identify the (*nix) operating system
+      ansible.builtin.raw: awk -F= '/^ID/ {print $2}' /etc/os-release
+      register: operating_system_identity
+      failed_when: operating_system_identity.rc not in [0, 1]
+      changed_when: false
+
+    - name: Identify (*nix) operating systems that are relatives
+      ansible.builtin.raw: awk -F= '/^ID_LIKE/ {print $2}' /etc/os-release
+      register: operating_system_relatives
+      failed_when: operating_system_relatives.rc not in [0, 1]
+      changed_when: false
+
+    - name: Check if python3 is installed in containers (debian-like)
       ansible.builtin.raw: dpkg --status python3
       register: python_install_check
       failed_when: python_install_check.rc not in [0, 1]
       changed_when: false
+      # The entire logical expression must be quoted, as this is what the YAML
+      # parser expects. Invalid example:
+      # "'foo' in results.stdout" or "'bar' in results.stdout"
+      when: "'debian' in operating_system_identity.stdout
+            or 'debian' in operating_system_relatives.stdout"
 
-    - name: Install python3 in containers
+    - name: Install python3 in containers (debian-like)
       ansible.builtin.raw: apt-get install --assume-yes python3
-      when: python_install_check.rc == 1
+      when:
+        - python_install_check.rc == 1
+        - "'debian' in operating_system_identity.stdout or 'debian' in operating_system_relatives.stdout"
 
 - name: Group the LXD containers by type
   hosts: lxd_containers

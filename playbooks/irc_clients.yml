@@ -9,6 +9,7 @@
       ansible.builtin.apt:
         update_cache: true
       become: true
+      when: ansible_os_family | lower == "debian"
 
   tasks:
     - name: Create the irc_user
@@ -53,6 +54,7 @@
       ansible.builtin.apt:
         update_cache: true
       become: true
+      when: ansible_os_family | lower == "debian"
 
   roles:
     - role: weechat
@@ -67,6 +69,7 @@
           - tmux
         state: present
       become: true
+      when: ansible_os_family | lower == "debian"
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances
