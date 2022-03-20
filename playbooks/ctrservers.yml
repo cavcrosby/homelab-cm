@@ -200,7 +200,6 @@
           - ca-certificates
           - curl
           - gnupg
-          - curl
         state: present
       become: true
 
