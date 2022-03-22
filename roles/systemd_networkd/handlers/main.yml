@@ -10,16 +10,16 @@
   ansible.builtin.file:
     path: /etc/network/interfaces
     state: absent
-  when: ansible_distribution | lower == "debian"
   become: true
+  when: ansible_distribution | lower == "debian"
 
 - name: Stop and disable Debian networking daemon
   ansible.builtin.systemd:
     name: networking
     enabled: false
     state: stopped
-  when: ansible_distribution | lower == "debian"
   become: true
+  when: ansible_distribution | lower == "debian"
 
 - name: Restart systemd-networkd
   ansible.builtin.systemd:
