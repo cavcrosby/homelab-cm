@@ -4,13 +4,6 @@
   vars_files:
     - ./vars/ansible_secrets.yml
 
-  pre_tasks:
-    - name: Update apt's package index
-      ansible.builtin.apt:
-        update_cache: true
-      become: true
-      when: ansible_os_family | lower == "debian"
-
   tasks:
     - name: Create the irc_user
       ansible.builtin.user:
