@@ -33,12 +33,13 @@
       become: true
       when: default_grub_config_inode.stat.exists
 
-    - name: Update grub.cfg
+    - name: Update grub.cfg (debian-like)
       ansible.builtin.command: grub-mkconfig -o /boot/grub/grub.cfg
       become: true
       when:
         - default_grub_config_inode.stat.exists
         - line_check.found == 0
+        - ansible_os_family | lower == "debian"
 
     - name: Reboot ctrservers to have new boot parameter(s) take effect
       ansible.builtin.reboot:
