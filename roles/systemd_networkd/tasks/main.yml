@@ -11,6 +11,6 @@
   loop: "{{ systemd_networkd_files }}"
   notify:
     - Start and enable systemd-networkd
-    - Remove Debian's networking daemon interfaces file
-    - Stop and disable Debian networking daemon
+    - Remove the 'networking' daemon interfaces file (debian-like)
+    - Stop and disable the 'networking' daemon (debian-like)
     - Restart systemd-networkd
