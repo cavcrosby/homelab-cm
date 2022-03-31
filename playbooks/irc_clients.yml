@@ -56,7 +56,7 @@
         weechat_tls_cert_controller_paths: "{{ irc_weechat_tls_cert_controller_paths }}"
 
   tasks:
-    - name: Install "nice to haves"
+    - name: Install "nice to haves" (debian-like)
       ansible.builtin.apt:
         name:
           - tmux

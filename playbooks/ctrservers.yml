@@ -29,7 +29,7 @@
   tasks:
     - name: Setup the ansible_user's Python virtual environment (virtualenv)
       block:
-        - name: Install other Python packages
+        - name: Install other Python packages (debian-like)
           ansible.builtin.apt:
             name:
               - python3-apt
@@ -113,7 +113,7 @@
 
     - name: Setup default legacy userland "iptables" tools
       block:
-        - name: Install legacy iptables dependencies
+        - name: Install legacy iptables dependencies (debian-like)
           ansible.builtin.apt:
             name:
               - arptables
@@ -198,7 +198,7 @@
         state: directory
         mode: "700"
 
-    - name: Install Docker dependencies
+    - name: Install Docker dependencies (debian-like)
       ansible.builtin.apt:
         name:
           - ca-certificates
@@ -229,7 +229,7 @@
       become: true
       when: ansible_architecture == "x86_64"
 
-    - name: Install the Docker Engine
+    - name: Install the Docker Engine (debian-like)
       ansible.builtin.apt:
         name:
           - docker-ce

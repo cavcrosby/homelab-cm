@@ -21,7 +21,7 @@
   become: true
   become_user: root
 
-- name: Install pyenv dependencies
+- name: Install pyenv dependencies (debian-like)
   ansible.builtin.apt:
     name:
       - build-essential
@@ -47,7 +47,7 @@
   become_user: root
   when: ansible_os_family | lower == "debian"
 
-- name: Install general-purpose-scripts dependencies
+- name: Install general-purpose-scripts dependencies (debian-like)
   ansible.builtin.apt:
     name:
       - jq
@@ -83,7 +83,7 @@
 
 # For reference on list of dependencies:
 # https://packagecloud.io/cavcrosby/makefiles/install#manual
-- name: Install cavcrosby-makefiles dependencies
+- name: Install cavcrosby-makefiles dependencies (debian)
   ansible.builtin.apt:
     name:
       - apt-transport-https
@@ -116,7 +116,7 @@
   become: true
   become_user: root
 
-- name: Install cavcrosby-makefiles
+- name: Install cavcrosby-makefiles (debian-like)
   ansible.builtin.apt:
     name:
       - cavcrosby-makefiles

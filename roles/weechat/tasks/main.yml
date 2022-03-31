@@ -5,7 +5,7 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Install WeeChat
+- name: Install WeeChat (debian-like)
   ansible.builtin.apt:
     name:
       - weechat
