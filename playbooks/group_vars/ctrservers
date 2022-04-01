@@ -30,6 +30,7 @@ jenkins_torkel_port: 8080
 jenkins_torkel_workingdir: torkel1
 jenkins_torkel_port_mapping: 8080:{{ jenkins_torkel_port }}
 jenkins_torkel_agents_port_mapping: 50000:50000
+jenkins_torkel_agent_executable_sha256_checksum: 22ef87071652645aab9eb413147833938302b45861b65ab0fec842fd1ab0da08
 
 lxd_preseed: |
   config:

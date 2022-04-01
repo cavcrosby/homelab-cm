@@ -16,6 +16,7 @@
     jenkins_main_node_ipv4_addr: "{{ jenkins_torkel_ipv4_addr }}"
     jenkins_main_node_port: "{{ jenkins_torkel_port }}"
     jenkins_main_node_workingdir: "{{ jenkins_torkel_workingdir }}"
+    altaria_jenkins_agent_executable_sha256_checksum: "{{ jenkins_torkel_agent_executable_sha256_checksum }}"
     ansible_connection: lxd
     groups: [lxd_containers]
   no_log: true
