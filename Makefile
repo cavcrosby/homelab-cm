@@ -73,7 +73,7 @@ SUDO = sudo
 BW = bw
 
 # simply expanded variables
-ifdef CONTROLLER_NODE
+ifneq ($(findstring ${CONTROLLER_NODE},${TRUTHY_VALUES}),)
 	executables := \
 		${JQ}\
 		${python_executables}
@@ -107,7 +107,7 @@ ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 # 	endif
 endif
 
-ifdef LOG
+ifneq ($(findstring ${LOG},${TRUTHY_VALUES}),)
 	override LOG := > ${LOG_PATH} 2>&1
 endif
 
@@ -171,7 +171,7 @@ ${ANSIPLAY}:
 
 .PHONY: ${ANSIPLAY_TEST}
 ${ANSIPLAY_TEST}:
-ifdef VMS_EXISTS
+ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 >	${VAGRANT} up --provision --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
@@ -228,7 +228,7 @@ endif
 ${CLEAN}:
 >	rm --force *.log
 >	rm --force homelab.png
-ifndef CONTROLLER_NODE
+ifeq ($(findstring ${CONTROLLER_NODE},${TRUTHY_VALUES}),)
 	ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 		# There are times where vagrant may get into defunct state and will be unable to
 		# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
