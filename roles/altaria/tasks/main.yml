@@ -264,43 +264,12 @@
     path: "{{ _jenkins_pyenv_root_path }}"
   register: jenkins_pyenv_root_inode
 
-# MONITOR(cavcrosby): I anticipate that eventually I will no longer need to use
-# my forked version of the pyenv-installer repo. This depends ultimately on the
-# outcome of a particular pull request. Once a outcome is determined, this section
-# should be updated.
-# https://github.com/pyenv/pyenv-installer/pull/126
-#
-# - name: Grab the pyenv installer
-#   ansible.builtin.get_url:
-#     url: https://pyenv.run
-#     dest: "{{ _pyenv_installer_path }}"
-#     mode: "755"
-#   when: not jenkins_pyenv_root_inode.stat.exists
-
-- name: Checkout my pyenv-installer forked repo
-  block:
-    - name: Checkout the {{ repo_name }} repo
-      ansible.builtin.git:
-        dest: "{{ repo_dst }}"
-        repo: "{{ repo_url }}"
-        force: true
-        version: pyenv-install-tag
-      become: true
-      become_user: root
-
-    - name: Copy the pyenv-installer to its intended location
-      ansible.builtin.copy:
-        dest: "{{ _pyenv_installer_path }}"
-        src: "{{ repo_dst }}/bin/pyenv-installer"
-        remote_src: true
-        mode: "755"
-      become: true
-      become_user: root
-
-  vars:
-    - repo_name: pyenv-installer
-    - repo_url: https://github.com/cavcrosby/pyenv-installer
-    - repo_dst: "{{ _altaria_jenkins_system_user_home }}/{{ repo_name }}"
+- name: Grab the pyenv installer
+  ansible.builtin.get_url:
+    url: https://pyenv.run
+    dest: "{{ _pyenv_installer_path }}"
+    mode: "755"
+  when: not jenkins_pyenv_root_inode.stat.exists
 
 - name: Get the running pyenv version
   ansible.builtin.shell:
