@@ -1,6 +1,6 @@
 include base.mk
 
-# recursive variables
+# recursively expanded variables
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 ANSIBLE_TLS_CERTS_DIR_PATH = ./playbooks/certs
