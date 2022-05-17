@@ -2,8 +2,6 @@ include base.mk
 
 # recursively expanded variables
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
-ANSIBLE_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
-ANSIBLE_TLS_CERTS_DIR_PATH = ./playbooks/certs
 ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
@@ -17,16 +15,6 @@ VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH = ${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_PREFIX}.tar.gz
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
-
-BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
-SSH_KEYS = \
-	LightsailDefaultKey-us-east-1.pem\
-	id_rsa_irc.pub\
-	id_rsa_github_1
-
-BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
-TLS_CERTS = \
-	libera.pem
 
 # targets
 ANSIPLAY = ansiplay
@@ -53,10 +41,29 @@ export ANSIBLE_TAGS = all
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
 export ANSIBLE_VERBOSITY_OPT = -v
 
+ifeq (${ANSISCRTS_ACTION},${PUT})
+	SKIP_BITWARDEN_GET_SSH_KEYS = true
+	SKIP_BITWARDEN_GET_TLS_CERTS = true
+else
+endif
+
 # include other generic makefiles
 include python.mk
 # overrides defaults set by included makefiles
 VIRTUALENV_PYTHON_VERSION = 3.9.5
+
+include bitwarden.mk
+BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
+BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
+BITWARDEN_SSH_KEYS = \
+	LightsailDefaultKey-us-east-1.pem\
+	id_rsa_irc.pub\
+	id_rsa_github_1
+
+BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
+BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
+BITWARDEN_TLS_CERTS = \
+	libera.pem
 
 include ansible.mk
 
@@ -195,13 +202,8 @@ ${DIAGRAM}:
 >	${PYTHON} hldiag.py
 
 .PHONY: ${ANSISCRTS}
-${ANSISCRTS}:
->	@${BW} login --check > /dev/null 2>&1 || \
-		{ \
-			echo "make: login to bitwarden and export BW_SESSION before running this target"; \
-			exit 1; \
-		}
-ifeq (${ANSISCRTS_ACTION}, ${PUT}) 
+${ANSISCRTS}: ${BITWARDEN_SESSION_CHECK} ${BITWARDEN_GET_SSH_KEYS} ${BITWARDEN_GET_TLS_CERTS}
+ifeq (${ANSISCRTS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${BW} delete attachment \
 		"$$(${BW} list items \
@@ -212,16 +214,6 @@ ifeq (${ANSISCRTS_ACTION}, ${PUT})
 else
 >	${BW} get attachment "${ANSIBLE_SECRETS_FILE}" --itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}" --output "${ANSIBLE_SECRETS_DIR_PATH}/"
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
-
->	@for ssh_key in ${SSH_KEYS}; do \
->		echo ${BW} get attachment $${ssh_key} --itemid "${BITWARDEN_SSH_KEYS_ITEMID}" --output "${ANSIBLE_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
->		${BW} get attachment $${ssh_key} --itemid "${BITWARDEN_SSH_KEYS_ITEMID}" --output "${ANSIBLE_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
->	done
-
->	@for tls_cert in ${TLS_CERTS}; do \
->		echo ${BW} get attachment $${tls_cert} --itemid "${BITWARDEN_TLS_CERTS_ITEMID}" --output "${ANSIBLE_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
->		${BW} get attachment $${tls_cert} --itemid "${BITWARDEN_TLS_CERTS_ITEMID}" --output "${ANSIBLE_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
->	done
 endif
 
 .PHONY: ${CLEAN}
