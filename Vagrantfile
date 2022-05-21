@@ -66,7 +66,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.management_network_mac = machine_attrs["vagrant_vm_mac_addr"]
         
         management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
-        if !management_network_defined
+        if !management_network_defined and @libvirt_management_network_xml.xpath("//host[@name='#{machine_name}']").empty?
           host_entry = Nokogiri::XML::Node.new("host", @libvirt_management_network_xml)
           host_entry["mac"] = machine_attrs["vagrant_vm_mac_addr"]
           host_entry["name"] = "#{machine_name}"
