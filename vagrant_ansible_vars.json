@@ -1,24 +1,42 @@
 { 
     "ansible_host_vars": {
         "ctrserver1": {
-            "vagrant_vm_ipv4_addr": "10.10.100.50",
-            "vagrant_vm_mac_addr": "52:54:00:3a:17:49",
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bullseye64"
         },
         "ctrserver2": {
-            "vagrant_vm_ipv4_addr": "10.10.100.51",
-            "vagrant_vm_mac_addr": "52:54:00:c8:03:13",
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bullseye64"
         },
+        "dhcp-server1": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
+            "vagrant_vm_cpus": 1,
+            "vagrant_vm_memory": 512,
+            "vagrant_vm_libvirt_disk_size": 10,
+            "vagrant_vm_box": "debian/bullseye64",
+            "listen_network_interface_name": "eth1",
+            "listen_network_interface_mac_addr": "52:54:00:6d:59:5b"
+        },
         "irc-client1": {
-            "vagrant_vm_ipv4_addr": "10.10.100.100",
-            "vagrant_vm_mac_addr": "52:54:00:A9:F3:C5",
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
@@ -28,6 +46,7 @@
     "ansible_groups": {
         "ctrservers": ["ctrserver1", "ctrserver2"],
         "irc_clients": ["irc-client1"],
+        "dhcp_servers": ["dhcp-server1"],
         "all:vars": {
             "ansible_user": "vagrant",
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"

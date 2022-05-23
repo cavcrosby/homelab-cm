@@ -242,10 +242,10 @@ ifeq ($(findstring ${CONTROLLER_NODE},${TRUTHY_VALUES}),)
 >		-@for ctrserver in ${CTRSERVERS}; do \
 >			echo ${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
 				--arg CTRSERVER "$${ctrserver}" \
-				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_mgmt_ipv4_addr')"; \
 >			${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
 				--arg CTRSERVER "$${ctrserver}" \
-				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_ipv4_addr')"; \
+				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_mgmt_ipv4_addr')"; \
 >		done
 
 		# done in recommendation by vagrant when a domain fails to connect via ssh

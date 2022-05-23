@@ -1,0 +1,38 @@
+#
+#
+# Configuration file for dnsmasq.
+
+# Or which to listen on by address (remember to include 127.0.0.1 if
+# you use this.)
+listen-address=::1,127.0.0.1,{{ dhcp_listen_ipv4_addr }}
+
+# Uncomment this to enable the integrated DHCP server, you need
+# to supply the range of addresses available for lease and optionally
+# a lease time. If you have more than one network, you will need to
+# repeat this for each network on which you want to supply DHCP
+# service.
+dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{{ homelab_network_subnet_mask }},2h
+
+# Supply parameters for specified hosts using DHCP. There are lots
+# of valid alternatives, so we will give examples of each. Note that
+# IP addresses DO NOT have to be in the range given above, they just
+# need to be on the same network. The order of the parameters in these
+# do not matter, it's permissible to give name, address and MAC in any
+# order.
+
+# Always give the host with Ethernet address <mac_addr>, the name <name>, and
+# IP address <ip_addr> and an infinite lease.
+dhcp-host={{ ctrserver1_mac_addr }},ctrserver1,{{ ctrserver1_ipv4_addr }},infinite
+dhcp-host={{ ctrserver2_mac_addr }},ctrserver2,{{ ctrserver2_ipv4_addr }},infinite
+
+# Override the default route supplied by dnsmasq, which assumes the
+# router is the same machine as the one running dnsmasq.
+dhcp-option=option:router,{{ homelab_network_gateway_ipv4_addr }}
+
+# Set the DHCP server to enable DHCPv4 Rapid Commit Option per RFC 4039.
+# In this mode it will respond to a DHCPDISCOVER message including a Rapid Commit
+# option with a DHCPACK including a Rapid Commit option and fully committed address
+# and configuration information. This must only be enabled if either the server is 
+# the only server for the subnet, or multiple servers are present and they each
+# commit a binding for all clients.
+dhcp-rapid-commit

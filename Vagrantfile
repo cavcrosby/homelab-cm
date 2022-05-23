@@ -5,13 +5,21 @@ require 'nokogiri'
 require 'tempfile'
 
 VAGRANTFILE_API_VERSION = 2
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "homelab-cm-libvirt"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "10.10.100.0/24"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR = "10.10.100.1"
+VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
+
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "192.168.111.0/24"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR = "192.168.111.1"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET_MASK = "255.255.255.0"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR = "52:54:00:4c:7a:ea"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "10.10.100.2"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "10.10.100.254"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "192.168.111.2"
+VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "192.168.111.254"
+
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "homelab-cm-libvirt"
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = "10.10.100.1"
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK = "255.255.255.0"
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND = "10.10.100.50"
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND = "10.10.100.254"
 
 ANSIBLE_HOST_VARS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
@@ -40,6 +48,17 @@ ANSIBLE_GROUPS = JSON.parse(
 </network>
 _EOF_
 
+# inspired by:
+# https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
+VAGRANT_HOMELAB_NETWORK_CONFIGS = {
+  homelab_network_subnet: VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET,
+  homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
+  homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
+  homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
+  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND,
+  dhcp_listen_ipv4_addr: "{{ dhcp_server1_ipv4_addr }}"
+}
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -47,14 +66,27 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # general provider configuration
   config.vm.provider "libvirt" do |domains|
     domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
+    domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
+    domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET
   end
 
   counter = 0
   ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
+    # hostnames may use dashes but Ansible variables cannot
+    machine_name_dash_replaced = machine_name.gsub("-", "_")
+    VAGRANT_HOMELAB_NETWORK_CONFIGS["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
+    VAGRANT_HOMELAB_NETWORK_CONFIGS["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
+
     # specific VM configuration
     config.vm.define "#{machine_name}" do |machine|
       machine.vm.hostname = "#{machine_name}"
       machine.vm.box = machine_attrs["vagrant_vm_box"]
+      machine.vm.network "private_network",
+        mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
+        libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME,
+        libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
+        libvirt__dhcp_enabled: false
+
       # A domain is an instance of an operating system running on a VM. At least
       # according to libvirt. For reference: https://libvirt.org/goals.html
       #
@@ -63,14 +95,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.cpus = machine_attrs["vagrant_vm_cpus"]
         domain.memory = machine_attrs["vagrant_vm_memory"]
         domain.machine_virtual_size = machine_attrs["vagrant_vm_libvirt_disk_size"] # GBs
-        domain.management_network_mac = machine_attrs["vagrant_vm_mac_addr"]
-        
+        domain.management_network_mac = machine_attrs["vagrant_vm_mgmt_mac_addr"]
+
         management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
         if !management_network_defined and @libvirt_management_network_xml.xpath("//host[@name='#{machine_name}']").empty?
           host_entry = Nokogiri::XML::Node.new("host", @libvirt_management_network_xml)
-          host_entry["mac"] = machine_attrs["vagrant_vm_mac_addr"]
+          host_entry["mac"] = machine_attrs["vagrant_vm_mgmt_mac_addr"]
           host_entry["name"] = "#{machine_name}"
-          host_entry["ip"] = machine_attrs["vagrant_vm_ipv4_addr"]
+          host_entry["ip"] = machine_attrs["vagrant_vm_mgmt_ipv4_addr"]
 
           dhcp = @libvirt_management_network_xml.at_css("dhcp")
           dhcp << host_entry
@@ -82,18 +114,33 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # taking advantage of Ansible's parallelism. Modified to my liking, for reference:
       # https://www.vagrantup.com/docs/provisioning/ansible#ansible-parallel-execution
       if counter == ANSIBLE_HOST_VARS.length
-        # provider network configuration
-        config.vm.provider "libvirt" do |domains|
-          domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
-          domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET
-          domains.management_network_mac = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR
-          management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
-          if !management_network_defined
-            xml = Tempfile.new("homelab-libvirt.xml")
-            xml.write(@libvirt_management_network_xml.to_xml)
-            xml.close()
-            system("virsh net-define #{xml.path}")
-            xml.unlink()
+        management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
+        if !management_network_defined
+          # associates the vagrant management network xml with libvirt
+          xml = Tempfile.new("mgmt-homelab-libvirt.xml")
+          xml.write(@libvirt_management_network_xml.to_xml)
+          xml.close()
+          system("virsh net-define #{xml.path}")
+          xml.unlink()
+        end
+
+        # write out the vagrant network configuration to be consumed by the playbooks
+        File.write(VAGRANT_NETWORK_CONFIGS_PATH, VAGRANT_HOMELAB_NETWORK_CONFIGS.transform_keys(&:to_s).to_yaml)
+        
+        machine.vm.provision "ansible" do |ansible|
+          ansible.playbook = "./playbooks/dhcp_servers.yml"
+          ansible.compatibility_mode = "2.0"
+          ansible.limit = "all"
+          ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
+          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
+            dhcp_config_file_template_name: "vagrant-dnsmasq-dhcp.conf.j2"
+          }
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
         end
         

@@ -1,0 +1,20 @@
+---
+homelab_network_subnet: 10.10.90.0/24
+homelab_network_gateway_ipv4_addr: 10.10.90.1
+homelab_network_subnet_mask: 255.255.255.0
+homelab_network_lower_bound: 10.10.90.50
+homelab_network_upper_bound: 10.10.90.254
+dhcp_listen_ipv4_addr: "{{ gerald_ipv4_addr }}"
+
+gerald_mac_addr: 3C:D9:2B:56:A5:4B
+gerald_ipv4_addr: 10.10.90.3
+
+ron_wireless_mac_addr: D0:C6:37:44:CD:C0
+ron_mac_addr: D8:BB:C1:96:12:6B
+ron_ipv4_addr: 10.10.90.50
+
+dexter_mac_addr: 52:45:1A:8A:E9:79
+dexter_ipv4_addr: 10.10.90.51
+
+roxanne_mac_addr: A4:C3:F0:9C:28:CC
+roxanne_ipv4_addr: 10.10.90.52
