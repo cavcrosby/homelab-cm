@@ -30,7 +30,7 @@ ANSIBLE_GROUPS = JSON.parse(
 )["ansible_groups"]
 
 @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
-<network connections='2' ipv6='yes'>
+<network ipv6='yes'>
   <name>#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}</name>
   <uuid>206e8c36-866a-4723-a262-011a8152febb</uuid>
   <forward mode='nat'>
@@ -63,7 +63,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
-  # general provider configuration
+  # general VM provider configuration
   config.vm.provider "libvirt" do |domains|
     domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
     domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
@@ -71,6 +71,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   counter = 0
+  management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
   ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     # hostnames may use dashes but Ansible variables cannot
     machine_name_dash_replaced = machine_name.gsub("-", "_")
@@ -97,7 +98,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         domain.machine_virtual_size = machine_attrs["vagrant_vm_libvirt_disk_size"] # GBs
         domain.management_network_mac = machine_attrs["vagrant_vm_mgmt_mac_addr"]
 
-        management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
         if !management_network_defined and @libvirt_management_network_xml.xpath("//host[@name='#{machine_name}']").empty?
           host_entry = Nokogiri::XML::Node.new("host", @libvirt_management_network_xml)
           host_entry["mac"] = machine_attrs["vagrant_vm_mgmt_mac_addr"]
@@ -114,7 +114,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # taking advantage of Ansible's parallelism. Modified to my liking, for reference:
       # https://www.vagrantup.com/docs/provisioning/ansible#ansible-parallel-execution
       if counter == ANSIBLE_HOST_VARS.length
-        management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
         if !management_network_defined
           # associates the vagrant management network xml with libvirt
           xml = Tempfile.new("mgmt-homelab-libvirt.xml")
@@ -143,7 +142,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
         end
-        
+      
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/vagrant_customizations.yml"
           ansible.compatibility_mode = "2.0"
