@@ -22,7 +22,7 @@
                 Match:
                   Name: "{{ listen_network_interface_name }}"
                 Network:
-                  Address: "{{ dhcp_server1_ipv4_addr }}"
+                  Address: "{{ dhcp_listen_ipv4_addr }}"
                   Gateway: "{{ homelab_network_gateway_ipv4_addr }}"
 
   roles:
