@@ -1,5 +1,5 @@
 ---
-- name: Install and configure dnsmasq (for dhcp)
+- name: Install and configure dnsmasq (dhcp)
   hosts: dhcp_servers
   vars_files:
     - "{{ network_configs_path }}"
@@ -27,3 +27,11 @@
 
   roles:
     - dnsmasq_dhcp
+
+# - name: Install and configure dnsmasq (dns)
+#   hosts: dns_servers
+#   vars_files:
+#     - "{{ network_configs_path }}"
+
+#   roles:
+#     - dnsmasq_dns

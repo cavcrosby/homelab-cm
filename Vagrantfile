@@ -140,7 +140,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, VAGRANT_HOMELAB_NETWORK_CONFIGS.transform_keys(&:to_s).to_yaml)
         
         machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/dhcp_servers.yml"
+          ansible.playbook = "./playbooks/ansible_controllers.yml"
           ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true

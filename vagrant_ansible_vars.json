@@ -20,7 +20,7 @@
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bullseye64"
         },
-        "dhcp-server1": {
+        "ansible-controller1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
@@ -49,7 +49,8 @@
     "ansible_groups": {
         "ctrservers": ["ctrserver1", "ctrserver2"],
         "irc_clients": ["irc-client1"],
-        "dhcp_servers": ["dhcp-server1"],
+        "dhcp_servers": ["ansible-controller1"],
+        "dns_servers": ["ansible-controller1"],
         "all:vars": {
             "ansible_user": "vagrant",
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
