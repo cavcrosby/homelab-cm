@@ -28,10 +28,10 @@
   roles:
     - dnsmasq_dhcp
 
-# - name: Install and configure dnsmasq (dns)
-#   hosts: dns_servers
-#   vars_files:
-#     - "{{ network_configs_path }}"
+- name: Install and configure dnsmasq (dns)
+  hosts: dns_servers
+  vars_files:
+    - "{{ network_configs_path }}"
 
-#   roles:
-#     - dnsmasq_dns
+  roles:
+    - dnsmasq_dns

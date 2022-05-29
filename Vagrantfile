@@ -16,10 +16,12 @@ VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "192.168.111.2"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "192.168.111.254"
 
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "homelab-cm-libvirt"
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET = "10.10.100.0/24"
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = "10.10.100.1"
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK = "255.255.255.0"
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND = "10.10.100.50"
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND = "10.10.100.254"
+VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "staging-homelab.cavcrosby.tech"
 
 ANSIBLE_HOST_VARS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
@@ -65,11 +67,14 @@ _EOF_
 # inspired by:
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
 VAGRANT_HOMELAB_NETWORK_CONFIGS = {
-  homelab_network_subnet: VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET,
+  homelab_network_domain: VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
+  homelab_network_subnet: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET,
   homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
   homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
   homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
-  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND
+  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND,
+  dns_local_domain: "{{ homelab_network_domain }}",
+  dns_subnet: "{{ homelab_network_subnet }}"
 }
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
@@ -149,7 +154,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
-            dhcp_config_file_template_name: "vagrant-dnsmasq-dhcp.conf.j2"
+            dhcp_config_file_template_name: "vagrant-dnsmasq-dhcp.conf.j2",
+            dns_config_file_template: "vagrant-dnsmasq-dns.conf.j2"
           }
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
