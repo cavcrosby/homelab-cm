@@ -30,7 +30,10 @@
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bullseye64",
             "listen_network_interface_name": "eth1",
-            "listen_network_interface_mac_addr": "52:54:00:6d:59:5b"
+            "vagrant_config_refs": {
+                "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
+                "listen_network_interface_mac_addr": "vagrant_vm_homelab_mac_addr"
+            }
         },
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",

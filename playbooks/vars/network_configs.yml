@@ -4,7 +4,6 @@ homelab_network_gateway_ipv4_addr: 10.10.90.1
 homelab_network_subnet_mask: 255.255.255.0
 homelab_network_lower_bound: 10.10.90.50
 homelab_network_upper_bound: 10.10.90.254
-dhcp_listen_ipv4_addr: "{{ gerald_ipv4_addr }}"
 
 gerald_mac_addr: 3C:D9:2B:56:A5:4B
 gerald_ipv4_addr: 10.10.90.3

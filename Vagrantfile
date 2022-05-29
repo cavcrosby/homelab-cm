@@ -25,6 +25,20 @@ ANSIBLE_HOST_VARS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_host_vars"]
 
+# Replaces each key value pair in vagrant_config_refs with values based on
+# machine_attrs[key] and inserts the new key value pair into machine_attrs.
+ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
+  if machine_attrs.key?("vagrant_config_refs")
+    vagrant_config_refs = machine_attrs["vagrant_config_refs"]
+    vagrant_config_refs.each do |config_name, config_ref|
+      machine_attrs[config_name] = machine_attrs[config_ref]
+    end
+    # Since all the key values pairs are resolved and put at the machine_attrs level,
+    # for now I will just discard the config_refs json.
+    machine_attrs.delete("vagrant_config_refs")
+  end
+end
+
 ANSIBLE_GROUPS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_groups"]
@@ -55,8 +69,7 @@ VAGRANT_HOMELAB_NETWORK_CONFIGS = {
   homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
   homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
   homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
-  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND,
-  dhcp_listen_ipv4_addr: "{{ dhcp_server1_ipv4_addr }}"
+  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND
 }
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
