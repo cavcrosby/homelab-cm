@@ -73,8 +73,10 @@ VAGRANT_HOMELAB_NETWORK_CONFIGS = {
   homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
   homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
   homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND,
+  dhcp_network_gateway_ipv4_addr: "{{ homelab_network_gateway_ipv4_addr }}",
   dns_local_domain: "{{ homelab_network_domain }}",
-  dns_subnet: "{{ homelab_network_subnet }}"
+  dns_subnet: "{{ homelab_network_subnet }}",
+  dns_network_gateway_ipv4_addr: "{{ homelab_network_gateway_ipv4_addr }}"
 }
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

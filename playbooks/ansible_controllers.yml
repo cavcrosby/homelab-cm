@@ -12,18 +12,18 @@
             name: systemd_networkd
           vars:
             systemd_networkd_files:
-              - filename: "{{ listen_network_interface_name }}.link"
+              - filename: "{{ dhcp_listen_network_interface_name }}.link"
                 Match:
-                  MACAddress: "{{ listen_network_interface_mac_addr }}"
+                  MACAddress: "{{ dhcp_listen_network_interface_mac_addr }}"
                 Link:
                   NamePolicy: keep
 
-              - filename: "{{ listen_network_interface_name }}.network"
+              - filename: "{{ dhcp_listen_network_interface_name }}.network"
                 Match:
-                  Name: "{{ listen_network_interface_name }}"
+                  Name: "{{ dhcp_listen_network_interface_name }}"
                 Network:
                   Address: "{{ dhcp_listen_ipv4_addr }}"
-                  Gateway: "{{ homelab_network_gateway_ipv4_addr }}"
+                  Gateway: "{{ dhcp_network_gateway_ipv4_addr }}"
 
     - name: Add local common handlers
       ansible.builtin.import_role:
@@ -39,6 +39,26 @@
     - "{{ network_configs_path }}"
 
   pre_tasks:
+    - name: Setup systemd-networkd networking
+      block:
+        - name: Setup systemd-networkd networking
+          ansible.builtin.include_role:
+            name: systemd_networkd
+          vars:
+            systemd_networkd_files:
+              - filename: "{{ dns_listen_network_interface_name }}.link"
+                Match:
+                  MACAddress: "{{ dns_listen_network_interface_mac_addr }}"
+                Link:
+                  NamePolicy: keep
+
+              - filename: "{{ dns_listen_network_interface_name }}.network"
+                Match:
+                  Name: "{{ dns_listen_network_interface_name }}"
+                Network:
+                  Address: "{{ dns_listen_ipv4_addr }}"
+                  Gateway: "{{ dns_network_gateway_ipv4_addr }}"
+
     - name: Add local common handlers
       ansible.builtin.import_role:
         name: common
