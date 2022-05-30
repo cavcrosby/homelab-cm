@@ -37,7 +37,7 @@
         dhcp_network_gateway_ipv4_addr: "{{ homelab_network_gateway_ipv4_addr }}"
         dhcp_lower_bound: "{{ homelab_network_lower_bound }}"
         dhcp_upper_bound: "{{ homelab_network_upper_bound }}"
-        dhcp_config_file_template_name: dhcp.conf.j2
+        dhcp_config_file_template: dhcp.conf.j2
 
 - name: Install and configure dnsmasq (dns)
   hosts: dns_servers

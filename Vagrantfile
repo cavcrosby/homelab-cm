@@ -152,7 +152,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
-            dhcp_config_file_template_name: "vagrant-dnsmasq-dhcp.conf.j2",
+            dhcp_config_file_template: "vagrant-dnsmasq-dhcp.conf.j2",
             dns_config_file_template: "vagrant-dnsmasq-dns.conf.j2"
           }
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?

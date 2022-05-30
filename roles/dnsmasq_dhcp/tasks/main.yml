@@ -15,7 +15,7 @@
 
 - name: Create the dnsmasq (dhcp) configuration file
   ansible.builtin.template:
-    src: "{{ dhcp_config_file_template_name }}"
+    src: "{{ dhcp_config_file_template }}"
     dest: "{{ _dhcp_config_file_path }}"
     mode: "644"
     validate: dnsmasq --test --conf-file=%s
