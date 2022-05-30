@@ -7,6 +7,9 @@ require 'tempfile'
 VAGRANTFILE_API_VERSION = 2
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
 
+VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME = "net-homelab-cm-libvirt"
+VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR = "192.168.112.1"
+
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "192.168.111.0/24"
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR = "192.168.111.1"
@@ -102,6 +105,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
         libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME,
         libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
+        libvirt__dhcp_enabled: false
+
+      machine.vm.network "private_network",
+        ip: machine_attrs["vagrant_vm_net_ipv4_addr"],
+        mac: machine_attrs["vagrant_vm_net_mac_addr"],
+        libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME,
+        libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR,
         libvirt__dhcp_enabled: false
 
       # A domain is an instance of an operating system running on a VM. At least

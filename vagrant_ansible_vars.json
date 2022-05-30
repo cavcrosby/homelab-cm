@@ -3,8 +3,10 @@
         "ctrserver1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.50",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
+            "vagrant_vm_net_mac_addr": "52:54:00:c5:84:76",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -13,8 +15,10 @@
         "ctrserver2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.51",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
+            "vagrant_vm_net_mac_addr": "52:54:00:1a:20:8b",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -23,8 +27,10 @@
         "ansible-controller1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
+            "vagrant_vm_net_mac_addr": "52:54:00:a5:cb:61",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
@@ -35,14 +41,16 @@
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dhcp_listen_network_interface_mac_addr": "vagrant_vm_homelab_mac_addr",
-                "dns_listen_network_interface_mac_addr": "vagrant_vm_homelab_mac_addr"
+                "dns_listen_network_interface_mac_addr": "vagrant_vm_homelab_ipv4_addr"
             }
         },
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.100",
             "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
+            "vagrant_vm_net_mac_addr": "52:54:00:53:8f:53",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
