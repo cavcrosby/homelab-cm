@@ -5,4 +5,4 @@ dhcp_listen_ipv4_addr: 192.168.1.2
 # which dnsmasq (dhcp) jinja template to use
 dhcp_config_file_template_name: dhcp.conf.j2
 
-_dhcp_config_file_path: /etc/dnsmasq.d/dhcp.conf
+_dhcp_config_file_path: /etc/dnsmasq.d/homelab-dhcp.conf
