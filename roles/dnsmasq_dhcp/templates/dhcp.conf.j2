@@ -16,24 +16,11 @@ no-dhcp-interface=lo
 # a lease time. If you have more than one network, you will need to
 # repeat this for each network on which you want to supply DHCP
 # service.
-dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{{ homelab_network_subnet_mask }},2h
-
-# Supply parameters for specified hosts using DHCP. There are lots
-# of valid alternatives, so we will give examples of each. Note that
-# IP addresses DO NOT have to be in the range given above, they just
-# need to be on the same network. The order of the parameters in these
-# do not matter, it's permissible to give name, address and MAC in any
-# order.
-
-# Always give the host with Ethernet address <mac_addr>, the name <name>, and
-# IP address <ip_addr> and an infinite lease.
-dhcp-host={{ ron_mac_addr }},{{ ron_wireless_mac_addr }},Ron,{{ ron_ipv4_addr }},infinite
-dhcp-host={{ dexter_mac_addr }},Dexter,{{ dexter_ipv4_addr }},infinite
-dhcp-host={{ roxanne_mac_addr }},Roxanne,{{ roxanne_ipv4_addr }},infinite
+dhcp-range={{ dhcp_lower_bound }},{{ dhcp_upper_bound }},{{ dhcp_network_subnet_mask }},2h
 
 # Override the default route supplied by dnsmasq, which assumes the
 # router is the same machine as the one running dnsmasq.
-dhcp-option=option:router,{{ homelab_network_gateway_ipv4_addr }}
+dhcp-option=option:router,{{ dhcp_network_gateway_ipv4_addr }}
 
 # Set the DHCP server to enable DHCPv4 Rapid Commit Option per RFC 4039.
 # In this mode it will respond to a DHCPDISCOVER message including a Rapid Commit

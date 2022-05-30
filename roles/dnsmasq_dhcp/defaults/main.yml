@@ -2,6 +2,12 @@
 # used to determine what interface to listen for DHCP requests
 dhcp_listen_ipv4_addr: 192.168.1.2
 
+# additional DHCP parameters
+dhcp_network_subnet_mask: 192.168.1.0/24
+dhcp_network_gateway_ipv4_addr: 192.168.1.1
+dhcp_lower_bound: 192.168.1.3
+dhcp_upper_bound: 192.168.1.255
+
 # which dnsmasq (dhcp) jinja template to use
 dhcp_config_file_template_name: dhcp.conf.j2
 
