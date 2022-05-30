@@ -25,6 +25,11 @@
                   Address: "{{ dhcp_listen_ipv4_addr }}"
                   Gateway: "{{ homelab_network_gateway_ipv4_addr }}"
 
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
   roles:
     - dnsmasq_dhcp
 
@@ -32,6 +37,12 @@
   hosts: dns_servers
   vars_files:
     - "{{ network_configs_path }}"
+
+  pre_tasks:
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
 
   roles:
     - dnsmasq_dns
