@@ -6,24 +6,22 @@
 
   pre_tasks:
     - name: Setup systemd-networkd networking
-      block:
-        - name: Setup systemd-networkd networking
-          ansible.builtin.include_role:
-            name: systemd_networkd
-          vars:
-            systemd_networkd_files:
-              - filename: "{{ dhcp_listen_network_interface_name }}.link"
-                Match:
-                  MACAddress: "{{ dhcp_listen_network_interface_mac_addr }}"
-                Link:
-                  NamePolicy: keep
+      ansible.builtin.include_role:
+        name: systemd_networkd
+      vars:
+        systemd_networkd_files:
+          - filename: "{{ dhcp_listen_network_interface_name }}.link"
+            Match:
+              MACAddress: "{{ dhcp_listen_network_interface_mac_addr }}"
+            Link:
+              NamePolicy: keep
 
-              - filename: "{{ dhcp_listen_network_interface_name }}.network"
-                Match:
-                  Name: "{{ dhcp_listen_network_interface_name }}"
-                Network:
-                  Address: "{{ dhcp_listen_ipv4_addr }}/{{ dhcp_listen_cidr_prefix }}"
-                  Gateway: "{{ dhcp_network_gateway_ipv4_addr }}"
+          - filename: "{{ dhcp_listen_network_interface_name }}.network"
+            Match:
+              Name: "{{ dhcp_listen_network_interface_name }}"
+            Network:
+              Address: "{{ dhcp_listen_ipv4_addr }}/{{ dhcp_listen_cidr_prefix }}"
+              Gateway: "{{ dhcp_network_gateway_ipv4_addr }}"
 
     - name: Add local common handlers
       ansible.builtin.import_role:
@@ -46,24 +44,22 @@
 
   pre_tasks:
     - name: Setup systemd-networkd networking
-      block:
-        - name: Setup systemd-networkd networking
-          ansible.builtin.include_role:
-            name: systemd_networkd
-          vars:
-            systemd_networkd_files:
-              - filename: "{{ dns_listen_network_interface_name }}.link"
-                Match:
-                  MACAddress: "{{ dns_listen_network_interface_mac_addr }}"
-                Link:
-                  NamePolicy: keep
+      ansible.builtin.include_role:
+        name: systemd_networkd
+      vars:
+        systemd_networkd_files:
+          - filename: "{{ dns_listen_network_interface_name }}.link"
+            Match:
+              MACAddress: "{{ dns_listen_network_interface_mac_addr }}"
+            Link:
+              NamePolicy: keep
 
-              - filename: "{{ dns_listen_network_interface_name }}.network"
-                Match:
-                  Name: "{{ dns_listen_network_interface_name }}"
-                Network:
-                  Address: "{{ dns_listen_ipv4_addr }}/{{ dns_listen_cidr_prefix }}"
-                  Gateway: "{{ dns_network_gateway_ipv4_addr }}"
+          - filename: "{{ dns_listen_network_interface_name }}.network"
+            Match:
+              Name: "{{ dns_listen_network_interface_name }}"
+            Network:
+              Address: "{{ dns_listen_ipv4_addr }}/{{ dns_listen_cidr_prefix }}"
+              Gateway: "{{ dns_network_gateway_ipv4_addr }}"
 
     - name: Add local common handlers
       ansible.builtin.import_role:
