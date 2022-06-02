@@ -1,6 +1,7 @@
 ---
 - name: Install and configure dnsmasq (dhcp)
   hosts: dhcp_servers
+  tags: install_dnsmasq_dhcp
   vars_files:
     - "{{ network_configs_path }}"
 
@@ -39,6 +40,7 @@
 
 - name: Install and configure dnsmasq (dns)
   hosts: dns_servers
+  tags: install_dnsmasq_dns
   vars_files:
     - "{{ network_configs_path }}"
 

@@ -17,7 +17,7 @@
 # be monitored: https://github.com/moby/moby/issues/26824
 - name: Perform initial setup for ctrserver
   hosts: ctrservers
-  tags: initial_setup
+  tags: initial_ctrserver_setup
 
   pre_tasks:
     - name: Update apt's package index

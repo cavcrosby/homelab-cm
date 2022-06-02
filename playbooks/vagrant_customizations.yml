@@ -1,6 +1,7 @@
 ---
 - name: Add systemd.unified_cgroup_hierarchy=0 to grub boot command(s)
   hosts: ctrservers
+  tags: add_systemd_cgroup_hierarchy
   vars:
     default_grub_path: /etc/default/grub
 
