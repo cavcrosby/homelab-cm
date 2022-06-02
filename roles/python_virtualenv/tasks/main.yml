@@ -1,0 +1,33 @@
+---
+- name: Install Python virtual environment dependencies (debian-like)
+  ansible.builtin.apt:
+    name:
+      - python3-venv
+      - python3-apt
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Create the ansible_user's Python virtual environments directory
+  ansible.builtin.file:
+    path: "{{ ansible_user_python_virtualenvs_path }}"
+    state: directory
+    mode: "755"
+
+- name: Create the ansible_user's Python virtual environment
+  ansible.builtin.pip:
+    # This task module requires at least one package to install for initial
+    # virtualenv setup.
+    name: "{{ python_virtualenv_pkgs }}"
+    virtualenv: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}"
+    virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}"
+
+- name: Add sourcing the ansible_user's Python virtual environment
+  ansible.builtin.import_role:
+    name: cavcrosby.general.common
+    tasks_from: managed_lineinfile
+  vars:
+    path: "{{ ansible_env['HOME'] }}/.bashrc"
+    regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}/bin/activate"'
+    line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}/bin/activate"'
+    line_identifier: sourcing the {{ ansible_user_python_virtualenv }} Python virtual environment

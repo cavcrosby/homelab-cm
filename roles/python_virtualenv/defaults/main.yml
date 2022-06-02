@@ -1,0 +1,12 @@
+---
+ansible_user_home: /home/ansible
+
+# the name of the Python virtualenv
+ansible_user_python_virtualenv: ansible-client
+
+# dir path for Python virtualenvs
+ansible_user_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"
+
+# the packages to include in the ansible_user's Python virtualenv
+python_virtualenv_pkgs:
+  - requests

@@ -27,48 +27,23 @@
       when: ansible_os_family | lower == "debian"
 
   tasks:
-    - name: Setup the ansible_user's Python virtual environment (virtualenv)
+    - name: Setup the ansible_user's Python virtual environment
       block:
-        - name: Install other Python packages (debian-like)
-          ansible.builtin.apt:
-            name:
-              - python3-apt
-              - python3-venv
-            state: present
-          become: true
-          when: ansible_os_family | lower == "debian"
-
-        - name: Create the ansible_user's Python virtualenvs directory
-          ansible.builtin.file:
-            path: "{{ ansible_python_virtualenvs_path }}"
-            state: directory
-            mode: "755"
-
-        - name: Create the ansible_user's Python virtualenv
-          ansible.builtin.pip:
-            # requests might not actually be used but the module requires a package to
-            # install for initial virtualenv setup.
-            name:
-              - docker
-              - requests
-            virtualenv: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-            virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}"
-
-        - name: Add sourcing the ansible_user's python_virtualenv
-          ansible.builtin.import_role:
-            name: cavcrosby.general.common
-            tasks_from: managed_lineinfile
+        - name: Perfrom initial setup of the ansible_user's Python virtual environment
+          ansible.builtin.include_role:
+            name: python_virtualenv
           vars:
-            path: "{{ ansible_env['HOME'] }}/.bashrc"
-            regexp: '^source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-            line: 'source "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/activate"'
-            line_identifier: sourcing the {{ ansible_python_virtualenv }} Python virtualenv
+            ansible_user_home: "{{ ctrserver_ansible_user_home }}"
+            ansible_user_python_virtualenv: "{{ ctrserver_ansible_user_python_virtualenv }}"
+            ansible_user_python_virtualenvs_path: "{{ ctrserver_ansible_user_python_virtualenvs_path }}"
+            python_virtualenv_pkgs:
+              - docker
 
-        - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtualenv's site-packages
+        - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages
           block:
-            - name: Determine the virtualenv site-packages directory
+            - name: Determine the virtual environment's site-packages directory
               ansible.builtin.find:
-                paths: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/lib"
+                paths: "{{ ctrserver_ansible_user_python_virtualenvs_path }}/{{ ctrserver_ansible_user_python_virtualenv }}/lib"
                 file_type: directory
                 patterns: python*
                 depth: 1
@@ -171,7 +146,7 @@
   hosts: ctrservers
   tags: install_docker
   vars:
-    ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
+    ansible_python_interpreter: "{{ ctrserver_ansible_user_python_virtualenvs_path }}/{{ ctrserver_ansible_user_python_virtualenv }}/bin/python"
 
   pre_tasks:
     - name: Update apt's package index
@@ -281,7 +256,7 @@
   vars_files:
     - ./vars/ansible_secrets.yml
   vars:
-    ansible_python_interpreter: "{{ ansible_python_virtualenvs_path }}/{{ ansible_python_virtualenv }}/bin/python"
+    ansible_python_interpreter: "{{ ctrserver_ansible_user_python_virtualenvs_path }}/{{ ctrserver_ansible_user_python_virtualenv }}/bin/python"
 
   roles:
     - role: cavcrosby.general.jenkins_base_containers

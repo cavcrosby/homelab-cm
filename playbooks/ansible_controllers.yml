@@ -22,7 +22,7 @@
                 Match:
                   Name: "{{ dhcp_listen_network_interface_name }}"
                 Network:
-                  Address: "{{ dhcp_listen_ipv4_addr }}"
+                  Address: "{{ dhcp_listen_ipv4_addr }}/{{ dhcp_listen_cidr_prefix }}"
                   Gateway: "{{ dhcp_network_gateway_ipv4_addr }}"
 
     - name: Add local common handlers
@@ -62,7 +62,7 @@
                 Match:
                   Name: "{{ dns_listen_network_interface_name }}"
                 Network:
-                  Address: "{{ dns_listen_ipv4_addr }}"
+                  Address: "{{ dns_listen_ipv4_addr }}/{{ dns_listen_cidr_prefix }}"
                   Gateway: "{{ dns_network_gateway_ipv4_addr }}"
 
     - name: Add local common handlers

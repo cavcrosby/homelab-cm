@@ -37,6 +37,8 @@
             "vagrant_vm_box": "debian/bullseye64",
             "dhcp_listen_network_interface_name": "eth1",
             "dns_listen_network_interface_name": "eth1",
+            "dhcp_listen_cidr_prefix": "24",
+            "dns_listen_cidr_prefix": "24",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
