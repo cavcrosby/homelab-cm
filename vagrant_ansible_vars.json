@@ -37,13 +37,81 @@
             "vagrant_vm_box": "debian/bullseye64",
             "dhcp_listen_network_interface_name": "eth1",
             "dns_listen_network_interface_name": "eth1",
-            "dhcp_listen_cidr_prefix": "24",
-            "dns_listen_cidr_prefix": "24",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
-                "dhcp_listen_network_interface_mac_addr": "vagrant_vm_homelab_mac_addr",
-                "dns_listen_network_interface_mac_addr": "vagrant_vm_homelab_ipv4_addr"
+                "dhcp_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "dhcp_listen_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "dhcp_listen_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "dhcp_listen_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_homelab_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "10.10.100.1"
+                        }
+                    }
+                ],
+                "dns_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "dns_listen_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "dns_listen_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "dns_listen_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_homelab_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "10.10.100.1"
+                        }
+                    }
+                ]
             }
         },
         "irc-client1": {

@@ -30,20 +30,6 @@ ANSIBLE_HOST_VARS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_host_vars"]
 
-# Replaces each key value pair in vagrant_config_refs with values based on
-# machine_attrs[key] and inserts the new key value pair into machine_attrs.
-ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
-  if machine_attrs.key?("vagrant_config_refs")
-    vagrant_config_refs = machine_attrs["vagrant_config_refs"]
-    vagrant_config_refs.each do |config_name, config_ref|
-      machine_attrs[config_name] = machine_attrs[config_ref]
-    end
-    # Since all the key values pairs are resolved and put at the machine_attrs level,
-    # for now I will just discard the config_refs json.
-    machine_attrs.delete("vagrant_config_refs")
-  end
-end
-
 ANSIBLE_GROUPS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_groups"]
@@ -77,6 +63,95 @@ VAGRANT_HOMELAB_NETWORK_CONFIGS = {
   homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
   homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND
 }
+
+def eval_config_ref(machine_attrs, config)
+  # A config=>config_ref is a JSON key=>value pair whose value is a key in
+  # machine_attrs. config_refs will be replaced with the value determined by
+  # machine_attrs[config_ref].
+  has_children = true
+
+  if config.kind_of?(Array)
+    nil
+  else
+    # lets at first assume that all JSON key values do not have children
+    has_children = false
+
+    config.each do |config_name, config_ref|
+      if !(config_ref.kind_of?(Array) || config_ref.kind_of?(Hash))
+        # eval each JSON's key value
+        if machine_attrs.key?(config_ref)
+          config[config_name] = machine_attrs[config_ref]
+        end
+      elsif config_ref.kind_of?(Hash) && config_ref.key?("join")
+        # If an a JSON's key value is another JSON with a sole 'join' element, then the
+        # "joins" value will be combined into one string. For example:
+        # {
+        #     "filename": {
+        #         "join": [
+        #             "eth0",
+        #             ".link"
+        #         ]
+        #     }
+        # }
+        #
+        # Will become:
+        # {
+        #     "filename": "eth0.link"
+        # }
+        config_ref["join"].each_index do |str_index|
+          if machine_attrs.key?(config_ref["join"][str_index])
+            config_ref["join"][str_index] = machine_attrs[config_ref["join"][str_index]]
+          end
+        end
+
+        config[config_name] = config_ref["join"].join()
+      else
+        has_children = true
+      end
+    end
+  end
+
+  return has_children
+end
+
+def traverse_configs(func, machine_attrs, config_node)
+  if config_node.class == String || !(func.call(machine_attrs, config_node))
+    return
+  end
+
+  if config_node.kind_of?(Array)
+    config_node.each do |config_node_child|
+      traverse_configs(func, machine_attrs, config_node_child)
+    end
+  else
+    config_node.values().each do |config_node_child|
+      traverse_configs(func, machine_attrs, config_node_child)
+    end
+  end
+end
+
+# Replaces each key value pair in vagrant_config_refs with values based on
+# machine_attrs[key] and inserts the new key value pair into machine_attrs.
+ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
+  if machine_attrs.key?("vagrant_config_refs")
+    vagrant_config_refs = machine_attrs["vagrant_config_refs"]
+    # passing a function as a argument was inspired by:
+    # https://stackoverflow.com/questions/522720/passing-a-method-as-a-parameter-in-ruby#answer-4094968
+    traverse_configs(method(:eval_config_ref), machine_attrs, vagrant_config_refs)
+    vagrant_config_refs.keys().each do |config_name|
+      config_ref = vagrant_config_refs[config_name]
+      if config_name.eql?("dhcp_systemd_networkd_files") || config_name.eql?("dns_systemd_networkd_files")
+        VAGRANT_HOMELAB_NETWORK_CONFIGS[config_name] = vagrant_config_refs[config_name]
+      else
+        machine_attrs[config_name] = vagrant_config_refs[config_name]
+      end
+    end
+
+    # Since all the key values pairs are resolved and put at the machine_attrs level,
+    # for now I will just discard the config_refs json.
+    machine_attrs.delete("vagrant_config_refs")
+  end
+end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # general VM configuration
