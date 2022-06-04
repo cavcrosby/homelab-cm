@@ -55,7 +55,7 @@ _EOF_
 
 # inspired by:
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
-VAGRANT_HOMELAB_NETWORK_CONFIGS = {
+vagrant_homelab_network_configs = {
   homelab_network_domain: VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
   homelab_network_subnet: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET,
   homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
@@ -141,7 +141,7 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     vagrant_config_refs.keys().each do |config_name|
       config_ref = vagrant_config_refs[config_name]
       if config_name.eql?("dhcp_systemd_networkd_files") || config_name.eql?("dns_systemd_networkd_files")
-        VAGRANT_HOMELAB_NETWORK_CONFIGS[config_name] = vagrant_config_refs[config_name]
+        vagrant_homelab_network_configs[config_name] = vagrant_config_refs[config_name]
       else
         machine_attrs[config_name] = vagrant_config_refs[config_name]
       end
@@ -169,8 +169,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     # hostnames may use dashes but Ansible variables cannot
     machine_name_dash_replaced = machine_name.gsub("-", "_")
-    VAGRANT_HOMELAB_NETWORK_CONFIGS["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
-    VAGRANT_HOMELAB_NETWORK_CONFIGS["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
 
     # specific VM configuration
     config.vm.define "#{machine_name}" do |machine|
@@ -225,7 +225,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         # write out the vagrant network configuration to be consumed by the playbooks
-        File.write(VAGRANT_NETWORK_CONFIGS_PATH, VAGRANT_HOMELAB_NETWORK_CONFIGS.transform_keys(&:to_s).to_yaml)
+        File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.transform_keys(&:to_s).to_yaml)
         
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/ansible_controllers.yml"
