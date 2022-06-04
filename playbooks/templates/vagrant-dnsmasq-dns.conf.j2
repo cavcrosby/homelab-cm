@@ -41,9 +41,9 @@ no-dhcp-interface={{ no_dhcp_interface }}
 # 2) Sets the "domain" DHCP option thereby potentially setting the
 #    domain of all systems configured by DHCP
 # 3) Provides the domain part for "expand-hosts"
-domain={{ dns_local_domain }},{{ dns_subnet }},local
+domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 
 # Add A, AAAA and PTR records to the DNS. This adds one or more names to the DNS
 # with associated IPv4 (A) and IPv6 (AAAA) records.
-host-record=vagrant.{{ dns_local_domain }},{{ homelab_network_gateway_ipv4_addr }}
-ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ dns_local_domain }}
+host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
+ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}

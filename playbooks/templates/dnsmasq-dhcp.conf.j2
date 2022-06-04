@@ -16,7 +16,7 @@ no-dhcp-interface=lo
 # a lease time. If you have more than one network, you will need to
 # repeat this for each network on which you want to supply DHCP
 # service.
-dhcp-range={{ dhcp_lower_bound }},{{ dhcp_upper_bound }},{{ dhcp_network_subnet_mask }},2h
+dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{{ homelab_network_subnet_mask }},2h
 
 # Supply parameters for specified hosts using DHCP. There are lots
 # of valid alternatives, so we will give examples of each. Note that

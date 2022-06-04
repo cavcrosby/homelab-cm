@@ -32,8 +32,8 @@ server=8.8.4.4
 # configure it as shown above, and then use the following line to
 # disable DHCP and TFTP on it.
 no-dhcp-interface={{ no_dhcp_interface }}
-{% endif %}
 
+{% endif %}
 # Set the domain for dnsmasq. this is optional, but if it is set, it
 # does the following things.
 # 1) Allows DHCP hosts to have fully qualified domain names, as long
@@ -41,12 +41,12 @@ no-dhcp-interface={{ no_dhcp_interface }}
 # 2) Sets the "domain" DHCP option thereby potentially setting the
 #    domain of all systems configured by DHCP
 # 3) Provides the domain part for "expand-hosts"
-domain={{ dns_local_domain }},{{ dns_subnet }},local
+domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 
 # Add A, AAAA and PTR records to the DNS. This adds one or more names to the DNS
 # with associated IPv4 (A) and IPv6 (AAAA) records.
-host-record=ron.{{ dns_local_domain }},{{ ron_ipv4_addr }}
-ptr-record={{ ron_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ dns_local_domain }}
+host-record=ron.{{ homelab_network_domain }},{{ ron_ipv4_addr }}
+ptr-record={{ ron_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_network_domain }}
 
-host-record=roxanne.{{ dns_local_domain }},{{ roxanne_ipv4_addr }}
-ptr-record={{ roxanne_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ dns_local_domain }}
+host-record=roxanne.{{ homelab_network_domain }},{{ roxanne_ipv4_addr }}
+ptr-record={{ roxanne_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_network_domain }}

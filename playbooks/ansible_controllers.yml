@@ -19,12 +19,6 @@
 
   roles:
     - role: dnsmasq_dhcp
-      vars:
-        dhcp_network_subnet_mask: "{{ homelab_network_subnet }}"
-        dhcp_network_gateway_ipv4_addr: "{{ homelab_network_gateway_ipv4_addr }}"
-        dhcp_lower_bound: "{{ homelab_network_lower_bound }}"
-        dhcp_upper_bound: "{{ homelab_network_upper_bound }}"
-        dhcp_config_file_template: dhcp.conf.j2
 
 - name: Install and configure dnsmasq (dns)
   hosts: dns_servers
@@ -46,8 +40,3 @@
 
   roles:
     - role: dnsmasq_dns
-      vars:
-        dns_subnet: "{{ homelab_network_subnet }}"
-        dns_network_gateway_ipv4_addr: "{{ homelab_network_gateway_ipv4_addr }}"
-        dns_local_domain: "{{ homelab_network_domain }}"
-        dns_config_file_template: dns.conf.j2

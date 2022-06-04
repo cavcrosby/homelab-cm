@@ -35,6 +35,8 @@
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bullseye64",
+            "dhcp_config_file_template": "vagrant-dnsmasq-dhcp.conf.j2",
+            "dns_config_file_template": "vagrant-dnsmasq-dns.conf.j2",
             "dhcp_listen_network_interface_name": "eth1",
             "dns_listen_network_interface_name": "eth1",
             "vagrant_config_refs": {
