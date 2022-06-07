@@ -11,9 +11,9 @@ from diagrams.generic.network import Subnet
 from diagrams.onprem.client import Client
 from diagrams.onprem.compute import Server
 from diagrams.onprem.network import Internet
+from pylib.argparse import CustomHelpFormatter
 
 # Local Application Imports
-from pylib.argparse import CustomHelpFormatter
 
 # constants and other program configurations
 _arg_parser = argparse.ArgumentParser(
