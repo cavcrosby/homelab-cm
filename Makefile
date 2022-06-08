@@ -17,13 +17,13 @@ export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
 # targets
-ANSIPLAY = ansiplay
-ANSIPLAY_TEST = ansiplay-test
-ANSISCRTS = ansiscrts
-DEV_SHELL = dev-shell
+PRODUCTION = production
+STAGING = staging
+ANSIBLE_SECRETS = ansible-secrets
+DEVELOPMENT_SHELL = development-shell
 DIAGRAM = diagram
 
-# ansiscrts actions
+# ansible-secrets actions
 PUT = put
 
 # libvirt provider configurations
@@ -41,7 +41,7 @@ export ANSIBLE_TAGS = all
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
 export ANSIBLE_VERBOSITY_OPT = -v
 
-ifeq (${ANSISCRTS_ACTION},${PUT})
+ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 	SKIP_BITWARDEN_GET_SSH_KEYS = true
 	SKIP_BITWARDEN_GET_TLS_CERTS = true
 else
@@ -122,34 +122,34 @@ endif
 ${HELP}:
 	# inspired by the makefiles of the Linux kernel and Mercurial
 >	@echo 'Common make targets:'
->	@echo '  ${SETUP}          - installs the distro-independent dependencies for this'
->	@echo '                   project'
->	@echo '  ${ANSIPLAY}       - runs the main playbook for my homelab'
->	@echo '  ${ANSIPLAY_TEST}  - runs the main playbook for my homelab, but in a'
->	@echo '                   virtual environment setup by Vagrant'
->	@echo '  ${ANSILINT}       	 - lints the yaml configuration code and json'
->	@echo '                   configurations'
->	@echo '  ${ANSISCRTS}      - manage secrets used by this project, by default'
->	@echo '                   secrets are pulled into the project'
->	@echo '  ${DEV_SHELL}      - runs a bash shell with make variables injected into'
->	@echo '                   it to work with the project'\''s Vagrantfile'
->	@echo '  ${DIAGRAM}        - generate a infrastructure diagram of my homelab'
->	@echo '  ${CLEAN}          - removes files generated from targets'
+>	@echo '  ${SETUP}                - installs the distro-independent dependencies for this'
+>	@echo '                         project'
+>	@echo '  ${PRODUCTION}           - runs the main playbook for my homelab'
+>	@echo '  ${STAGING}              - runs the main playbook for my homelab, but in a'
+>	@echo '                         virtual environment setup by Vagrant'
+>	@echo '  ${ANSIBLE_LINT}         - lints the yaml configuration code and json'
+>	@echo '                         configurations'
+>	@echo '  ${ANSIBLE_SECRETS}      - manage secrets used by this project, by default'
+>	@echo '                         secrets are pulled into the project'
+>	@echo '  ${DEVELOPMENT_SHELL}    - runs a bash shell with make variables injected into'
+>	@echo '                         it to work with the project'\''s Vagrantfile'
+>	@echo '  ${DIAGRAM}              - generate a infrastructure diagram of my homelab'
+>	@echo '  ${CLEAN}                - removes files generated from targets'
 >	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
->	@echo '  ANSIBLE_TAGS           - set the tags denoting the tasks/roles/plays for'
->	@echo '                           Ansible to run (default: all)'
->	@echo '  VAGRANT_PROVIDER       - set the provider used for the virtual environment'
->	@echo '                           created by Vagrant (default: libvirt)'
->	@echo '  ANSIBLE_VERBOSITY_OPT  - set the verbosity level when running ansible commands,'
->	@echo '                           represented as the '-v' variant passed in (default: -v)'
->	@echo '  ANSISCRTS_ACTION       - determines the action to take concerning project'
->	@echo '                           secrets (options: ${PUT})'
->	@echo '  CONTROLLER_NODE        - set this variable when running on a machine whose'
->	@echo '                           functionality is solely to act as a Ansible controller'
->	@echo '                           node (e.g. no hypervisor would be installed)'
->	@echo '  LOG                    - when set, stdout/stderr will be redirected to a log'
->	@echo '                           file (if the target supports it). LOG_PATH determines'
->	@echo '                           log path (default: ./ansible.log)'
+>	@echo '  ANSIBLE_TAGS             - set the tags denoting the tasks/roles/plays for'
+>	@echo '                             Ansible to run (default: all)'
+>	@echo '  VAGRANT_PROVIDER         - set the provider used for the virtual environment'
+>	@echo '                             created by Vagrant (default: libvirt)'
+>	@echo '  ANSIBLE_VERBOSITY_OPT    - set the verbosity level when running ansible commands,'
+>	@echo '                             represented as the '-v' variant passed in (default: -v)'
+>	@echo '  ANSIBLE_SECRETS_ACTION   - determines the action to take concerning project'
+>	@echo '                             secrets (options: ${PUT})'
+>	@echo '  CONTROLLER_NODE          - set this variable when running on a machine whose'
+>	@echo '                             functionality is solely to act as a Ansible controller'
+>	@echo '                             node (e.g. no hypervisor would be installed)'
+>	@echo '  LOG                      - when set, stdout/stderr will be redirected to a log'
+>	@echo '                             file (if the target supports it). LOG_PATH determines'
+>	@echo '                             log path (default: ./ansible.log)'
 
 .PHONY: ${SETUP}
 ${SETUP}: ${PYENV_POETRY_SETUP}
@@ -172,20 +172,20 @@ ifndef CONTROLLER_NODE
 >	&& ${VAGRANT} plugin install $$(find . -name '*.gem')
 endif
 
-.PHONY: ${ANSIPLAY}
-${ANSIPLAY}:
+.PHONY: ${PRODUCTION}
+${PRODUCTION}:
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_VERBOSITY_OPT} --inventory production ./playbooks/site.yml --ask-become-pass
 
-.PHONY: ${ANSIPLAY_TEST}
-${ANSIPLAY_TEST}:
+.PHONY: ${STAGING}
+${STAGING}:
 ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 >	${VAGRANT} up --provision --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 endif
 
-.PHONY: ${ANSILINT}
-${ANSILINT}:
+.PHONY: ${ANSIBLE_LINT}
+${ANSIBLE_LINT}:
 >	@for fil in ${src_yaml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
 >		if echo $${fil} | grep --quiet '-'; then \
 >			echo "make: $${fil} should not contain a dash in the filename"; \
@@ -193,17 +193,17 @@ ${ANSILINT}:
 >	done
 >	${ANSIBLE_LINT}
 
-.PHONY: ${DEV_SHELL}
-${DEV_SHELL}:
+.PHONY: ${DEVELOPMENT_SHELL}
+${DEVELOPMENT_SHELL}:
 >	${BASH} -i
 
 .PHONY: ${DIAGRAM}
 ${DIAGRAM}:
 >	${PYTHON} hldiag.py
 
-.PHONY: ${ANSISCRTS}
-${ANSISCRTS}: ${BITWARDEN_SESSION_CHECK} ${BITWARDEN_GET_SSH_KEYS} ${BITWARDEN_GET_TLS_CERTS}
-ifeq (${ANSISCRTS_ACTION},${PUT})
+.PHONY: ${ANSIBLE_SECRETS}
+${ANSIBLE_SECRETS}: ${BITWARDEN_SESSION_CHECK} ${BITWARDEN_GET_SSH_KEYS} ${BITWARDEN_GET_TLS_CERTS}
+ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${BW} delete attachment \
 		"$$(${BW} list items \
