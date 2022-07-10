@@ -1,2 +1,4 @@
 ---
-ansible_user: ansible
+ansible_user_home: /home/{{ ansible_user }}
+ansible_user_python_virtualenv_name: ansible-client
+ansible_user_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"

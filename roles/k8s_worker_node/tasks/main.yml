@@ -1,0 +1,73 @@
+---
+- name: Run whoami
+  ansible.builtin.command: whoami
+  register: whoami_completed_proc
+  changed_when: false
+
+- name: Get {{ whoami_completed_proc.stdout }}'s user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ whoami_completed_proc.stdout }}"
+
+- name: Configure firewall with worker node ports
+  block:
+    - name: Configure Kubelet API ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10250
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) Kubelet API
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure NodePort Services ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 30000:32767
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) NodePort Services
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+# a successful run of the k8s_cluster_info task will not return a 'msg' attribute
+- name: Check node is already part of a Kubernetes cluster
+  kubernetes.core.k8s_cluster_info:
+    kubeconfig: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+  register: k8s_cluster_info
+  failed_when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' not in k8s_cluster_info.msg"
+  changed_when: false
+
+- name: Join a Kubernetes control plane to make a cluster
+  ansible.builtin.command: |
+    kubeadm join \
+      {{ k8s_api_server_endpoint }}:6443 \
+      --token {{ k8s_bootstrap_token }} \
+      --discovery-token-ca-cert-hash {{ k8s_ca_key_hash }}
+  become: true
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+
+- name: Copy node kubeconfig file to communicate with control pane
+  block:
+    - name: Create a dotfile directory for kubectl
+      ansible.builtin.file:
+        path: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube"
+        state: directory
+        mode: "775"
+
+    - name: Copy over the kubeconfig file
+      ansible.builtin.copy:
+        dest: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+        src: /etc/kubernetes/kubelet.conf
+        mode: "600"
+        remote_src: true

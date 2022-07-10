@@ -1,6 +1,8 @@
 ---
 - name: Add systemd.unified_cgroup_hierarchy=0 to grub boot command(s)
-  hosts: ctrservers
+  hosts:
+    - k8s_containerd_workers
+    - k8s_controllers
   tags: add_systemd_cgroup_hierarchy
   vars:
     default_grub_path: /etc/default/grub
@@ -42,7 +44,7 @@
         - line_check.found == 0
         - ansible_os_family | lower == "debian"
 
-    - name: Reboot ctrservers to have new boot parameter(s) take effect
+    - name: Reboot hosts to have new boot parameter(s) take effect
       ansible.builtin.reboot:
       become: true
       when: line_check.found == 0

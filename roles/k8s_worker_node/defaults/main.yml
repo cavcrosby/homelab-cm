@@ -1,0 +1,10 @@
+---
+# the IP address the API Server is listening on
+k8s_api_server_endpoint: ""
+
+# Token to use for establishing bidirectional trust between nodes and
+# control-plane nodes.
+k8s_bootstrap_token: ""
+
+# the root CA public key hash with the format <type>:<value>
+k8s_ca_key_hash: ""

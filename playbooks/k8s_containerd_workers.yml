@@ -1,0 +1,132 @@
+---
+# MONITOR(cavcrosby): starting after Debian buster, nftables replaces iptables.
+# While I am sure support for the latter will stick around for quite sometime,
+# I'd like to look further into getting both Docker and LXD both using nftables.
+# On Debian bullseye nftables is installed by default but the service is
+# inactive. For reference on resources to look at when looking deeper into this:
+# https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/7#post_9
+# https://wiki.debian.org/nftables
+#
+# Having initially attempted to integrate nftables and remove usage of iptables,
+# I ran into the troublesome issue of Docker continuing to use iptables. As of
+# this writing, Docker can only use iptables as a backend and converting the
+# Docker iptables rules to a nft ruleset was easy. However, the notion of having
+# to continuously port (also knowing when to and not to) over iptables rules to
+# the nft ruleset will require a lot of work that I don't think will be worth it
+# once Docker natively supports nftables. For now, the following ticket should
+# be monitored: https://github.com/moby/moby/issues/26824
+- name: Perform initial setup for k8s_containerd_worker
+  hosts: k8s_containerd_workers
+  tags: initial_k8s_containerd_worker_setup
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install containerd (debian-like)
+      ansible.builtin.apt:
+        name:
+          - containerd
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+  tasks:
+    - name: Setup {{ ansible_user }}'s Python virtual environment
+      ansible.builtin.include_role:
+        name: python_virtualenv
+      vars:
+        python_virtualenv_name: "{{ ansible_user_python_virtualenv_name }}"
+        python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
+        python_virtualenv_pkgs:
+          - kubernetes
+
+    - name: Add sourcing of the Python virtual environment
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        tasks_from: managed_lineinfile
+      vars:
+        path: "{{ ansible_user_home }}/.bashrc"
+        regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+
+    - name: Setup default legacy userland "iptables" tools
+      block:
+        - name: Install legacy iptables dependencies (debian-like)
+          ansible.builtin.apt:
+            name:
+              - arptables
+              - ebtables
+              - iptables
+              - iptables-persistent
+            state: present
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Setup legacy iptables
+          community.general.alternatives:
+            name: iptables
+            path: /usr/sbin/iptables-legacy
+          become: true
+
+        - name: Setup legacy ip6tables
+          community.general.alternatives:
+            name: ip6tables
+            path: /usr/sbin/ip6tables-legacy
+          become: true
+
+        - name: Setup legacy arptables
+          community.general.alternatives:
+            name: arptables
+            path: /usr/sbin/arptables-legacy
+          become: true
+
+        - name: Setup legacy ebtables
+          community.general.alternatives:
+            name: ebtables
+            path: /usr/sbin/ebtables-legacy
+          become: true
+
+    - name: Setup systemd-networkd networking
+      ansible.builtin.include_role:
+        name: systemd_networkd
+      vars:
+        systemd_networkd_files:
+          - filename: "{{ ansible_default_ipv4.interface }}.link"
+            Match:
+              MACAddress: "{{ ansible_default_ipv4.macaddress }}"
+            Link:
+              NamePolicy: keep
+
+          - filename: "{{ ansible_default_ipv4.interface }}.network"
+            Match:
+              Name: "{{ ansible_default_ipv4.interface }}"
+            Network:
+              DHCP: "ipv4"
+
+  roles:
+    - k8s_kubeadm
+    - k8s_node
+
+- name: Configure k8s_containerd_worker to be a Kubernetes worker node
+  hosts: k8s_containerd_workers
+  tags: configure_containerd_host_as_k8s_worker_node
+  vars_files:
+    - "{{ network_configs_path }}"
+    - ./vars/ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+
+  pre_tasks:
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+  roles:
+    - role: k8s_worker_node
+      become: true

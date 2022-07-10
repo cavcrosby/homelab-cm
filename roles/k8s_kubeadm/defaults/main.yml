@@ -1,0 +1,2 @@
+---
+_k8s_keyring_download_path: /usr/share/keyrings/kubernetes-archive-keyring.gpg

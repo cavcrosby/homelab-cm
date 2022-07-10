@@ -1,6 +1,6 @@
 { 
     "ansible_host_vars": {
-        "ctrserver1": {
+        "k8s-containerd-worker1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
             "vagrant_vm_net_ipv4_addr": "192.168.112.50",
@@ -10,9 +10,14 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "debian/bullseye64"
+            "vagrant_vm_box": "debian/bullseye64",
+            "vagrant_external_config_refs": {
+                "k8s-controller1": {
+                    "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
         },
-        "ctrserver2": {
+        "k8s-containerd-worker2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
             "vagrant_vm_net_ipv4_addr": "192.168.112.51",
@@ -22,11 +27,31 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "debian/bullseye64"
+            "vagrant_vm_box": "debian/bullseye64",
+            "vagrant_external_config_refs": {
+                "k8s-controller1": {
+                    "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
         },
-        "ansible-controller1": {
+        "k8s-controller1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.3",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
+            "vagrant_vm_net_mac_addr": "52:54:00:b6:ab:90",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "debian/bullseye64",
+            "vagrant_config_refs": {
+                "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr"
+            }
+        },
+        "ansible-controller1": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.2",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
             "vagrant_vm_net_ipv4_addr": "192.168.112.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
@@ -130,10 +155,15 @@
         }
     },
     "ansible_groups": {
-        "ctrservers": ["ctrserver1", "ctrserver2"],
+        "k8s_containerd_workers": ["k8s-containerd-worker1", "k8s-containerd-worker2"],
+        "k8s_controllers": ["k8s-controller1"],
         "irc_clients": ["irc-client1"],
         "dhcp_servers": ["ansible-controller1"],
         "dns_servers": ["ansible-controller1"],
+        "k8s_controllers:vars": {
+            "ca_key": "k8s_staging_ca.key",
+            "ca_cert": "k8s_staging_ca.crt"
+        },
         "all:vars": {
             "ansible_user": "vagrant",
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"

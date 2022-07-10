@@ -1,0 +1,86 @@
+---
+- name: Perform initial setup for k8s_controller
+  hosts: k8s_controllers
+  tags: initial_k8s_controller_setup
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install containerd (debian-like)
+      ansible.builtin.apt:
+        name:
+          - containerd
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+  roles:
+    - k8s_kubeadm
+    - k8s_node
+
+  tasks:
+    - name: Setup {{ ansible_user }}'s Python virtual environment
+      ansible.builtin.include_role:
+        name: python_virtualenv
+      vars:
+        python_virtualenv_name: "{{ ansible_user_python_virtualenv_name }}"
+        python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
+        python_virtualenv_pkgs:
+          - kubernetes
+
+    - name: Add sourcing of the Python virtual environment
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        tasks_from: managed_lineinfile
+      vars:
+        path: "{{ ansible_user_home }}/.bashrc"
+        regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+
+- name: Setup a Kubernetes control plane
+  hosts: k8s_controllers
+  tags: configure_as_k8s_controller
+  vars_files:
+    - ./vars/ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+
+  pre_tasks:
+    - name: Setup self-signed CA for Kubernetes
+      block:
+        - name: Create the Kubernetes certificate directory
+          ansible.builtin.file:
+            path: "{{ k8s_cert_dir_path }}"
+            recurse: true
+            state: directory
+          become: true
+
+        - name: Copy the self-signed CA key into the Kubernetes certificate directory
+          ansible.builtin.copy:
+            dest: "{{ k8s_cert_dir_path }}/ca.key"
+            src: ./rsa_keys/{{ ca_key }}
+            mode: "600"
+          become: true
+
+        - name: Copy the self-signed CA certificate into the Kubernetes certificate directory
+          ansible.builtin.copy:
+            dest: "{{ k8s_cert_dir_path }}/ca.crt"
+            src: ./certs/{{ ca_cert }}
+            mode: "644"
+          become: true
+      vars:
+        k8s_cert_dir_path: /etc/kubernetes/pki
+
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+  roles:
+    - role: k8s_control_plane
+      become: true

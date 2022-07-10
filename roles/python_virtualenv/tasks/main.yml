@@ -1,4 +1,10 @@
 ---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
 - name: Install Python virtual environment dependencies (debian-like)
   ansible.builtin.apt:
     name:
@@ -8,26 +14,64 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Create the ansible_user's Python virtual environments directory
+- name: Create the Python virtual environments directory
   ansible.builtin.file:
-    path: "{{ ansible_user_python_virtualenvs_path }}"
+    path: "{{ python_virtualenvs_path }}"
     state: directory
     mode: "755"
 
-- name: Create the ansible_user's Python virtual environment
+- name: Create the Python virtual environment
   ansible.builtin.pip:
     # This task module requires at least one package to install for initial
     # virtualenv setup.
     name: "{{ python_virtualenv_pkgs }}"
-    virtualenv: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}"
-    virtualenv_command: /usr/bin/python3 -m venv "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}"
+    virtualenv: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
+    virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
 
-- name: Add sourcing the ansible_user's Python virtual environment
-  ansible.builtin.import_role:
-    name: cavcrosby.general.common
-    tasks_from: managed_lineinfile
-  vars:
-    path: "{{ ansible_env['HOME'] }}/.bashrc"
-    regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}/bin/activate"'
-    line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv }}/bin/activate"'
-    line_identifier: sourcing the {{ ansible_user_python_virtualenv }} Python virtual environment
+- name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages
+  block:
+    - name: Determine the virtual environment's site-packages directory
+      ansible.builtin.find:
+        paths: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}/lib"
+        file_type: directory
+        patterns: python*
+        depth: 1
+      register: site_packages_find
+      failed_when: site_packages_find.files | length != 1
+
+    - name: Link python3-apt's apt
+      ansible.builtin.file:
+        state: link
+        path: "{{ site_packages_find.files[0].path }}/site-packages/apt"
+        src: /usr/lib/python3/dist-packages/apt
+
+    - name: Link python3-apt's aptsources
+      ansible.builtin.file:
+        state: link
+        path: "{{ site_packages_find.files[0].path }}/site-packages/aptsources"
+        src: /usr/lib/python3/dist-packages/aptsources
+
+    - name: Find python3-apt's apt_pkg shared object path
+      ansible.builtin.find:
+        paths: /usr/lib/python3/dist-packages
+        patterns: apt_pkg*.so
+      register: apt_pkg_find
+
+    - name: Link python3-apt's apt_pkg
+      ansible.builtin.file:
+        state: link
+        path: "{{ site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
+        src: "{{ apt_pkg_find.files[0].path }}"
+
+    - name: Find python3-apt's apt_inst shared object path
+      ansible.builtin.find:
+        paths: /usr/lib/python3/dist-packages
+        patterns: apt_inst*.so
+      register: apt_inst_find
+
+    - name: Link python3-apt's apt_inst
+      ansible.builtin.file:
+        state: link
+        path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
+        src: "{{ apt_inst_find.files[0].path }}"
+  when: ansible_os_family | lower == "debian"

@@ -1,0 +1,17 @@
+---
+# for reference on why this was needed:
+# https://github.com/kubernetes/kubeadm/issues/1062
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/#install-and-configure-prerequisites
+- name: Configure required kernel parameters
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    reload: true
+  become: true
+  loop: "{{ _sysctl_configs }}"
+
+- name: Ensure br_netfilter is enabled
+  community.general.modprobe:
+    name: br_netfilter
+    state: present
+  become: true

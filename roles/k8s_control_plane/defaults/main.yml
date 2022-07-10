@@ -1,0 +1,6 @@
+---
+# the internal k8s cluster subnet
+k8s_pod_subnet: 192.168.0.0/16
+
+# the IP address the API Server will advertise it's listening on
+k8s_api_server_endpoint: ""

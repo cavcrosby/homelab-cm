@@ -146,6 +146,13 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
         machine_attrs[config_name] = vagrant_config_refs[config_name]
       end
     end
+  elsif machine_attrs.key?("vagrant_external_config_refs")
+    machine_attrs["vagrant_external_config_refs"].each do |machine_name, vagrant_external_config_refs|
+      traverse_configs(method(:eval_config_ref), ANSIBLE_HOST_VARS[machine_name], vagrant_external_config_refs)
+      vagrant_external_config_refs.keys().each do |config_name|
+        machine_attrs[config_name] = vagrant_external_config_refs[config_name]
+      end
+  end
 
     # Since all the key values pairs are resolved and put at the machine_attrs level,
     # for now I will just discard the config_refs json.
@@ -264,6 +271,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.tags = ENV["ANSIBLE_TAGS"]
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+          }
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end

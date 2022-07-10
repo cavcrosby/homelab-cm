@@ -27,8 +27,9 @@ dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{
 
 # Always give the host with Ethernet address <mac_addr>, the name <name>, and
 # IP address <ip_addr> and an infinite lease.
-dhcp-host={{ ctrserver1_mac_addr }},ctrserver1,{{ ctrserver1_ipv4_addr }},infinite
-dhcp-host={{ ctrserver2_mac_addr }},ctrserver2,{{ ctrserver2_ipv4_addr }},infinite
+dhcp-host={{ k8s_containerd_worker1_mac_addr }},k8s_containerd_worker1,{{ k8s_containerd_worker1_ipv4_addr }},infinite
+dhcp-host={{ k8s_containerd_worker2_mac_addr }},k8s_containerd_worker2,{{ k8s_containerd_worker2_ipv4_addr }},infinite
+dhcp-host={{ k8s_controller1_mac_addr }},k8s_controller1,{{ k8s_controller1_ipv4_addr }},infinite
 
 # Override the default route supplied by dnsmasq, which assumes the
 # router is the same machine as the one running dnsmasq.

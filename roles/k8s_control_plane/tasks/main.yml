@@ -1,0 +1,116 @@
+---
+- name: Run whoami
+  ansible.builtin.command: whoami
+  register: whoami_completed_proc
+  changed_when: false
+
+- name: Get {{ whoami_completed_proc.stdout }}'s user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ whoami_completed_proc.stdout }}"
+
+# DISCUSS(cavcrosby): make some tasks conditional depending on the firewall backend
+# (e.g. iptables vs nftables).
+#
+# In terms of preference, ideally nftables should be chosen first but iptables
+# can serve as a backup in event nftables is determined not to be installed.
+# Hence, there should be someway to if nftables is installed, and if it does not
+# exist, try to use iptables.
+- name: Configure firewall with control plane ports
+  block:
+    - name: Configure Kubernetes API server ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 6443
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) Kubernetes API server
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure etcd server client API ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 2379:2380
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) etcd server client API
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure Kubelet API ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10250
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) Kubelet API
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure kube-scheduler ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10259
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) kube-scheduler
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure kube-controller-manager ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10257
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) kube-controller-manager
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+- name: Check node is already part of a Kubernetes cluster
+  kubernetes.core.k8s_cluster_info:
+    kubeconfig: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+  register: k8s_cluster_info
+  failed_when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' not in k8s_cluster_info.msg"
+  changed_when: false
+
+- name: Initialize the control plane
+  ansible.builtin.command: |
+    kubeadm init \
+      --apiserver-advertise-address {{ k8s_api_server_endpoint }} \
+      --pod-network-cidr {{ k8s_pod_subnet }} \
+      --token {{ k8s_bootstrap_token }} \
+      --token-ttl "1h0m0s"
+  become: true
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+
+- name: Copy admin kubeconfig file to administer control pane
+  block:
+    - name: Create a dotfile directory for kubectl
+      ansible.builtin.file:
+        path: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube"
+        state: directory
+        mode: "775"
+
+    - name: Copy over the admin kubeconfig file
+      ansible.builtin.copy:
+        dest: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+        src: /etc/kubernetes/admin.conf
+        owner: "{{ whoami_completed_proc.stdout }}"
+        group: "{{ whoami_completed_proc.stdout }}"
+        mode: "600"
+        remote_src: true
+      become: true
