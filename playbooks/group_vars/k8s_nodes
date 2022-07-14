@@ -1,0 +1,3 @@
+---
+k8s_controller_endpoint: 127.0.0.1:20357
+k8s_api_server_port: 6443

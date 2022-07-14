@@ -109,6 +109,7 @@
               DHCP: "ipv4"
 
   roles:
+    - haproxy
     - k8s_kubeadm
     - k8s_node
 

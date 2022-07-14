@@ -1,0 +1,81 @@
+---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install haproxy (debian-like)
+  ansible.builtin.apt:
+    name:
+      - haproxy
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Create a haproxy configuration directory
+  ansible.builtin.file:
+    path: "{{ _haproxy_config_dir_path }}"
+    state: directory
+    mode: "755"
+  become: true
+
+# Inspired by the haproxy service unit file that comes from Debian's 'haproxy' pkg
+# and how dnsmasq can read in multiple config files in a directory. For reference
+# on the option used to specifiy a config directory:
+# https://serverfault.com/questions/1020003/provide-multiple-cfg-files-for-haproxy-loadbalancer#answer-1020407
+- name: Create a haproxy service unit file
+  ansible.builtin.copy:
+    dest: /etc/systemd/system/haproxy.service
+    mode: "644"
+    content: |
+      #
+      #
+      # ANSIBLE MANAGED
+
+      [Unit]
+      Description=HAProxy Load Balancer
+      Documentation=man:haproxy(1)
+      Documentation=file:/usr/share/doc/haproxy/configuration.txt.gz
+      After=network-online.target rsyslog.service
+      Wants=network-online.target
+
+      [Service]
+      EnvironmentFile=-/etc/default/haproxy
+      EnvironmentFile=-/etc/sysconfig/haproxy
+      Environment="CONFIG={{ _haproxy_config_dir_path }}" "PIDFILE=/run/haproxy.pid" "EXTRAOPTS=-S /run/haproxy-master.sock"
+      ExecStartPre=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
+      ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE $EXTRAOPTS
+      ExecReload=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
+      ExecReload=/bin/kill -USR2 $MAINPID
+      KillMode=mixed
+      Restart=always
+      SuccessExitStatus=143
+      Type=notify
+
+      [Install]
+      WantedBy=multi-user.target
+  become: true
+  notify:
+    - Reload the systemd daemon
+    - Stop the haproxy service
+
+- name: Flush the haproxy service handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: Create the haproxy configuration file
+  ansible.builtin.template:
+    src: "{{ haproxy_config_file_template }}"
+    dest: "{{ _haproxy_config_file_path }}"
+    mode: "644"
+    validate: haproxy -c -f %s
+  become: true
+  notify:
+    - Restart haproxy
+
+- name: Enable and start the haproxy service
+  ansible.builtin.service:
+    name: haproxy
+    enabled: true
+    state: started
+  become: true

@@ -46,16 +46,24 @@
     - "'No configuration found' not in k8s_cluster_info.msg"
   changed_when: false
 
-- name: Join a Kubernetes control plane to make a cluster
+- name: Create the kubeadm (join) configuration file
+  ansible.builtin.template:
+    src: "{{ k8s_worker_join_config_template }}"
+    dest: "{{ _k8s_worker_join_config_path }}"
+    mode: "600"
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_worker_join_config_template | length != 0
+
+- name: Join a Kubernetes cluster as a worker node
   ansible.builtin.command: |
-    kubeadm join \
-      {{ k8s_api_server_endpoint }}:6443 \
-      --token {{ k8s_bootstrap_token }} \
-      --discovery-token-ca-cert-hash {{ k8s_ca_key_hash }}
+    kubeadm join --config {{ _k8s_worker_join_config_path }}
   become: true
   when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_worker_join_config_template | length != 0
 
 - name: Copy node kubeconfig file to communicate with control pane
   block:

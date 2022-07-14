@@ -85,17 +85,43 @@
     - "'No configuration found' not in k8s_cluster_info.msg"
   changed_when: false
 
-- name: Initialize the control plane
+- name: Create the kubeadm (init) configuration file
+  ansible.builtin.template:
+    src: "{{ k8s_controller_init_config_template }}"
+    dest: "{{ _k8s_controller_init_config_path }}"
+    mode: "644"
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_init_config_template | length != 0
+
+- name: Initialize the control plane (first control-plane)
   ansible.builtin.command: |
-    kubeadm init \
-      --apiserver-advertise-address {{ k8s_api_server_endpoint }} \
-      --pod-network-cidr {{ k8s_pod_subnet }} \
-      --token {{ k8s_bootstrap_token }} \
-      --token-ttl "1h0m0s"
+    kubeadm init --upload-certs --config {{ _k8s_controller_init_config_path }}
   become: true
   when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_init_config_template | length != 0
+
+- name: Create the kubeadm (join) configuration file
+  ansible.builtin.template:
+    src: "{{ k8s_controller_join_config_template }}"
+    dest: "{{ _k8s_controller_join_config_path }}"
+    mode: "600"
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_join_config_template | length != 0
+
+- name: Join a Kubernetes cluster as a control plane (high availability)
+  ansible.builtin.command: |
+    kubeadm join --config {{ _k8s_controller_join_config_path }}
+  become: true
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_join_config_template | length != 0
 
 - name: Copy admin kubeconfig file to administer control pane
   block:

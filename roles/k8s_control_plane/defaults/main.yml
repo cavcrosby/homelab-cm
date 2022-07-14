@@ -1,6 +1,9 @@
 ---
-# the internal k8s cluster subnet
-k8s_pod_subnet: 192.168.0.0/16
+# file that contains elements specific to 'kubeadm init' runtime information
+k8s_controller_init_config_template: ""
 
-# the IP address the API Server will advertise it's listening on
-k8s_api_server_endpoint: ""
+# file that contains elements specific to 'kubeadm join' runtime information
+k8s_controller_join_config_template: ""
+
+_k8s_controller_init_config_path: /tmp/{{ (k8s_controller_init_config_template | splitext)[:-1] | join('.') }}
+_k8s_controller_join_config_path: /tmp/{{ (k8s_controller_join_config_template | splitext)[:-1] | join('.') }}
