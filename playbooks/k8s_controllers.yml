@@ -20,6 +20,7 @@
 
   roles:
     - haproxy
+    - helm
     - k8s_kubeadm
     - k8s_node
 

@@ -4,3 +4,10 @@
     name: dnsmasq
     state: restarted
   become: true
+
+- name: Restart systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: true
+    state: restarted
+  become: true

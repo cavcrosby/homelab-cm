@@ -104,6 +104,13 @@
     - "'No configuration found' in k8s_cluster_info.msg"
     - k8s_controller_init_config_template | length != 0
 
+- name: Import related tasks to the Calico CNI setup
+  ansible.builtin.import_tasks: calico.yml
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_init_config_template | length != 0
+
 - name: Create the kubeadm (join) configuration file
   ansible.builtin.template:
     src: "{{ k8s_controller_join_config_template }}"

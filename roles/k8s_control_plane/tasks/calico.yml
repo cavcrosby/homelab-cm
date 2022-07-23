@@ -1,0 +1,53 @@
+---
+- name: Configure Calico networking (BGP) INPUT
+  ansible.builtin.iptables:
+    chain: INPUT
+    destination_port: 179
+    protocol: tcp
+    jump: ACCEPT
+    comment: (k8s) Calico networking BGP
+  become: true
+  notify:
+    - Save the current iptables rules
+
+- name: Configure Calico networking (BGP) OUTPUT
+  ansible.builtin.iptables:
+    chain: OUTPUT
+    destination_port: 179
+    protocol: tcp
+    jump: ACCEPT
+    comment: (k8s) Calico networking BGP
+  become: true
+  notify:
+    - Save the current iptables rules
+
+- name: Create the Calico custom resource file
+  ansible.builtin.template:
+    src: "{{ calico_custom_resource_template }}"
+    dest: "{{ _calico_custom_resource_path }}"
+    mode: "644"
+
+- name: Add the Calico Helm repo
+  kubernetes.core.helm_repository:
+    repo_name: projectcalico
+    repo_url: https://projectcalico.docs.tigera.io/charts
+
+- name: Deploy the Calico Helm chart inside the tigera-operator namespace
+  kubernetes.core.helm:
+    name: calico
+    chart_ref: projectcalico/tigera-operator
+    chart_version: v3.23.3
+    release_namespace: tigera-operator
+    create_namespace: true
+    values_files:
+      - "{{ _calico_custom_resource_path }}"
+  become: true
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+
+- name: Install calicoctl
+  ansible.builtin.get_url:
+    url: https://github.com/projectcalico/calico/releases/download/v3.23.3/calicoctl-linux-amd64
+    dest: /usr/local/bin/calicoctl
+    mode: "755"
+  become: true
