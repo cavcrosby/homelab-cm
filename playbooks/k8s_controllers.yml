@@ -2,6 +2,8 @@
 - name: Perform initial setup for k8s_controller
   hosts: k8s_controllers
   tags: initial_k8s_controller_setup
+  vars_files:
+    - ./vars/k8s_software_versions.yml
 
   pre_tasks:
     - name: Update apt's package index
@@ -13,8 +15,15 @@
     - name: Install containerd (debian-like)
       ansible.builtin.apt:
         name:
-          - containerd
+          - containerd={{ containerd_version }}
         state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Prevent containerd from being upgraded
+      ansible.builtin.dpkg_selections:
+        name: containerd
+        selection: hold
       become: true
       when: ansible_os_family | lower == "debian"
 
@@ -49,6 +58,7 @@
   tags: configure_as_k8s_first_controller
   vars_files:
     - "{{ network_configs_path }}"
+    - ./vars/k8s_software_versions.yml
     - ./vars/ansible_secrets.yml
   vars:
     k8s_cert_dir_path: /etc/kubernetes/pki

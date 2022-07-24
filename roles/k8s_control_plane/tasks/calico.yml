@@ -36,7 +36,7 @@
   kubernetes.core.helm:
     name: calico
     chart_ref: projectcalico/tigera-operator
-    chart_version: v3.23.3
+    chart_version: "{{ calico_version }}"
     release_namespace: tigera-operator
     create_namespace: true
     values_files:
@@ -47,7 +47,7 @@
 
 - name: Install calicoctl
   ansible.builtin.get_url:
-    url: https://github.com/projectcalico/calico/releases/download/v3.23.3/calicoctl-linux-amd64
+    url: https://github.com/projectcalico/calico/releases/download/{{ calico_version }}/calicoctl-linux-amd64
     dest: /usr/local/bin/calicoctl
     mode: "755"
   become: true

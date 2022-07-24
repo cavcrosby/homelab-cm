@@ -53,9 +53,9 @@
 - name: Install kubeadm, kubelet and kubectl (debian-like)
   ansible.builtin.apt:
     name:
-      - kubeadm
-      - kubectl
-      - kubelet
+      - kubeadm={{ kubeadm_version }}
+      - kubectl={{ kubectl_version }}
+      - kubelet={{ kubelet_version }}
     state: present
   become: true
   when: ansible_os_family | lower == "debian"
