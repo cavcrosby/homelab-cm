@@ -91,6 +91,9 @@
             "vagrant_vm_box": "generic/ubuntu2204",
             "haproxy_config_file_template": "vagrant-k8s-haproxy.cfg.j2",
             "k8s_controller_init_config_template": "vagrant-k8s-first-controller.yml.j2",
+            "k8s_service_subnet": "192.168.0.0/24",
+            "k8s_pod_subnet": "172.16.0.0/16",
+            "k8s_node_prefix": "20",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "calico_custom_resource_template": "vagrant-k8s-calico-crs.yml.j2",
             "vagrant_config_refs": {
