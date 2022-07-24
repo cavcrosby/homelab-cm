@@ -44,13 +44,17 @@
         line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
         line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
 
-- name: Setup self-signed CA for Kubernetes first controllers
+- name: Setup Kubernetes control planes (first control-planes)
   hosts: k8s_first_controllers
-  tags: setup_ca_to_first_controller
+  tags: configure_as_k8s_first_controller
+  vars_files:
+    - "{{ network_configs_path }}"
+    - ./vars/ansible_secrets.yml
   vars:
     k8s_cert_dir_path: /etc/kubernetes/pki
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
-  tasks:
+  pre_tasks:
     - name: Create the Kubernetes certificate directory
       ansible.builtin.file:
         path: "{{ k8s_cert_dir_path }}"
@@ -72,9 +76,19 @@
         mode: "644"
       become: true
 
-- name: Setup Kubernetes control planes
-  hosts: k8s_controllers
-  tags: configure_as_k8s_controller
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+  roles:
+    - role: k8s_control_plane
+      become: true
+
+- name: Setup Kubernetes control planes (high availability)
+  hosts: k8s_ha_controllers
+  tags: configure_as_k8s_ha_controller
+  serial: 1
   vars_files:
     - "{{ network_configs_path }}"
     - ./vars/ansible_secrets.yml
