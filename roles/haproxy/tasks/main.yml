@@ -20,48 +20,21 @@
     mode: "755"
   become: true
 
-# Inspired by the haproxy service unit file that comes from Debian's 'haproxy' pkg
-# and how dnsmasq can read in multiple config files in a directory. For reference
-# on the option used to specifiy a config directory:
+# Inspired by how dnsmasq can read in multiple config files in a directory. For
+# reference on the option used to specifiy a config directory:
 # https://serverfault.com/questions/1020003/provide-multiple-cfg-files-for-haproxy-loadbalancer#answer-1020407
-- name: Create a haproxy service unit file
-  ansible.builtin.copy:
-    dest: /etc/systemd/system/haproxy.service
-    mode: "644"
-    content: |
-      #
-      #
-      # ANSIBLE MANAGED
-
-      [Unit]
-      Description=HAProxy Load Balancer
-      Documentation=man:haproxy(1)
-      Documentation=file:/usr/share/doc/haproxy/configuration.txt.gz
-      After=network-online.target rsyslog.service
-      Wants=network-online.target
-
-      [Service]
-      EnvironmentFile=-/etc/default/haproxy
-      EnvironmentFile=-/etc/sysconfig/haproxy
-      Environment="CONFIG={{ _haproxy_config_dir_path }}" "PIDFILE=/run/haproxy.pid" "EXTRAOPTS=-S /run/haproxy-master.sock"
-      ExecStartPre=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
-      ExecStart=/usr/sbin/haproxy -Ws -f $CONFIG -p $PIDFILE $EXTRAOPTS
-      ExecReload=/usr/sbin/haproxy -f $CONFIG -c -q $EXTRAOPTS
-      ExecReload=/bin/kill -USR2 $MAINPID
-      KillMode=mixed
-      Restart=always
-      SuccessExitStatus=143
-      Type=notify
-
-      [Install]
-      WantedBy=multi-user.target
+- name: Alter the haproxy configuration to be aggregated from a directory
+  ansible.builtin.import_role:
+    name: cavcrosby.general.common
+    tasks_from: managed_lineinfile
+  vars:
+    path: /etc/default/haproxy
+    regexp: '^CONFIG="{{ _haproxy_config_dir_path }}"'
+    line: 'CONFIG="{{ _haproxy_config_dir_path }}"'
+    line_identifier: changing haproxy configuration to a directory
   become: true
   notify:
-    - Reload the systemd daemon
-    - Stop the haproxy service
-
-- name: Flush the haproxy service handlers
-  ansible.builtin.meta: flush_handlers
+    - Restart haproxy
 
 - name: Create the haproxy configuration file
   ansible.builtin.template:
