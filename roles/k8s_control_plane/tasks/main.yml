@@ -9,13 +9,6 @@
     database: passwd
     key: "{{ whoami_completed_proc.stdout }}"
 
-# DISCUSS(cavcrosby): make some tasks conditional depending on the firewall backend
-# (e.g. iptables vs nftables).
-#
-# In terms of preference, ideally nftables should be chosen first but iptables
-# can serve as a backup in event nftables is determined not to be installed.
-# Hence, there should be someway to if nftables is installed, and if it does not
-# exist, try to use iptables.
 - name: Configure firewall with control plane ports
   block:
     - name: Configure Kubernetes API server ports
