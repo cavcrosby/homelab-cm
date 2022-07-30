@@ -142,7 +142,7 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     traverse_configs(method(:eval_config_ref), machine_attrs, vagrant_config_refs)
     vagrant_config_refs.keys().each do |config_name|
       config_ref = vagrant_config_refs[config_name]
-      if config_name.eql?("dhcp_systemd_networkd_files") || config_name.eql?("dns_systemd_networkd_files")
+      if config_name.eql?("dhcp_systemd_networkd_files")
         vagrant_homelab_network_configs[config_name] = vagrant_config_refs[config_name]
       else
         machine_attrs[config_name] = vagrant_config_refs[config_name]

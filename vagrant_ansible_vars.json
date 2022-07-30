@@ -177,7 +177,6 @@
             "dhcp_config_file_template": "vagrant-dnsmasq-dhcp.conf.j2",
             "dns_config_file_template": "vagrant-dnsmasq-dns.conf.j2",
             "dhcp_listen_network_interface_name": "eth1",
-            "dns_listen_network_interface_name": "eth1",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
@@ -205,42 +204,6 @@
                         },
                         "Match": {
                             "Name": "dhcp_listen_network_interface_name"
-                        },
-                        "Network": {
-                            "Address": {
-                                "join": [
-                                    "vagrant_vm_homelab_ipv4_addr",
-                                    "/24"
-                                ]
-                            },
-                            "Gateway": "10.10.100.1"
-                        }
-                    }
-                ],
-                "dns_systemd_networkd_files": [
-                    {
-                        "filename": {
-                            "join": [
-                                "dns_listen_network_interface_name",
-                                ".link"
-                            ]
-                        },
-                        "Match": {
-                            "MACAddress": "vagrant_vm_homelab_mac_addr"
-                        },
-                        "Link": {
-                            "NamePolicy": "keep"
-                        }
-                    },
-                    {
-                        "filename": {
-                            "join": [
-                                "dns_listen_network_interface_name",
-                                ".network"
-                            ]
-                        },
-                        "Match": {
-                            "Name": "dns_listen_network_interface_name"
                         },
                         "Network": {
                             "Address": {

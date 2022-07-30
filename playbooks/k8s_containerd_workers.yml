@@ -100,28 +100,6 @@
             path: /usr/sbin/ebtables-legacy
           become: true
 
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
-
-    - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files:
-          - filename: "{{ ansible_default_ipv4.interface }}.link"
-            Match:
-              MACAddress: "{{ ansible_default_ipv4.macaddress }}"
-            Link:
-              NamePolicy: keep
-
-          - filename: "{{ ansible_default_ipv4.interface }}.network"
-            Match:
-              Name: "{{ ansible_default_ipv4.interface }}"
-            Network:
-              DHCP: "ipv4"
-
   roles:
     - haproxy
     - k8s_kubeadm
