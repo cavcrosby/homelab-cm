@@ -1,20 +1,18 @@
 ---
-# MONITOR(cavcrosby): starting after Debian buster, nftables replaces iptables.
-# While I am sure support for the latter will stick around for quite sometime,
-# I'd like to look further into getting both Docker and LXD both using nftables.
-# On Debian bullseye nftables is installed by default but the service is
-# inactive. For reference on resources to look at when looking deeper into this:
-# https://discuss.linuxcontainers.org/t/lxd-and-docker-firewall-redux-how-to-deal-with-forward-policy-set-to-drop/9953/7#post_9
-# https://wiki.debian.org/nftables
+# MONITOR(cavcrosby): there does not currently exist "strong" indications that
+# Kubernetes supports nftables natively. There have been previous discussions on
+# this topic and older documentation stating not to use nftables but nothing of
+# recent to confirm or deny support for nftables. For reference see the following
+# discussions:
+# https://news.ycombinator.com/item?id=28239355#28239904
+# https://stackoverflow.com/questions/60086726/what-combination-of-firewall-rules-adapted-for-kubernetes-with-flannel-as-a-cni#answer-60192182
+# https://github.com/kubernetes/kubernetes/issues/62720
 #
-# Having initially attempted to integrate nftables and remove usage of iptables,
-# I ran into the troublesome issue of Docker continuing to use iptables. As of
-# this writing, Docker can only use iptables as a backend and converting the
-# Docker iptables rules to a nft ruleset was easy. However, the notion of having
-# to continuously port (also knowing when to and not to) over iptables rules to
-# the nft ruleset will require a lot of work that I don't think will be worth it
-# once Docker natively supports nftables. For now, the following ticket should
-# be monitored: https://github.com/moby/moby/issues/26824
+# That said, it seems workarounds can be implemented to force a Kubernetes
+# cluster to interact with the nftables backend over iptables. For references
+# on how this could be done:
+# https://mihail-milev.medium.com/no-pod-to-pod-communication-on-centos-8-kubernetes-with-calico-56d694d2a6f4
+# https://stackoverflow.com/questions/67053959/kubernetes-segfault-in-libnftnl-so-11-3-0-on-flannel-cni#answer-67056060
 - name: Perform initial setup for k8s_containerd_worker
   hosts: k8s_containerd_workers
   tags: initial_k8s_containerd_worker_setup
