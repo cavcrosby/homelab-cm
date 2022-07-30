@@ -48,4 +48,4 @@ domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
 ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}
 host-record={{ homelab_kubernetes_network_domain }},{{ k8s_controller1_cluster_ipv4_addr }}
-ptr-record={{ k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}
+ptr-record={{ k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_kubernetes_network_domain }}
