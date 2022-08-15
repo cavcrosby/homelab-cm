@@ -94,6 +94,14 @@
   roles:
     - role: k8s_control_plane
       become: true
+    - role: k8s_jenkins
+      vars:
+        jenkins_instance_name: jenkins-torkel
+        jenkins_instance_image: cavcrosby/jenkins-torkel:latest
+        jenkins_manifest_template: k8s-jenkins-torkel.yml.j2
+        jenkins_k8s_service_account: jenkins
+        jenkins_http_port: 8080
+        jenkins_agent_port: 50000
 
 - name: Setup Kubernetes control planes (high availability)
   hosts: k8s_ha_controllers

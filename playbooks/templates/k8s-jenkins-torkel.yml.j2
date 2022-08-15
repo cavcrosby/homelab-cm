@@ -1,0 +1,236 @@
+# {{ ansible_managed }}
+{% set jenkins_agent_handler = "jenkins-agent-handler" %}
+{% set jenkins_service = "jenkins" %}
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: jenkins-secrets
+  namespace: {{ jenkins_instance_name }}
+stringData:
+  jenkins_admin_password: {{ jenkins_torkel_admin_password }}
+  jenkins_admin_email_secret: {{ jenkins_torkel_admin_email_secret }}
+  jenkins_github_credential_secret: {{ jenkins_torkel_github_credential_secret }}
+
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: dockerhub-creds
+  namespace: {{ jenkins_instance_name }}
+data:
+  .dockerconfigjson: {{ encoded_dockerhub_config }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: github-ssh-key
+  namespace: {{ jenkins_instance_name }}
+type: kubernetes.io/ssh-auth
+stringData:
+  ssh-privatekey: |
+    :
+data:
+  id_rsa_github: {{ encoded_github_ssh_key }}
+
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+metadata:
+  name: gps-configs
+  namespace: {{ jenkins_instance_name }}
+stringData:
+  gps.json: |-
+    {
+      "github_username": "cavcrosby",
+      "github_api_token": "{{ jenkins_torkel_github_credential_secret }}",
+      "script_configs": {
+        "update_remote_forks.py": {
+          "webhosted_git_account_url": "git@github.com:cavcrosby",
+          "forked_repos_to_upstream_urls": {
+            "i386-elf-toolchain": "https://github.com/nativeos/i386-elf-toolchain",
+            "mrepo": "https://github.com/dagwieers/mrepo",
+            "The-Stolen-Crown-RPG": "https://github.com/justinmeister/The-Stolen-Crown-RPG",
+            "VSCodeThemes": "https://github.com/gerane/VSCodeThemes",
+            "community.general": "https://github.com/ansible-collections/community.general",
+            "vagrant": "https://github.com/hashicorp/vagrant",
+            "shunit2": "https://github.com/kward/shunit2",
+            "google-styleguide": "https://github.com/google/styleguide",
+            "packer": "https://github.com/hashicorp/packer",
+            "ansible": "https://github.com/ansible/ansible",
+            "coreutils": "https://github.com/coreutils/coreutils",
+            "flake8-docstrings": "https://github.com/PyCQA/flake8-docstrings",
+            "cli": "https://github.com/urfave/cli",
+            "dnsmasq": "https://github.com/imp/dnsmasq",
+            "moby": "https://github.com/moby/moby",
+            "lxd": "https://github.com/lxc/lxd",
+            "docker-cli": "https://github.com/docker/cli",
+            "kubernetes-website": "https://github.com/kubernetes/website"
+          }
+        },
+        "disable_github_actions.py": {
+          "repo_names": [
+              "i386-elf-toolchain",
+              "mrepo",
+              "The-Stolen-Crown-RPG",
+              "VSCodeThemes",
+              "community.general",
+              "vagrant",
+              "shunit2",
+              "styleguide",
+              "packer",
+              "ansible",
+              "coreutils",
+              "flake8-docstrings",
+              "cli",
+              "dnsmasq",
+              "moby",
+              "lxd",
+              "docker-cli",
+              "kubernetes-website"
+          ]
+        }
+      }
+    }
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ jenkins_agent_handler }}
+  namespace: {{ jenkins_instance_name }}
+  labels:
+    app.kubernetes.io/name: {{ jenkins_instance_name }}
+rules:
+- apiGroups: [""]  # "" indicates the core API group
+  resources: ["pods", "pods/exec"]
+  verbs: ["create","delete","get","list","patch","update","watch"]
+- apiGroups: [""]
+  resources: ["pods/log"]
+  verbs: ["get","list","watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get"]
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ jenkins_k8s_service_account }}
+  namespace: {{ jenkins_instance_name }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ jenkins_agent_handler }}-binding
+  namespace: {{ jenkins_instance_name }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ jenkins_agent_handler }}
+subjects:
+- kind: ServiceAccount
+  name: {{ jenkins_k8s_service_account }}
+  namespace: {{ jenkins_instance_name }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ jenkins_instance_name }}
+  namespace: {{ jenkins_instance_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ jenkins_instance_name }}
+  template:
+    metadata:
+      labels:
+        app: {{ jenkins_instance_name }}
+    spec:
+      serviceAccountName: {{ jenkins_k8s_service_account }}
+      containers:
+      - name: jenkins
+        image: {{ jenkins_instance_image }}
+        ports:
+          - name: http-port
+            containerPort: {{ jenkins_http_port }}
+          - name: agent-port
+            containerPort: {{ jenkins_agent_port }}
+        readinessProbe:
+          httpGet:
+            path: /login
+            port: {{ jenkins_http_port }}
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /login
+            port: {{ jenkins_http_port }}
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 5
+        env:
+          - name: JENKINS_URL
+            # <svc-name>.<namespace-name>.svc.<cluster-dns-domain>
+            value: {{ jenkins_service }}.{{ jenkins_instance_name }}.svc.{{ homelab_kubernetes_network_domain }}:{{ jenkins_http_port }}
+          - name: JENKINS_ADMIN_ID
+            value: cavcrosby
+          - name: JENKINS_ADMIN_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-secrets
+                key: jenkins_admin_password
+          - name: JENKINS_ADMIN_FULLNAME
+            value: Conner Crosby
+          - name: JENKINS_ADMIN_EMAIL
+            value: conner@cavcrosby.tech
+          - name: JENKINS_ADMIN_EMAIL_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-secrets
+                key: jenkins_admin_email_secret
+          - name: SMTP_SERVER_ADDR
+            value: smtp.gmail.com
+          - name: JENKINS_GITHUB_CREDENTIAL_ID
+            value: cavcrosby-github
+          - name: JENKINS_GITHUB_CREDENTIAL_USERNAME
+            value: cavcrosby
+          - name: JENKINS_GITHUB_CREDENTIAL_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: jenkins-secrets
+                key: jenkins_github_credential_secret
+        volumeMounts:
+          - name: jenkins-home
+            mountPath: /var/jenkins_home
+      volumes:
+        - name: jenkins-home
+          emptyDir: { }
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ jenkins_service }}
+  namespace: {{ jenkins_instance_name }}
+spec:
+  type: NodePort
+  ports:
+    - name: http-port
+      port: {{ jenkins_http_port }}
+      targetPort: {{ jenkins_http_port }}
+    - name: agent-port
+      port: {{ jenkins_agent_port }}
+      targetPort: {{ jenkins_agent_port }}
+  selector:
+    app: {{ jenkins_instance_name }}
