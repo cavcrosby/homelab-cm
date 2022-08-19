@@ -103,6 +103,23 @@
         jenkins_http_port: 8080
         jenkins_agent_port: 50000
 
+  tasks:
+    - name: Add the Ingress NGINX Helm repo
+      kubernetes.core.helm_repository:
+        repo_name: ingress-nginx
+        repo_url: https://kubernetes.github.io/ingress-nginx
+      become: true
+
+    - name: Deploy the Ingress NGINX Helm chart inside the ingress-nginx namespace
+      kubernetes.core.helm:
+        release_name: ingress-nginx
+        chart_ref: ingress-nginx/ingress-nginx
+        chart_version: "{{ ingress_nginx_chart_version }}"
+        release_namespace: ingress-nginx
+        create_namespace: true
+        release_state: present
+      become: true
+
 - name: Setup Kubernetes control planes (high availability)
   hosts: k8s_ha_controllers
   tags: configure_as_k8s_ha_controller

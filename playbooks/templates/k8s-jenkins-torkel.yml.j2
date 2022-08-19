@@ -234,3 +234,23 @@ spec:
       targetPort: {{ jenkins_agent_port }}
   selector:
     app: {{ jenkins_instance_name }}
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ jenkins_instance_name }}
+  namespace: {{ jenkins_instance_name }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ jenkins_instance_name }}.{{ homelab_kubernetes_network_domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ jenkins_service }}
+            port:
+              number: {{ jenkins_http_port }}
