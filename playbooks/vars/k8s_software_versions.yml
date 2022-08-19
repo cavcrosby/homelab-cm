@@ -1,4 +1,5 @@
 ---
+kubernetes_version: v1.24.3
 kubeadm_version: 1.24.3-00
 kubectl_version: 1.24.3-00
 kubelet_version: 1.24.3-00
