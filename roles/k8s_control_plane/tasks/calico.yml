@@ -34,11 +34,12 @@
 
 - name: Deploy the Calico Helm chart inside the tigera-operator namespace
   kubernetes.core.helm:
-    name: calico
+    release_name: calico
     chart_ref: projectcalico/tigera-operator
-    chart_version: "{{ calico_version }}"
+    chart_version: "{{ calico_chart_version }}"
     release_namespace: tigera-operator
     create_namespace: true
+    release_state: present
     values_files:
       - "{{ _calico_custom_resource_path }}"
   become: true
@@ -47,7 +48,7 @@
 
 - name: Install calicoctl
   ansible.builtin.get_url:
-    url: https://github.com/projectcalico/calico/releases/download/{{ calico_version }}/calicoctl-linux-amd64
+    url: https://github.com/projectcalico/calico/releases/download/{{ calico_chart_version }}/calicoctl-linux-amd64
     dest: /usr/local/bin/calicoctl
     mode: "755"
   become: true
