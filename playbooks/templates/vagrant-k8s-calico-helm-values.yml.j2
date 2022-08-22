@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+---
+imagePullSecrets:
+  # The dockerhub config is decoded only because the value is encoded by the
+  # template that uses these key-value pairs. For reference on said template:
+  # https://github.com/projectcalico/calico/blob/master/charts/tigera-operator/templates/tigera-operator/01-imagepullsecret.yaml
+  {{ dockerhub_creds_secret_name }}: '{{ encoded_dockerhub_config | b64decode }}'
+installation:
+  enabled: true
+  imagePullSecrets:
+    - name: {{ dockerhub_creds_secret_name }}

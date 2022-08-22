@@ -18,7 +18,7 @@ apiVersion: v1
 kind: Secret
 type: kubernetes.io/dockerconfigjson
 metadata:
-  name: dockerhub-creds
+  name: {{ dockerhub_creds_secret_name }}
   namespace: {{ jenkins_instance_name }}
 data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}
@@ -120,8 +120,19 @@ rules:
 apiVersion: v1
 kind: ServiceAccount
 metadata:
+  name: default
+  namespace: {{ jenkins_instance_name }}
+imagePullSecrets:
+  - name: {{ dockerhub_creds_secret_name }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
   name: {{ jenkins_k8s_service_account }}
   namespace: {{ jenkins_instance_name }}
+imagePullSecrets:
+  - name: {{ dockerhub_creds_secret_name }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1

@@ -8,8 +8,8 @@ k8s_controller_init_config_template: ""
 k8s_controller_join_config_template: ""
 
 # file that configures the Calico operator
-calico_custom_resource_template: ""
+calico_helm_values_file_template: ""
 
 _k8s_controller_init_config_path: /tmp/{{ (k8s_controller_init_config_template | splitext)[:-1] | join('.') }}
 _k8s_controller_join_config_path: /tmp/{{ (k8s_controller_join_config_template | splitext)[:-1] | join('.') }}
-_calico_custom_resource_path: /tmp/{{ (calico_custom_resource_template | splitext)[:-1] | join('.') }}
+_calico_helm_values_file_path: /tmp/{{ (calico_helm_values_file_template | splitext)[:-1] | join('.') }}

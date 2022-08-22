@@ -94,8 +94,10 @@
             "k8s_service_subnet": "192.168.0.0/24",
             "k8s_pod_subnet": "172.16.0.0/16",
             "k8s_node_prefix": "20",
+            "calico_helm_values_file_template": "vagrant-k8s-calico-helm-values.yml.j2",
+            "ingress_nginx_manifest_template": "vagrant-k8s-ingress-nginx.yml.j2",
+            "ingress_nginx_helm_values_file_template": "vagrant-k8s-ingress-nginx-helm-values.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
-            "calico_custom_resource_template": "vagrant-k8s-calico-crs.yml.j2",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
                 "k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"

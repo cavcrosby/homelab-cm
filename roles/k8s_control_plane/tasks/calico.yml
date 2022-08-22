@@ -21,11 +21,13 @@
   notify:
     - Save the current iptables rules
 
-- name: Create the Calico custom resource file
+- name: Create the Calico Helm values file
   ansible.builtin.template:
-    src: "{{ calico_custom_resource_template }}"
-    dest: "{{ _calico_custom_resource_path }}"
-    mode: "644"
+    src: "{{ calico_helm_values_file_template }}"
+    dest: "{{ _calico_helm_values_file_path }}"
+    mode: "600"
+  vars:
+    dockerhub_creds_secret_name: dockerhub-creds
 
 - name: Add the Calico Helm repo
   kubernetes.core.helm_repository:
@@ -41,7 +43,7 @@
     create_namespace: true
     release_state: present
     values_files:
-      - "{{ _calico_custom_resource_path }}"
+      - "{{ _calico_helm_values_file_path }}"
   become: true
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf

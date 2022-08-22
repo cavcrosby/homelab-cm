@@ -102,6 +102,7 @@
         jenkins_k8s_service_account: jenkins
         jenkins_http_port: 8080
         jenkins_agent_port: 50000
+        dockerhub_creds_secret_name: dockerhub-creds
 
 - name: Setup Kubernetes control planes (high availability)
   hosts: k8s_ha_controllers
