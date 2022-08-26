@@ -9,3 +9,12 @@ installation:
   enabled: true
   imagePullSecrets:
     - name: {{ dockerhub_creds_secret_name }}
+  calicoNetwork:
+    ipPools:
+      - blockSize: {{ k8s_node_prefix }}
+        cidr: {{ k8s_pod_subnet }}
+        encapsulation: None
+        natOutgoing: Enabled
+        nodeSelector: all()
+apiServer:
+  enabled: true
