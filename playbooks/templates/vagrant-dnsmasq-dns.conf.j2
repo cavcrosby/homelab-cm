@@ -47,5 +47,9 @@ domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 # with associated IPv4 (A) and IPv6 (AAAA) records.
 host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
 ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}
+
 host-record={{ homelab_kubernetes_network_domain }},{{ k8s_controller1_cluster_ipv4_addr }}
 ptr-record={{ k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_kubernetes_network_domain }}
+
+host-record=jenkins-torkel.{{ homelab_kubernetes_network_domain }},{{ ansible_controller1_ipv4_addr }}
+ptr-record={{ ansible_controller1_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-torkel.{{ homelab_kubernetes_network_domain }}

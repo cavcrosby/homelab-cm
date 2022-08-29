@@ -34,3 +34,12 @@
 
   roles:
     - role: dnsmasq_dns
+
+- name: Install and configure haproxy
+  hosts: load_balancers
+  tags: install_haproxy_load_balancer
+  vars_files:
+    - "{{ network_configs_path }}"
+
+  roles:
+    - haproxy

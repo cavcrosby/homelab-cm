@@ -179,6 +179,7 @@
             "dhcp_config_file_template": "vagrant-dnsmasq-dhcp.conf.j2",
             "dns_config_file_template": "vagrant-dnsmasq-dns.conf.j2",
             "dhcp_listen_network_interface_name": "eth1",
+            "haproxy_config_file_template": "vagrant-haproxy.cfg.j2",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
@@ -251,6 +252,16 @@
         "irc_clients": ["irc-client1"],
         "dhcp_servers": ["ansible-controller1"],
         "dns_servers": ["ansible-controller1"],
+        "load_balancers": ["ansible-controller1"],
+        "on_prem": [
+            "k8s-containerd-worker1",
+            "k8s-containerd-worker2",
+            "k8s-containerd-worker3",
+            "k8s-controller1",
+            "k8s-controller2",
+            "k8s-controller3",
+            "ansible-controller1"
+        ],
         "k8s_controllers:children": ["k8s_first_controllers", "k8s_ha_controllers"],
         "k8s_nodes:children": ["k8s_controllers", "k8s_containerd_workers"],
         "k8s_controllers:vars": {
