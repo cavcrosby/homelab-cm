@@ -49,10 +49,8 @@ endif
 
 # include other generic makefiles
 include python.mk
-# overrides defaults set by included makefiles
-VIRTUALENV_PYTHON_VERSION = 3.9.5
-
 include bitwarden.mk
+# overrides defaults set by included makefiles
 BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
 BITWARDEN_SSH_KEYS = \
