@@ -41,6 +41,11 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
   tasks:
     - name: Setup {{ ansible_user }}'s Python virtual environment
       ansible.builtin.include_role:
@@ -61,42 +66,8 @@
         line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
         line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
 
-    - name: Setup default legacy userland "iptables" tools
-      block:
-        - name: Install legacy iptables dependencies (debian-like)
-          ansible.builtin.apt:
-            name:
-              - arptables
-              - ebtables
-              - iptables
-              - iptables-persistent
-            state: present
-          become: true
-          when: ansible_os_family | lower == "debian"
-
-        - name: Setup legacy iptables
-          community.general.alternatives:
-            name: iptables
-            path: /usr/sbin/iptables-legacy
-          become: true
-
-        - name: Setup legacy ip6tables
-          community.general.alternatives:
-            name: ip6tables
-            path: /usr/sbin/ip6tables-legacy
-          become: true
-
-        - name: Setup legacy arptables
-          community.general.alternatives:
-            name: arptables
-            path: /usr/sbin/arptables-legacy
-          become: true
-
-        - name: Setup legacy ebtables
-          community.general.alternatives:
-            name: ebtables
-            path: /usr/sbin/ebtables-legacy
-          become: true
+    - name: Import related tasks to the legacy iptables setup
+      ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
 
   roles:
     - haproxy

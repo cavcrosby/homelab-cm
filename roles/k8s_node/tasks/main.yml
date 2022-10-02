@@ -10,8 +10,15 @@
   become: true
   loop: "{{ _sysctl_configs }}"
 
-- name: Ensure br_netfilter is enabled
-  community.general.modprobe:
-    name: br_netfilter
-    state: present
+- name: Create the br_netfilter configuration file
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/br_netfilter.conf
+    mode: "644"
+    content: |
+      #
+      #
+      # ANSIBLE MANAGED
+      br_netfilter
   become: true
+  notify:
+    - Restart systemd-modules-load

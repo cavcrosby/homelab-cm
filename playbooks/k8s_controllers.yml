@@ -27,6 +27,11 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
   roles:
     - haproxy
     - helm
@@ -52,6 +57,9 @@
         regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
         line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
         line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+
+    - name: Import related tasks to the legacy iptables setup
+      ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
 
 - name: Setup Kubernetes control planes (first control-planes)
   hosts: k8s_first_controllers
