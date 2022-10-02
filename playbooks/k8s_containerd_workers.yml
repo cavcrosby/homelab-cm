@@ -46,6 +46,11 @@
         name: common
         handlers_from: main
 
+  roles:
+    - haproxy
+    - k8s_kubeadm
+    - k8s_node
+
   tasks:
     - name: Setup {{ ansible_user }}'s Python virtual environment
       ansible.builtin.include_role:
@@ -68,11 +73,6 @@
 
     - name: Import related tasks to the legacy iptables setup
       ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
-
-  roles:
-    - haproxy
-    - k8s_kubeadm
-    - k8s_node
 
 - name: Configure k8s_containerd_worker to be a Kubernetes worker node
   hosts: k8s_containerd_workers
