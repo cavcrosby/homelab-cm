@@ -57,7 +57,7 @@ _EOF_
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
 vagrant_homelab_network_configs = {
   homelab_network_domain: VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
-  homelab_kubernetes_network_domain: "kubernetes.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
+  homelab_poseidon_k8s_network_domain: "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
   homelab_network_subnet: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET,
   homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
   homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,

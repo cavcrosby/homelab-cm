@@ -64,8 +64,8 @@ BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
 	libera.pem\
-	k8s_staging_ca.crt\
-	k8s_ca.crt
+	poseidon_k8s_staging_ca.crt\
+	poseidon_k8s_ca.crt
 
 include ansible.mk
 

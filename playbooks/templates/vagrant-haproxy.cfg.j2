@@ -10,12 +10,12 @@ defaults
 
 frontend http_frontend
   bind {{ ansible_controller1_ipv4_addr }}:80
-  acl is_jenkins_torkel req.hdr(host) jenkins-torkel.{{ homelab_kubernetes_network_domain }}
+  acl is_jenkins_torkel req.hdr(host) jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }}
 
   use_backend ingress_nginx_k8s_http_endpoints if is_jenkins_torkel
 
 backend ingress_nginx_k8s_http_endpoints
   balance roundrobin
-  server k8s_containerd_worker1 {{ k8s_containerd_worker1_ipv4_addr }}:{{ ingress_nginx_node_http_port }}
-  server k8s_containerd_worker2 {{ k8s_containerd_worker2_ipv4_addr }}:{{ ingress_nginx_node_http_port }}
-  server k8s_containerd_worker3 {{ k8s_containerd_worker3_ipv4_addr }}:{{ ingress_nginx_node_http_port }}
+  server poseidon_k8s_containerd_worker1 {{ poseidon_k8s_containerd_worker1_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}
+  server poseidon_k8s_containerd_worker2 {{ poseidon_k8s_containerd_worker2_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}
+  server poseidon_k8s_containerd_worker3 {{ poseidon_k8s_containerd_worker3_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}

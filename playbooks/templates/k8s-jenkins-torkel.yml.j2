@@ -193,7 +193,7 @@ spec:
         env:
           - name: JENKINS_URL
             # <svc-name>.<namespace-name>.svc.<cluster-dns-domain>
-            value: {{ jenkins_service }}.{{ jenkins_instance_name }}.svc.{{ homelab_kubernetes_network_domain }}:{{ jenkins_http_port }}
+            value: {{ jenkins_service }}.{{ jenkins_instance_name }}.svc.{{ cluster_domain }}:{{ jenkins_http_port }}
           - name: JENKINS_ADMIN_ID
             value: cavcrosby
           - name: JENKINS_ADMIN_PASSWORD
@@ -255,7 +255,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-  - host: {{ jenkins_instance_name }}.{{ homelab_kubernetes_network_domain }}
+  - host: {{ jenkins_instance_name }}.{{ cluster_domain }}
     http:
       paths:
       - path: /

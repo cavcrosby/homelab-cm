@@ -2,40 +2,14 @@
 - name: Perform initial setup for k8s_controller
   hosts: k8s_controllers
   tags: initial_k8s_controller_setup
-  vars_files:
-    - ./vars/k8s_software_versions.yml
 
   pre_tasks:
-    - name: Update apt's package index
-      ansible.builtin.apt:
-        update_cache: true
-      become: true
-      when: ansible_os_family | lower == "debian"
-
-    - name: Install containerd (debian-like)
-      ansible.builtin.apt:
-        name:
-          - containerd={{ containerd_version }}
-        state: present
-      become: true
-      when: ansible_os_family | lower == "debian"
-
-    - name: Prevent containerd from being upgraded
-      ansible.builtin.dpkg_selections:
-        name: containerd
-        selection: hold
-      become: true
-      when: ansible_os_family | lower == "debian"
-
     - name: Add local common handlers
       ansible.builtin.import_role:
         name: common
         handlers_from: main
 
   roles:
-    - haproxy
-    - helm
-    - k8s_kubeadm
     - k8s_node
 
   tasks:
@@ -61,12 +35,45 @@
     - name: Import related tasks to the legacy iptables setup
       ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
 
+- name: Perform initial setup for k8s_controller (poseidon)
+  hosts: k8s_controllers:&poseidon
+  tags: initial_poseidon_k8s_controller_setup
+  vars_files:
+    - ./vars/{{ k8s_software_versions_file }}
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install containerd (debian-like)
+      ansible.builtin.apt:
+        name:
+          - containerd={{ containerd_version }}
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Prevent containerd from being upgraded
+      ansible.builtin.dpkg_selections:
+        name: containerd
+        selection: hold
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+  roles:
+    - haproxy
+    - helm
+    - k8s_kubeadm
+
 - name: Setup Kubernetes control planes (first control-planes)
   hosts: k8s_first_controllers
   tags: configure_as_k8s_first_controller
   vars_files:
     - "{{ network_configs_path }}"
-    - ./vars/k8s_software_versions.yml
+    - ./vars/{{ k8s_software_versions_file }}
     - ./vars/ansible_secrets.yml
   vars:
     k8s_cert_dir_path: /etc/kubernetes/pki
@@ -102,8 +109,29 @@
   roles:
     - role: k8s_control_plane
       become: true
+
+- name: Setup Kubernetes control planes (first control-planes) (poseidon)
+  hosts: k8s_first_controllers:&poseidon
+  tags: configure_as_poseidon_k8s_first_controller
+  vars_files:
+    - "{{ network_configs_path }}"
+    - ./vars/{{ k8s_software_versions_file }}
+    - ./vars/ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+
+  pre_tasks:
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+    - name: Import related tasks to the Calico CNI setup
+      ansible.builtin.import_tasks: ./tasks/calico.yml
+  roles:
     - role: k8s_jenkins
       vars:
+        cluster_domain: "{{ homelab_poseidon_k8s_network_domain }}"
         jenkins_instance_name: jenkins-torkel
         jenkins_instance_image: cavcrosby/jenkins-torkel:latest
         jenkins_manifest_template: k8s-jenkins-torkel.yml.j2

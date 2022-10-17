@@ -92,9 +92,6 @@
       become: true
       register: kubeadm_init_check
       changed_when: kubeadm_init_check.rc == 0
-
-    - name: Import related tasks to the Calico CNI setup
-      ansible.builtin.import_tasks: calico.yml
   when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' in k8s_cluster_info.msg"

@@ -1,9 +1,9 @@
 ---
-- name: Install Helm charts
-  hosts: k8s_first_controllers
-  tags: install_k8s_first_controller_helm_charts
+- name: Install Helm charts (poseidon)
+  hosts: k8s_first_controllers:&poseidon
+  tags: install_poseidon_k8s_first_controller_helm_charts
   vars_files:
-    - ./vars/k8s_software_versions.yml
+    - ./vars/{{ k8s_software_versions_file }}
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
@@ -60,6 +60,6 @@
           become: true
       vars:
         ingress_nginx_namespace: ingress-nginx
-        ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | splitext)[:-1] | join('.') }}
-        ingress_nginx_helm_values_file_path: /tmp/{{ (ingress_nginx_helm_values_file_template | splitext)[:-1] | join('.') }}
+        ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | basename | splitext)[:-1] | join('.') }}
+        ingress_nginx_helm_values_file_path: /tmp/{{ (ingress_nginx_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
         dockerhub_creds_secret_name: dockerhub-creds

@@ -7,4 +7,4 @@ _haproxy_config_dir_path: /etc/haproxy.d
 # Strips the config template of its final extension. For reference on where this
 # idea was inspired from:
 # https://stackoverflow.com/questions/41851418/ansible-roles-change-file-extension#answer-62443273
-_haproxy_config_file_path: "{{ _haproxy_config_dir_path }}/{{ (haproxy_config_file_template | splitext)[:-1] | join('.') }}"
+_haproxy_config_file_path: "{{ _haproxy_config_dir_path }}/{{ (haproxy_config_file_template | basename | splitext)[:-1] | join('.') }}"
