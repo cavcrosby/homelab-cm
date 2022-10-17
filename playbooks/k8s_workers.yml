@@ -13,41 +13,17 @@
 # on how this could be done:
 # https://mihail-milev.medium.com/no-pod-to-pod-communication-on-centos-8-kubernetes-with-calico-56d694d2a6f4
 # https://stackoverflow.com/questions/67053959/kubernetes-segfault-in-libnftnl-so-11-3-0-on-flannel-cni#answer-67056060
-- name: Perform initial setup for k8s_containerd_worker
-  hosts: k8s_containerd_workers
-  tags: initial_k8s_containerd_worker_setup
-  vars_files:
-    - ./vars/{{ k8s_software_versions_file }}
+- name: Perform initial setup for k8s_worker
+  hosts: k8s_workers
+  tags: initial_k8s_worker_setup
 
   pre_tasks:
-    - name: Update apt's package index
-      ansible.builtin.apt:
-        update_cache: true
-      become: true
-      when: ansible_os_family | lower == "debian"
-
-    - name: Install containerd (debian-like)
-      ansible.builtin.apt:
-        name:
-          - containerd={{ containerd_version }}
-        state: present
-      become: true
-      when: ansible_os_family | lower == "debian"
-
-    - name: Prevent containerd from being upgraded
-      ansible.builtin.dpkg_selections:
-        name: containerd
-        selection: hold
-      become: true
-      when: ansible_os_family | lower == "debian"
-
     - name: Add local common handlers
       ansible.builtin.import_role:
         name: common
         handlers_from: main
 
   roles:
-    - k8s_kubeadm
     - k8s_node
 
   tasks:
@@ -73,16 +49,41 @@
     - name: Import related tasks to the legacy iptables setup
       ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
 
-- name: Perform initial setup for k8s_containerd_worker (poseidon)
-  hosts: k8s_containerd_workers:&poseidon
-  tags: initial_poseidon_k8s_containerd_worker_setup
+- name: Perform initial setup for k8s_worker (poseidon)
+  hosts: k8s_workers:&poseidon
+  tags: initial_poseidon_k8s_worker_setup
+  vars_files:
+    - ./vars/{{ k8s_software_versions_file }}
+
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install containerd (debian-like)
+      ansible.builtin.apt:
+        name:
+          - containerd={{ containerd_version }}
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Prevent containerd from being upgraded
+      ansible.builtin.dpkg_selections:
+        name: containerd
+        selection: hold
+      become: true
+      when: ansible_os_family | lower == "debian"
 
   roles:
     - haproxy
+    - k8s_kubeadm
 
-- name: Configure k8s_containerd_worker to be a Kubernetes worker node
-  hosts: k8s_containerd_workers
-  tags: configure_containerd_host_as_k8s_worker_node
+- name: Configure k8s_worker to be a Kubernetes worker node
+  hosts: k8s_workers
+  tags: configure_host_as_k8s_worker_node
   vars_files:
     - "{{ network_configs_path }}"
     - ./vars/ansible_secrets.yml

@@ -1,7 +1,7 @@
 ---
 - name: Add systemd.unified_cgroup_hierarchy=0 to grub boot command(s)
   hosts:
-    - k8s_containerd_workers
+    - k8s_workers
     - k8s_controllers
   tags: add_systemd_cgroup_hierarchy
   vars:
@@ -51,7 +51,7 @@
 
 - name: Remove preset Vagrant box configurations
   hosts:
-    - k8s_containerd_workers
+    - k8s_workers
     - k8s_controllers
   tags: remove_preset_vagrant_box_configs
   vars:

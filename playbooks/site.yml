@@ -1,5 +1,5 @@
 ---
 - ansible.builtin.import_playbook: k8s_controllers.yml
-- ansible.builtin.import_playbook: k8s_containerd_workers.yml
+- ansible.builtin.import_playbook: k8s_workers.yml
 - ansible.builtin.import_playbook: k8s_post_controllers.yml
 - ansible.builtin.import_playbook: irc_clients.yml

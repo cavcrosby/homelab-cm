@@ -1,6 +1,6 @@
 { 
     "ansible_host_vars": {
-        "poseidon-k8s-containerd-worker1": {
+        "poseidon-k8s-worker1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
             "vagrant_vm_net_ipv4_addr": "192.168.112.50",
@@ -26,7 +26,7 @@
                 }
             }
         },
-        "poseidon-k8s-containerd-worker2": {
+        "poseidon-k8s-worker2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
             "vagrant_vm_net_ipv4_addr": "192.168.112.51",
@@ -52,7 +52,7 @@
                 }
             }
         },
-        "poseidon-k8s-containerd-worker3": {
+        "poseidon-k8s-worker3": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.52",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
             "vagrant_vm_net_ipv4_addr": "192.168.112.52",
@@ -256,12 +256,12 @@
         "k8s_ha_controllers:children": [
             "poseidon_k8s_ha_controllers"
         ],
-        "k8s_containerd_workers:children": [
-            "poseidon_k8s_containerd_workers"
+        "k8s_workers:children": [
+            "poseidon_k8s_workers"
         ],
         "poseidon:children": [
             "poseidon_k8s_controllers",
-            "poseidon_k8s_containerd_workers"
+            "poseidon_k8s_workers"
         ],
         "poseidon_k8s_controllers:children": [
             "poseidon_k8s_first_controllers",
@@ -274,19 +274,19 @@
             "poseidon-k8s-controller2",
             "poseidon-k8s-controller3"
         ],
-        "poseidon_k8s_containerd_workers": [
-            "poseidon-k8s-containerd-worker1",
-            "poseidon-k8s-containerd-worker2",
-            "poseidon-k8s-containerd-worker3"
+        "poseidon_k8s_workers": [
+            "poseidon-k8s-worker1",
+            "poseidon-k8s-worker2",
+            "poseidon-k8s-worker3"
         ],
         "irc_clients": ["irc-client1"],
         "dhcp_servers": ["ansible-controller1"],
         "dns_servers": ["ansible-controller1"],
         "load_balancers": ["ansible-controller1"],
         "on_prem": [
-            "poseidon-k8s-containerd-worker1",
-            "poseidon-k8s-containerd-worker2",
-            "poseidon-k8s-containerd-worker3",
+            "poseidon-k8s-worker1",
+            "poseidon-k8s-worker2",
+            "poseidon-k8s-worker3",
             "poseidon-k8s-controller1",
             "poseidon-k8s-controller2",
             "poseidon-k8s-controller3",

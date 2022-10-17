@@ -27,9 +27,9 @@ dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{
 
 # Always give the host with Ethernet address <mac_addr>, the name <name>, and
 # IP address <ip_addr> and an infinite lease.
-dhcp-host={{ poseidon_k8s_containerd_worker1_mac_addr }},poseidon_k8s_containerd_worker1,{{ poseidon_k8s_containerd_worker1_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_containerd_worker2_mac_addr }},poseidon_k8s_containerd_worker2,{{ poseidon_k8s_containerd_worker2_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_containerd_worker3_mac_addr }},poseidon_k8s_containerd_worker3,{{ poseidon_k8s_containerd_worker3_ipv4_addr }},infinite
+dhcp-host={{ poseidon_k8s_worker1_mac_addr }},poseidon_k8s_worker1,{{ poseidon_k8s_worker1_ipv4_addr }},infinite
+dhcp-host={{ poseidon_k8s_worker2_mac_addr }},poseidon_k8s_worker2,{{ poseidon_k8s_worker2_ipv4_addr }},infinite
+dhcp-host={{ poseidon_k8s_worker3_mac_addr }},poseidon_k8s_worker3,{{ poseidon_k8s_worker3_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_controller1_mac_addr }},poseidon_k8s_controller1,{{ poseidon_k8s_controller1_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_controller2_mac_addr }},poseidon_k8s_controller2,{{ poseidon_k8s_controller2_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_controller3_mac_addr }},poseidon_k8s_controller3,{{ poseidon_k8s_controller3_ipv4_addr }},infinite
