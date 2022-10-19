@@ -85,7 +85,6 @@
   hosts: k8s_workers
   tags: configure_host_as_k8s_worker_node
   vars_files:
-    - "{{ network_configs_path }}"
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
