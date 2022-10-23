@@ -81,6 +81,15 @@
     - haproxy
     - k8s_kubeadm
 
+  tasks:
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+    # - name: Import related tasks to the Calico firewall configuration
+    #   ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
+
 - name: Configure k8s_worker to be a Kubernetes worker node
   hosts: k8s_workers
   tags: configure_host_as_k8s_worker_node

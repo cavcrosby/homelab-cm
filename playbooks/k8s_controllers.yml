@@ -63,6 +63,14 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
+    - name: Add common handlers
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        handlers_from: main
+
+    # - name: Import related tasks to the Calico firewall configuration
+    #   ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
+
   roles:
     - haproxy
     - helm
@@ -126,8 +134,8 @@
         name: cavcrosby.general.common
         handlers_from: main
 
-    - name: Import related tasks to the Calico CNI setup
-      ansible.builtin.import_tasks: ./tasks/calico.yml
+    - name: Import related tasks to the Calico setup
+      ansible.builtin.import_tasks: ./tasks/setup_calico.yml
   roles:
     - role: k8s_jenkins
       vars:

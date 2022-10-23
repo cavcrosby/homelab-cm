@@ -1,27 +1,5 @@
 ---
-- name: Configure Calico networking (BGP) INPUT
-  ansible.builtin.iptables:
-    chain: INPUT
-    destination_port: 179
-    protocol: tcp
-    jump: ACCEPT
-    comment: (k8s) Calico networking BGP
-  become: true
-  notify:
-    - Save the current iptables rules
-
-- name: Configure Calico networking (BGP) OUTPUT
-  ansible.builtin.iptables:
-    chain: OUTPUT
-    destination_port: 179
-    protocol: tcp
-    jump: ACCEPT
-    comment: (k8s) Calico networking BGP
-  become: true
-  notify:
-    - Save the current iptables rules
-
-- name: Install the Calico CNI
+- name: Setup the Calico CNI
   block:
     - name: Create the Calico Helm values file
       ansible.builtin.template:
