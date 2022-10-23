@@ -47,7 +47,7 @@
         line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
 
     - name: Import related tasks to the legacy iptables setup
-      ansible.builtin.import_tasks: ./tasks/legacy_iptables.yml
+      ansible.builtin.import_tasks: ./tasks/setup_legacy_iptables.yml
 
 - name: Perform initial setup for k8s_worker (poseidon)
   hosts: k8s_workers:&poseidon
