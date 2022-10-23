@@ -6,6 +6,8 @@
     name: "{{ jenkins_instance_name }}"
     state: present
   become: true
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
 
 - name: Create the {{ jenkins_instance_name }} manifest file
   ansible.builtin.template:
@@ -18,3 +20,5 @@
     src: "{{ _jenkins_manifest_path }}"
     state: present
   become: true
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf

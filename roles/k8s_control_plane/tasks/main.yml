@@ -71,7 +71,8 @@
 
 - name: Check node is already part of a Kubernetes cluster
   kubernetes.core.k8s_cluster_info:
-    kubeconfig: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+    kubeconfig: /etc/kubernetes/admin.conf
+  become: true
   register: k8s_cluster_info
   failed_when:
     - k8s_cluster_info.msg is defined

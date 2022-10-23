@@ -18,6 +18,8 @@
             name: "{{ ingress_nginx_namespace }}"
             state: present
           become: true
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
 
         # DISCUSS(cavcrosby): the kubernetes.core.k8s task has a template parameter that
         # can take a jinja template from the controller but vars such as 'ansible_managed'
@@ -34,6 +36,8 @@
             src: "{{ ingress_nginx_manifest_path }}"
             state: present
           become: true
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
 
         - name: Create the Ingress NGINX Helm values file
           ansible.builtin.template:
@@ -58,6 +62,8 @@
             values_files:
               - "{{ ingress_nginx_helm_values_file_path }}"
           become: true
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf
       vars:
         ingress_nginx_namespace: ingress-nginx
         ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | basename | splitext)[:-1] | join('.') }}
