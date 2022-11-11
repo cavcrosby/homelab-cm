@@ -54,8 +54,6 @@
     - k8s_workers
     - k8s_controllers
   tags: remove_preset_vagrant_box_configs
-  vars:
-    default_grub_path: /etc/default/grub
 
   pre_tasks:
     - name: Add local common handlers
