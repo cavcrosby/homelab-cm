@@ -11,8 +11,7 @@ installation:
     - name: {{ dockerhub_creds_secret_name }}
   calicoNetwork:
     ipPools:
-      - blockSize: {{ k8s_node_prefix }}
-        cidr: {{ k8s_pod_subnet }}
+      - cidr: {{ k8s_calico_ippool_subnet }}
         encapsulation: None
         natOutgoing: Enabled
         nodeSelector: all()
