@@ -10,6 +10,7 @@ installation:
   imagePullSecrets:
     - name: {{ dockerhub_creds_secret_name }}
   calicoNetwork:
+    bgp: Enabled
     ipPools:
       - cidr: {{ k8s_calico_ippool_subnet }}
         encapsulation: None

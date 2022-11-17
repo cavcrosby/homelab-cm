@@ -68,8 +68,8 @@
         name: cavcrosby.general.common
         handlers_from: main
 
-    # - name: Import related tasks to the Calico firewall configuration
-    #   ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
+    - name: Import related tasks to the Calico firewall configuration
+      ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
 
   roles:
     - haproxy
