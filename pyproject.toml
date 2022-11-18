@@ -8,7 +8,7 @@ license = "MIT"
 [tool.poetry.dependencies]
 python = "~3.9"
 pylib-cavcrosby = {git = "https://github.com/cavcrosby/pylib.git", branch = "main"}
-ansible = "5.5.0"
+ansible = "5.10.0"
 diagrams = "^0.21.0"
 
 [tool.poetry.dev-dependencies]
