@@ -61,7 +61,9 @@ BITWARDEN_SSH_KEYS = \
 BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
-	libera.pem
+	libera.pem\
+	poseidon_k8s_staging_ca.crt\
+	poseidon_k8s_ca.crt
 
 include ansible.mk
 
@@ -100,7 +102,6 @@ _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${ex
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
 LIBVIRT_DOMAINS := $(shell for vm_name in ${VM_NAMES}; do echo ${LIBVIRT_PREFIX}$${vm_name}; done)
-CTRSERVERS := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[] | match("ctrserver[0-9]+"; "g").string')
 
 ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
@@ -233,18 +234,6 @@ ifeq ($(findstring ${CONTROLLER_NODE},${TRUTHY_VALUES}),)
 >			${VIRSH} undefine --domain $${domain}; \
 >		done
 >		${VAGRANT} destroy --force
-
-		# Redeploying LXD on new VMs may cause cert issues when trying to reuse their
-		# certs previously known the controller. The error would report something like,
-		# "x509: certificate is valid for 127.0.0.1, ::1, not <ipv4_addr>".
->		-@for ctrserver in ${CTRSERVERS}; do \
->			echo ${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
-				--arg CTRSERVER "$${ctrserver}" \
-				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_mgmt_ipv4_addr')"; \
->			${LXC} remote remove "$$(${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
-				--arg CTRSERVER "$${ctrserver}" \
-				--raw-output '.ansible_host_vars[$$CTRSERVER].vagrant_vm_mgmt_ipv4_addr')"; \
->		done
 
 		# done in recommendation by vagrant when a domain fails to connect via ssh
 >		rm --recursive --force ./.vagrant

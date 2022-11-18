@@ -1,0 +1,5 @@
+---
+# file that contains elements specific to 'kubeadm join' runtime information
+k8s_worker_join_config_template: ""
+
+_k8s_worker_join_config_path: /tmp/{{ (k8s_worker_join_config_template | basename | splitext)[:-1] | join('.') }}

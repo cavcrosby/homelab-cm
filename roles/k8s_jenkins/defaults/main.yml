@@ -1,0 +1,11 @@
+---
+jenkins_instance_name: jenkins-torkel
+jenkins_instance_image: cavcrosby/jenkins-torkel:latest
+
+# used to setup Jenkins instance type on Kubernetes
+jenkins_manifest_template: jenkins.yml.j2
+
+# port used to access Jenkins controller console
+jenkins_http_port: 8080
+
+_jenkins_manifest_path: /tmp/{{ (jenkins_manifest_template | splitext)[:-1] | join('.') }}

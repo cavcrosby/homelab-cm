@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+---
+imagePullSecrets:
+  - name: {{ dockerhub_creds_secret_name }}
+controller:
+  service:
+    nodePorts:
+      http: {{ poseidon_ingress_nginx_node_http_port }}

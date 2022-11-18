@@ -1,0 +1,54 @@
+---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install haproxy (debian-like)
+  ansible.builtin.apt:
+    name:
+      - haproxy
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Create a haproxy configuration directory
+  ansible.builtin.file:
+    path: "{{ _haproxy_config_dir_path }}"
+    state: directory
+    mode: "755"
+  become: true
+
+# Inspired by how dnsmasq can read in multiple config files in a directory. For
+# reference on the option used to specifiy a config directory:
+# https://serverfault.com/questions/1020003/provide-multiple-cfg-files-for-haproxy-loadbalancer#answer-1020407
+- name: Alter the haproxy configuration to be aggregated from a directory
+  ansible.builtin.import_role:
+    name: cavcrosby.general.common
+    tasks_from: managed_lineinfile
+  vars:
+    path: /etc/default/haproxy
+    regexp: '^CONFIG="{{ _haproxy_config_dir_path }}"'
+    line: 'CONFIG="{{ _haproxy_config_dir_path }}"'
+    line_identifier: changing haproxy configuration to a directory
+  become: true
+  notify:
+    - Restart haproxy
+
+- name: Create the haproxy configuration file
+  ansible.builtin.template:
+    src: "{{ haproxy_config_file_template }}"
+    dest: "{{ _haproxy_config_file_path }}"
+    mode: "644"
+    validate: haproxy -c -f %s
+  become: true
+  notify:
+    - Restart haproxy
+
+- name: Enable and start the haproxy service
+  ansible.builtin.service:
+    name: haproxy
+    enabled: true
+    state: started
+  become: true

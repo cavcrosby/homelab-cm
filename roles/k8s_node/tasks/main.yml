@@ -1,0 +1,27 @@
+---
+- name: Create the br_netfilter configuration file
+  ansible.builtin.copy:
+    dest: /etc/modules-load.d/br_netfilter.conf
+    mode: "644"
+    content: |
+      #
+      #
+      # ANSIBLE MANAGED
+      br_netfilter
+  become: true
+  notify:
+    - Restart systemd-modules-load
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
+
+# for reference on why this was needed:
+# https://github.com/kubernetes/kubeadm/issues/1062
+# https://kubernetes.io/docs/setup/production-environment/container-runtimes/#install-and-configure-prerequisites
+- name: Configure required kernel parameters
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    reload: true
+  become: true
+  loop: "{{ _sysctl_configs }}"

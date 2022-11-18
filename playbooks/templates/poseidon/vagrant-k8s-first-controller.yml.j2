@@ -1,0 +1,25 @@
+---
+# {{ ansible_managed }}
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+localAPIEndpoint:
+  advertiseAddress: {{ k8s_api_server_endpoint }}
+  bindPort: {{ k8s_api_server_port }}
+nodeRegistration:
+  name: {{ ansible_hostname }}
+  criSocket: {{ cri_socket_path }}
+  taints: null
+certificateKey: {{ k8s_certs_encrypt_key }}
+bootstrapTokens:
+  - token: {{ k8s_bootstrap_token }}
+    ttl: 1h0m0s
+
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+kubernetesVersion: {{ kubernetes_version }}
+controlPlaneEndpoint: {{ k8s_controller_endpoint }}
+networking:
+  serviceSubnet: {{ k8s_service_subnet }}
+  podSubnet: {{ k8s_pod_subnet }}
+  dnsDomain: {{ homelab_poseidon_k8s_network_domain }}

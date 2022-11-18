@@ -1,0 +1,14 @@
+---
+# {{ ansible_managed }}
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+nodeRegistration:
+  name: {{ ansible_hostname }}
+  criSocket: {{ cri_socket_path }}
+  taints: null
+discovery:
+  bootstrapToken:
+    token: {{ k8s_bootstrap_token }}
+    apiServerEndpoint: {{ k8s_controller_endpoint }}
+    caCertHashes:
+      - {{ k8s_ca_key_hash }}

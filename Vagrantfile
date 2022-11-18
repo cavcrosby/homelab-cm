@@ -57,6 +57,7 @@ _EOF_
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
 vagrant_homelab_network_configs = {
   homelab_network_domain: VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
+  homelab_poseidon_k8s_network_domain: "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
   homelab_network_subnet: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET,
   homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
   homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
@@ -130,8 +131,9 @@ def traverse_configs(func, machine_attrs, config_node)
   end
 end
 
-# Replaces each key value pair in vagrant_config_refs with values based on
-# machine_attrs[key] and inserts the new key value pair into machine_attrs.
+# Replaces each key value pair in vagrant_config_refs &&
+# vagrant_external_config_refs with values based on machine_attrs[key] and
+# inserts the new key value pair into machine_attrs.
 ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
   if machine_attrs.key?("vagrant_config_refs")
     vagrant_config_refs = machine_attrs["vagrant_config_refs"]
@@ -140,12 +142,21 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     traverse_configs(method(:eval_config_ref), machine_attrs, vagrant_config_refs)
     vagrant_config_refs.keys().each do |config_name|
       config_ref = vagrant_config_refs[config_name]
-      if config_name.eql?("dhcp_systemd_networkd_files") || config_name.eql?("dns_systemd_networkd_files")
+      if config_name.eql?("dhcp_systemd_networkd_files")
         vagrant_homelab_network_configs[config_name] = vagrant_config_refs[config_name]
       else
         machine_attrs[config_name] = vagrant_config_refs[config_name]
       end
     end
+  end
+
+  if machine_attrs.key?("vagrant_external_config_refs")
+    machine_attrs["vagrant_external_config_refs"].each do |machine_name, vagrant_external_config_refs|
+      traverse_configs(method(:eval_config_ref), ANSIBLE_HOST_VARS[machine_name], vagrant_external_config_refs)
+      vagrant_external_config_refs.keys().each do |config_name|
+        machine_attrs[config_name] = vagrant_external_config_refs[config_name]
+      end
+  end
 
     # Since all the key values pairs are resolved and put at the machine_attrs level,
     # for now I will just discard the config_refs json.
@@ -264,6 +275,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.tags = ENV["ANSIBLE_TAGS"]
           ansible.host_vars = ANSIBLE_HOST_VARS
           ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+          }
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end

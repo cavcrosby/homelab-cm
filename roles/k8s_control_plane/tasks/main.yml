@@ -1,0 +1,136 @@
+---
+- name: Run whoami
+  ansible.builtin.command: whoami
+  register: whoami_completed_proc
+  changed_when: false
+
+- name: Get {{ whoami_completed_proc.stdout }}'s user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ whoami_completed_proc.stdout }}"
+
+- name: Configure firewall with control plane ports
+  block:
+    - name: Configure Kubernetes API server ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 6443
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) Kubernetes API server
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure etcd server client API ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 2379:2380
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) etcd server client API
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure Kubelet API ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10250
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) Kubelet API
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure kube-scheduler ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10259
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) kube-scheduler
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Configure kube-controller-manager ports
+      ansible.builtin.iptables:
+        chain: INPUT
+        destination_port: 10257
+        protocol: tcp
+        jump: ACCEPT
+        comment: (k8s) kube-controller-manager
+      become: true
+      notify:
+        - Save the current iptables rules
+
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
+
+- name: Check node is already part of a Kubernetes cluster
+  kubernetes.core.k8s_cluster_info:
+    kubeconfig: /etc/kubernetes/admin.conf
+  become: true
+  register: k8s_cluster_info
+  failed_when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' not in k8s_cluster_info.msg"
+  changed_when: false
+
+- name: Configure as a first controller
+  block:
+    - name: Create the kubeadm (init) configuration file
+      ansible.builtin.template:
+        src: "{{ k8s_controller_init_config_template }}"
+        dest: "{{ _k8s_controller_init_config_path }}"
+        mode: "644"
+
+    - name: Initialize the control plane (first control-plane)
+      ansible.builtin.command: |
+        kubeadm init --upload-certs --config {{ _k8s_controller_init_config_path }}
+      become: true
+      register: kubeadm_init_check
+      changed_when: kubeadm_init_check.rc == 0
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_init_config_template | length != 0
+
+- name: Configure as a high availability (ha) controller
+  block:
+    - name: Create the kubeadm (join) configuration file
+      ansible.builtin.template:
+        src: "{{ k8s_controller_join_config_template }}"
+        dest: "{{ _k8s_controller_join_config_path }}"
+        mode: "600"
+
+    - name: Join a Kubernetes cluster as a control plane (high availability)
+      ansible.builtin.command: |
+        kubeadm join --config {{ _k8s_controller_join_config_path }}
+      become: true
+      register: kubeadm_join_check
+      changed_when: kubeadm_join_check.rc == 0
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_controller_join_config_template | length != 0
+
+- name: Copy admin kubeconfig file to administer control pane
+  block:
+    - name: Create a dotfile directory for kubectl
+      ansible.builtin.file:
+        path: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube"
+        state: directory
+        mode: "775"
+
+    - name: Copy over the admin kubeconfig file
+      ansible.builtin.copy:
+        dest: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+        src: /etc/kubernetes/admin.conf
+        owner: "{{ whoami_completed_proc.stdout }}"
+        group: "{{ whoami_completed_proc.stdout }}"
+        mode: "600"
+        remote_src: true
+      become: true

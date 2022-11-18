@@ -1,6 +1,8 @@
 ---
 - name: Add systemd.unified_cgroup_hierarchy=0 to grub boot command(s)
-  hosts: ctrservers
+  hosts:
+    - k8s_workers
+    - k8s_controllers
   tags: add_systemd_cgroup_hierarchy
   vars:
     default_grub_path: /etc/default/grub
@@ -42,7 +44,60 @@
         - line_check.found == 0
         - ansible_os_family | lower == "debian"
 
-    - name: Reboot ctrservers to have new boot parameter(s) take effect
+    - name: Reboot hosts to have new boot parameter(s) take effect
       ansible.builtin.reboot:
       become: true
       when: line_check.found == 0
+
+- name: Remove preset Vagrant box configurations
+  hosts:
+    - k8s_workers
+    - k8s_controllers
+  tags: remove_preset_vagrant_box_configs
+
+  pre_tasks:
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
+  tasks:
+    # The generic/ubuntu2204 vagrant box has DNS configs that causes
+    # /run/systemd/resolve/resolv.conf to have too many DNS nameservers added to it.
+    # Hence the need to undo some of the box's configs, for reference on how the
+    # box is configured in regards to DNS:
+    # https://github.com/lavabit/robox/blob/master/scripts/ubuntu2204/network.sh
+    #
+    # This above issue collides with Kubernetes when it tries to use the mentioned
+    # 'resolv.conf'. For reference on the issue I saw:
+    # https://github.com/kubernetes/kubernetes/issues/82756
+    - name: Remove created netplan yaml
+      ansible.builtin.file:
+        path: /etc/netplan/01-netcfg.yaml
+        state: absent
+      become: true
+      notify:
+        - Apply netplan configurations
+        - Restart systemd-networkd
+        - Restart systemd-resolved
+
+    # defaults can be restored when deleting th resolved.conf and all drop-ins
+    - name: Set the systemd resolved.conf configuration back to defaults
+      ansible.builtin.file:
+        path: /etc/systemd/resolved.conf
+        state: absent
+      become: true
+      notify:
+        - Restart systemd-networkd
+        - Restart systemd-resolved
+
+  handlers:
+    - name: Apply netplan configurations
+      ansible.builtin.command: netplan generate
+      become: true
+
+    - name: Restart systemd-resolved
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted
+      become: true

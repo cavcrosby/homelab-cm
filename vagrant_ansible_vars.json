@@ -1,6 +1,6 @@
 { 
     "ansible_host_vars": {
-        "ctrserver1": {
+        "poseidon-k8s-worker1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
             "vagrant_vm_net_ipv4_addr": "192.168.112.50",
@@ -10,9 +10,23 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "debian/bullseye64"
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
         },
-        "ctrserver2": {
+        "poseidon-k8s-worker2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
             "vagrant_vm_net_ipv4_addr": "192.168.112.51",
@@ -22,11 +36,138 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "debian/bullseye64"
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
+        },
+        "poseidon-k8s-worker3": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.52",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.52",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
+            "vagrant_vm_net_mac_addr": "52:54:00:52:38:c9",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
+        },
+        "poseidon-k8s-controller1": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.3",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
+            "vagrant_vm_net_mac_addr": "52:54:00:b6:ab:90",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_controller_init_config_template": "poseidon/vagrant-k8s-first-controller.yml.j2",
+            "k8s_service_subnet": "172.17.0.0/23",
+            "k8s_pod_subnet": "172.16.0.0/16",
+            "k8s_calico_ippool_subnet": "172.16.0.0/18",
+            "calico_helm_values_file_template": "poseidon/vagrant-k8s-calico-helm-values.yml.j2",
+            "ingress_nginx_manifest_template": "poseidon/vagrant-k8s-ingress-nginx.yml.j2",
+            "ingress_nginx_helm_values_file_template": "poseidon/vagrant-k8s-ingress-nginx-helm-values.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_config_refs": {
+                "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
+        },
+        "poseidon-k8s-controller2": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.4",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.6",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.4",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
+            "vagrant_vm_net_mac_addr": "52:54:00:01:17:e0",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_controller_join_config_template": "poseidon/vagrant-k8s-ha-controller.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_config_refs": {
+                "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
+        },
+        "poseidon-k8s-controller3": {
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.5",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.7",
+            "vagrant_vm_net_ipv4_addr": "192.168.112.5",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
+            "vagrant_vm_net_mac_addr": "52:54:00:de:17:21",
+            "vagrant_vm_cpus": 2,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 25,
+            "vagrant_vm_box": "generic/ubuntu2204",
+            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
+            "k8s_controller_join_config_template": "poseidon/vagrant-k8s-ha-controller.yml.j2",
+            "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vagrant_config_refs": {
+                "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
+            }
         },
         "ansible-controller1": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_homelab_ipv4_addr": "10.10.100.2",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.8",
             "vagrant_vm_net_ipv4_addr": "192.168.112.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
@@ -38,7 +179,7 @@
             "dhcp_config_file_template": "vagrant-dnsmasq-dhcp.conf.j2",
             "dns_config_file_template": "vagrant-dnsmasq-dns.conf.j2",
             "dhcp_listen_network_interface_name": "eth1",
-            "dns_listen_network_interface_name": "eth1",
+            "haproxy_config_file_template": "vagrant-haproxy.cfg.j2",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
@@ -77,48 +218,23 @@
                             "Gateway": "10.10.100.1"
                         }
                     }
-                ],
-                "dns_systemd_networkd_files": [
-                    {
-                        "filename": {
-                            "join": [
-                                "dns_listen_network_interface_name",
-                                ".link"
-                            ]
-                        },
-                        "Match": {
-                            "MACAddress": "vagrant_vm_homelab_mac_addr"
-                        },
-                        "Link": {
-                            "NamePolicy": "keep"
-                        }
-                    },
-                    {
-                        "filename": {
-                            "join": [
-                                "dns_listen_network_interface_name",
-                                ".network"
-                            ]
-                        },
-                        "Match": {
-                            "Name": "dns_listen_network_interface_name"
-                        },
-                        "Network": {
-                            "Address": {
-                                "join": [
-                                    "vagrant_vm_homelab_ipv4_addr",
-                                    "/24"
-                                ]
-                            },
-                            "Gateway": "10.10.100.1"
-                        }
-                    }
                 ]
+            },
+            "vagrant_external_config_refs": {
+                "poseidon-k8s-controller1": {
+                    "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller2": {
+                    "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                },
+                "poseidon-k8s-controller3": {
+                    "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+                }
             }
         },
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.9",
             "vagrant_vm_net_ipv4_addr": "192.168.112.100",
             "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
@@ -130,13 +246,62 @@
         }
     },
     "ansible_groups": {
-        "ctrservers": ["ctrserver1", "ctrserver2"],
+        "k8s_controllers:children": [
+            "k8s_first_controllers",
+            "k8s_ha_controllers"
+        ],
+        "k8s_first_controllers:children": [
+            "poseidon_k8s_first_controllers"
+        ],
+        "k8s_ha_controllers:children": [
+            "poseidon_k8s_ha_controllers"
+        ],
+        "k8s_workers:children": [
+            "poseidon_k8s_workers"
+        ],
+        "poseidon:children": [
+            "poseidon_k8s_controllers",
+            "poseidon_k8s_workers"
+        ],
+        "poseidon_k8s_controllers:children": [
+            "poseidon_k8s_first_controllers",
+            "poseidon_k8s_ha_controllers"
+        ],
+        "poseidon_k8s_first_controllers": [
+            "poseidon-k8s-controller1"
+        ],
+        "poseidon_k8s_ha_controllers": [
+            "poseidon-k8s-controller2",
+            "poseidon-k8s-controller3"
+        ],
+        "poseidon_k8s_workers": [
+            "poseidon-k8s-worker1",
+            "poseidon-k8s-worker2",
+            "poseidon-k8s-worker3"
+        ],
         "irc_clients": ["irc-client1"],
         "dhcp_servers": ["ansible-controller1"],
         "dns_servers": ["ansible-controller1"],
+        "load_balancers": ["ansible-controller1"],
+        "on_prem": [
+            "poseidon-k8s-worker1",
+            "poseidon-k8s-worker2",
+            "poseidon-k8s-worker3",
+            "poseidon-k8s-controller1",
+            "poseidon-k8s-controller2",
+            "poseidon-k8s-controller3",
+            "ansible-controller1"
+        ],
         "all:vars": {
             "ansible_user": "vagrant",
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
+        },
+        "poseidon:vars": {
+            "k8s_software_versions_file": "poseidon_k8s_software_versions.yml"
+        },
+        "poseidon_k8s_controllers:vars": {
+            "ca_key": "poseidon_k8s_staging_ca.key",
+            "ca_cert": "poseidon_k8s_staging_ca.crt"
         }
     }
 }

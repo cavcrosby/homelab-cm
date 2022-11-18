@@ -1,0 +1,85 @@
+---
+# disbaling swap solution was inspired by:
+# https://www.reddit.com/r/linuxadmin/comments/flzx5r/ansible_how_to_disable_swap/#t1_fl1uaoz
+- name: Disable swap permanently, persist reboots
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: true
+  become: true
+
+- name: Disable swap for current session
+  ansible.builtin.command: swapoff --all
+  become: true
+  changed_when: false
+
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install Kubernetes apt repo dependencies (debian-like)
+  ansible.builtin.apt:
+    name:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Grab Kubernetes's official GPG key
+  ansible.builtin.get_url:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    dest: "{{ _k8s_keyring_download_path }}"
+    mode: "644"
+  become: true
+
+- name: Add Kubernetes's apt repository
+  ansible.builtin.apt_repository:
+    # Xenial is an Ubuntu distribution release and is the latest Kubernetes pkg in
+    # Google's repo (at the time of writing this comment) for what it appears to be
+    # for all Debian like distros. For reference on the installation instructions:
+    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install
+    repo: >
+      deb [signed-by={{ _k8s_keyring_download_path }}] https://apt.kubernetes.io/
+      kubernetes-xenial main
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install kubeadm, kubelet and kubectl (debian-like)
+  ansible.builtin.apt:
+    name:
+      - kubeadm={{ kubeadm_version }}
+      - kubectl={{ kubectl_version }}
+      - kubelet={{ kubelet_version }}
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+# Upgrading kubeadm, kubelet and kubectl may not exactly be straight forward due
+# to version constraints. For reference on the version constraints of the tools:
+# https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install#installing-kubeadm-kubelet-and-kubectl
+- name: Prevent kubeadm from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: kubeadm
+    selection: hold
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Prevent kubectl from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: kubectl
+    selection: hold
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Prevent kubelet from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: kubelet
+    selection: hold
+  become: true
+  when: ansible_os_family | lower == "debian"
