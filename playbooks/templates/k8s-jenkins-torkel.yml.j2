@@ -235,7 +235,7 @@ metadata:
   name: {{ jenkins_service }}
   namespace: {{ jenkins_instance_name }}
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
     - name: http-port
       port: {{ jenkins_http_port }}
