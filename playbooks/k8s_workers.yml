@@ -27,7 +27,7 @@
     - k8s_node
 
   tasks:
-    - name: Setup {{ ansible_user }}'s Python virtual environment
+    - name: Setup the Python virtual environment
       ansible.builtin.include_role:
         name: python_virtualenv
       vars:

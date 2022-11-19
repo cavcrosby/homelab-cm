@@ -4,7 +4,7 @@
   register: whoami_completed_proc
   changed_when: false
 
-- name: Get {{ whoami_completed_proc.stdout }}'s user info
+- name: Get the running user's info
   ansible.builtin.getent:
     database: passwd
     key: "{{ whoami_completed_proc.stdout }}"

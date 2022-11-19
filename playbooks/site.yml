@@ -1,5 +1,12 @@
 ---
-- ansible.builtin.import_playbook: k8s_controllers.yml
-- ansible.builtin.import_playbook: k8s_workers.yml
-- ansible.builtin.import_playbook: k8s_post_controllers.yml
-- ansible.builtin.import_playbook: irc_clients.yml
+- name: Configure the Kubernetes controller nodes
+  ansible.builtin.import_playbook: k8s_controllers.yml
+
+- name: Configure the Kubernetes worker nodes
+  ansible.builtin.import_playbook: k8s_workers.yml
+
+- name: Configure the Kubernetes controller nodes (post cluster aggregation)
+  ansible.builtin.import_playbook: k8s_post_controllers.yml
+
+- name: Configure the IRC clients
+  ansible.builtin.import_playbook: irc_clients.yml

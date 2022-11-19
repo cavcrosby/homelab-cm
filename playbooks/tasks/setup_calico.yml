@@ -1,5 +1,7 @@
 ---
 - name: Setup the Calico CNI
+  vars:
+    calico_helm_values_file_path: /tmp/{{ (calico_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
   block:
     - name: Create the Calico Helm values file
       ansible.builtin.template:
@@ -28,8 +30,6 @@
       become: true
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
-  vars:
-    calico_helm_values_file_path: /tmp/{{ (calico_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
 
 - name: Install calicoctl
   ansible.builtin.get_url:

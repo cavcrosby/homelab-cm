@@ -1,5 +1,5 @@
 ---
-- name: Create the {{ jenkins_instance_name }} namespace
+- name: Create the Jenkins namespace
   kubernetes.core.k8s:
     api_version: v1
     kind: Namespace
@@ -9,13 +9,13 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Create the {{ jenkins_instance_name }} manifest file
+- name: Create the Jenkins manifest
   ansible.builtin.template:
     src: "{{ jenkins_manifest_template }}"
     dest: "{{ _jenkins_manifest_path }}"
     mode: "600"
 
-- name: Apply {{ jenkins_instance_name }} manifest to the cluster
+- name: Apply the Jenkins manifest to the cluster
   kubernetes.core.k8s:
     src: "{{ _jenkins_manifest_path }}"
     state: present

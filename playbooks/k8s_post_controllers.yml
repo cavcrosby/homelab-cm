@@ -10,8 +10,13 @@
 
   tasks:
     - name: Install Ingress NGINX controller
+      vars:
+        ingress_nginx_namespace: ingress-nginx
+        ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | basename | splitext)[:-1] | join('.') }}
+        ingress_nginx_helm_values_file_path: /tmp/{{ (ingress_nginx_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
+        dockerhub_creds_secret_name: dockerhub-creds
       block:
-        - name: Create the {{ ingress_nginx_namespace }} namespace
+        - name: Create the Ingress NGINX namespace
           kubernetes.core.k8s:
             api_version: v1
             kind: Namespace
@@ -64,8 +69,3 @@
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
-      vars:
-        ingress_nginx_namespace: ingress-nginx
-        ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | basename | splitext)[:-1] | join('.') }}
-        ingress_nginx_helm_values_file_path: /tmp/{{ (ingress_nginx_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
-        dockerhub_creds_secret_name: dockerhub-creds

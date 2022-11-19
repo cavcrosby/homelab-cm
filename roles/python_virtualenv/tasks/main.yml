@@ -29,6 +29,7 @@
     virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
 
 - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages
+  when: ansible_os_family | lower == "debian"
   block:
     - name: Determine the virtual environment's site-packages directory
       ansible.builtin.find:
@@ -74,4 +75,3 @@
         state: link
         path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
         src: "{{ apt_inst_find.files[0].path }}"
-  when: ansible_os_family | lower == "debian"

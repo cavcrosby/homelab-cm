@@ -14,7 +14,7 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Create the {{ ansible_user_id }}'s "Downloads" directory
+- name: Create the "Downloads" directory
   ansible.builtin.file:
     path: "{{ _helm_download_dir }}"
     state: directory
