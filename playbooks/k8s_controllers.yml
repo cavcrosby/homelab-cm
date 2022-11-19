@@ -32,7 +32,7 @@
         line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
         line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
 
-    - name: Import related tasks to the legacy iptables setup
+    - name: Setup legacy iptables
       ansible.builtin.import_tasks: ./tasks/setup_legacy_iptables.yml
 
 - name: Perform initial setup for k8s_controller (poseidon)
@@ -68,7 +68,7 @@
         name: cavcrosby.general.common
         handlers_from: main
 
-    - name: Import related tasks to the Calico firewall configuration
+    - name: Configure firewall for the particular Calico deployment
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
 
   roles:
@@ -134,7 +134,7 @@
         name: cavcrosby.general.common
         handlers_from: main
 
-    - name: Import related tasks to the Calico setup
+    - name: Setup the Calico CNI
       ansible.builtin.import_tasks: ./tasks/setup_calico.yml
   roles:
     - role: k8s_jenkins
