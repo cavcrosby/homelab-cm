@@ -11,8 +11,8 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -37,8 +37,8 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -63,8 +63,8 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_worker_join_config_template": "poseidon/vagrant-k8s-worker.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -89,14 +89,14 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_controller_init_config_template": "poseidon/vagrant-k8s-first-controller.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_controller_init_config_template": "poseidon/k8s-first-controller.yml.j2",
             "k8s_service_subnet": "172.17.0.0/23",
             "k8s_pod_subnet": "172.16.0.0/16",
             "k8s_calico_ippool_subnet": "172.16.0.0/18",
-            "calico_helm_values_file_template": "poseidon/vagrant-k8s-calico-helm-values.yml.j2",
-            "ingress_nginx_manifest_template": "poseidon/vagrant-k8s-ingress-nginx.yml.j2",
-            "ingress_nginx_helm_values_file_template": "poseidon/vagrant-k8s-ingress-nginx-helm-values.yml.j2",
+            "calico_helm_values_file_template": "poseidon/k8s-calico-helm-values.yml.j2",
+            "ingress_nginx_manifest_template": "poseidon/k8s-ingress-nginx.yml.j2",
+            "ingress_nginx_helm_values_file_template": "poseidon/k8s-ingress-nginx-helm-values.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
@@ -122,8 +122,8 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_controller_join_config_template": "poseidon/vagrant-k8s-ha-controller.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_controller_join_config_template": "poseidon/k8s-ha-controller.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
@@ -149,8 +149,8 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
-            "haproxy_config_file_template": "poseidon/vagrant-k8s-haproxy.cfg.j2",
-            "k8s_controller_join_config_template": "poseidon/vagrant-k8s-ha-controller.yml.j2",
+            "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
+            "k8s_controller_join_config_template": "poseidon/k8s-ha-controller.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
@@ -176,10 +176,10 @@
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bullseye64",
-            "dhcp_config_file_template": "vagrant-dnsmasq-dhcp.conf.j2",
-            "dns_config_file_template": "vagrant-dnsmasq-dns.conf.j2",
+            "dhcp_config_file_template": "staging-dnsmasq-dhcp.conf.j2",
+            "dns_config_file_template": "staging-dnsmasq-dns.conf.j2",
             "dhcp_listen_network_interface_name": "eth1",
-            "haproxy_config_file_template": "vagrant-haproxy.cfg.j2",
+            "haproxy_config_file_template": "haproxy.cfg.j2",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",

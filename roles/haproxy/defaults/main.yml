@@ -1,6 +1,6 @@
 ---
 # which haproxy jinja template to use
-haproxy_config_file_template: haproxy.cfg.j2
+haproxy_config_file_template: lb.cfg.j2
 
 _haproxy_config_dir_path: /etc/haproxy.d
 
