@@ -19,6 +19,8 @@
 
   roles:
     - role: dnsmasq_dhcp
+      vars:
+        dhcp_config_target_file: homelab-dhcp.conf
 
 - name: Install and configure dnsmasq (dns)
   hosts: dns_servers
@@ -34,6 +36,8 @@
 
   roles:
     - role: dnsmasq_dns
+      vars:
+        dns_config_target_file: homelab-dns.conf
 
 - name: Install and configure haproxy
   hosts: load_balancers
@@ -42,4 +46,6 @@
     - "{{ network_configs_path }}"
 
   roles:
-    - haproxy
+    - role: haproxy
+      vars:
+        haproxy_config_target_file: homelab-haproxy.cfg

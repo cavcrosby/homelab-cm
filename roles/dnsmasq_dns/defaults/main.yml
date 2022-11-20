@@ -12,4 +12,7 @@ dns_local_domain: ansible.localhost
 # which dnsmasq (dns) jinja template to use
 dns_config_file_template: dns.conf.j2
 
-_dns_config_file_path: /etc/dnsmasq.d/homelab-dns.conf
+# evaluated jinja template filename on the target system
+dns_config_target_file: "{{ (dns_config_file_template | basename | splitext)[:-1] | join('.') }}"
+
+_dns_config_file_path: /etc/dnsmasq.d/{{ dns_config_target_file }}

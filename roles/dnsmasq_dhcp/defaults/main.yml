@@ -11,4 +11,7 @@ dhcp_upper_bound: 192.168.1.255
 # which dnsmasq (dhcp) jinja template to use
 dhcp_config_file_template: dhcp.conf.j2
 
-_dhcp_config_file_path: /etc/dnsmasq.d/homelab-dhcp.conf
+# evaluated jinja template filename on the target system
+dhcp_config_target_file: "{{ (dhcp_config_file_template | basename | splitext)[:-1] | join('.') }}"
+
+_dhcp_config_file_path: /etc/dnsmasq.d/{{ dhcp_config_target_file }}
