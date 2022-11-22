@@ -279,10 +279,18 @@
             "poseidon-k8s-worker2",
             "poseidon-k8s-worker3"
         ],
-        "irc_clients": ["irc-client1"],
-        "dhcp_servers": ["ansible-controller1"],
-        "dns_servers": ["ansible-controller1"],
-        "load_balancers": ["ansible-controller1"],
+        "irc_clients": [
+            "irc-client1"
+        ],
+        "dhcp_servers": [
+            "ansible-controller1"
+        ],
+        "dns_servers": [
+            "ansible-controller1"
+        ],
+        "load_balancers": [
+            "ansible-controller1"
+        ],
         "on_prem": [
             "poseidon-k8s-worker1",
             "poseidon-k8s-worker2",
