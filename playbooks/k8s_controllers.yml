@@ -39,6 +39,7 @@
   hosts: k8s_controllers:&poseidon
   tags: initial_poseidon_k8s_controller_setup
   vars_files:
+    - "{{ network_configs_path }}"
     - ./vars/{{ k8s_software_versions_file }}
 
   pre_tasks:
@@ -73,6 +74,7 @@
 
   roles:
     - haproxy
+    - keepalived
     - helm
     - k8s_kubeadm
 
@@ -153,6 +155,7 @@
   tags: configure_as_k8s_ha_controller
   serial: 1
   vars_files:
+    - "{{ network_configs_path }}"
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"

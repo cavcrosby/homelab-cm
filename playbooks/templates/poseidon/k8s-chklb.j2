@@ -1,0 +1,12 @@
+#!/bin/sh
+#
+# {{ ansible_managed }}
+
+set -e
+
+if  [ "$(ps --pid 1 -o comm=)" = "systemd" ] \
+    && [ "$(systemctl show --property ActiveState haproxy.service)" != "ActiveState=active" ]; then
+        exit 1
+fi
+
+exit 0

@@ -1,0 +1,81 @@
+---
+- name: Configure VRRP ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    destination_port: 112
+    protocol: tcp
+    jump: ACCEPT
+  become: true
+  notify:
+    - Save the current iptables rules
+
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install keepalived (debian-like)
+  ansible.builtin.apt:
+    name:
+      - keepalived
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Create track script for keepalived
+  when:
+    - keepalived_health_check_script_template | length != 0
+  block:
+    - name: Create the keepalived_script group
+      ansible.builtin.group:
+        name: keepalived_script
+        state: present
+      become: true
+
+    - name: Create the keepalived_script user
+      ansible.builtin.user:
+        name: keepalived_script
+        group: keepalived_script
+        state: present
+        shell: /sbin/nologin
+        system: true
+      become: true
+
+    - name: Evaluate track script for keepalived
+      ansible.builtin.template:
+        src: "{{ keepalived_health_check_script_template }}"
+        dest: "{{ _keepalived_health_check_script_path }}"
+        owner: keepalived_script
+        group: keepalived_script
+        mode: "755"
+      become: true
+
+- name: Create the keepalived configuration file
+  ansible.builtin.template:
+    src: "{{ keepalived_config_file_template }}"
+    dest: "{{ _keepalived_config_file_path }}"
+    mode: "644"
+  become: true
+  notify:
+    - Restart keepalived
+
+- name: Alter the keepalived configuration to use a non-default configuration path
+  ansible.builtin.import_role:
+    name: cavcrosby.general.common
+    tasks_from: managed_lineinfile
+  vars:
+    path: /etc/default/keepalived
+    regexp: '^DAEMON_ARGS="{{ _keepalived_config_file_path }}"'
+    line: 'DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"'
+    line_identifier: changing keepalived configuration to a different path
+  become: true
+  notify:
+    - Restart keepalived
+
+- name: Enable the keepalived service
+  ansible.builtin.service:
+    name: keepalived
+    enabled: true
+    state: started
+  become: true

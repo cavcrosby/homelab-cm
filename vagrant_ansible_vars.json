@@ -2,7 +2,7 @@
     "ansible_host_vars": {
         "poseidon-k8s-worker1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.2",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
             "vagrant_vm_net_ipv4_addr": "192.168.112.50",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
@@ -14,6 +14,9 @@
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "BACKUP",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "50",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -28,7 +31,7 @@
         },
         "poseidon-k8s-worker2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
             "vagrant_vm_net_ipv4_addr": "192.168.112.51",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
@@ -40,6 +43,9 @@
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "BACKUP",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "50",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -54,7 +60,7 @@
         },
         "poseidon-k8s-worker3": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.52",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
             "vagrant_vm_net_ipv4_addr": "192.168.112.52",
             "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
@@ -66,6 +72,9 @@
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_worker_join_config_template": "poseidon/k8s-worker.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "BACKUP",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "50",
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -80,7 +89,7 @@
         },
         "poseidon-k8s-controller1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.6",
             "vagrant_vm_net_ipv4_addr": "192.168.112.3",
             "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
@@ -98,6 +107,9 @@
             "ingress_nginx_manifest_template": "poseidon/k8s-ingress-nginx.yml.j2",
             "ingress_nginx_helm_values_file_template": "poseidon/k8s-ingress-nginx-helm-values.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "MASTER",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "150",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -113,7 +125,7 @@
         },
         "poseidon-k8s-controller2": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.4",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.6",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.7",
             "vagrant_vm_net_ipv4_addr": "192.168.112.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
@@ -125,6 +137,9 @@
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_controller_join_config_template": "poseidon/k8s-ha-controller.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "BACKUP",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "100",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -140,7 +155,7 @@
         },
         "poseidon-k8s-controller3": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.5",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.7",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.8",
             "vagrant_vm_net_ipv4_addr": "192.168.112.5",
             "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
@@ -152,6 +167,9 @@
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_controller_join_config_template": "poseidon/k8s-ha-controller.yml.j2",
             "cri_socket_path": "unix:///var/run/containerd/containerd.sock",
+            "vrrp_state": "BACKUP",
+            "vrrp_interface": "eth0",
+            "vrrp_priority": "100",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -167,7 +185,7 @@
         },
         "ansible-controller1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.2",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.8",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.9",
             "vagrant_vm_net_ipv4_addr": "192.168.112.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
@@ -234,7 +252,7 @@
         },
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.9",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.10",
             "vagrant_vm_net_ipv4_addr": "192.168.112.100",
             "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",

@@ -9,7 +9,7 @@ defaults
   timeout server 15s
 
 frontend poseidon_k8s_controller_frontend
-  bind {{ k8s_controller_endpoint }}
+  bind *:{{ controller_lb_port }}
   default_backend k8s_controller_endpoints
 
 backend k8s_controller_endpoints

@@ -1,0 +1,29 @@
+# {{ ansible_managed }}
+#
+# Configuration file for keepalived.
+
+global_defs {
+    script_user keepalived_script
+    enable_script_security
+    max_auto_priority
+}
+
+vrrp_script chklb {
+  script /etc/keepalived/chklb
+  interval 3
+  fall 10
+  rise 2
+}
+
+vrrp_instance VI_1 {
+    state {{ vrrp_state }}
+    interface {{ vrrp_interface }}
+    virtual_router_id {{ vrrp_virtual_router_id }}
+    priority {{ vrrp_priority }}
+    virtual_ipaddress {
+        {{ homelab_poseidon_vrrp_server_vip }}
+    }
+    track_script {
+        chklb
+    }
+}

@@ -1,0 +1,13 @@
+# {{ ansible_managed }}
+#
+# Configuration file for keepalived.
+
+vrrp_instance VI_1 {
+    state {{ vrrp_state }}
+    interface {{ vrrp_interface }}
+    virtual_router_id {{ vrrp_virtual_router_id }}
+    priority {{ vrrp_priority }}
+    virtual_ipaddress {
+        {{ vrrp_server_vip }}
+    }
+}

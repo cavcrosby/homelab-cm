@@ -1,3 +1,9 @@
 ---
-k8s_controller_endpoint: 127.0.0.1:20357
+controller_lb_port: 20357
+k8s_controller_endpoint: "{{ homelab_poseidon_vrrp_server_vip }}:{{ controller_lb_port }}"
 k8s_api_server_port: 6443
+
+keepalived_config_file_template: poseidon/k8s-keepalived.conf.j2
+keepalived_config_target_file: keepalived.conf
+keepalived_health_check_script_template: poseidon/k8s-chklb.j2
+keepalived_health_check_target_script: chklb

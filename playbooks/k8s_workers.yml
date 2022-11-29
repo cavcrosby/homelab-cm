@@ -53,6 +53,7 @@
   hosts: k8s_workers:&poseidon
   tags: initial_poseidon_k8s_worker_setup
   vars_files:
+    - "{{ network_configs_path }}"
     - ./vars/{{ k8s_software_versions_file }}
 
   pre_tasks:
@@ -77,16 +78,17 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-  roles:
-    - haproxy
-    - k8s_kubeadm
-
-  tasks:
     - name: Add common handlers
       ansible.builtin.import_role:
         name: cavcrosby.general.common
         handlers_from: main
 
+  roles:
+    - haproxy
+    - keepalived
+    - k8s_kubeadm
+
+  tasks:
     - name: Configure firewall for the particular Calico deployment
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
 
@@ -94,6 +96,7 @@
   hosts: k8s_workers
   tags: configure_host_as_k8s_worker_node
   vars_files:
+    - "{{ network_configs_path }}"
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
