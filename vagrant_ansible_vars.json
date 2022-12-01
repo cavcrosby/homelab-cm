@@ -184,7 +184,9 @@
             "vagrant_vm_box": "debian/bullseye64",
             "dhcp_config_file_template": "staging-dnsmasq-dhcp.conf.j2",
             "dns_config_file_template": "staging-dnsmasq-dns.conf.j2",
-            "dhcp_listen_network_interface_name": "eth1",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "net_network_interface_name": "eth2",
             "haproxy_config_file_template": "haproxy.cfg.j2",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
@@ -193,7 +195,7 @@
                     {
                         "filename": {
                             "join": [
-                                "dhcp_listen_network_interface_name",
+                                "homelab_network_interface_name",
                                 ".link"
                             ]
                         },
@@ -207,12 +209,12 @@
                     {
                         "filename": {
                             "join": [
-                                "dhcp_listen_network_interface_name",
+                                "homelab_network_interface_name",
                                 ".network"
                             ]
                         },
                         "Match": {
-                            "Name": "dhcp_listen_network_interface_name"
+                            "Name": "homelab_network_interface_name"
                         },
                         "Network": {
                             "Address": {
@@ -222,6 +224,62 @@
                                 ]
                             },
                             "Gateway": "10.10.100.1"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "net_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_net_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "net_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "net_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
                         }
                     }
                 ]
