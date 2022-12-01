@@ -223,7 +223,7 @@
                                     "/24"
                                 ]
                             },
-                            "Gateway": "10.10.100.1"
+                            "Gateway": "${VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR}"
                         }
                     },
                     {

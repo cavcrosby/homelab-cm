@@ -5,6 +5,7 @@ require 'nokogiri'
 require 'tempfile'
 
 VAGRANTFILE_API_VERSION = 2
+SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
 
 VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME = "net-homelab-cm-libvirt"
@@ -68,8 +69,7 @@ vagrant_homelab_network_configs = {
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
-  # machine_attrs. config_refs will be replaced with the value determined by
-  # machine_attrs[config_ref].
+  # machine_attrs.
   has_children = true
 
   if config.kind_of?(Array)
@@ -83,6 +83,9 @@ def eval_config_ref(machine_attrs, config)
         # eval each JSON's key value
         if machine_attrs.key?(config_ref)
           config[config_name] = machine_attrs[config_ref]
+        elsif SHELL_VARIABLE_REGEX.match?(config_ref)
+          match = SHELL_VARIABLE_REGEX.match(config_ref)
+          config[config_name] = eval(match[1].nil? ? match[2] : match[1])
         end
       elsif config_ref.kind_of?(Hash) && config_ref.key?("join")
         # If an a JSON's key value is another JSON with a sole 'join' element, then the
