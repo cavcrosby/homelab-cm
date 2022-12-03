@@ -18,6 +18,7 @@
     src: "{{ dns_config_file_template }}"
     dest: "{{ _dns_config_file_path }}"
     mode: "644"
+    validate: dnsmasq --test --conf-file=%s
   become: true
   notify:
     - Restart dnsmasq
