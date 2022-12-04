@@ -12,7 +12,7 @@ ansible = "6.6.0"
 diagrams = "^0.21.0"
 
 [tool.poetry.dev-dependencies]
-ansible-lint = "6.8.6"
+ansible-lint = { version = "6.9.1", markers = "platform_system != 'Windows'" }
 flake8 = "^4.0.1"
 black = "^22.1.0"
 flake8-docstrings = "^1.6.0"
