@@ -93,7 +93,7 @@
 
     - name: Initialize the control plane (first control-plane)
       ansible.builtin.command: |
-        kubeadm init --upload-certs --config {{ _k8s_controller_init_config_path }}
+        kubeadm init --upload-certs --config "{{ _k8s_controller_init_config_path }}"
       become: true
       register: kubeadm_init_check
       changed_when: kubeadm_init_check.rc == 0
@@ -112,7 +112,7 @@
 
     - name: Join a Kubernetes cluster as a control plane (high availability)
       ansible.builtin.command: |
-        kubeadm join --config {{ _k8s_controller_join_config_path }}
+        kubeadm join --config "{{ _k8s_controller_join_config_path }}"
       become: true
       register: kubeadm_join_check
       changed_when: kubeadm_join_check.rc == 0

@@ -59,7 +59,7 @@
 
 - name: Join a Kubernetes cluster as a worker node
   ansible.builtin.command: |
-    kubeadm join --config {{ _k8s_worker_join_config_path }}
+    kubeadm join --config "{{ _k8s_worker_join_config_path }}"
   become: true
   when:
     - k8s_cluster_info.msg is defined

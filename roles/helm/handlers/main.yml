@@ -10,5 +10,5 @@
 # https://github.com/pipech/erpnext-docker-debian/issues/26
 - name: Install Helm's GPG key
   ansible.builtin.shell: |
-    gpg --batch --output {{ _helm_keyring_install_path }} --dearmor {{ _helm_keyring_download_path }}
+    gpg --batch --output "{{ _helm_keyring_install_path }}" --dearmor "{{ _helm_keyring_download_path }}"
   become: true
