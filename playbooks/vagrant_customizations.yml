@@ -37,7 +37,7 @@
       when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg (debian-like)
-      ansible.builtin.command: grub-mkconfig -o "/boot/grub/grub.cfg"
+      ansible.builtin.command: grub-mkconfig --output "/boot/grub/grub.cfg"
       become: true
       when:
         - default_grub_config_inode.stat.exists
