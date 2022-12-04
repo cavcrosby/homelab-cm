@@ -1,0 +1,17 @@
+---
+- name: Install and configure dnsmasq (dns)
+  hosts: dns_servers
+  tags: install_dnsmasq_dns
+  vars_files:
+    - "{{ network_configs_path }}"
+
+  pre_tasks:
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
+  roles:
+    - role: dnsmasq_dns
+      vars:
+        dns_config_target_file: homelab-dns.conf

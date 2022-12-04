@@ -243,7 +243,39 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.transform_keys(&:to_s).to_yaml)
         
         machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/ansible_controllers.yml"
+          ansible.playbook = "./playbooks/dhcp_servers.yml"
+          ansible.compatibility_mode = "2.0"
+          ansible.limit = "all"
+          ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
+          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+          }
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          end
+        end
+
+        machine.vm.provision "ansible" do |ansible|
+          ansible.playbook = "./playbooks/dns_servers.yml"
+          ansible.compatibility_mode = "2.0"
+          ansible.limit = "all"
+          ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
+          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+          }
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          end
+        end
+
+        machine.vm.provision "ansible" do |ansible|
+          ansible.playbook = "./playbooks/load_balancers.yml"
           ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true

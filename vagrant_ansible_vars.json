@@ -171,7 +171,7 @@
                 }
             }
         },
-        "ansible-controller1": {
+        "staging-node1": {
             "vagrant_vm_homelab_ipv4_addr": "10.10.100.2",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.111.9",
             "vagrant_vm_net_ipv4_addr": "192.168.112.2",
@@ -191,6 +191,7 @@
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
+                "load_balancer_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dhcp_systemd_networkd_files": [
                     {
                         "filename": {
@@ -347,13 +348,13 @@
             "irc-client1"
         ],
         "dhcp_servers": [
-            "ansible-controller1"
+            "staging-node1"
         ],
         "dns_servers": [
-            "ansible-controller1"
+            "staging-node1"
         ],
         "load_balancers": [
-            "ansible-controller1"
+            "staging-node1"
         ],
         "on_prem": [
             "poseidon-k8s-worker1",
@@ -362,7 +363,7 @@
             "poseidon-k8s-controller1",
             "poseidon-k8s-controller2",
             "poseidon-k8s-controller3",
-            "ansible-controller1"
+            "staging-node1"
         ],
         "all:vars": {
             "ansible_user": "vagrant",

@@ -9,7 +9,7 @@ defaults
   timeout server 60s
 
 frontend http_frontend
-  bind {{ ansible_controller1_ipv4_addr }}:80
+  bind {{ load_balancer_listen_ipv4_addr }}:80
   acl is_jenkins_torkel req.hdr(host) jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }}
 
   use_backend ingress_nginx_k8s_http_endpoints if is_jenkins_torkel
