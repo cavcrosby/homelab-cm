@@ -73,7 +73,10 @@
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
 
   roles:
-    - haproxy
+    - role: haproxy
+      vars:
+        haproxy_config_target_file: haproxy.cfg
+
     - keepalived
     - helm
     - k8s_kubeadm
