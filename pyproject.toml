@@ -1,22 +1,12 @@
-[tool.poetry]
+[project]
 name = "homelab-cm"
 version = "1.0.0"
 description = "Project that puts my entire homelab under configuration management"
-authors = ["Conner Crosby <conner@cavcrosby.tech>"]
-license = "MIT"
+requires-python = ">=3.9,<3.10"
 
-[tool.poetry.dependencies]
-python = "~3.9"
-pylib-cavcrosby = {git = "https://github.com/cavcrosby/pylib.git", branch = "main"}
-ansible = "6.6.0"
-diagrams = "^0.21.0"
+[[authors]]
+name = "Conner Crosby"
+email = "conner@cavcrosby.tech"
 
-[tool.poetry.dev-dependencies]
-ansible-lint = { version = "6.9.1", markers = "platform_system != 'Windows'" }
-flake8 = "^4.0.1"
-black = "^22.1.0"
-flake8-docstrings = "^1.6.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[license]
+file = "./LICENSE"
