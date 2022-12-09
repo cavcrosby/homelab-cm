@@ -1,6 +1,13 @@
-include base.mk
+# special makefile variables
+.DEFAULT_GOAL := help
+.RECIPEPREFIX := >
 
 # recursively expanded variables
+SHELL = /usr/bin/sh
+TRUTHY_VALUES = \
+    true\
+    1
+
 ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
@@ -9,18 +16,40 @@ BITWARDEN_CLI_VERSION = 1.19.1
 BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
 BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
 BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
+BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
+BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
+BITWARDEN_SSH_KEYS = \
+	LightsailDefaultKey-us-east-1.pem\
+	id_rsa_irc.pub\
+	id_rsa_github_1
+
+BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
+BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
+BITWARDEN_TLS_CERTS = \
+	libera.pem\
+	poseidon_k8s_staging_ca.crt\
+	poseidon_k8s_ca.crt
+
 VAGRANT_LIBVIRT_PLUGIN_VERSION = 0.7.0
 VAGRANT_LIBVIRT_PLUGIN_PREFIX = vagrant-libvirt-${VAGRANT_LIBVIRT_PLUGIN_VERSION}
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
 VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH = ${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_PREFIX}.tar.gz
+VIRTUALENV_PYTHON_VERSION = $(eval VIRTUALENV_PYTHON_VERSION := $$(shell pyver_selector 2> /dev/null))${VIRTUALENV_PYTHON_VERSION}
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
 # targets
+HELP = help
+SETUP = setup
+PRE_PYENV_SETUP = pre-pyenv-setup
+PYENV_VIRTUALENV = pyenv-virtualenv
+PYENV_POETRY_VIRTUALENV_SETUP = pyenv-poetry-virtualenv-setup
+PYENV_POETRY_SETUP = pyenv-poetry-setup
 PRODUCTION = production
 STAGING = staging
 ANSIBLE_SECRETS = ansible-secrets
 DEVELOPMENT_SHELL = development-shell
+CLEAN = clean
 DIAGRAM = diagram
 
 # ansible-secrets actions
@@ -47,27 +76,11 @@ ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 else
 endif
 
-# include other generic makefiles
-include python.mk
-include bitwarden.mk
-# overrides defaults set by included makefiles
-BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
-BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
-BITWARDEN_SSH_KEYS = \
-	LightsailDefaultKey-us-east-1.pem\
-	id_rsa_irc.pub\
-	id_rsa_github_1
-
-BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
-BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
-BITWARDEN_TLS_CERTS = \
-	libera.pem\
-	poseidon_k8s_staging_ca.crt\
-	poseidon_k8s_ca.crt
-
-include ansible.mk
-
 # executables
+ANSIBLE_GALAXY = ansible-galaxy
+ANSIBLE_LINT = ansible-lint
+ANSIBLE_PLAYBOOK = ansible-playbook
+ANSIBLE_VAULT = ansible-vault
 BASH = bash
 VIRSH = virsh
 VAGRANT = vagrant
@@ -78,12 +91,21 @@ PKILL = pkill
 JQ = jq
 SUDO = sudo
 BW = bw
+PYENV = pyenv
+PYTHON = python
+PIP = pip
+POETRY = poetry
 
 # simply expanded variables
 ifneq ($(findstring ${CONTROLLER_NODE},${TRUTHY_VALUES}),)
 	executables := \
+		${ANSIBLE_PLAYBOOK}\
+		${ANSIBLE_GALAXY}\
+		${ANSIBLE_VAULT}\
 		${JQ}\
-		${python_executables}
+		${PYENV}\
+		${PYTHON}\
+		${PIP}
 else
 	executables := \
 		${VIRSH}\
@@ -92,12 +114,19 @@ else
 		${JQ}\
 		${PERL}\
 		${LXC}\
+		${ANSIBLE_PLAYBOOK}\
+		${ANSIBLE_GALAXY}\
+		${ANSIBLE_LINT}\
+		${ANSIBLE_VAULT}\
 		${GEM}\
 		${SUDO}\
 		${BASH}\
-		${python_executables}
+		${PYENV}\
+		${PYTHON}\
+		${PIP}
 endif
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
+python_virtualenv_name := $(shell basename ${CURDIR})
 
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
@@ -150,6 +179,46 @@ ${HELP}:
 >	@echo '                             file (if the target supports it). LOG_PATH determines'
 >	@echo '                             log path (default: ./ansible.log)'
 
+.PHONY: ${PRE_PYENV_SETUP}
+${PRE_PYENV_SETUP}:
+>	rm --force "./.python-version"
+>	rm --recursive --force "$$(readlink ${PYENV_PREFIX_PATH})" \
+>		&& ${PYENV} uninstall --force "${python_virtualenv_name}"
+
+.PHONY: ${PYENV_VIRTUALENV}
+${PYENV_VIRTUALENV}:
+>	@${PYENV} versions | grep --quiet '${VIRTUALENV_PYTHON_VERSION}' || { echo "make: python \"${VIRTUALENV_PYTHON_VERSION}\" is not installed by ${PYENV}"; exit 1; }
+>	${PYENV} virtualenv --force "${VIRTUALENV_PYTHON_VERSION}" "${python_virtualenv_name}"
+
+	# mainly used to enter the virtualenv when in the dir
+>	${PYENV} local "${python_virtualenv_name}"
+
+.PHONY: ${PYENV_POETRY_VIRTUALENV_SETUP}
+${PYENV_POETRY_VIRTUALENV_SETUP}:
+	# to ensure the most current versions of dependencies can be installed
+>	${PYTHON} -m ${PIP} install --upgrade ${PIP}
+>	${PYTHON} -m ${PIP} install ${POETRY}==1.1.7 poetry-core==1.0.4
+>	${PYENV} rehash
+
+	# Needed to make sure poetry doesn't panic and create a virtualenv, redirecting
+	# dependencies into the wrong virtualenv.
+>	${POETRY} config virtualenvs.create false
+
+	# --no-root because we only want to install dependencies
+>	${POETRY} install --no-root || { echo "make: ${POETRY} failed to install project dependencies"; exit 1; }
+>	${PYENV} rehash
+
+.PHONY: ${PYENV_POETRY_SETUP}
+${PYENV_POETRY_SETUP}: PYENV_PREFIX_PATH := ${PYENV_ROOT}/versions/${python_virtualenv_name}
+${PYENV_POETRY_SETUP}: ${PRE_PYENV_SETUP} ${PYENV_VIRTUALENV}
+	# If VIRTUALENV_PYTHON_VERSION is 'system', then PYENV_PREFIX_PATH will just be
+	# a normal dir.
+>	PYENV_VIRTUAL_ENV="$$(readlink ${PYENV_PREFIX_PATH} || echo ${PYENV_PREFIX_PATH})" \
+		&& export PYENV_VIRTUAL_ENV \
+		&& VIRTUAL_ENV="$$(readlink ${PYENV_PREFIX_PATH} || echo ${PYENV_PREFIX_PATH})" \
+		&& export VIRTUAL_ENV \
+		&& ${MAKE} ${PYENV_POETRY_VIRTUALENV_SETUP}
+
 .PHONY: ${SETUP}
 ${SETUP}: ${PYENV_POETRY_SETUP}
 >	${ANSIBLE_GALAXY} collection install --requirements-file ./meta/requirements.yml
@@ -201,7 +270,17 @@ ${DIAGRAM}:
 >	${PYTHON} hldiag.py
 
 .PHONY: ${ANSIBLE_SECRETS}
-${ANSIBLE_SECRETS}: ${BITWARDEN_SESSION_CHECK} ${BITWARDEN_GET_SSH_KEYS} ${BITWARDEN_GET_TLS_CERTS}
+${ANSIBLE_SECRETS}:
+>	@${BW} login --check > /dev/null 2>&1 || \
+		{ \
+			echo "make: login to bitwarden and export BW_SESSION before running this target"; \
+			exit 1; \
+		}
+>	@${BW} unlock --check > /dev/null 2>&1 || \
+		{ \
+			echo "make: unlock bitwarden vault and export BW_SESSION before running this target"; \
+			exit 1; \
+		}
 ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${BW} delete attachment \
@@ -213,6 +292,16 @@ ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 else
 >	${BW} get attachment "${ANSIBLE_SECRETS_FILE}" --itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}" --output "${ANSIBLE_SECRETS_DIR_PATH}/"
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
+
+>	@for ssh_key in ${BITWARDEN_SSH_KEYS}; do \
+>		echo ${BW} get attachment $${ssh_key} --itemid \"${BITWARDEN_SSH_KEYS_ITEMID}\" --output \"${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}\"; \
+>		${BW} get attachment $${ssh_key} --itemid "${BITWARDEN_SSH_KEYS_ITEMID}" --output "${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
+>	done
+
+>	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
+>		echo ${BW} get attachment $${tls_cert} --itemid \"${BITWARDEN_TLS_CERTS_ITEMID}\" --output \"${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}\"; \
+>		${BW} get attachment $${tls_cert} --itemid "${BITWARDEN_TLS_CERTS_ITEMID}" --output "${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
+>	done
 endif
 
 .PHONY: ${CLEAN}
