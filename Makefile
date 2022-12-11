@@ -213,10 +213,10 @@ endif
 .PHONY: ${LINT}
 ${LINT}:
 >	@for fil in ${src_yml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
->		if echo "$${fil}" | grep --quiet '-'; then \
->			echo "make: $${fil} should not contain a dash in the filename"; \
->		fi \
->	done
+		if echo "$${fil}" | grep --quiet '-'; then \
+			echo "make: $${fil} should not contain a dash in the filename"; \
+		fi \
+	done
 >	${ANSIBLE_LINT}
 
 .PHONY: ${DEVELOPMENT_SHELL}
@@ -259,28 +259,28 @@ else
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 
 >	@for ssh_key in ${BITWARDEN_SSH_KEYS}; do \
->		echo ${BW} get attachment \
+		echo ${BW} get attachment \
 			"$${ssh_key}" \
 			--itemid \"${BITWARDEN_SSH_KEYS_ITEMID}\" \
 			--output \"${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}\"; \
 		\
->		${BW} get attachment \
+		${BW} get attachment \
 			"$${ssh_key}" \
 			--itemid "${BITWARDEN_SSH_KEYS_ITEMID}" \
 			--output "${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
->	done
+	done
 
 >	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
->		echo ${BW} get attachment \
+		echo ${BW} get attachment \
 			"$${tls_cert}" \
 			--itemid \"${BITWARDEN_TLS_CERTS_ITEMID}\" \
 			--output \"${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}\"; \
 		\
->		${BW} get attachment \
+		${BW} get attachment \
 			"$${tls_cert}" \
 			--itemid "${BITWARDEN_TLS_CERTS_ITEMID}" \
 			--output "${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
->	done
+	done
 endif
 
 .PHONY: ${CLEAN}
@@ -292,14 +292,14 @@ ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
 	# to virsh destroy and undefine.
 >	-@for domain in ${LIBVIRT_DOMAINS}; do \
->		echo ${VIRSH} destroy --domain "$${domain}"; \
->		${VIRSH} destroy --domain "$${domain}"; \
->	done
+		echo ${VIRSH} destroy --domain "$${domain}"; \
+		${VIRSH} destroy --domain "$${domain}"; \
+	done
 
 >	-@for domain in ${LIBVIRT_DOMAINS}; do \
->		echo ${VIRSH} undefine --domain "$${domain}"; \
->		${VIRSH} undefine --domain "$${domain}"; \
->	done
+		echo ${VIRSH} undefine --domain "$${domain}"; \
+		${VIRSH} undefine --domain "$${domain}"; \
+	done
 >	${VAGRANT} destroy --force
 
 	# done in recommendation by vagrant when a domain fails to connect via ssh
