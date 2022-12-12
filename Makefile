@@ -12,10 +12,6 @@ ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
-BITWARDEN_CLI_VERSION = 1.19.1
-BITWARDEN_CLI_DIR_PATH = $(shell echo "$${HOME}/.local/bin")
-BITWARDEN_CLI_PATH = ${BITWARDEN_CLI_DIR_PATH}/${BW}
-BITWARDEN_DOWNLOAD_PATH = /tmp/bw-${BITWARDEN_CLI_VERSION}
 BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
 BITWARDEN_SSH_KEYS = \
@@ -82,6 +78,8 @@ SUDO = sudo
 BW = bw
 PYTHON = python
 PIP = pip
+NPM = npm
+NPX = npx
 
 # simply expanded variables
 executables := \
@@ -98,7 +96,8 @@ executables := \
 	${SUDO}\
 	${BASH}\
 	${PYTHON}\
-	${PIP}
+	${PIP}\
+	${NPM}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 src_yml := $(shell find . \( -type f \) \
@@ -156,20 +155,12 @@ ${HELP}:
 .PHONY: ${SETUP}
 ${SETUP}:
 >	${SUDO} ${GEM} install nokogiri
+>	${NPM} install
 >	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 >	${PYTHON} -m ${PIP} install --upgrade "${PIP}"
 >	${PYTHON} -m ${PIP} install \
 		--requirement "./requirements.txt" \
 		--requirement "./dev-requirements.txt"
-
->	wget \
-		--quiet \
-		--output-document \
-		"${BITWARDEN_DOWNLOAD_PATH}" \
-		"https://github.com/bitwarden/cli/releases/download/v${BITWARDEN_CLI_VERSION}/bw-linux-${BITWARDEN_CLI_VERSION}.zip"
-
->	unzip -o -d "${BITWARDEN_CLI_DIR_PATH}" "${BITWARDEN_DOWNLOAD_PATH}"
->	chmod 755 "${BITWARDEN_CLI_PATH}"
 
 	# This was needed as it was observed that while one system already had the
 	# vagrant-libvirt plugin installed (version 0.0.45). The version of the plugin
@@ -229,29 +220,29 @@ ${DIAGRAM}:
 
 .PHONY: ${ANSIBLE_SECRETS}
 ${ANSIBLE_SECRETS}:
->	@${BW} login --check > /dev/null 2>&1 || \
+>	@${NPX} ${BW} login --check > /dev/null 2>&1 || \
 		{ \
 			echo "make: login to bitwarden and export BW_SESSION before running this target"; \
 			exit 1; \
 		}
->	@${BW} unlock --check > /dev/null 2>&1 || \
+>	@${NPX} ${BW} unlock --check > /dev/null 2>&1 || \
 		{ \
 			echo "make: unlock bitwarden vault and export BW_SESSION before running this target"; \
 			exit 1; \
 		}
 ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
->	${BW} delete attachment \
-		"$$(${BW} list items \
+>	${NPX} ${BW} delete attachment \
+		"$$(${NPX} ${BW} list items \
 			| ${JQ} --raw-output '.[] | select(.attachments?).attachments[] | select(.fileName=="${ANSIBLE_SECRETS_FILE}").id' \
 		)" \
 		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
 
->	${BW} create attachment \
+>	${NPX} ${BW} create attachment \
 		--file "${ANSIBLE_SECRETS_FILE_PATH}" \
 		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
 else
->	${BW} get attachment \
+>	${NPX} ${BW} get attachment \
 		"${ANSIBLE_SECRETS_FILE}" \
 		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}" \
 		--output "${ANSIBLE_SECRETS_DIR_PATH}/"
@@ -259,24 +250,24 @@ else
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 
 >	@for ssh_key in ${BITWARDEN_SSH_KEYS}; do \
-		echo ${BW} get attachment \
+		echo ${NPX} ${BW} get attachment \
 			"$${ssh_key}" \
 			--itemid \"${BITWARDEN_SSH_KEYS_ITEMID}\" \
 			--output \"${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}\"; \
 		\
-		${BW} get attachment \
+		${NPX} ${BW} get attachment \
 			"$${ssh_key}" \
 			--itemid "${BITWARDEN_SSH_KEYS_ITEMID}" \
 			--output "${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
 	done
 
 >	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
-		echo ${BW} get attachment \
+		echo ${NPX} ${BW} get attachment \
 			"$${tls_cert}" \
 			--itemid \"${BITWARDEN_TLS_CERTS_ITEMID}\" \
 			--output \"${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}\"; \
 		\
-		${BW} get attachment \
+		${NPX} ${BW} get attachment \
 			"$${tls_cert}" \
 			--itemid "${BITWARDEN_TLS_CERTS_ITEMID}" \
 			--output "${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
