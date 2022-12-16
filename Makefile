@@ -26,10 +26,6 @@ BITWARDEN_TLS_CERTS = \
 	poseidon_k8s_staging_ca.crt\
 	poseidon_k8s_ca.crt
 
-VAGRANT_LIBVIRT_PLUGIN_VERSION = 0.7.0
-VAGRANT_LIBVIRT_PLUGIN_PREFIX = vagrant-libvirt-${VAGRANT_LIBVIRT_PLUGIN_VERSION}
-VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH = /tmp
-VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH = ${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_PREFIX}.tar.gz
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
@@ -70,6 +66,7 @@ ANSIBLE_VAULT = ansible-vault
 BASH = bash
 VIRSH = virsh
 VAGRANT = vagrant
+BUNDLE = bundle
 GEM = gem
 PERL = perl
 PKILL = pkill
@@ -92,6 +89,7 @@ executables := \
 	${ANSIBLE_GALAXY}\
 	${ANSIBLE_LINT}\
 	${ANSIBLE_VAULT}\
+	${BUNDLE}\
 	${GEM}\
 	${SUDO}\
 	${BASH}\
@@ -154,32 +152,14 @@ ${HELP}:
 
 .PHONY: ${SETUP}
 ${SETUP}:
->	${SUDO} ${GEM} install nokogiri
+>	${BUNDLE} install
+>	${VAGRANT} plugin install "$$(find ./vendor -name 'vagrant-libvirt-*.gem')"
 >	${NPM} install
 >	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 >	${PYTHON} -m ${PIP} install --upgrade "${PIP}"
 >	${PYTHON} -m ${PIP} install \
 		--requirement "./requirements.txt" \
 		--requirement "./dev-requirements.txt"
-
-	# This was needed as it was observed that while one system already had the
-	# vagrant-libvirt plugin installed (version 0.0.45). The version of the plugin
-	# dates back to 2018, and has an issue where there is an additional underscore
-	# appended to any user defined libvirt prefix for a domain. Any version to be
-	# installed should be after the fix was pulled in or after commit c02905be.
->	wget \
-		--quiet \
-		--output-document \
-		"${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH}" \
-		"https://github.com/vagrant-libvirt/vagrant-libvirt/archive/refs/tags/${VAGRANT_LIBVIRT_PLUGIN_VERSION}.tar.gz"
-
->	tar zxvf \
-		"${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_PATH}" \
-		--directory="${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}"
-
->	cd "${VAGRANT_LIBVIRT_PLUGIN_DOWNLOAD_DIR_PATH}/${VAGRANT_LIBVIRT_PLUGIN_PREFIX}" \
->	&& ${GEM} build "$$(find . -name '*.gemspec')" \
->	&& ${VAGRANT} plugin install "$$(find . -name '*.gem')"
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}:
