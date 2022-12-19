@@ -1,8 +1,8 @@
 ---
 - name: Run whoami
   ansible.builtin.command: whoami
-  register: whoami_completed_proc
   changed_when: false
+  register: whoami_completed_proc
 
 - name: Get the running user's info
   ansible.builtin.getent:
@@ -72,12 +72,12 @@
 - name: Check node is already part of a Kubernetes cluster
   kubernetes.core.k8s_cluster_info:
     kubeconfig: /etc/kubernetes/admin.conf
-  become: true
-  register: k8s_cluster_info
+  changed_when: false
   failed_when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' not in k8s_cluster_info.msg"
-  changed_when: false
+  become: true
+  register: k8s_cluster_info
 
 - name: Configure as a first controller
   when:
@@ -94,9 +94,9 @@
     - name: Initialize the control plane (first control-plane)
       ansible.builtin.command: |
         kubeadm init --upload-certs --config "{{ _k8s_controller_init_config_path }}"
+      changed_when: kubeadm_init_check.rc == 0
       become: true
       register: kubeadm_init_check
-      changed_when: kubeadm_init_check.rc == 0
 
 - name: Configure as a high availability (ha) controller
   when:
@@ -113,9 +113,9 @@
     - name: Join a Kubernetes cluster as a control plane (high availability)
       ansible.builtin.command: |
         kubeadm join --config "{{ _k8s_controller_join_config_path }}"
+      changed_when: kubeadm_join_check.rc == 0
       become: true
       register: kubeadm_join_check
-      changed_when: kubeadm_join_check.rc == 0
 
 - name: Copy admin kubeconfig file to administer control pane
   block:

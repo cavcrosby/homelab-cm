@@ -11,8 +11,8 @@
 
 - name: Disable swap for current session
   ansible.builtin.command: swapoff --all
-  become: true
   changed_when: false
+  become: true
 
 - name: Update apt's package index
   ansible.builtin.apt:

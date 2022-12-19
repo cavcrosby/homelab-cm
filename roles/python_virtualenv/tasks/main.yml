@@ -37,8 +37,8 @@
         file_type: directory
         patterns: python*
         depth: 1
-      register: site_packages_find
       failed_when: site_packages_find.files | length != 1
+      register: site_packages_find
 
     - name: Link python3-apt's apt
       ansible.builtin.file:

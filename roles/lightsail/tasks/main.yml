@@ -16,5 +16,5 @@
   ansible.builtin.shell: |
     cloud-init single --name "cc_set_hostname"
     cloud-init single --name "cc_update_etc_hosts"
-  become: true
   changed_when: false
+  become: true
