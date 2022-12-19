@@ -100,6 +100,8 @@ executables := \
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 src_yml := $(shell find . \( -type f \) \
 	-and \( -name '*.yml' \) \
+	-and ! \( -path './vendor/*' \) \
+	-and ! \( -path './node_modules/*' \) \
 )
 
 # provider VM identifiers
