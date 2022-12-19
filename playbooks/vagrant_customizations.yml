@@ -23,6 +23,7 @@
       changed_when: false
       become: true
       register: line_check
+      when: default_grub_config_inode.stat.exists
 
     - name: Add systemd.unified_cgroup_hierarchy=0 to GRUB_CMDLINE_LINUX_DEFAULT
       ansible.builtin.import_role:
@@ -47,7 +48,9 @@
     - name: Reboot hosts to have new boot parameter(s) take effect
       ansible.builtin.reboot:
       become: true
-      when: line_check.found == 0
+      when:
+        - default_grub_config_inode.stat.exists
+        - line_check.found == 0
 
 - name: Remove preset Vagrant box configurations
   hosts:
