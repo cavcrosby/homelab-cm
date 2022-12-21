@@ -152,6 +152,10 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
         machine_attrs[config_name] = config_ref
       end
     end
+
+    # Since all the key values pairs are resolved and put at the machine_attrs level,
+    # for now I will just discard the config_refs json.
+    machine_attrs.delete("vagrant_config_refs")
   end
 
   if machine_attrs.key?("vagrant_external_config_refs")
@@ -160,11 +164,7 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
       vagrant_external_config_refs.keys().each do |config_name|
         machine_attrs[config_name] = vagrant_external_config_refs[config_name]
       end
-  end
-
-    # Since all the key values pairs are resolved and put at the machine_attrs level,
-    # for now I will just discard the config_refs json.
-    machine_attrs.delete("vagrant_config_refs")
+    end
   end
 end
 
