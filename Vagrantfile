@@ -198,7 +198,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         libvirt__dhcp_enabled: false
 
       machine.vm.network "private_network",
-        ip: machine_attrs["vagrant_vm_net_ipv4_addr"],
         mac: machine_attrs["vagrant_vm_net_mac_addr"],
         libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME,
         libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR,
