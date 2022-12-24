@@ -259,7 +259,6 @@ endif
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
->	rm --force homelab.png
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
