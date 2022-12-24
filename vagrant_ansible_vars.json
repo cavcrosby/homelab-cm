@@ -280,7 +280,13 @@
                             "Name": "net_network_interface_name"
                         },
                         "Network": {
-                            "DHCP": "true"
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_net_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR}"
                         }
                     }
                 ]
