@@ -2,9 +2,8 @@
 # used to determine what interface to listen for DNS requests
 dns_listen_ipv4_addr: 127.0.0.2
 
-# subnet and gateway for the domain
+# subnet for the domain
 dns_subnet: 127.0.0.0/8
-dns_network_gateway_ipv4_addr: 127.0.0.2
 
 # specify the DNS domain for DHCP
 dns_local_domain: ansible.localhost
