@@ -1,0 +1,2 @@
+---
+k8s_controller_init_config_template: poseidon/k8s-first-controller.yml.j2
