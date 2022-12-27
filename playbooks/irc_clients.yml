@@ -5,7 +5,22 @@
   vars_files:
     - ./vars/ansible_secrets.yml
 
+  pre_tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
   tasks:
+    - name: Install "nice to haves" (debian-like)
+      ansible.builtin.apt:
+        name:
+          - tmux
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
     - name: Create the irc_user
       ansible.builtin.user:
         name: "{{ irc_user }}"
@@ -43,6 +58,8 @@
 - name: Install and configure WeeChat
   hosts: irc_clients
   tags: install_weechat
+  vars:
+    weechat_certs_directory: "{{ irc_user_home }}/.weechat/certs"
 
   pre_tasks:
     - name: Update apt's package index
@@ -51,20 +68,33 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-  roles:
-    - role: weechat
-      vars:
-        weechat_user: "{{ irc_user }}"
-        weechat_tls_cert_controller_paths: "{{ irc_weechat_tls_cert_controller_paths }}"
-
   tasks:
-    - name: Install "nice to haves" (debian-like)
+    - name: Install WeeChat (debian-like)
       ansible.builtin.apt:
         name:
-          - tmux
+          - weechat
         state: present
       become: true
       when: ansible_os_family | lower == "debian"
+
+    - name: Create WeeChat's certificates directory
+      ansible.builtin.file:
+        path: "{{ weechat_certs_directory }}"
+        owner: "{{ irc_user }}"
+        group: "{{ irc_user }}"
+        state: directory
+        mode: "775"
+      become: true
+
+    - name: Add the WeeChat certificates
+      ansible.builtin.copy:
+        dest: "{{ weechat_certs_directory }}/{{ item | basename }}"
+        src: "{{ item }}"
+        owner: "{{ irc_user }}"
+        group: "{{ irc_user }}"
+        mode: "600"
+      become: true
+      loop: "{{ irc_weechat_tls_cert_controller_paths }}"
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances
