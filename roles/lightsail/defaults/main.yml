@@ -1,5 +1,0 @@
----
-typical_user: conner
-typical_user_password: $6$1234$B4Ea6.5maChxdHpoCfkYFc8J7w8gfAowUfyjuATHSPawgcRn.jJExi6itqEhSMJLGdwTxKRlHX1XZ/SmDufT0. # Passw0rd!
-typical_user_home: /home/{{ typical_user }}
-typical_user_pubkey_controller_path: ""
