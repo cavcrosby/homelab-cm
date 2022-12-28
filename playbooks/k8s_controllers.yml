@@ -77,7 +77,13 @@
       vars:
         haproxy_config_target_file: haproxy.cfg
 
-    - keepalived
+    - role: keepalived
+      vars:
+        keepalived_config_file_template: poseidon/k8s-keepalived.conf.j2
+        keepalived_config_target_file: keepalived.conf
+        keepalived_health_check_script_template: poseidon/k8s-chklb.j2
+        keepalived_health_check_target_script: chklb
+
     - helm
     - k8s_kubeadm
 
