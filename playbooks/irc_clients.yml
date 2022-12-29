@@ -64,7 +64,7 @@
         mode: "600"
       become: true
       loop:
-        - ./certs/libera.pem
+        - ./certs/liberachat.pem
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances

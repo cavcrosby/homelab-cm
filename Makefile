@@ -22,7 +22,7 @@ BITWARDEN_SSH_KEYS = \
 BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
-	libera.pem\
+	liberachat.pem\
 	poseidon_k8s_ca.crt
 
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
