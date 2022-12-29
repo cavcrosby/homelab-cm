@@ -84,7 +84,10 @@
         keepalived_health_check_script_template: poseidon/k8s-chklb.j2
         keepalived_health_check_target_script: chklb
 
-    - helm
+    - role: helm
+      vars:
+        helm_gpg_sha256_checksum: 15ca14a5d574770393ea424157a3ce7ebb873cb7d749d08e3abae46581ca098d.
+
     - k8s_kubeadm
 
 - name: Setup Kubernetes control planes (first control-planes)
