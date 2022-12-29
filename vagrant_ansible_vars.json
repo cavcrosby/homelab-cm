@@ -358,10 +358,6 @@
         },
         "poseidon:vars": {
             "k8s_software_versions_file": "poseidon_k8s_software_versions.yml"
-        },
-        "poseidon_k8s_controllers:vars": {
-            "ca_key": "poseidon_k8s_staging_ca.key",
-            "ca_cert": "poseidon_k8s_staging_ca.crt"
         }
     }
 }

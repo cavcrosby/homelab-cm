@@ -1,3 +1,5 @@
 ---
 k8s_api_server_port: 6443
 cri_socket_path: unix:///var/run/containerd/containerd.sock
+ca_key: poseidon_k8s_ca.key
+ca_cert: poseidon_k8s_ca.crt
