@@ -19,6 +19,11 @@ BITWARDEN_SSH_KEYS = \
 	id_rsa_irc.pub\
 	id_rsa_github_1
 
+BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/rsa_keys
+BITWARDEN_RSA_KEYS_ITEMID = 0a2e75a3-7f1d-4720-ad05-aec2016c4ba9
+BITWARDEN_RSA_KEYS = \
+	poseidon_k8s_ca.key
+
 BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
@@ -241,6 +246,18 @@ else
 			"$${ssh_key}" \
 			--itemid "${BITWARDEN_SSH_KEYS_ITEMID}" \
 			--output "${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
+	done
+
+>	@for rsa_key in ${BITWARDEN_RSA_KEYS}; do \
+		echo ${NPX} ${BW} get attachment \
+			"$${rsa_key}" \
+			--itemid \"${BITWARDEN_RSA_KEYS_ITEMID}\" \
+			--output \"${BITWARDEN_RSA_KEYS_DIR_PATH}/$${rsa_key}\"; \
+		\
+		${NPX} ${BW} get attachment \
+			"$${rsa_key}" \
+			--itemid "${BITWARDEN_RSA_KEYS_ITEMID}" \
+			--output "${BITWARDEN_RSA_KEYS_DIR_PATH}/$${rsa_key}"; \
 	done
 
 >	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
