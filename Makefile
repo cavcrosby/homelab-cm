@@ -15,9 +15,8 @@ BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
 BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
 BITWARDEN_SSH_KEYS = \
-	LightsailDefaultKey-us-east-1.pem\
-	id_rsa_irc.pub\
-	id_rsa_github_1
+	id_rsa_ron.pub\
+	id_rsa_roxanne.pub
 
 BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/rsa_keys
 BITWARDEN_RSA_KEYS_ITEMID = 0a2e75a3-7f1d-4720-ad05-aec2016c4ba9
