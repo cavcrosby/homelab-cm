@@ -1,4 +1,7 @@
 ---
+- name: Configure the on premises nodes
+  ansible.builtin.import_playbook: on_prem.yml
+
 - name: Configure the Kubernetes controller nodes
   ansible.builtin.import_playbook: k8s_controllers.yml
 

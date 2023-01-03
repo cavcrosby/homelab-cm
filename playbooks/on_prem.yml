@@ -1,0 +1,77 @@
+---
+- name: Perform on premises node configurations
+  hosts: on_prem
+  tags: on_prem_node_configurations
+  vars:
+    systemd_logind_configs_dir_path: /etc/systemd/logind.conf.d
+    pam_access_configs_dir_path: /etc/security/access.d
+
+  tasks:
+    - name: Lockdown the root account
+      ansible.builtin.user:
+        name: root
+        state: present
+        password: !
+        password_lock: true
+      become: true
+
+    - name: Create the systemd logind drop-in configurations directory
+      ansible.builtin.file:
+        path: "{{ systemd_logind_configs_dir_path }}"
+        recurse: true
+        state: directory
+      become: true
+
+    - name: Create the customized systemd logind configuration file
+      ansible.builtin.template:
+        src: systemd-logind.conf.j2
+        dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
+        mode: "644"
+      become: true
+
+    # the replacement line was grabbed off a machine, so the spacing is intentional
+    - name: Enable the pam_access module for the login program
+      ansible.builtin.replace:
+        path: /etc/pam.d/login
+        regexp: '^#\s*account\s+required\s+pam_access.so$'
+        replace: account  required       pam_access.so
+      become: true
+
+    - name: Create the pam_access configurations directory
+      ansible.builtin.file:
+        path: "{{ pam_access_configs_dir_path }}"
+        recurse: true
+        state: directory
+      become: true
+
+    - name: Create the customized pam_access configuration file
+      ansible.builtin.template:
+        src: pam_access.conf.j2
+        dest: "{{ pam_access_configs_dir_path }}/homelab-access.conf"
+        mode: "644"
+      become: true
+
+- name: Create the bare-metal node administration account
+  hosts: bare_metal
+  tags: create_bare_metal_admin_account
+  vars_files:
+    - ./vars/ansible_secrets.yml
+
+  tasks:
+    - name: Create the admin group
+      ansible.builtin.group:
+        name: admin
+        state: present
+      become: true
+
+    - name: Create the admin user (debian-like)
+      ansible.builtin.user:
+        name: admin
+        group: admin
+        groups: sudo
+        state: present
+        home: /home/admin
+        shell: /bin/bash
+        password: "{{ admin_system_user_password }}"
+      become: true
+      when: ansible_os_family | lower == "debian"

@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+#
+# Config file that supplements '/etc/security/access.conf'.
+
+# deny logins for {{ ansible_user }} on tty1 tty2 tty3
+-:{{ ansible_user }}:tty1 tty2 tty3

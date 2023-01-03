@@ -298,6 +298,10 @@
         }
     },
     "ansible_groups": {
+        "on_prem:children": [
+            "bare_metal",
+            "virtual_machines"
+        ],
         "k8s_controllers:children": [
             "k8s_first_controllers",
             "k8s_ha_controllers"
@@ -343,14 +347,16 @@
         "load_balancers": [
             "staging-node1"
         ],
-        "on_prem": [
+        "bare_metal": [
+            "staging-node1"
+        ],
+        "virtual_machines": [
             "poseidon-k8s-worker1",
             "poseidon-k8s-worker2",
             "poseidon-k8s-worker3",
             "poseidon-k8s-controller1",
             "poseidon-k8s-controller2",
-            "poseidon-k8s-controller3",
-            "staging-node1"
+            "poseidon-k8s-controller3"
         ],
         "all:vars": {
             "ansible_user": "vagrant",
