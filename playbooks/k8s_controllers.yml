@@ -102,7 +102,7 @@
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
   pre_tasks:
-    - name: Create the Kubernetes certificate directory
+    - name: Create the Kubernetes certificates directory
       ansible.builtin.file:
         path: "{{ k8s_cert_dir_path }}"
         recurse: true

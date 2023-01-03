@@ -42,7 +42,7 @@
         system: true
       become: true
 
-    - name: Evaluate track script for keepalived
+    - name: Create the track script for keepalived
       ansible.builtin.template:
         src: "{{ keepalived_health_check_script_template }}"
         dest: "{{ _keepalived_health_check_script_path }}"

@@ -13,7 +13,7 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Create a haproxy configuration directory
+- name: Create a haproxy configurations directory
   ansible.builtin.file:
     path: "{{ _haproxy_config_dir_path }}"
     state: directory
