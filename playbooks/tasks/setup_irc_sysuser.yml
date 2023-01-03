@@ -1,7 +1,14 @@
 ---
+- name: Create the IRC system user group
+  ansible.builtin.group:
+    name: "{{ irc_system_user }}"
+    state: present
+  become: true
+
 - name: Create the IRC system user
   ansible.builtin.user:
     name: "{{ irc_system_user }}"
+    group: "{{ irc_system_user }}"
     state: present
     home: "{{ irc_system_user_home }}"
     shell: /bin/bash
