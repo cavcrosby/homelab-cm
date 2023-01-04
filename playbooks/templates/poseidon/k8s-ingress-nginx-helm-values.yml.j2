@@ -1,5 +1,7 @@
-# {{ ansible_managed }}
 ---
+{#  
+  Values to pass to the Ingress NGINX Helm chart.
+#}
 imagePullSecrets:
   - name: {{ dockerhub_creds_secret_name }}
 controller:

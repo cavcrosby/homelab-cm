@@ -1,0 +1,6 @@
+# {{ ansible_managed }}
+#
+# Additional customizations for cloud-init.
+
+hostname: "{{ inventory_hostname | capitalize }}"
+manage_etc_hosts: true

@@ -1,15 +1,9 @@
 ---
 - name: Create customizations on top of the default cloud-init configurations
-  ansible.builtin.copy:
+  ansible.builtin.template:
+    src: cloud-init.cfg.j2
     dest: /etc/cloud/cloud.cfg.d/99_{{ inventory_hostname }}.cfg
     mode: "644"
-    content: |
-      #
-      #
-      # ANSIBLE MANAGED
-
-      hostname: "{{ inventory_hostname | capitalize }}"
-      manage_etc_hosts: true
   become: true
 
 - name: Rerun particular cloud-init modules

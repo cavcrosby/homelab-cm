@@ -1,7 +1,9 @@
-# {{ ansible_managed }}
 {% set jenkins_agent_handler = "jenkins-agent-handler" %}
 {% set jenkins_service = "jenkins" %}
 ---
+{#  
+  Manifest that deploys jenkins (jenkins-torkel) onto Kubernetes.
+#}
 apiVersion: v1
 kind: Secret
 type: Opaque
