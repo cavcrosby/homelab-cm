@@ -30,6 +30,6 @@
     group: "{{ irc_system_user }}"
     mode: "600"
     content: |
-      {{ lookup('file', './ssh_keys/id_rsa_ron.pub') }}
-      {{ lookup('file', './ssh_keys/id_rsa_roxanne.pub') }}
+      {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_ron.pub') }}
+      {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_roxanne.pub') }}
   become: true
