@@ -9,15 +9,9 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Create the Jenkins manifest
-  ansible.builtin.template:
-    src: "{{ jenkins_manifest_template }}"
-    dest: "{{ _jenkins_manifest_path }}"
-    mode: "600"
-
 - name: Apply the Jenkins manifest to the cluster
   kubernetes.core.k8s:
-    src: "{{ _jenkins_manifest_path }}"
+    template: "{{ jenkins_manifest_template }}"
     state: present
   become: true
   environment:

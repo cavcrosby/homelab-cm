@@ -12,8 +12,6 @@
     - name: Install Ingress NGINX controller
       vars:
         ingress_nginx_namespace: ingress-nginx
-        ingress_nginx_manifest_path: /tmp/{{ (ingress_nginx_manifest_template | basename | splitext)[:-1] | join('.') }}
-        ingress_nginx_helm_values_file_path: /tmp/{{ (ingress_nginx_helm_values_file_template | basename | splitext)[:-1] | join('.') }}
         dockerhub_creds_secret_name: dockerhub-creds
       block:
         - name: Create the Ingress NGINX namespace
@@ -26,29 +24,13 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
-        # DISCUSS(cavcrosby): the kubernetes.core.k8s task has a template parameter that
-        # can take a jinja template from the controller but vars such as 'ansible_managed'
-        # for some reason are not known to this task and cause it to fail. I should
-        # determine if said variable is worth keeping vs eliminating unnecessary tasks.
-        - name: Create the Ingress NGINX Kubernetes resources manifest
-          ansible.builtin.template:
-            src: "{{ ingress_nginx_manifest_template }}"
-            dest: "{{ ingress_nginx_manifest_path }}"
-            mode: "600"
-
         - name: Apply the Ingress NGINX Kubernetes manifest to the cluster
           kubernetes.core.k8s:
-            src: "{{ ingress_nginx_manifest_path }}"
+            template: "{{ ingress_nginx_manifest_template }}"
             state: present
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
-
-        - name: Create the Ingress NGINX Helm values file
-          ansible.builtin.template:
-            src: "{{ ingress_nginx_helm_values_file_template }}"
-            dest: "{{ ingress_nginx_helm_values_file_path }}"
-            mode: "600"
 
         - name: Add the Ingress NGINX Helm repo
           kubernetes.core.helm_repository:
@@ -64,8 +46,7 @@
             release_namespace: "{{ ingress_nginx_namespace }}"
             create_namespace: true
             release_state: present
-            values_files:
-              - "{{ ingress_nginx_helm_values_file_path }}"
+            values: "{{ lookup('ansible.builtin.template', ingress_nginx_helm_values_file_template) | from_yaml }}"
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
