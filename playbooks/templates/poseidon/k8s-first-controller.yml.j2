@@ -15,6 +15,10 @@ certificateKey: {{ k8s_certs_encrypt_key }}
 bootstrapTokens:
   - token: {{ k8s_bootstrap_token }}
     ttl: 1h0m0s
+nodeRegistration:
+  kubeletExtraArgs:
+    address: {{ kubelet_listen_ipv4_addr }}
+    node-ip: {{ kubelet_listen_ipv4_addr }}
 
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
@@ -25,3 +29,8 @@ networking:
   serviceSubnet: {{ k8s_service_subnet }}
   podSubnet: {{ k8s_pod_subnet }}
   dnsDomain: {{ homelab_poseidon_k8s_network_domain }}
+
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+serverTLSBootstrap: true

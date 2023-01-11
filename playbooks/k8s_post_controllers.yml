@@ -50,3 +50,39 @@
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Setup the Metrics Server
+      vars:
+        sign_kubelet_csrs_target_script: sign_kubelet_csrs
+        sign_kubelet_csrs_script_path: /usr/local/bin/{{ sign_kubelet_csrs_target_script }}
+      block:
+        - name: Copy the sign_kubelet_csrs utility to the controller
+          ansible.builtin.copy:
+            dest: "{{ sign_kubelet_csrs_script_path }}"
+            src: ./scripts/{{ sign_kubelet_csrs_target_script }}
+            mode: "744"
+          become: true
+
+        - name: Approves CSRs that are pending from nodes' kubelets
+          ansible.builtin.command: "{{ sign_kubelet_csrs_script_path }}"
+          changed_when: approve_csrs_script.stdout != ""
+          failed_when: approve_csrs_script.stderr != ""
+          become: true
+          register: approve_csrs_script
+
+        - name: Add the Metrics Server Helm repo
+          kubernetes.core.helm_repository:
+            repo_name: metrics-server
+            repo_url: https://kubernetes-sigs.github.io/metrics-server/
+          become: true
+
+        - name: Deploy the Metrics Server Helm chart inside the metrics-server namespace
+          kubernetes.core.helm:
+            release_name: metrics-server
+            chart_ref: metrics-server/metrics-server
+            chart_version: "{{ metrics_server_chart_version }}"
+            release_namespace: kube-system
+            release_state: present
+          become: true
+          environment:
+            KUBECONFIG: /etc/kubernetes/admin.conf

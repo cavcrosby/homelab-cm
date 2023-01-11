@@ -10,6 +10,9 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_config_refs": {
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -32,6 +35,9 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_config_refs": {
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -54,6 +60,9 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_config_refs": {
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
+            },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
                     "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
@@ -88,6 +97,7 @@
             "vrrp_priority": "150",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
             },
             "vagrant_external_config_refs": {
@@ -115,6 +125,7 @@
             "vrrp_priority": "100",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
             },
             "vagrant_external_config_refs": {
@@ -142,6 +153,7 @@
             "vrrp_priority": "100",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_mgmt_ipv4_addr",
+                "kubelet_listen_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr",
                 "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_mgmt_ipv4_addr"
             },
             "vagrant_external_config_refs": {
