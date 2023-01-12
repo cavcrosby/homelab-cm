@@ -176,6 +176,10 @@ spec:
             containerPort: {{ jenkins_http_port }}
           - name: agent-port
             containerPort: {{ jenkins_agent_port }}
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 1500Mi
         readinessProbe:
           httpGet:
             path: /login

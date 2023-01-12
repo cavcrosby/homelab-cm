@@ -18,5 +18,27 @@ installation:
         encapsulation: None
         natOutgoing: Enabled
         nodeSelector: all()
+  componentResources:
+    - componentName: Node
+      resourceRequirements:
+        requests:
+          cpu: 50m
+          memory: 300Mi
+    - componentName: Typha
+      resourceRequirements:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+    - componentName: KubeControllers
+      resourceRequirements:
+        requests:
+          cpu: 50m
+          memory: 100Mi
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 200Mi
+
 apiServer:
   enabled: true

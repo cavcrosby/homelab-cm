@@ -83,6 +83,11 @@
             chart_version: "{{ metrics_server_chart_version }}"
             release_namespace: kube-system
             release_state: present
+            values:
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 200Mi
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
