@@ -40,12 +40,12 @@
 - name: Check node is already part of a Kubernetes cluster
   kubernetes.core.k8s_cluster_info:
     kubeconfig: /etc/kubernetes/kubelet.conf
-  become: true
-  register: k8s_cluster_info
   changed_when: false
   failed_when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' not in k8s_cluster_info.msg"
+  become: true
+  register: k8s_cluster_info
 
 - name: Create the kubeadm (join) configuration file
   ansible.builtin.template:
