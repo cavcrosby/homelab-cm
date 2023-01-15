@@ -14,6 +14,13 @@ frontend poseidon_k8s_controller_frontend
 
 backend k8s_controller_endpoints
   balance roundrobin
-  server poseidon-k8s-controller1 {{ poseidon_k8s_controller1_cluster_ipv4_addr }}:{{ k8s_api_server_port }}
-  server poseidon-k8s-controller2 {{ poseidon_k8s_controller2_cluster_ipv4_addr }}:{{ k8s_api_server_port }}
-  server poseidon-k8s-controller3 {{ poseidon_k8s_controller3_cluster_ipv4_addr }}:{{ k8s_api_server_port }}
+  option httpchk
+  default-server ca-file {{ k8s_root_cacert_path }}
+
+  http-check connect ssl
+  http-check send meth GET uri /readyz
+  http-check expect status 200
+
+  server poseidon-k8s-controller1 {{ poseidon_k8s_controller1_cluster_ipv4_addr }}:{{ k8s_api_server_port }} check
+  server poseidon-k8s-controller2 {{ poseidon_k8s_controller2_cluster_ipv4_addr }}:{{ k8s_api_server_port }} check
+  server poseidon-k8s-controller3 {{ poseidon_k8s_controller3_cluster_ipv4_addr }}:{{ k8s_api_server_port }} check

@@ -72,9 +72,45 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
+    - name: Create the Kubernetes certificates directory
+      ansible.builtin.file:
+        path: "{{ k8s_cert_dir_path }}"
+        recurse: true
+        state: directory
+      become: true
+
+    - name: Copy the self-signed CA key into the Kubernetes certificate directory
+      ansible.builtin.copy:
+        dest: "{{ k8s_cert_dir_path }}/ca.key"
+        src: ./rsa_keys/{{ ca_key }}
+        mode: "600"
+      become: true
+
+    - name: Copy the self-signed CA certificate into the Kubernetes certificate directory
+      ansible.builtin.copy:
+        dest: "{{ k8s_root_cacert_path }}"
+        src: ./certs/{{ ca_cert }}
+        mode: "644"
+      become: true
+
+    - name: Register the self-signed CA certificate file inode
+      ansible.builtin.stat:
+        path: "{{ k8s_root_cacert_path }}"
+      become: true
+      register: k8s_root_cacert_inode
+
+    - name: Register the modification time of the self-signed CA certificate
+      ansible.builtin.set_fact:
+        initial_k8s_root_cacert_mtime: "{{ k8s_root_cacert_inode.stat.mtime }}"
+
     - name: Add common handlers
       ansible.builtin.import_role:
         name: cavcrosby.general.common
+        handlers_from: main
+
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
         handlers_from: main
 
     - name: Configure firewall for the particular Calico deployment
@@ -110,27 +146,6 @@
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
   pre_tasks:
-    - name: Create the Kubernetes certificates directory
-      ansible.builtin.file:
-        path: "{{ k8s_cert_dir_path }}"
-        recurse: true
-        state: directory
-      become: true
-
-    - name: Copy the self-signed CA key into the Kubernetes certificate directory
-      ansible.builtin.copy:
-        dest: "{{ k8s_cert_dir_path }}/ca.key"
-        src: ./rsa_keys/{{ ca_key }}
-        mode: "600"
-      become: true
-
-    - name: Copy the self-signed CA certificate into the Kubernetes certificate directory
-      ansible.builtin.copy:
-        dest: "{{ k8s_cert_dir_path }}/ca.crt"
-        src: ./certs/{{ ca_cert }}
-        mode: "644"
-      become: true
-
     - name: Add common handlers
       ansible.builtin.import_role:
         name: cavcrosby.general.common
@@ -189,3 +204,27 @@
   roles:
     - role: k8s_control_plane
       become: true
+
+- name: Setup Kubernetes control planes (high availability) (poseidon)
+  hosts: k8s_ha_controllers:&poseidon
+  tags: configure_as_poseidon_k8s_ha_controller
+
+  pre_tasks:
+    - name: Add local common handlers
+      ansible.builtin.import_role:
+        name: common
+        handlers_from: main
+
+  tasks:
+    - name: Check the modification time of the self-signed CA certificate
+      ansible.builtin.stat:
+        path: "{{ k8s_root_cacert_path }}"
+      # Without casting the current inode's modification time to a str, it would have
+      # always returned a status of changed.
+      changed_when:
+        - initial_k8s_root_cacert_mtime is defined
+        - initial_k8s_root_cacert_mtime != (k8s_root_cacert_inode.stat.mtime | string)
+      become: true
+      register: k8s_root_cacert_inode
+      notify:
+        - Restart haproxy

@@ -17,3 +17,9 @@
     name: systemd-modules-load
     state: restarted
   become: true
+
+- name: Restart haproxy
+  ansible.builtin.service:
+    name: haproxy
+    state: restarted
+  become: true

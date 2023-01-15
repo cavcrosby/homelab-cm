@@ -16,6 +16,6 @@ frontend http_frontend
 
 backend ingress_nginx_k8s_http_endpoints
   balance roundrobin
-  server poseidon_k8s_worker1 {{ poseidon_k8s_worker1_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}
-  server poseidon_k8s_worker2 {{ poseidon_k8s_worker2_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}
-  server poseidon_k8s_worker3 {{ poseidon_k8s_worker3_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }}
+  server poseidon_k8s_worker1 {{ poseidon_k8s_worker1_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
+  server poseidon_k8s_worker2 {{ poseidon_k8s_worker2_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
+  server poseidon_k8s_worker3 {{ poseidon_k8s_worker3_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
