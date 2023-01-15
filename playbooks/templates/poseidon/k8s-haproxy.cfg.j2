@@ -8,11 +8,11 @@ defaults
   timeout connect 5s
   timeout server 15s
 
-frontend poseidon_k8s_controller_frontend
+frontend k8s
   bind *:{{ controller_lb_port }}
-  default_backend k8s_controller_endpoints
+  default_backend kube_apiservers
 
-backend k8s_controller_endpoints
+backend kube_apiservers
   balance roundrobin
   option httpchk
   default-server ca-file {{ k8s_root_cacert_path }}

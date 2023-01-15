@@ -8,13 +8,13 @@ defaults
   timeout connect 5s
   timeout server 60s
 
-frontend http_frontend
+frontend http
   bind {{ load_balancer_listen_ipv4_addr }}:80
   acl is_jenkins_torkel req.hdr(host) jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }}
 
-  use_backend ingress_nginx_k8s_http_endpoints if is_jenkins_torkel
+  use_backend poseidon_k8s_http_ingresses if is_jenkins_torkel
 
-backend ingress_nginx_k8s_http_endpoints
+backend poseidon_k8s_http_ingresses
   balance roundrobin
   server poseidon_k8s_worker1 {{ poseidon_k8s_worker1_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
   server poseidon_k8s_worker2 {{ poseidon_k8s_worker2_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
