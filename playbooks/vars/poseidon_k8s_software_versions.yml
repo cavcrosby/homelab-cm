@@ -3,6 +3,7 @@ kubernetes_version: v1.24.3
 kubeadm_version: 1.24.3-00
 kubectl_version: 1.24.3-00
 kubelet_version: 1.24.3-00
+etcdctl_version: v3.5.3
 containerd_version: 1.5.9-0ubuntu3
 calico_chart_version: v3.23.3  # chart version points to app version v3.23.3
 metrics_server_chart_version: 3.8.3  # chart version points to app version 0.6.2
