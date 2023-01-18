@@ -55,6 +55,7 @@ export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
 LOG =
 LOG_PATH = ./ansible.log
 VAGRANT_PROVIDER = ${LIBVIRT}
+export ANSIBLE_EXTRA_VARS =
 export ANSIBLE_TAGS = all
 
 # ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
@@ -152,6 +153,8 @@ ${HELP}:
 >	@echo '                             represented as the '-v' variant passed in (default: -v)'
 >	@echo '  ANSIBLE_SECRETS_ACTION   - determines the action to take concerning project'
 >	@echo '                             secrets (options: ${PUT})'
+>	@echo '  ANSIBLE_EXTRA_VARS       - pass variables into the ansible-playbook runtime, see'
+>	@echo '                             --extra-vars documentation on argument format'
 >	@echo '  LOG                      - when set, stdout/stderr will be redirected to a log'
 >	@echo '                             file (if the target supports it)'
 >	@echo '  LOG_PATH                 - used with LOG, determines the log path (default: ./ansible.log)'
@@ -169,11 +172,20 @@ ${SETUP}:
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}:
+ifeq (${ANSIBLE_EXTRA_VARS},)
 >	${ANSIBLE_PLAYBOOK} \
 		${ANSIBLE_VERBOSITY_OPT} \
 		--inventory "production" \
 		"./playbooks/site.yml" \
 		--ask-become-pass
+else
+>	${ANSIBLE_PLAYBOOK} \
+		${ANSIBLE_VERBOSITY_OPT} \
+		--ask-become-pass \
+		--inventory "production" \
+		--extra-vars ${ANSIBLE_EXTRA_VARS} \
+		"./playbooks/site.yml"
+endif
 
 .PHONY: ${STAGING}
 ${STAGING}:

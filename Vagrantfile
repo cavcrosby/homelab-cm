@@ -238,6 +238,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           xml.unlink()
         end
 
+        ansible_extra_vars = {}
+        if !ENV["ANSIBLE_EXTRA_VARS"].nil?
+          ENV["ANSIBLE_EXTRA_VARS"].split(/ |=/).each_slice(2) do |var_name, var_value|
+            ansible_extra_vars[var_name] = var_value
+          end
+        end
+
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.transform_keys(&:to_s).to_yaml)
         
@@ -251,7 +258,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }
+          }.merge(ansible_extra_vars)
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
@@ -267,7 +274,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }
+          }.merge(ansible_extra_vars)
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
@@ -283,7 +290,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }
+          }.merge(ansible_extra_vars)
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
@@ -312,7 +319,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }
+          }.merge(ansible_extra_vars)
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
