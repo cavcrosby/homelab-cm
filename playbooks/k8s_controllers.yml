@@ -116,6 +116,37 @@
     - name: Configure firewall for the particular Calico deployment
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
 
+    - name: Install etcdctl
+      vars:
+        etcd_tarball: etcd-{{ etcdctl_version }}-linux-amd64.tar.gz
+        etcd_extracted_tarball_parent_path: /tmp
+        etcd_download_path: "{{ etcd_extracted_tarball_parent_path }}/{{ etcd_tarball }}"
+        # regex was inspired by:
+        # https://stackoverflow.com/questions/61930563/extract-file-names-without-extension-ansible#answer-61931335
+        strip_exts_regex: ^(.*v\d+\.\d+\.\d+[^\.]*).*
+      block:
+        - name: Download the etcd tarball
+          ansible.builtin.get_url:
+            url: https://github.com/etcd-io/etcd/releases/download/{{ etcdctl_version }}/{{ etcd_tarball }}
+            dest: "{{ etcd_download_path }}"
+            checksum: sha256:e13e119ff9b28234561738cd261c2a031eb1c8688079dcf96d8035b3ad19ca58
+            mode: "755"
+          become: true
+
+        - name: Extract the etcd tarball into the desired directory
+          ansible.builtin.unarchive:
+            src: "{{ etcd_download_path }}"
+            dest: "{{ etcd_extracted_tarball_parent_path }}"
+            remote_src: true
+
+        - name: Install etcdctl into a accessible directory in the PATH
+          ansible.builtin.copy:
+            dest: /usr/local/bin/etcdctl
+            src: "{{ etcd_download_path | regex_replace(strip_exts_regex, '\\1') }}/etcdctl"
+            mode: "755"
+            remote_src: true
+          become: true
+
   roles:
     - role: haproxy
       vars:
