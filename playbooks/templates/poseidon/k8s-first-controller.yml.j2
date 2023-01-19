@@ -11,14 +11,13 @@ nodeRegistration:
   name: {{ ansible_hostname }}
   criSocket: {{ cri_socket_path }}
   taints: null
+  kubeletExtraArgs:
+    address: {{ kubelet_listen_ipv4_addr }}
+    node-ip: {{ kubelet_listen_ipv4_addr }}
 certificateKey: {{ k8s_certs_encrypt_key }}
 bootstrapTokens:
   - token: {{ k8s_bootstrap_token }}
     ttl: 1h0m0s
-nodeRegistration:
-  kubeletExtraArgs:
-    address: {{ kubelet_listen_ipv4_addr }}
-    node-ip: {{ kubelet_listen_ipv4_addr }}
 
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
