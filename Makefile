@@ -42,7 +42,6 @@ ANSIBLE_SECRETS = ansible-secrets
 LINT = lint
 DEVELOPMENT_SHELL = development-shell
 CLEAN = clean
-DIAGRAM = diagram
 
 # ansible-secrets actions
 PUT = put
@@ -142,7 +141,6 @@ ${HELP}:
 >	@echo '                         secrets are pulled into the project'
 >	@echo '  ${DEVELOPMENT_SHELL}    - runs a bash shell with make variables injected into'
 >	@echo '                         it to work with the project'\''s Vagrantfile'
->	@echo '  ${DIAGRAM}              - generate a infrastructure diagram of my homelab'
 >	@echo '  ${CLEAN}                - removes files generated from targets'
 >	@echo 'Common make configurations (e.g. make [config]=1 [targets]):'
 >	@echo '  ANSIBLE_TAGS             - set the tags denoting the tasks/roles/plays for'
@@ -211,10 +209,6 @@ ${LINT}:
 .PHONY: ${DEVELOPMENT_SHELL}
 ${DEVELOPMENT_SHELL}:
 >	${BASH} -i
-
-.PHONY: ${DIAGRAM}
-${DIAGRAM}:
->	${PYTHON} "./hldiag.py"
 
 .PHONY: ${ANSIBLE_SECRETS}
 ${ANSIBLE_SECRETS}:
