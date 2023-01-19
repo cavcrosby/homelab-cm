@@ -51,12 +51,13 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Install kubeadm, kubelet and kubectl (debian-like)
+- name: Install kubeadm, kubelet, kubectl, and cri-tools (debian-like)
   ansible.builtin.apt:
     name:
       - kubeadm={{ kubeadm_version }}
       - kubectl={{ kubectl_version }}
       - kubelet={{ kubelet_version }}
+      - cri-tools={{ cri_tools_version }}
     state: present
   become: true
   when: ansible_os_family | lower == "debian"
@@ -81,6 +82,13 @@
 - name: Prevent kubelet from being upgraded
   ansible.builtin.dpkg_selections:
     name: kubelet
+    selection: hold
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Prevent cri-tools from being upgraded
+  ansible.builtin.dpkg_selections:
+    name: cri-tools
     selection: hold
   become: true
   when: ansible_os_family | lower == "debian"
