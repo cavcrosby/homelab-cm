@@ -3,6 +3,6 @@
     "node": ">=18 <19"
   },
   "dependencies": {
-    "@bitwarden/cli": "^2022.11.0"
+    "@bitwarden/cli": "^2023.0.0"
   }
 }
