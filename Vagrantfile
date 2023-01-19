@@ -239,7 +239,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         ansible_extra_vars = {}
-        if !ENV["ANSIBLE_EXTRA_VARS"].nil?
+        if !ENV["ANSIBLE_EXTRA_VARS"].empty?
           ENV["ANSIBLE_EXTRA_VARS"].split(/ |=/).each_slice(2) do |var_name, var_value|
             ansible_extra_vars[var_name] = var_value
           end
