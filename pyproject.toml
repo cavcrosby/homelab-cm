@@ -6,7 +6,7 @@ requires-python = ">=3.10,<3.11"
 
 [[authors]]
 name = "Conner Crosby"
-email = "conner@cavcrosby.tech"
+email = "cavcrosby@gmail.com"
 
 [license]
 file = "./LICENSE"
