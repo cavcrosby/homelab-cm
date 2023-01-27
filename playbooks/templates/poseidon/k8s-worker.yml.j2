@@ -9,7 +9,6 @@ nodeRegistration:
   criSocket: {{ cri_socket_path }}
   taints: null
   kubeletExtraArgs:
-    address: {{ kubelet_listen_ipv4_addr }}
     node-ip: {{ kubelet_listen_ipv4_addr }}
 discovery:
   bootstrapToken:
@@ -17,3 +16,5 @@ discovery:
     apiServerEndpoint: {{ k8s_controller_endpoint }}
     caCertHashes:
       - {{ k8s_ca_key_hash }}
+patches:
+  directory: {{ kubeadm_patches_dir_path }}

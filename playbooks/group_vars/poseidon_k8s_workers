@@ -1,3 +1,5 @@
 ---
 cri_socket_path: unix:///var/run/containerd/containerd.sock
 k8s_worker_join_config_template: poseidon/k8s-worker.yml.j2
+k8s_worker_join_patch_templates:
+  - poseidon/kubeletconfiguration.yaml.j2

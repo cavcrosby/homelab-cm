@@ -1,2 +1,4 @@
 ---
 k8s_controller_join_config_template: poseidon/k8s-ha-controller.yml.j2
+k8s_controller_join_patch_templates:
+  - poseidon/kubeletconfiguration.yaml.j2

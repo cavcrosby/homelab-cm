@@ -1,9 +1,15 @@
 ---
+# Dir that will contain patches to combine with InitConfiguration and
+# JoinConfiguration on individual nodes.
+kubeadm_patches_dir_path: /run/ansible
+
 # file that contains elements specific to 'kubeadm init' runtime information
 k8s_controller_init_config_template: ""
+k8s_controller_init_patch_templates: []
 
 # file that contains elements specific to 'kubeadm join' runtime information
 k8s_controller_join_config_template: ""
+k8s_controller_join_patch_templates: []
 
 _k8s_controller_init_config_path: /tmp/{{ (k8s_controller_init_config_template | basename | splitext)[:-1] | join('.') }}
 _k8s_controller_join_config_path: /tmp/{{ (k8s_controller_join_config_template | basename | splitext)[:-1] | join('.') }}

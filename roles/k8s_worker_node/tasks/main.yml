@@ -47,6 +47,29 @@
   become: true
   register: k8s_cluster_info
 
+- name: Create the kubeadm patches directory
+  ansible.builtin.file:
+    path: "{{ kubeadm_patches_dir_path }}"
+    recurse: true
+    state: directory
+  become: true
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_worker_join_patch_templates | length != 0
+
+- name: Create the kubeadm (join) patches
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ kubeadm_patches_dir_path }}"
+    mode: "600"
+  become: true
+  loop: "{{ k8s_worker_join_patch_templates }}"
+  when:
+    - k8s_cluster_info.msg is defined
+    - "'No configuration found' in k8s_cluster_info.msg"
+    - k8s_worker_join_patch_templates | length != 0
+
 - name: Create the kubeadm (join) configuration file
   ansible.builtin.template:
     src: "{{ k8s_worker_join_config_template }}"

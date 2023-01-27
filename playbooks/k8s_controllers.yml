@@ -129,7 +129,7 @@
           ansible.builtin.get_url:
             url: https://github.com/etcd-io/etcd/releases/download/{{ etcdctl_version }}/{{ etcd_tarball }}
             dest: "{{ etcd_download_path }}"
-            checksum: sha256:e13e119ff9b28234561738cd261c2a031eb1c8688079dcf96d8035b3ad19ca58
+            checksum: sha256:4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb.
             mode: "755"
           become: true
 

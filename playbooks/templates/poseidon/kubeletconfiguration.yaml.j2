@@ -1,0 +1,7 @@
+---
+{#  
+  Instance specific kubelet configs for a Kubernetes node.
+#}
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+address: {{ kubelet_listen_ipv4_addr }}
