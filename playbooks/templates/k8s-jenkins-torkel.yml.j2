@@ -12,7 +12,7 @@ metadata:
   namespace: {{ jenkins_instance_name }}
 stringData:
   jenkins_admin_password: {{ jenkins_torkel_admin_password }}
-  jenkins_admin_email_secret: {{ jenkins_torkel_admin_email_secret }}
+  jenkins_admin_email_secret: {{ smtp_email_secret }}
   jenkins_github_credential_secret: {{ jenkins_torkel_github_credential_secret }}
 
 ---
