@@ -47,47 +47,42 @@
   become: true
   register: k8s_cluster_info
 
-- name: Create the kubeadm patches directory
-  ansible.builtin.file:
-    path: "{{ kubeadm_patches_dir_path }}"
-    recurse: true
-    state: directory
-  become: true
+- name: Configure as a worker node
   when:
     - k8s_cluster_info.msg is defined
     - "'No configuration found' in k8s_cluster_info.msg"
-    - k8s_worker_join_patch_templates | length != 0
+  block:
+    - name: Create the kubeadm patches directory
+      ansible.builtin.file:
+        path: "{{ kubeadm_patches_dir_path }}"
+        recurse: true
+        state: directory
+      become: true
+      when:
+        - k8s_worker_join_patch_templates | length != 0
 
-- name: Create the kubeadm (join) patches
-  ansible.builtin.template:
-    src: "{{ item }}"
-    dest: "{{ kubeadm_patches_dir_path }}"
-    mode: "600"
-  become: true
-  loop: "{{ k8s_worker_join_patch_templates }}"
-  when:
-    - k8s_cluster_info.msg is defined
-    - "'No configuration found' in k8s_cluster_info.msg"
-    - k8s_worker_join_patch_templates | length != 0
+    - name: Create the kubeadm (join) patches
+      ansible.builtin.template:
+        src: "{{ item }}"
+        dest: "{{ kubeadm_patches_dir_path }}"
+        mode: "600"
+      become: true
+      loop: "{{ k8s_worker_join_patch_templates }}"
+      when:
+        - k8s_worker_join_patch_templates | length != 0
 
-- name: Create the kubeadm (join) configuration file
-  ansible.builtin.template:
-    src: "{{ k8s_worker_join_config_template }}"
-    dest: "{{ _k8s_worker_join_config_path }}"
-    mode: "600"
-  when:
-    - k8s_cluster_info.msg is defined
-    - "'No configuration found' in k8s_cluster_info.msg"
-    - k8s_worker_join_config_template | length != 0
+    - name: Create the kubeadm (join) configuration file
+      ansible.builtin.template:
+        src: "{{ k8s_worker_join_config_template }}"
+        dest: "{{ _k8s_worker_join_config_path }}"
+        mode: "600"
 
-- name: Join a Kubernetes cluster as a worker node
-  ansible.builtin.command: |
-    kubeadm join --config "{{ _k8s_worker_join_config_path }}"
-  become: true
-  when:
-    - k8s_cluster_info.msg is defined
-    - "'No configuration found' in k8s_cluster_info.msg"
-    - k8s_worker_join_config_template | length != 0
+    - name: Join a Kubernetes cluster as a worker node
+      ansible.builtin.command: |
+        kubeadm join --config "{{ _k8s_worker_join_config_path }}"
+      changed_when: kubeadm_join_check.rc == 0
+      become: true
+      register: kubeadm_join_check
 
 - name: Copy node kubeconfig file to communicate with control pane
   block:
