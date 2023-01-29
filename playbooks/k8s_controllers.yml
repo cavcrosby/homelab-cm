@@ -204,6 +204,7 @@
 
     - name: Setup the Calico CNI
       ansible.builtin.import_tasks: ./tasks/setup_calico.yml
+
   roles:
     - role: k8s_jenkins
       vars:
