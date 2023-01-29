@@ -194,11 +194,6 @@
     - ./vars/ansible_secrets.yml
 
   pre_tasks:
-    - name: Add common handlers
-      ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        handlers_from: main
-
     - name: Setup the Calico CNI
       ansible.builtin.import_tasks: ./tasks/setup_calico.yml
 
