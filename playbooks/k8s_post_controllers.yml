@@ -22,7 +22,7 @@
 
 - name: Install Helm charts (poseidon)
   hosts: k8s_first_controllers:&poseidon
-  tags: install_poseidon_k8s_first_controller_helm_charts
+  tags: install_poseidon_k8s_helm_charts
   vars_files:
     - ./vars/{{ k8s_software_versions_file }}
     - ./vars/ansible_secrets.yml
