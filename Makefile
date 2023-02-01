@@ -150,7 +150,7 @@ ${HELP}:
 >	@echo '  ANSIBLE_VERBOSITY_OPT    - set the verbosity level when running ansible commands,'
 >	@echo '                             represented as the '-v' variant passed in (default: -v)'
 >	@echo '  ANSIBLE_SECRETS_ACTION   - determines the action to take concerning project'
->	@echo '                             secrets (options: ${PUT})'
+>	@echo '                             secrets (options: put)'
 >	@echo '  ANSIBLE_EXTRA_VARS       - pass variables into the ansible-playbook runtime, see'
 >	@echo '                             --extra-vars documentation on argument format'
 >	@echo '  LOG                      - when set, stdout/stderr will be redirected to a log'
