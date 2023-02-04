@@ -75,7 +75,6 @@ GEM = gem
 PERL = perl
 PKILL = pkill
 JQ = jq
-SUDO = sudo
 BW = bw
 PYTHON = python
 PIP = pip
@@ -95,7 +94,6 @@ executables := \
 	${ANSIBLE_VAULT}\
 	${BUNDLE}\
 	${GEM}\
-	${SUDO}\
 	${BASH}\
 	${PYTHON}\
 	${PIP}\
