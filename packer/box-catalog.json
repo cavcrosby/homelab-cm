@@ -1,0 +1,14 @@
+{
+    "name": "cavcrosby/homelab-xcp-ng",
+    "versions": [
+        {
+            "version": "1.0.0",
+            "providers": [
+                {
+                    "name": "libvirt",
+                    "url": "file:///tmp/libvirt-homelab-xcp-ng.box"
+                }
+            ]
+        }
+    ]
+}

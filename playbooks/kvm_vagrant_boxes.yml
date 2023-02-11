@@ -1,0 +1,115 @@
+---
+- name: Configure the kvm_vagrant_box
+  hosts: all
+
+  tasks:
+    - name: Upgrade all packages (redhat-like)  # noqa package-latest
+      ansible.builtin.yum:
+        name: "*"
+        state: latest
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "redhat"
+            or ansible_os_family | lower == "xcp-ng"
+
+    - name: Install required packages by Vagrant (redhat-like)
+      ansible.builtin.yum:
+        name:
+          - sudo  # vagrant uses passwordless sudo
+        state: present
+      become: true
+      when: ansible_os_family | lower == "redhat"
+            or ansible_os_family | lower == "xcp-ng"
+
+    - name: Setup the vagrant user
+      vars:
+        vagrant_user: vagrant
+        vagrant_user_home: /home/vagrant
+      block:
+        - name: Create the vagrant user group
+          ansible.builtin.group:
+            name: "{{ vagrant_user }}"
+            state: present
+          become: true
+
+        - name: Create the vagrant user
+          ansible.builtin.user:
+            name: "{{ vagrant_user }}"
+            group: "{{ vagrant_user }}"
+            state: present
+            home: "{{ vagrant_user_home }}"
+            shell: /bin/bash
+            password: $6$288613618$adqEl9ZZZsk4ttiOUFQMSvfWKhrVNeX0uJMSArlHxKHTNwc6c0bzfaHtzXHrquDspT5Sb6tpdMuEg2HDchTbZ0  # vagrant
+          become: true
+
+        - name: Create the vagrant user's .ssh directory
+          ansible.builtin.file:
+            path: "{{ vagrant_user_home }}/.ssh"
+            owner: "{{ vagrant_user }}"
+            group: "{{ vagrant_user }}"
+            state: directory
+            mode: "700"
+          become: true
+
+        - name: Create the authorized_keys file to enable SSH access as the vagrant user
+          ansible.builtin.copy:
+            dest: "{{ vagrant_user_home }}/.ssh/authorized_keys"
+            owner: "{{ vagrant_user }}"
+            group: "{{ vagrant_user }}"
+            mode: "600"
+            # public key came from the following repo:
+            # https://github.com/hashicorp/vagrant/tree/main/keys
+            #
+            # Quoting is needed to be able to insert a newline at the end while maintaining
+            # the noqa rule skipping.
+            content: "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA6NF8iallvQVp22WDkTkyrtvp9eWW6A8YVr+kz4TjGYe7gHzIw+niNltGEFHzD8+v1I2YJ6oXevct1YeS0o9HZyN1Q9qgCgzUFtdOKLv6IedplqoPkcmF0aYet2PkEDo3MlTBckFXPITAMzF8dJSIFo9D8HfdOV0IAdx4O7PtixWKn5y2hMNG0zQPyUecp4pzC6kivAIhyfHilFR61RGL+GPXQ2MWZWFYbAGjyiYJnAmCP3NOTd0jMZEnDkbUvxhMmBYSdETk1rRgm+R4LOzFUGaHqHDLKLX+FIPKcF96hrucXzcWyLbIbEgE98OHlnVYCzRdK8jlqm8tehUc9c9WhQ== vagrant insecure public key\n"  # noqa yaml[line-length]
+          become: true
+
+    - name: Create the vagrant sudoers file
+      ansible.builtin.copy:
+        dest: /etc/sudoers.d/vagrant
+        mode: "440"
+        content: |
+          Defaults:vagrant !requiretty
+          vagrant ALL=(ALL) NOPASSWD: ALL
+      become: true
+
+    - name: Disable reverse DNS lookup on the connecting SSH client
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: '^#\s*UseDNS\s*(no|yes)$'
+        replace: UseDNS no
+      become: true
+
+    - name: Nuke current network interface configurations so XCP-ng can be exported
+      when: ansible_os_family | lower == "xcp-ng"
+      block:
+        - name: Stop the xapi service
+          ansible.builtin.service:
+            name: xapi
+            state: stopped
+          become: true
+
+        - name: Stop the xcp-networkd service
+          ansible.builtin.service:
+            name: xcp-networkd
+            state: stopped
+          become: true
+
+        - name: Remove the xcp-networkd networkd.db file
+          ansible.builtin.file:
+            path: /var/lib/xcp/networkd.db
+            state: absent
+          become: true
+
+        - name: Remove the dynamic-rules json from the interface data directory
+          ansible.builtin.file:
+            path: /etc/sysconfig/network-scripts/interface-rename-data/dynamic-rules.json
+            state: absent
+          become: true
+
+        - name: Remove the backup dynamic-rules json from the interface data directory
+          ansible.builtin.file:
+            path: /etc/sysconfig/network-scripts/interface-rename-data/.from_install/dynamic-rules.json
+            state: absent
+          become: true
