@@ -341,15 +341,15 @@ build-iPhoneSimulator/
 
 # repo specific
 .vagrant
-vendor
 .python-version
 *.iso
 *.iso.sum
 *.box
+*.log
+*.png
+vendor/
 playbooks/vars/ansible_secrets.yml
 playbooks/ssh_keys
 playbooks/rsa_keys
 playbooks/certs
 packer/libvirt-xcp-ng/output
-*.log
-*.png
