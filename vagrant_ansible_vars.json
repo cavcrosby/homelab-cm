@@ -1,8 +1,8 @@
 { 
     "ansible_host_vars": {
         "poseidon-k8s-worker1": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.50",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.3",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.50",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.3",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
             "vagrant_vm_net_mac_addr": "52:54:00:c5:84:76",
@@ -26,8 +26,8 @@
             }
         },
         "poseidon-k8s-worker2": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.51",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.4",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.51",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
             "vagrant_vm_net_mac_addr": "52:54:00:1a:20:8b",
@@ -51,8 +51,8 @@
             }
         },
         "poseidon-k8s-worker3": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.52",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.5",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.52",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.5",
             "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
             "vagrant_vm_net_mac_addr": "52:54:00:52:38:c9",
@@ -76,8 +76,8 @@
             }
         },
         "poseidon-k8s-controller1": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.3",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.6",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.3",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.6",
             "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
             "vagrant_vm_net_mac_addr": "52:54:00:b6:ab:90",
@@ -110,8 +110,8 @@
             }
         },
         "poseidon-k8s-controller2": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.4",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.7",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.4",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.7",
             "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
             "vagrant_vm_net_mac_addr": "52:54:00:01:17:e0",
@@ -138,8 +138,8 @@
             }
         },
         "poseidon-k8s-controller3": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.5",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.8",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.5",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.8",
             "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
             "vagrant_vm_net_mac_addr": "52:54:00:de:17:21",
@@ -166,9 +166,9 @@
             }
         },
         "staging-node1": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.2",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.9",
-            "vagrant_vm_net_ipv4_addr": "192.168.112.2",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.9",
+            "vagrant_vm_net_ipv4_addr": "192.168.3.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
             "vagrant_vm_net_mac_addr": "52:54:00:a5:cb:61",
@@ -298,8 +298,8 @@
             }
         },
         "irc-client1": {
-            "vagrant_vm_homelab_ipv4_addr": "10.10.100.100",
-            "vagrant_vm_mgmt_ipv4_addr": "192.168.111.10",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.100",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.10",
             "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
             "vagrant_vm_net_mac_addr": "52:54:00:53:8f:53",
