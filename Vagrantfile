@@ -157,7 +157,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       <port start='1024' end='65535'/>
     </nat>
   </forward>
-  <bridge name='virbr2' stp='on' delay='0'/>
   <mac address='52:54:00:4c:7a:ea'/>
   <ip address='192.168.2.1' netmask='255.255.255.0'>
     <dhcp>
