@@ -7,24 +7,7 @@ require 'tempfile'
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
-
-VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME = "net-homelab-cm-libvirt"
-VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR = "192.168.3.1"
-
 VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET = "192.168.2.0/24"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR = "192.168.2.1"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET_MASK = "255.255.255.0"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR = "52:54:00:4c:7a:ea"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND = "192.168.2.3"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND = "192.168.2.254"
-
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "homelab-cm-libvirt"
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET = "192.168.1.0/24"
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = "192.168.1.1"
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK = "255.255.255.0"
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND = "192.168.1.50"
-VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND = "192.168.1.254"
 VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "staging-homelab.cavcrosby.tech"
 
 ANSIBLE_HOST_VARS = JSON.parse(
@@ -45,10 +28,10 @@ ANSIBLE_GROUPS = JSON.parse(
     </nat>
   </forward>
   <bridge name='virbr2' stp='on' delay='0'/>
-  <mac address='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_MAC_ADDR}'/>
-  <ip address='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_IPV4_ADDR}' netmask='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET_MASK}'>
+  <mac address='52:54:00:4c:7a:ea'/>
+  <ip address='192.168.2.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_LOWER_BOUND}' end='#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_UPPER_BOUND}'/>
+      <range start='192.168.2.3' end='192.168.2.254'/>
     </dhcp>
   </ip>
 </network>
@@ -57,15 +40,19 @@ _EOF_
 # inspired by:
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
 vagrant_homelab_network_configs = {
-  homelab_network_domain: VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
-  homelab_poseidon_k8s_network_domain: "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
-  homelab_poseidon_vrrp_server_vip: "192.168.2.2",
-  homelab_network_subnet: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET,
-  homelab_network_gateway_ipv4_addr: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
-  homelab_network_subnet_mask: VAGRANT_LIBVIRT_HOMELAB_NETWORK_SUBNET_MASK,
-  homelab_network_lower_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_LOWER_BOUND,
-  homelab_network_upper_bound: VAGRANT_LIBVIRT_HOMELAB_NETWORK_UPPER_BOUND
+  "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
+  "homelab_poseidon_k8s_network_domain" => "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
+  "homelab_poseidon_vrrp_server_vip" => "192.168.2.2",
+  "homelab_network_subnet" => "192.168.1.0/24",
+  "homelab_network_gateway_ipv4_addr" => "192.168.1.1",
+  "homelab_network_subnet_mask" => "255.255.255.0",
+  "homelab_network_lower_bound" => "192.168.1.50",
+  "homelab_network_upper_bound" => "192.168.1.254"
 }
+
+# exported constants
+VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"]
+VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR = "192.168.3.1"
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
@@ -176,7 +163,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "libvirt" do |domains|
     domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
     domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
-    domains.management_network_address = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_SUBNET
+    domains.management_network_address = "192.168.2.0/24"
   end
 
   counter = 0
@@ -193,13 +180,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       machine.vm.box = machine_attrs["vagrant_vm_box"]
       machine.vm.network "private_network",
         mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
-        libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME,
-        libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR,
+        libvirt__network_name: "homelab-cm-libvirt",
+        libvirt__host_ip: vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"],
         libvirt__dhcp_enabled: false
 
       machine.vm.network "private_network",
         mac: machine_attrs["vagrant_vm_net_mac_addr"],
-        libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_NAME,
+        libvirt__network_name: "net-homelab-cm-libvirt",
         libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR,
         libvirt__dhcp_enabled: false
 
