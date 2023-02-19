@@ -7,7 +7,6 @@ require 'tempfile'
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
-VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
 VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "staging-homelab.cavcrosby.tech"
 
 ANSIBLE_HOST_VARS = JSON.parse(
@@ -17,25 +16,6 @@ ANSIBLE_HOST_VARS = JSON.parse(
 ANSIBLE_GROUPS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_groups"]
-
-@libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
-<network ipv6='yes'>
-  <name>#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}</name>
-  <uuid>206e8c36-866a-4723-a262-011a8152febb</uuid>
-  <forward mode='nat'>
-    <nat>
-      <port start='1024' end='65535'/>
-    </nat>
-  </forward>
-  <bridge name='virbr2' stp='on' delay='0'/>
-  <mac address='52:54:00:4c:7a:ea'/>
-  <ip address='192.168.2.1' netmask='255.255.255.0'>
-    <dhcp>
-      <range start='192.168.2.3' end='192.168.2.254'/>
-    </dhcp>
-  </ip>
-</network>
-_EOF_
 
 # inspired by:
 # https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
@@ -156,6 +136,8 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
+
   # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
@@ -165,6 +147,25 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
     domains.management_network_address = "192.168.2.0/24"
   end
+
+  @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
+<network ipv6='yes'>
+  <name>#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}</name>
+  <uuid>206e8c36-866a-4723-a262-011a8152febb</uuid>
+  <forward mode='nat'>
+    <nat>
+      <port start='1024' end='65535'/>
+    </nat>
+  </forward>
+  <bridge name='virbr2' stp='on' delay='0'/>
+  <mac address='52:54:00:4c:7a:ea'/>
+  <ip address='192.168.2.1' netmask='255.255.255.0'>
+    <dhcp>
+      <range start='192.168.2.3' end='192.168.2.254'/>
+    </dhcp>
+  </ip>
+</network>
+_EOF_
 
   counter = 0
   management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
