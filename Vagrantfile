@@ -136,7 +136,7 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm-libvirt"
+  VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm"
 
   # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -181,13 +181,13 @@ _EOF_
       machine.vm.box = machine_attrs["vagrant_vm_box"]
       machine.vm.network "private_network",
         mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
-        libvirt__network_name: "homelab-cm-libvirt",
+        libvirt__network_name: "homelab-cm",
         libvirt__host_ip: vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"],
         libvirt__dhcp_enabled: false
 
       machine.vm.network "private_network",
         mac: machine_attrs["vagrant_vm_net_mac_addr"],
-        libvirt__network_name: "net-homelab-cm-libvirt",
+        libvirt__network_name: "net-homelab-cm",
         libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR,
         libvirt__dhcp_enabled: false
 
