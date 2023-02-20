@@ -17,8 +17,6 @@ ANSIBLE_GROUPS = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )["ansible_groups"]
 
-# inspired by:
-# https://stackoverflow.com/questions/53093316/ruby-to-yaml-colon-in-keys#answer-53093339
 vagrant_homelab_network_configs = {
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
   "homelab_poseidon_k8s_network_domain" => "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
@@ -233,7 +231,7 @@ _EOF_
         end
 
         # write out the vagrant network configuration to be consumed by the playbooks
-        File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.transform_keys(&:to_s).to_yaml)
+        File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
         
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/dhcp_servers.yml"
