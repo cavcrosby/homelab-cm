@@ -1,7 +1,7 @@
 { 
     "ansible_host_vars": {
         "poseidon-k8s-worker1": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.50",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.3",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
@@ -26,7 +26,7 @@
             }
         },
         "poseidon-k8s-worker2": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.51",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.3",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
@@ -51,7 +51,7 @@
             }
         },
         "poseidon-k8s-worker3": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.52",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.4",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.5",
             "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
@@ -76,7 +76,7 @@
             }
         },
         "poseidon-k8s-controller1": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.3",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.5",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.6",
             "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
@@ -110,7 +110,7 @@
             }
         },
         "poseidon-k8s-controller2": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.4",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.6",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.7",
             "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
@@ -138,7 +138,7 @@
             }
         },
         "poseidon-k8s-controller3": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.5",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.7",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.8",
             "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
@@ -166,7 +166,7 @@
             }
         },
         "staging-node1": {
-            "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.8",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.9",
             "vagrant_vm_net_ipv4_addr": "192.168.3.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
