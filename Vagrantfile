@@ -12,8 +12,11 @@ VAGRANT_CONFIG_JSON = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )
 
-ANSIBLE_HOST_VARS = VAGRANT_CONFIG_JSON["ansible_host_vars"]
+ansible_host_vars = VAGRANT_CONFIG_JSON["ansible_host_vars"]
 ANSIBLE_GROUPS = VAGRANT_CONFIG_JSON["ansible_groups"]
+if VAGRANT_CONFIG_JSON.key?("vms_include")
+  VMS_INCLUDE = VAGRANT_CONFIG_JSON["vms_include"]
+end
 
 vagrant_homelab_network_configs = {
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
@@ -97,10 +100,19 @@ def traverse_configs(func, machine_attrs, config_node)
   end
 end
 
-# Replaces each key value pair in vagrant_config_refs &&
-# vagrant_external_config_refs with values based on machine_attrs[key] and
-# inserts the new key value pair into machine_attrs.
-ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
+ansible_host_vars.each do |machine_name, machine_attrs|
+  # hostnames may use dashes but Ansible variables cannot
+  machine_name_dash_replaced = machine_name.gsub("-", "_")
+  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
+  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
+
+  if (defined? VMS_INCLUDE) && !VMS_INCLUDE.include?(machine_name)
+    ansible_host_vars.delete(machine_name)
+    next
+  end
+
+  # Takes each key value pair in vagrant_config_refs and inserts it into
+  # machine_attrs but with the value eval'd based on machine_attrs[value].
   if machine_attrs.key?("vagrant_config_refs")
     vagrant_config_refs = machine_attrs["vagrant_config_refs"]
     # passing a function as a argument was inspired by:
@@ -120,11 +132,16 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
     machine_attrs.delete("vagrant_config_refs")
   end
 
+  # Takes each key value pair in vagrant_external_config_refs and inserts it into
+  # machine_attrs but with the value eval'd based on
+  # ansible_host_vars[machine_name][value].
   if machine_attrs.key?("vagrant_external_config_refs")
     machine_attrs["vagrant_external_config_refs"].each do |machine_name, vagrant_external_config_refs|
-      traverse_configs(method(:eval_config_ref), ANSIBLE_HOST_VARS[machine_name], vagrant_external_config_refs)
-      vagrant_external_config_refs.keys().each do |config_name|
-        machine_attrs[config_name] = vagrant_external_config_refs[config_name]
+      if (!defined? VMS_INCLUDE) || VMS_INCLUDE.include?(machine_name)
+        traverse_configs(method(:eval_config_ref), ansible_host_vars[machine_name], vagrant_external_config_refs)
+        vagrant_external_config_refs.keys().each do |config_name|
+          machine_attrs[config_name] = vagrant_external_config_refs[config_name]
+        end
       end
     end
 
@@ -165,12 +182,7 @@ _EOF_
 
   counter = 0
   management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
-  ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
-    # hostnames may use dashes but Ansible variables cannot
-    machine_name_dash_replaced = machine_name.gsub("-", "_")
-    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
-    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
-
+  ansible_host_vars.each do |machine_name, machine_attrs|
     # specific VM configuration
     config.vm.define "#{machine_name}" do |machine|
       machine.vm.hostname = "#{machine_name}"
@@ -206,7 +218,7 @@ _EOF_
       # As of Vagrant 2.2.9, the documentation recommends a specific implementation for
       # taking advantage of Ansible's parallelism. Modified to my liking, for reference:
       # https://www.vagrantup.com/docs/provisioning/ansible#ansible-parallel-execution
-      if counter == ANSIBLE_HOST_VARS.length
+      if counter == ansible_host_vars.length
         if !management_network_defined
           # associates the vagrant management network xml with libvirt
           xml = Tempfile.new("mgmt-homelab-libvirt.xml")
@@ -232,7 +244,7 @@ _EOF_
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.host_vars = ansible_host_vars
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
@@ -248,7 +260,7 @@ _EOF_
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.host_vars = ansible_host_vars
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
@@ -264,7 +276,7 @@ _EOF_
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.host_vars = ansible_host_vars
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
@@ -280,7 +292,7 @@ _EOF_
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.host_vars = ansible_host_vars
           ansible.groups = ANSIBLE_GROUPS
           if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
@@ -293,7 +305,7 @@ _EOF_
           ansible.limit = "all"
           ansible.ask_become_pass = true
           ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ANSIBLE_HOST_VARS
+          ansible.host_vars = ansible_host_vars
           ansible.groups = ANSIBLE_GROUPS
           ansible.extra_vars = {
             network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])

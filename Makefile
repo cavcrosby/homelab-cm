@@ -112,7 +112,21 @@ src_yml := $(shell find . \( -type f \) \
 
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
-LIBVIRT_DOMAINS := $(shell for vm_name in ${VM_NAMES}; do echo ${LIBVIRT_PREFIX}$${vm_name}; done)
+# include all VMs by default
+VMS_INCLUDE := $(shell \
+	${JQ} \
+		--raw-output \
+		< ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+		'.vms_include[]? // (.ansible_host_vars | keys[])' \
+)
+
+LIBVIRT_DOMAINS := $(shell \
+	for vm_name in ${VM_NAMES}; do \
+		if echo "${VMS_INCLUDE}" | grep --quiet "$${vm_name}"; then \
+			echo "${LIBVIRT_PREFIX}$${vm_name}"; \
+		fi; \
+	done \
+)
 
 ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
