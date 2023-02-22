@@ -127,6 +127,8 @@ ANSIBLE_HOST_VARS.each do |machine_name, machine_attrs|
         machine_attrs[config_name] = vagrant_external_config_refs[config_name]
       end
     end
+
+    machine_attrs.delete("vagrant_external_config_refs")
   end
 end
 
