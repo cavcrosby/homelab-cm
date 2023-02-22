@@ -30,7 +30,6 @@ vagrant_homelab_network_configs = {
 
 # exported constants
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"]
-VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR = "192.168.3.1"
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
@@ -180,12 +179,6 @@ _EOF_
         mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
         libvirt__network_name: "homelab-cm",
         libvirt__host_ip: vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"],
-        libvirt__dhcp_enabled: false
-
-      machine.vm.network "private_network",
-        mac: machine_attrs["vagrant_vm_net_mac_addr"],
-        libvirt__network_name: "net-homelab-cm",
-        libvirt__host_ip: VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR,
         libvirt__dhcp_enabled: false
 
       # A domain is an instance of an operating system running on a VM. At least

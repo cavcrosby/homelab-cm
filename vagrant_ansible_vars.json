@@ -5,7 +5,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.3",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
-            "vagrant_vm_net_mac_addr": "52:54:00:c5:84:76",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -30,7 +29,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
-            "vagrant_vm_net_mac_addr": "52:54:00:1a:20:8b",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -55,7 +53,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.5",
             "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
-            "vagrant_vm_net_mac_addr": "52:54:00:52:38:c9",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -80,7 +77,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.6",
             "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
-            "vagrant_vm_net_mac_addr": "52:54:00:b6:ab:90",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -114,7 +110,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.7",
             "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
-            "vagrant_vm_net_mac_addr": "52:54:00:01:17:e0",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -142,7 +137,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.8",
             "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
-            "vagrant_vm_net_mac_addr": "52:54:00:de:17:21",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -168,10 +162,8 @@
         "staging-node1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.8",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.9",
-            "vagrant_vm_net_ipv4_addr": "192.168.3.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
-            "vagrant_vm_net_mac_addr": "52:54:00:a5:cb:61",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
@@ -180,7 +172,6 @@
             "dns_config_file_template": "staging-dnsmasq-dns.conf.j2",
             "mgmt_network_interface_name": "eth0",
             "homelab_network_interface_name": "eth1",
-            "net_network_interface_name": "eth2",
             "haproxy_config_file_template": "haproxy.cfg.j2",
             "vagrant_config_refs": {
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
@@ -234,54 +225,6 @@
                         "Link": {
                             "NamePolicy": "keep"
                         }
-                    },
-                    {
-                        "filename": {
-                            "join": [
-                                "mgmt_network_interface_name",
-                                ".network"
-                            ]
-                        },
-                        "Match": {
-                            "Name": "mgmt_network_interface_name"
-                        },
-                        "Network": {
-                            "DHCP": "true"
-                        }
-                    },
-                    {
-                        "filename": {
-                            "join": [
-                                "net_network_interface_name",
-                                ".link"
-                            ]
-                        },
-                        "Match": {
-                            "MACAddress": "vagrant_vm_net_mac_addr"
-                        },
-                        "Link": {
-                            "NamePolicy": "keep"
-                        }
-                    },
-                    {
-                        "filename": {
-                            "join": [
-                                "net_network_interface_name",
-                                ".network"
-                            ]
-                        },
-                        "Match": {
-                            "Name": "net_network_interface_name"
-                        },
-                        "Network": {
-                            "Address": {
-                                "join": [
-                                    "vagrant_vm_net_ipv4_addr",
-                                    "/24"
-                                ]
-                            },
-                            "Gateway": "${VAGRANT_LIBVIRT_HOMELAB_TEST_NETWORK_IPV4_ADDR}"
-                        }
                     }
                 ]
             },
@@ -302,7 +245,6 @@
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.10",
             "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
-            "vagrant_vm_net_mac_addr": "52:54:00:53:8f:53",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
