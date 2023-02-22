@@ -225,7 +225,7 @@ _EOF_
 
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
-        
+
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/dhcp_servers.yml"
           ansible.compatibility_mode = "2.0"
