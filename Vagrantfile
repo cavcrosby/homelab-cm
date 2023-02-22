@@ -8,14 +8,12 @@ VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
 VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "staging-homelab.cavcrosby.tech"
-
-ANSIBLE_HOST_VARS = JSON.parse(
+VAGRANT_CONFIG_JSON = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
-)["ansible_host_vars"]
+)
 
-ANSIBLE_GROUPS = JSON.parse(
-  File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
-)["ansible_groups"]
+ANSIBLE_HOST_VARS = VAGRANT_CONFIG_JSON["ansible_host_vars"]
+ANSIBLE_GROUPS = VAGRANT_CONFIG_JSON["ansible_groups"]
 
 vagrant_homelab_network_configs = {
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
