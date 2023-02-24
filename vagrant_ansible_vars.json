@@ -225,6 +225,20 @@
                         "Link": {
                             "NamePolicy": "keep"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
                     }
                 ]
             },
