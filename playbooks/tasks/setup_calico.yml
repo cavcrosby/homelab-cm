@@ -4,7 +4,7 @@
     - name: Add the Calico Helm repo
       kubernetes.core.helm_repository:
         repo_name: projectcalico
-        repo_url: https://projectcalico.docs.tigera.io/charts
+        repo_url: https://docs.tigera.io/calico/charts
       become: true
 
     - name: Deploy the Calico Helm chart inside the tigera-operator namespace
