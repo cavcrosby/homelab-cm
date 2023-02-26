@@ -1,18 +1,4 @@
 ---
-# MONITOR(cavcrosby): there does not currently exist "strong" indications that
-# Kubernetes supports nftables natively. There have been previous discussions on
-# this topic and older documentation stating not to use nftables but nothing of
-# recent to confirm or deny support for nftables. For reference see the following
-# discussions:
-# https://news.ycombinator.com/item?id=28239355#28239904
-# https://stackoverflow.com/questions/60086726/what-combination-of-firewall-rules-adapted-for-kubernetes-with-flannel-as-a-cni#answer-60192182
-# https://github.com/kubernetes/kubernetes/issues/62720
-#
-# That said, it seems workarounds can be implemented to force a Kubernetes
-# cluster to interact with the nftables backend over iptables. For references
-# on how this could be done:
-# https://mihail-milev.medium.com/no-pod-to-pod-communication-on-centos-8-kubernetes-with-calico-56d694d2a6f4
-# https://stackoverflow.com/questions/67053959/kubernetes-segfault-in-libnftnl-so-11-3-0-on-flannel-cni#answer-67056060
 - name: Perform initial setup for k8s_worker
   hosts: k8s_workers
   tags: initial_k8s_worker_setup
