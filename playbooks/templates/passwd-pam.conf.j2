@@ -1,0 +1,11 @@
+# {{ ansible_managed }}
+#
+# PAM config file for passwd.
+
+#%PAM-1.0
+auth       include	    system-auth
+account    require      pam_access.so
+account    include	    system-auth
+password   substack	    system-auth
+-password  optional	    pam_gnome_keyring.so use_authtok
+password   substack	    postlogin

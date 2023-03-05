@@ -1,2 +1,4 @@
 ---
 poseidon_ingress_nginx_node_http_port: 31470
+systemd_logind_template: systemd-logind.conf.j2
+pam_access_template: pam_access.conf.j2

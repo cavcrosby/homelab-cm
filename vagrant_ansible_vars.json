@@ -254,6 +254,36 @@
                 }
             }
         },
+        "xcp-ng1": {
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.9",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.10",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:9d:5b:88",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:93:8c:38",
+            "vagrant_vm_cpus": 1,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 46,
+            "vagrant_vm_box": "cavcrosby/homelab-xcp-ng"
+        },
+        "xcp-ng2": {
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.10",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.11",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:6a:8a:b7",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:7c:0f:ce",
+            "vagrant_vm_cpus": 1,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 46,
+            "vagrant_vm_box": "cavcrosby/homelab-xcp-ng"
+        },
+        "xcp-ng3": {
+            "vagrant_vm_homelab_ipv4_addr": "192.168.1.11",
+            "vagrant_vm_mgmt_ipv4_addr": "192.168.2.12",
+            "vagrant_vm_homelab_mac_addr": "52:54:00:cb:b6:ca",
+            "vagrant_vm_mgmt_mac_addr": "52:54:00:ba:67:1d",
+            "vagrant_vm_cpus": 1,
+            "vagrant_vm_memory": 2048,
+            "vagrant_vm_libvirt_disk_size": 46,
+            "vagrant_vm_box": "cavcrosby/homelab-xcp-ng"
+        },        
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.100",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.2.10",
@@ -269,6 +299,10 @@
         "on_prem:children": [
             "bare_metal",
             "virtual_machines"
+        ],
+        "bare_metal:children": [
+            "xcp_ngs",
+            "machines"
         ],
         "k8s_controllers:children": [
             "k8s_first_controllers",
@@ -315,7 +349,12 @@
         "load_balancers": [
             "staging-node1"
         ],
-        "bare_metal": [
+        "xcp_ngs": [
+            "xcp-ng1",
+            "xcp-ng2",
+            "xcp-ng3"
+        ],
+        "machines": [
             "staging-node1"
         ],
         "virtual_machines": [
