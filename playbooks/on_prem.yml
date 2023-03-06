@@ -5,7 +5,6 @@
   vars:
     systemd_logind_configs_dir_path: /etc/systemd/logind.conf.d
     pam_access_configs_dir_path: /etc/security/access.d
-    pam_app_configs_dir_path: /etc/pam.d
 
   tasks:
     - name: Lockdown the root account
@@ -15,7 +14,6 @@
         password: !
         password_lock: true
       become: true
-      when: ansible_os_family | lower != "xcp-ng"
 
     - name: Create the systemd logind drop-in configurations directory
       ansible.builtin.file:
@@ -26,7 +24,7 @@
 
     - name: Create the customized systemd logind configuration file
       ansible.builtin.template:
-        src: "{{ systemd_logind_template }}"
+        src: systemd-logind.conf.j2
         dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
         mode: "644"
       become: true
@@ -40,22 +38,6 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Create the customized login pam configuration file
-      ansible.builtin.template:
-        src: login-pam.conf.j2
-        dest: "{{ pam_app_configs_dir_path }}/login"
-        mode: "644"
-      become: true
-      when: ansible_os_family | lower == "xcp-ng"
-
-    - name: Create the customized passwd pam configuration file
-      ansible.builtin.template:
-        src: passwd-pam.conf.j2
-        dest: "{{ pam_app_configs_dir_path }}/passwd"
-        mode: "644"
-      become: true
-      when: ansible_os_family | lower == "xcp-ng"
-
     - name: Create the pam_access configurations directory
       ansible.builtin.file:
         path: "{{ pam_access_configs_dir_path }}"
@@ -65,7 +47,7 @@
 
     - name: Create the customized pam_access configuration file
       ansible.builtin.template:
-        src: "{{ pam_access_template }}"
+        src: pam_access.conf.j2
         dest: "{{ pam_access_configs_dir_path }}/homelab-access.conf"
         mode: "644"
       become: true
@@ -94,16 +76,3 @@
         password: "{{ admin_system_user_password }}"
       become: true
       when: ansible_os_family | lower == "debian"
-
-    - name: Create the admin user (redhat-like)
-      ansible.builtin.user:
-        name: admin
-        group: admin
-        groups: wheel
-        state: present
-        home: /home/admin
-        shell: /bin/bash
-        password: "{{ admin_system_user_password }}"
-      become: true
-      when: ansible_os_family | lower == "redhat"
-            or ansible_os_family | lower == "xcp-ng"

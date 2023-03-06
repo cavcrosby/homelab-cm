@@ -1,3 +1,0 @@
----
-systemd_logind_template: xcp-ng-systemd-logind.conf.j2
-pam_access_template: xcp-ng-pam_access.conf.j2

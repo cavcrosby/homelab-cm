@@ -30,7 +30,6 @@ BITWARDEN_TLS_CERTS = \
 	oftc.pem\
 	poseidon_k8s_ca.crt
 
-XCP_NG_LIBVIRT_BUILD_PATH = ./packer/libvirt-xcp-ng
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
@@ -40,7 +39,6 @@ SETUP = setup
 PRODUCTION = production
 STAGING = staging
 ANSIBLE_SECRETS = ansible-secrets
-XCP_NG_BOX = xcp-ng-box
 LINT = lint
 DEVELOPMENT_SHELL = development-shell
 CLEAN = clean
@@ -100,8 +98,7 @@ executables := \
 	${BASH}\
 	${PYTHON}\
 	${PIP}\
-	${NPM}\
-	${PACKER}
+	${NPM}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 src_yml := $(shell find . \( -type f \) \
@@ -294,28 +291,9 @@ else
 	done
 endif
 
-.PHONY: ${XCP_NG_BOX}
-${XCP_NG_BOX}:
->	[ -f "${XCP_NG_LIBVIRT_BUILD_PATH}/output/box.img" ] \
-		|| ${PACKER} build "./xcp-ng.pkr.hcl"
-
->	tar \
-		--create \
-		--gzip \
-		--verbose \
-		--directory "${XCP_NG_LIBVIRT_BUILD_PATH}" \
-		--file "/tmp/libvirt-homelab-xcp-ng.box" \
-		--transform 's,output/,,' \
-		"metadata.json" \
-		"output/box.img" \
-		"Vagrantfile"
-
-> ${VAGRANT} box add --force --name "cavcrosby/homelab-xcp-ng" "./packer/box-catalog.json"
-
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
->	rm --recursive --force "${XCP_NG_LIBVIRT_BUILD_PATH}/output"
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
