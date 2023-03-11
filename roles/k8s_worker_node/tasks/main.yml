@@ -64,7 +64,7 @@
     - name: Create the kubeadm (join) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ kubeadm_patches_dir_path }}"
+        dest: "{{ kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
       loop: "{{ k8s_worker_join_patch_templates }}"

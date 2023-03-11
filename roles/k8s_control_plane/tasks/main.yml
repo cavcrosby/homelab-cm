@@ -96,7 +96,7 @@
     - name: Create the kubeadm (init) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ kubeadm_patches_dir_path }}"
+        dest: "{{ kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
       loop: "{{ k8s_controller_init_patch_templates }}"
@@ -132,7 +132,7 @@
     - name: Create the kubeadm (join) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ kubeadm_patches_dir_path }}"
+        dest: "{{ kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
       loop: "{{ k8s_controller_join_patch_templates }}"
