@@ -103,8 +103,13 @@ end
 ansible_host_vars.each do |machine_name, machine_attrs|
   # hostnames may use dashes but Ansible variables cannot
   machine_name_dash_replaced = machine_name.gsub("-", "_")
-  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
-  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
+  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_homelab_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
+  vagrant_homelab_network_configs["#{machine_name_dash_replaced}_homelab_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
+
+  if machine_attrs.key?("vagrant_vm_poseidon_k8s_mac_addr")
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_mac_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"]
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_ipv4_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"]
+  end
 
   if (defined? VMS_INCLUDE) && !VMS_INCLUDE.include?(machine_name)
     ansible_host_vars.delete(machine_name)
@@ -159,7 +164,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provider "libvirt" do |domains|
     domains.default_prefix = "#{ENV['LIBVIRT_PREFIX']}"
     domains.management_network_name = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
-    domains.management_network_address = "192.168.2.0/24"
+    domains.management_network_address = "192.168.3.0/24"
   end
 
   @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
@@ -172,9 +177,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     </nat>
   </forward>
   <mac address='52:54:00:4c:7a:ea'/>
-  <ip address='192.168.2.1' netmask='255.255.255.0'>
+  <ip address='192.168.3.1' netmask='255.255.255.0'>
     <dhcp>
-      <range start='192.168.2.3' end='192.168.2.254'/>
+      <range start='192.168.3.3' end='192.168.3.254'/>
     </dhcp>
   </ip>
 </network>
@@ -192,6 +197,15 @@ _EOF_
         libvirt__network_name: "homelab-cm",
         libvirt__host_ip: vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"],
         libvirt__dhcp_enabled: false
+
+      if machine_attrs.key?("vagrant_vm_poseidon_k8s_mac_addr")
+        machine.vm.network "private_network",
+          mac: machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"],
+          ip: machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"],
+          libvirt__network_name: "poseidon-k8s-homelab-cm",
+          libvirt__host_ip: "192.168.2.1",
+          libvirt__dhcp_enabled: false
+      end
 
       # A domain is an instance of an operating system running on a VM. At least
       # according to libvirt. For reference: https://libvirt.org/goals.html
@@ -272,6 +286,22 @@ _EOF_
 
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/load_balancers.yml"
+          ansible.compatibility_mode = "2.0"
+          ansible.limit = "all"
+          ansible.ask_become_pass = true
+          ansible.tags = ENV["ANSIBLE_TAGS"]
+          ansible.host_vars = ansible_host_vars
+          ansible.groups = ANSIBLE_GROUPS
+          ansible.extra_vars = {
+            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+          }.merge(ansible_extra_vars)
+          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          end
+        end
+
+        machine.vm.provision "ansible" do |ansible|
+          ansible.playbook = "./playbooks/vmms.yml"
           ansible.compatibility_mode = "2.0"
           ansible.limit = "all"
           ansible.ask_become_pass = true

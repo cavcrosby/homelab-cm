@@ -51,5 +51,5 @@ ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.')
 host-record={{ homelab_poseidon_k8s_network_domain }},{{ poseidon_k8s_controller1_cluster_ipv4_addr }}
 ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_poseidon_k8s_network_domain }}
 
-host-record=jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }},{{ staging_node1_ipv4_addr }}
-ptr-record={{ staging_node1_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }}
+host-record=jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }},{{ staging_node1_homelab_ipv4_addr }}
+ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-torkel.{{ homelab_poseidon_k8s_network_domain }}

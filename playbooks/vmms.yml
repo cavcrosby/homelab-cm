@@ -1,0 +1,140 @@
+---
+- name: Install and configure QEMU/KVM
+  hosts: vmms
+  tags: install_qemu_kvm
+  vars_files:
+    - "{{ network_configs_path }}"
+
+  tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install QEMU/KVM and the libvirt daemon (debian-like)
+      ansible.builtin.apt:
+        name:
+          - libvirt-daemon-system
+          - qemu-system-x86
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Set the libvirt default connect URI for all users
+      ansible.builtin.template:
+        src: ./templates/libvirt_default_uri.j2
+        # it's required that scripts have the .sh ext for /etc/profile to read it
+        dest: /etc/profile.d/libvirt_default_uri.sh
+        mode: "644"
+      become: true
+
+    - name: Append the ansible user to the libvirtd group
+      ansible.builtin.user:
+        name: "{{ ansible_user }}"
+        # This group should already be created from a libvirt daemon pkg (e.g.
+        # libvirt-daemon-system).
+        groups: libvirt
+        state: present
+      become: true
+
+    - name: Setup the libvirt system user
+      vars:
+        libvirt_system_user: libvirt
+        libvirt_system_user_home: /home/libvirt
+      block:
+        - name: Create the libvirt system user (debian-like)
+          ansible.builtin.user:
+            name: "{{ libvirt_system_user }}"
+            state: present
+            home: "{{ libvirt_system_user_home }}"
+            shell: /bin/sh
+            system: true
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Create the libvirt system user's .ssh directory
+          ansible.builtin.file:
+            path: "{{ libvirt_system_user_home }}/.ssh"
+            owner: "{{ libvirt_system_user }}"
+            group: "{{ libvirt_system_user }}"
+            state: directory
+            mode: "700"
+          become: true
+
+        - name: Create the authorized_keys file to enable SSH access as the libvirt system user
+          ansible.builtin.copy:
+            dest: "{{ libvirt_system_user_home }}/.ssh/authorized_keys"
+            owner: "{{ libvirt_system_user }}"
+            group: "{{ libvirt_system_user }}"
+            mode: "600"
+            content: |
+              {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_ron.pub') }}
+              {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_roxanne.pub') }}
+          become: true
+
+    - name: Install libvirt-python dependencies (debian-like)
+      ansible.builtin.apt:
+        name:
+          - gcc
+          - libvirt-dev
+          - python3-dev
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Setup the Python virtual environment
+      ansible.builtin.include_role:
+        name: python_virtualenv
+      vars:
+        python_virtualenv_name: "{{ ansible_user_python_virtualenv_name }}"
+        python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
+        python_virtualenv_pkgs:
+          - libvirt-python
+          - lxml
+
+    - name: Add sourcing of the Python virtual environment
+      ansible.builtin.import_role:
+        name: cavcrosby.general.common
+        tasks_from: managed_lineinfile
+      vars:
+        path: "{{ ansible_user_home }}/.bashrc"
+        regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+
+    - name: Setup libvirt networking
+      vars:
+        ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+      block:
+        - name: Define the homelab network
+          community.libvirt.virt_net:
+            name: homelab-cm
+            command: define
+            xml: "{{ lookup('ansible.builtin.template', 'homelab-libvirt-network.xml.j2') }}"
+
+        - name: Have the homelab network start up on boot
+          community.libvirt.virt_net:
+            name: homelab-cm
+            autostart: true
+
+        - name: Start the homelab network
+          community.libvirt.virt_net:
+            name: homelab-cm
+            state: active
+
+        - name: Define the poseidon homelab network
+          community.libvirt.virt_net:
+            name: poseidon-k8s-homelab-cm
+            command: define
+            xml: "{{ lookup('ansible.builtin.template', poseidon_k8s_network_config_file_template) }}"
+
+        - name: Have the poseidon homelab network start up on boot
+          community.libvirt.virt_net:
+            name: poseidon-k8s-homelab-cm
+            autostart: true
+
+        - name: Start the poseidon homelab network
+          community.libvirt.virt_net:
+            name: poseidon-k8s-homelab-cm
+            state: active

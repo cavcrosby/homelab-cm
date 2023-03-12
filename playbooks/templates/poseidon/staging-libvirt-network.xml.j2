@@ -1,0 +1,15 @@
+<!-- Virtual network configs for the Poseidon Kubernetes network. -->
+<network ipv6='yes'>
+  <name>poseidon-k8s-homelab-cm</name>
+  <mac address='{{ poseidon_k8s_network_mac_addr }}'/>
+  <ip address='{{ poseidon_k8s_network_gateway_ipv4_addr }}' netmask='{{ poseidon_k8s_network_subnet_mask }}'>
+    <dhcp>
+      <host mac='{{ poseidon_k8s_worker1_poseidon_k8s_mac_addr }}' name='poseidon-k8s-worker1' ip='{{ poseidon_k8s_worker1_poseidon_k8s_ipv4_addr }}'/>
+      <host mac='{{ poseidon_k8s_worker2_poseidon_k8s_mac_addr }}' name='poseidon-k8s-worker2' ip='{{ poseidon_k8s_worker2_poseidon_k8s_ipv4_addr }}'/>
+      <host mac='{{ poseidon_k8s_worker3_poseidon_k8s_mac_addr }}' name='poseidon-k8s-worker3' ip='{{ poseidon_k8s_worker3_poseidon_k8s_ipv4_addr }}'/>
+      <host mac='{{ poseidon_k8s_controller1_poseidon_k8s_mac_addr }}' name='poseidon-k8s-controller1' ip='{{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}'/>
+      <host mac='{{ poseidon_k8s_controller2_poseidon_k8s_mac_addr }}' name='poseidon-k8s-controller2' ip='{{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}'/>
+      <host mac='{{ poseidon_k8s_controller3_poseidon_k8s_mac_addr }}' name='poseidon-k8s-controller3' ip='{{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}'/>
+    </dhcp>
+  </ip>
+</network>
