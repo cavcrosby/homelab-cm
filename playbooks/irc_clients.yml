@@ -1,7 +1,7 @@
 ---
-- name: Perform initial setup for irc_client
+- name: Perform setup for irc_client
   hosts: irc_clients
-  tags: initial_irc_client_setup
+  tags: do_irc_client_setup
 
   pre_tasks:
     - name: Update apt's package index
@@ -69,7 +69,7 @@
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances
-  tags: customize_lightsail
+  tags: do_lightsail_customizations
 
   roles:
     - lightsail

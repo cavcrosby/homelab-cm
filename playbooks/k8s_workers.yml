@@ -1,7 +1,7 @@
 ---
 - name: Perform initial setup for k8s_worker
   hosts: k8s_workers
-  tags: initial_k8s_worker_setup
+  tags: do_initial_k8s_worker_setup
 
   pre_tasks:
     - name: Add local common handlers
@@ -37,7 +37,7 @@
 
 - name: Perform initial setup for k8s_worker (poseidon)
   hosts: k8s_workers:&poseidon
-  tags: initial_poseidon_k8s_worker_setup
+  tags: do_initial_poseidon_k8s_worker_setup
   vars_files:
     - ./vars/{{ k8s_software_versions_file }}
 

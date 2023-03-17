@@ -1,7 +1,7 @@
 ---
-- name: Perform on premises node configurations
+- name: Perform setup for on_prem node
   hosts: on_prem
-  tags: on_prem_node_configurations
+  tags: do_on_prem_node_setup
   vars:
     systemd_logind_configs_dir_path: /etc/systemd/logind.conf.d
     pam_access_configs_dir_path: /etc/security/access.d
