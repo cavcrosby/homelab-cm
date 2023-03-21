@@ -39,6 +39,7 @@ SETUP = setup
 PRODUCTION = production
 STAGING = staging
 ANSIBLE_SECRETS = ansible-secrets
+K8S_NODE_IMAGES = k8s-node-images
 LINT = lint
 DEVELOPMENT_SHELL = development-shell
 CLEAN = clean
@@ -98,7 +99,8 @@ executables := \
 	${BASH}\
 	${PYTHON}\
 	${PIP}\
-	${NPM}
+	${NPM}\
+	${PACKER}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 src_yml := $(shell find . \( -type f \) \
@@ -291,9 +293,31 @@ else
 	done
 endif
 
+.PHONY: ${K8S_NODE_IMAGES}
+${K8S_NODE_IMAGES}:
+>	@[ -n "${K8S_NODE_IMAGES_SSH_PASSWORD}" ] || \
+		{ echo "make: K8S_NODE_IMAGES_SSH_PASSWORD was not passed into make"; exit 1; }
+
+>	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD}" ] || \
+		{ echo "make: K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD was not passed into make"; exit 1; }
+
+	# Password and password hashes could contain the '$' char which make will try
+	# to perform variable expansion on, hence the value func is used to prevent said
+	# expansion.
+>	${PACKER} build \
+		-var ssh_password='$(value K8S_NODE_IMAGES_SSH_PASSWORD)' \
+		-var encrypted_ssh_password='$(value K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD)' \
+		"./k8s-nodes.pkr.hcl"
+
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
+>	rm \
+		--recursive \
+		--force \
+		"./packer/qemu-poseidon_k8s_controller" \
+		"./packer/qemu-poseidon_k8s_worker"
+
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
