@@ -8,8 +8,8 @@
 - name: Install Python virtual environment dependencies (debian-like)
   ansible.builtin.apt:
     name:
-      - python3-venv
       - python3-apt
+      - python3-venv
     state: present
   become: true
   when: ansible_os_family | lower == "debian"
@@ -28,7 +28,7 @@
     virtualenv: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
     virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
 
-- name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages
+- name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages (debian-like)
   when: ansible_os_family | lower == "debian"
   block:
     - name: Determine the virtual environment's site-packages directory
