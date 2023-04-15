@@ -98,7 +98,6 @@ executables := \
 	${GEM}\
 	${BASH}\
 	${PYTHON}\
-	${PIP}\
 	${NPM}\
 	${PACKER}
 
