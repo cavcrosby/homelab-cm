@@ -215,7 +215,7 @@ endif
 .PHONY: ${LINT}
 ${LINT}:
 >	@for fil in ${src_yml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
-		if echo "$${fil}" | grep --quiet '-'; then \
+		if echo "$${fil}" | grep --quiet "-"; then \
 			echo "make: $${fil} should not contain a dash in the filename"; \
 		fi \
 	done
