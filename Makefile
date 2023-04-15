@@ -176,11 +176,12 @@ ${SETUP}:
 >	${BUNDLE} install
 >	${VAGRANT} plugin install "$$(find ./vendor -name 'vagrant-libvirt-*.gem')"
 >	${NPM} install
->	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 >	${PYTHON} -m ${PIP} install --upgrade "${PIP}"
 >	${PYTHON} -m ${PIP} install \
 		--requirement "./requirements.txt" \
 		--requirement "./dev-requirements.txt"
+
+>	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}:
