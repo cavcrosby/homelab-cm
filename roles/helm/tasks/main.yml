@@ -20,6 +20,13 @@
     state: directory
     mode: "700"
 
+- name: Register Helm's installed GPG key file inode
+  ansible.builtin.stat:
+    path: "{{ _helm_keyring_install_path }}"
+    checksum_algorithm: sha256
+  become: true
+  register: current_installed_gpg_key_inode
+
 - name: Grab Helm's official GPG key
   ansible.builtin.get_url:
     url: https://baltocdn.com/helm/signing.asc
@@ -27,7 +34,6 @@
     checksum: sha256:{{ helm_gpg_sha256_checksum }}
     mode: "644"
   notify:
-    - Remove Helm's installed GPG key
     - Install Helm's GPG key
 
 - name: Flush handlers
