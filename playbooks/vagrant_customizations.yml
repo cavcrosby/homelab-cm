@@ -37,13 +37,30 @@
       become: true
       when: default_grub_config_inode.stat.exists
 
-    - name: Update grub.cfg (debian-like)
-      ansible.builtin.command: grub-mkconfig --output "/boot/grub/grub.cfg"
-      become: true
-      when:
-        - default_grub_config_inode.stat.exists
-        - line_check.found == 0
-        - ansible_os_family | lower == "debian"
+    - name: Update grub.cfg
+      vars:
+        grub_config_path: /boot/grub/grub.cfg
+      block:
+        - name: Register the current grub configuration file inode
+          ansible.builtin.stat:
+            path: "{{ grub_config_path }}"
+            checksum_algorithm: sha256
+          become: true
+          register: current_grub_config_inode
+
+        - name: Update grub.cfg (debian-like)
+          ansible.builtin.shell:
+            executable: /bin/bash
+            cmd: |
+              set -o pipefail
+              grub-mkconfig --output "{{ grub_config_path }}"
+              sha256sum "{{ grub_config_path }}" | gawk --field-separator " " '{ print $1 }'
+          changed_when: current_grub_config_inode.stat.checksum != grub_config_checksum.stdout
+          become: true
+          register: grub_config_checksum
+          when:
+            - default_grub_config_inode.stat.exists
+            - ansible_os_family | lower == "debian"
 
     - name: Reboot hosts to have new boot parameter(s) take effect
       ansible.builtin.reboot:
@@ -65,6 +82,12 @@
         handlers_from: main
 
   tasks:
+    - name: Get the current merged netplan config
+      ansible.builtin.command: netplan get all
+      changed_when: false
+      become: true
+      register: current_netplan_config
+
     # The generic/ubuntu2204 vagrant box has DNS configs that causes
     # /run/systemd/resolve/resolv.conf to have too many DNS nameservers added to it.
     # Hence the need to undo some of the box's configs, for reference on how the
@@ -96,8 +119,12 @@
 
   handlers:
     - name: Apply netplan configurations
-      ansible.builtin.command: netplan generate
+      ansible.builtin.shell: |
+        netplan generate
+        netplan get all
+      changed_when: current_netplan_config.stdout != netplan_config.stdout
       become: true
+      register: netplan_config
 
     - name: Restart systemd-resolved
       ansible.builtin.service:

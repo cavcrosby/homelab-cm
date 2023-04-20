@@ -1,14 +1,15 @@
 ---
-- name: Remove Helm's installed GPG key
-  ansible.builtin.file:
-    path: "{{ _helm_keyring_install_path }}"
-    state: absent
-  become: true
-
 # --batch option is needed for gpg due to odd "gpg: cannot open '/dev/tty'" error.
 # For reference:
 # https://github.com/pipech/erpnext-docker-debian/issues/26
 - name: Install Helm's GPG key
-  ansible.builtin.shell: |
-    gpg --batch --output "{{ _helm_keyring_install_path }}" --dearmor "{{ _helm_keyring_download_path }}"
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      set -o pipefail
+      gpg --batch --output "{{ _helm_keyring_install_path }}" --dearmor "{{ _helm_keyring_download_path }}"
+      sha256sum "{{ _helm_keyring_install_path }}" | gawk --field-separator " " '{ print $1 }'
+  changed_when: not current_installed_gpg_key_inode.stat.exists
+                or current_installed_gpg_key_inode.stat.checksum != installed_gpg_key_inode.stdout
   become: true
+  register: installed_gpg_key_inode
