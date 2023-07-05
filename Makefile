@@ -128,11 +128,11 @@ LIBVIRT_DOMAINS := $(shell \
 
 ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
-		VMS_EXISTS := 1
+		VMS_EXISTS := true
 	endif
 # else (${VAGRANT_PROVIDER},${VBOX})
 # 	ifneq ($(code that determines if virtualbox VMs exist),)
-# 		VMS_EXISTS=1
+# 		VMS_EXISTS=true
 # 	endif
 endif
 
