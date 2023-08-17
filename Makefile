@@ -188,9 +188,9 @@ ${PRODUCTION}:
 ifeq (${ANSIBLE_EXTRA_VARS},)
 >	${ANSIBLE_PLAYBOOK} \
 		${ANSIBLE_VERBOSITY_OPT} \
+		--ask-become-pass \
 		--inventory "production" \
-		"./playbooks/site.yml" \
-		--ask-become-pass
+		"./playbooks/site.yml"
 else
 >	${ANSIBLE_PLAYBOOK} \
 		${ANSIBLE_VERBOSITY_OPT} \
