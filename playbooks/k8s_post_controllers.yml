@@ -30,7 +30,7 @@
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
   tasks:
-    - name: Install Ingress NGINX controller
+    - name: Install the Ingress NGINX controller
       vars:
         ingress_nginx_namespace: ingress-nginx
         dockerhub_creds_secret_name: dockerhub-creds
