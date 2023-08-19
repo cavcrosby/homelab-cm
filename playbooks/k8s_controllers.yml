@@ -161,7 +161,7 @@
 
     - role: helm
       vars:
-        helm_gpg_sha256_checksum: 15ca14a5d574770393ea424157a3ce7ebb873cb7d749d08e3abae46581ca098d.
+        helm_gpg_sha256_checksum: d8d0edbdc72338073b7b126be1454c7ebd29bf0da2f64fba87b82d2ae528626d.
 
     - k8s_kubeadm
 

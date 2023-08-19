@@ -1,0 +1,12 @@
+---
+- name: Install Kubernetes's GPG key
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      set -o pipefail
+      gpg --batch --output "{{ _k8s_keyring_install_path }}" --dearmor "{{ _k8s_keyring_download_path }}"
+      sha256sum "{{ _k8s_keyring_install_path }}" | gawk --field-separator " " '{ print $1 }'
+  changed_when: not current_installed_gpg_key_inode.stat.exists
+                or current_installed_gpg_key_inode.stat.checksum != installed_gpg_key_inode.stdout
+  become: true
+  register: installed_gpg_key_inode

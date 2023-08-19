@@ -1,5 +1,5 @@
 ---
 controller_lb_port: 20357
-k8s_gpg_sha256_checksum: 3d75e27fc397a5a3f036b9cd6bd7ba83c46e518eaa2d6c962ddaccf0131a01cd
+k8s_gpg_sha256_checksum: aa26cfdf2640ea1e02e8959b77957491cf5fb78964f06a5921e2c79607872797
 k8s_controller_endpoint: "{{ homelab_poseidon_vrrp_server_vip }}:{{ controller_lb_port }}"
 kubeadm_patches_dir_path: /run/ansible

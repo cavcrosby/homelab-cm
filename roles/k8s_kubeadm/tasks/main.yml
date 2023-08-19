@@ -30,6 +30,13 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
+- name: Register Kubernetes's installed GPG key file inode
+  ansible.builtin.stat:
+    path: "{{ _k8s_keyring_install_path }}"
+    checksum_algorithm: sha256
+  become: true
+  register: current_installed_gpg_key_inode
+
 - name: Grab Kubernetes's official GPG key
   ansible.builtin.get_url:
     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
@@ -37,6 +44,11 @@
     checksum: sha256:{{ k8s_gpg_sha256_checksum }}
     mode: "644"
   become: true
+  notify:
+    - Install Kubernetes's GPG key
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers
 
 - name: Add Kubernetes's apt repository
   ansible.builtin.apt_repository:
@@ -45,7 +57,7 @@
     # for all Debian like distros. For reference on the installation instructions:
     # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install
     repo: >
-      deb [signed-by={{ _k8s_keyring_download_path }}] https://apt.kubernetes.io/
+      deb [signed-by={{ _k8s_keyring_install_path }}] https://apt.kubernetes.io/
       kubernetes-xenial main
     state: present
   become: true
