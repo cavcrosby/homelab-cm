@@ -1,3 +1,4 @@
 ---
 collections:
-  - cavcrosby.general
+  - name: cavcrosby.general
+    version: ==1.9.0
