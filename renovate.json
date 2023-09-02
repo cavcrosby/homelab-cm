@@ -2,12 +2,8 @@
     "extends": [
         "config:base"
     ],
-    "prConcurrentLimit": 4,
     "timezone": "utc",
     "lockFileMaintenance": {
-        "enabled": true,
-        "schedule": [
-            "after 5:00 am before 11:00 am"
-        ]
+        "enabled": true
     }
 }
