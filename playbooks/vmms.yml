@@ -95,13 +95,11 @@
 
     - name: Add sourcing of the Python virtual environment
       ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        tasks_from: managed_lineinfile
+        name: cavcrosby.general.managed_lineinfile
       vars:
-        path: "{{ ansible_user_home }}/.bashrc"
-        regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+        managed_lineinfile_path: "{{ ansible_user_home }}/.bashrc"
+        managed_lineinfile_regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        managed_lineinfile_line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
 
     - name: Setup libvirt networking
       vars:

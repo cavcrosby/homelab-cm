@@ -3,3 +3,4 @@ controller_lb_port: 20357
 k8s_gpg_sha256_checksum: aa26cfdf2640ea1e02e8959b77957491cf5fb78964f06a5921e2c79607872797
 k8s_controller_endpoint: "{{ homelab_poseidon_vrrp_server_vip }}:{{ controller_lb_port }}"
 kubeadm_patches_dir_path: /run/ansible
+iptables_rules_path: /etc/iptables/rules.v4  # used by the deb package 'iptables-persistent'

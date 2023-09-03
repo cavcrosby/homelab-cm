@@ -24,13 +24,11 @@
 
     - name: Add sourcing of the Python virtual environment
       ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        tasks_from: managed_lineinfile
+        name: cavcrosby.general.managed_lineinfile
       vars:
-        path: "{{ ansible_user_home }}/.bashrc"
-        regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        line_identifier: sourcing the {{ ansible_user_python_virtualenv_name }} Python virtual environment
+        managed_lineinfile_path: "{{ ansible_user_home }}/.bashrc"
+        managed_lineinfile_regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        managed_lineinfile_line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
 
     - name: Setup legacy iptables
       ansible.builtin.import_tasks: ./tasks/setup_legacy_iptables.yml
@@ -67,13 +65,15 @@
     - k8s_kubeadm
 
   tasks:
-    - name: Add common handlers
-      ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        handlers_from: main
-
     - name: Configure firewall for the particular Calico deployment
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
+
+  handlers:
+    - name: Save the current iptables rules
+      community.general.iptables_state:
+        path: "{{ iptables_rules_path }}"
+        state: saved
+      become: true
 
 - name: Configure k8s_worker to be a Kubernetes worker node
   hosts: k8s_workers
@@ -83,12 +83,6 @@
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
-
-  pre_tasks:
-    - name: Add common handlers
-      ansible.builtin.import_role:
-        name: cavcrosby.general.common
-        handlers_from: main
 
   roles:
     - role: k8s_worker_node

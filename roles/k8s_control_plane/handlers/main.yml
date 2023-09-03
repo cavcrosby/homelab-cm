@@ -1,10 +1,4 @@
 ---
-- name: Restart keepalived
-  ansible.builtin.service:
-    name: keepalived
-    state: restarted
-  become: true
-
 - name: Save the current iptables rules
   community.general.iptables_state:
     path: "{{ iptables_rules_path }}"
