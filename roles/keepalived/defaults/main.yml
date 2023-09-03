@@ -25,5 +25,8 @@ keepalived_health_check_script_template: ""
 # evaluated jinja template script name on the target system
 keepalived_health_check_target_script: "{{ (keepalived_health_check_script_template | basename | splitext)[:-1] | join('.') }}"
 
+# file that is used to save the current iptables rules
+iptables_rules_path: /etc/iptables/rules.v4
+
 _keepalived_health_check_script_path: /etc/keepalived/{{ keepalived_health_check_target_script }}
 _keepalived_config_file_path: /etc/keepalived/{{ keepalived_config_target_file }}
