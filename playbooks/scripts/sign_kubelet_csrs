@@ -29,3 +29,5 @@ for csr in $(kubectl get csr --output json \
         '); do
     kubectl certificate approve "${csr}"
 done
+
+exit 0
