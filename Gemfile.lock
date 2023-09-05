@@ -2,7 +2,8 @@ GEM
   remote: https://rubygems.org/
   specs:
     builder (3.2.4)
-    excon (0.100.0)
+    diffy (1.1.0)
+    excon (0.102.0)
     fog-core (2.3.0)
       builder
       excon (~> 0.71)
@@ -22,7 +23,7 @@ GEM
       nokogiri (>= 1.5.11, < 2.0.0)
     formatador (1.1.0)
     json (2.6.3)
-    mime-types (3.5.0)
+    mime-types (3.5.1)
       mime-types-data (~> 3.2015)
     mime-types-data (3.2023.0808)
     multi_json (1.15.0)
@@ -31,17 +32,21 @@ GEM
     racc (1.7.1)
     rexml (3.2.6)
     ruby-libvirt (0.8.0)
-    vagrant-libvirt (0.7.0)
-      fog-core (~> 2.1)
+    vagrant-libvirt (0.12.2)
+      diffy
+      fog-core (~> 2)
       fog-libvirt (>= 0.6.0)
       nokogiri (~> 1.6)
+      rexml
+      xml-simple
+    xml-simple (1.1.9)
       rexml
 
 PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  vagrant-libvirt (~> 0.7.0)
+  vagrant-libvirt (~> 0.12.0)
 
 BUNDLED WITH
    2.3.26
