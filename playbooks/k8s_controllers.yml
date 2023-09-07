@@ -103,9 +103,9 @@
         etcd_tarball: etcd-{{ etcdctl_version }}-linux-amd64.tar.gz
         etcd_extracted_tarball_parent_path: /tmp
         etcd_download_path: "{{ etcd_extracted_tarball_parent_path }}/{{ etcd_tarball }}"
-        # regex was inspired by:
+        # regexp was inspired by:
         # https://stackoverflow.com/questions/61930563/extract-file-names-without-extension-ansible#answer-61931335
-        strip_exts_regex: '^(.*v\d+\.\d+\.\d+[^\.]*).*'
+        strip_exts_regexp: '^(.*v\d+\.\d+\.\d+[^\.]*).*'
       block:
         - name: Download the etcd tarball
           ansible.builtin.get_url:
@@ -124,7 +124,7 @@
         - name: Install etcdctl into a accessible directory in the PATH
           ansible.builtin.copy:
             dest: /usr/local/bin/etcdctl
-            src: "{{ etcd_download_path | regex_replace(strip_exts_regex, '\\1') }}/etcdctl"
+            src: "{{ etcd_download_path | regex_replace(strip_exts_regexp, '\\1') }}/etcdctl"
             mode: "755"
             remote_src: true
           become: true
