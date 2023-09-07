@@ -6,11 +6,6 @@
     - "{{ network_configs_path }}"
 
   pre_tasks:
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
-
     - name: Setup systemd-networkd networking
       ansible.builtin.include_role:
         name: systemd_networkd

@@ -73,12 +73,6 @@
     - k8s_controllers
   tags: remove_preset_vagrant_box_configs
 
-  pre_tasks:
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
-
   tasks:
     - name: Get the current merged netplan config
       ansible.builtin.command: netplan get all
@@ -123,6 +117,13 @@
       changed_when: current_netplan_config.stdout != netplan_config.stdout
       become: true
       register: netplan_config
+
+    - name: Restart systemd-networkd
+      ansible.builtin.systemd:
+        name: systemd-networkd
+        enabled: true
+        state: restarted
+      become: true
 
     - name: Restart systemd-resolved
       ansible.builtin.service:

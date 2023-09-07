@@ -3,12 +3,6 @@
   hosts: k8s_controllers
   tags: do_initial_k8s_controller_setup
 
-  pre_tasks:
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
-
   roles:
     - k8s_node
 
@@ -100,11 +94,6 @@
     - name: Register the modification time of the self-signed CA certificate
       ansible.builtin.set_fact:
         initial_k8s_root_cacert_mtime: "{{ k8s_root_cacert_inode.stat.mtime }}"
-
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
 
     - name: Configure firewall for the particular Calico deployment
       ansible.builtin.import_tasks: ./tasks/config_fw_calico.yml
@@ -209,12 +198,6 @@
   hosts: k8s_ha_controllers:&poseidon
   tags: configure_as_poseidon_k8s_ha_controller
 
-  pre_tasks:
-    - name: Add local common handlers
-      ansible.builtin.import_role:
-        name: common
-        handlers_from: main
-
   tasks:
     - name: Check the modification time of the self-signed CA certificate
       ansible.builtin.stat:
@@ -228,3 +211,10 @@
       register: k8s_root_cacert_inode
       notify:
         - Restart haproxy
+
+  handlers:
+    - name: Restart haproxy
+      ansible.builtin.service:
+        name: haproxy
+        state: restarted
+      become: true

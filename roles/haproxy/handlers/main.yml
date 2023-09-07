@@ -4,3 +4,9 @@
     name: haproxy
     state: stopped
   become: true
+
+- name: Restart haproxy
+  ansible.builtin.service:
+    name: haproxy
+    state: restarted
+  become: true

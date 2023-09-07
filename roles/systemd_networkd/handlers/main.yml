@@ -20,3 +20,10 @@
     state: stopped
   become: true
   when: ansible_os_family | lower == "debian"
+
+- name: Restart systemd-networkd
+  ansible.builtin.systemd:
+    name: systemd-networkd
+    enabled: true
+    state: restarted
+  become: true
