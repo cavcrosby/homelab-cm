@@ -65,8 +65,8 @@
     name: cavcrosby.general.managed_lineinfile
   vars:
     managed_lineinfile_path: /etc/default/keepalived
-    managed_lineinfile_regexp: '^DAEMON_ARGS="{{ _keepalived_config_file_path }}"'
-    managed_lineinfile_line: 'DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"'
+    managed_lineinfile_regexp: '^DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"'
+    managed_lineinfile_line: DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"
   become: true
   notify:
     - Restart keepalived

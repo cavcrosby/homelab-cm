@@ -22,7 +22,7 @@
       vars:
         managed_lineinfile_path: "{{ ansible_user_home }}/.bashrc"
         managed_lineinfile_regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        managed_lineinfile_line: 'source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
+        managed_lineinfile_line: source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"
 
     - name: Setup legacy iptables
       ansible.builtin.import_tasks: ./tasks/setup_legacy_iptables.yml
@@ -105,7 +105,7 @@
         etcd_download_path: "{{ etcd_extracted_tarball_parent_path }}/{{ etcd_tarball }}"
         # regex was inspired by:
         # https://stackoverflow.com/questions/61930563/extract-file-names-without-extension-ansible#answer-61931335
-        strip_exts_regex: ^(.*v\d+\.\d+\.\d+[^\.]*).*
+        strip_exts_regex: '^(.*v\d+\.\d+\.\d+[^\.]*).*'
       block:
         - name: Download the etcd tarball
           ansible.builtin.get_url:

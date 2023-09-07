@@ -29,7 +29,7 @@
   vars:
     managed_lineinfile_path: /etc/default/haproxy
     managed_lineinfile_regexp: '^CONFIG="{{ _haproxy_config_dir_path }}"'
-    managed_lineinfile_line: 'CONFIG="{{ _haproxy_config_dir_path }}"'
+    managed_lineinfile_line: CONFIG="{{ _haproxy_config_dir_path }}"
   become: true
   notify:
     - Restart haproxy
