@@ -1,9 +1,9 @@
 ---
 kubernetes_version: v1.25.6
-kubeadm_version: 1.25.5-00
-kubectl_version: 1.25.5-00
-kubelet_version: 1.25.5-00
-cri_tools_version: 1.25.0-00
+kubeadm_version: 1.25.5-1.1
+kubectl_version: 1.25.5-1.1
+kubelet_version: 1.25.5-1.1
+cri_tools_version: 1.25.0-1.1
 etcdctl_version: v3.5.6
 containerd_version: 1.5.9-0ubuntu3
 calico_chart_version: v3.24.3  # chart version points to app version v3.24.3

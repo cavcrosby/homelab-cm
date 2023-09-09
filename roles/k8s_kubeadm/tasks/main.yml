@@ -37,31 +37,31 @@
   become: true
   register: current_installed_gpg_key_inode
 
-- name: Grab Kubernetes's official GPG key
-  ansible.builtin.get_url:
-    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    dest: "{{ _k8s_keyring_download_path }}"
-    checksum: sha256:{{ k8s_gpg_sha256_checksum }}
-    mode: "644"
-  become: true
-  notify:
-    - Install Kubernetes's GPG key
+- name: Setup Kubernetes's apt repository
+  vars:
+    # regexp derives from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
+    k8s_version_regexp: '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa yaml[line-length]
+    apt_repo_url: "{{ kubernetes_version | regex_replace(k8s_version_regexp, 'https://pkgs.k8s.io/core:/stable:/v\\1.\\2/deb') }}"
+  block:
+    - name: Grab Kubernetes's official GPG key
+      ansible.builtin.get_url:
+        url: "{{ apt_repo_url }}/Release.key"
+        dest: "{{ _k8s_keyring_download_path }}"
+        checksum: sha256:{{ k8s_gpg_sha256_checksum }}
+        mode: "644"
+      become: true
+      notify:
+        - Install Kubernetes's GPG key
 
-- name: Flush handlers
-  ansible.builtin.meta: flush_handlers
+    - name: Flush handlers
+      ansible.builtin.meta: flush_handlers
 
-- name: Add Kubernetes's apt repository
-  ansible.builtin.apt_repository:
-    # Xenial is an Ubuntu distribution release and is the latest Kubernetes pkg in
-    # Google's repo (at the time of writing this comment) for what it appears to be
-    # for all Debian like distros. For reference on the installation instructions:
-    # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install
-    repo: >
-      deb [signed-by={{ _k8s_keyring_install_path }}] https://apt.kubernetes.io/
-      kubernetes-xenial main
-    state: present
-  become: true
-  when: ansible_os_family | lower == "debian"
+    - name: Add Kubernetes's apt repository
+      ansible.builtin.apt_repository:
+        repo: deb [signed-by={{ _k8s_keyring_install_path }}] {{ apt_repo_url }} /
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
 
 - name: Install kubeadm, kubelet, kubectl, and cri-tools (debian-like)
   ansible.builtin.apt:
