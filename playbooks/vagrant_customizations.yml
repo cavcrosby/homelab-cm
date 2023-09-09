@@ -74,7 +74,7 @@
   tags: remove_preset_vagrant_box_configs
 
   tasks:
-    - name: Get the current merged netplan config
+    - name: Get the current merged netplan configuration
       ansible.builtin.command: netplan get all
       changed_when: false
       become: true

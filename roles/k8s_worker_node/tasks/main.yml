@@ -84,7 +84,7 @@
       become: true
       register: kubeadm_join_check
 
-- name: Copy node kubeconfig file to communicate with control pane
+- name: Copy "node" kubeconfig file to communicate with control pane
   block:
     - name: Create a dotfile directory for kubectl
       ansible.builtin.file:

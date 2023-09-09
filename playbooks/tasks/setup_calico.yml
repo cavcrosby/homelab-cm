@@ -1,7 +1,7 @@
 ---
 - name: Setup the Calico CNI
   block:
-    - name: Add the Calico Helm repo
+    - name: Add the Calico Helm repository
       kubernetes.core.helm_repository:
         repo_name: projectcalico
         repo_url: https://docs.tigera.io/calico/charts

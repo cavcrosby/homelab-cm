@@ -20,7 +20,7 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Install Kubernetes apt repo dependencies (debian-like)
+- name: Install Kubernetes apt repository dependencies (debian-like)
   ansible.builtin.apt:
     name:
       - apt-transport-https
