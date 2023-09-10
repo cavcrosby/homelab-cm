@@ -23,7 +23,7 @@
 
     - name: Set the libvirt default connect URI for all users
       ansible.builtin.template:
-        src: ./templates/libvirt_default_uri.j2
+        src: libvirt_default_uri.j2
         # it's required that scripts have the .sh ext for /etc/profile to read it
         dest: /etc/profile.d/libvirt_default_uri.sh
         mode: "644"
