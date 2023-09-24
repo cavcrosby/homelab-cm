@@ -82,6 +82,7 @@ PYTHON = python
 PIP = pip
 NPM = npm
 NPX = npx
+PRE_COMMIT = pre-commit
 
 # simply expanded variables
 executables := \
@@ -182,6 +183,7 @@ ${SETUP}:
 		--requirement "./dev-requirements.txt"
 
 >	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
+>	${PRE_COMMIT} install
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}:

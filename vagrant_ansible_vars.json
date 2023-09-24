@@ -1,4 +1,4 @@
-{ 
+{
     "ansible_host_vars": {
         "poseidon-k8s-worker1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",

@@ -315,7 +315,7 @@ _EOF_
             ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
           end
         end
-      
+
         machine.vm.provision "ansible" do |ansible|
           ansible.playbook = "./playbooks/vagrant_customizations.yml"
           ansible.compatibility_mode = "2.0"

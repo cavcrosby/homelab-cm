@@ -3,6 +3,9 @@
         "config:base"
     ],
     "timezone": "utc",
+    "pre-commit": {
+        "enabled": true
+    },
     "lockFileMaintenance": {
         "enabled": true
     }
