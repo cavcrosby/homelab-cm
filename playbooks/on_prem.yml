@@ -28,6 +28,8 @@
         dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
         mode: "644"
       become: true
+      notify:
+        - Restart systemd-logind
 
     - name: Enable the pam_access module for the login program (debian-like)
       ansible.builtin.replace:
@@ -50,6 +52,13 @@
         src: pam_access.conf.j2
         dest: "{{ pam_access_configs_dir_path }}/homelab-access.conf"
         mode: "644"
+      become: true
+
+  handlers:
+    - name: Restart systemd-logind
+      ansible.builtin.systemd:
+        name: systemd-logind
+        state: restarted
       become: true
 
 - name: Create the bare-metal node administration account
