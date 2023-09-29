@@ -126,7 +126,7 @@
       become: true
 
     - name: Restart systemd-resolved
-      ansible.builtin.service:
+      ansible.builtin.systemd:
         name: systemd-resolved
         state: restarted
       become: true
