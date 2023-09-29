@@ -15,14 +15,14 @@
         password_lock: true
       become: true
 
-    - name: Create the systemd logind drop-in configurations directory
+    - name: Create the systemd-logind drop-in configurations directory
       ansible.builtin.file:
         path: "{{ systemd_logind_configs_dir_path }}"
         recurse: true
         state: directory
       become: true
 
-    - name: Create the customized systemd logind configuration file
+    - name: Create the customized systemd-logind configuration file
       ansible.builtin.template:
         src: systemd-logind.conf.j2
         dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
