@@ -1,0 +1,26 @@
+---
+- name: Register the current disk image
+  ansible.builtin.stat:
+    path: "{{ disk_dest_dir_path }}/{{ disk_prefix }}.qcow2"
+    checksum_algorithm: sha256
+  become: true
+  register: current_disk_inode
+
+- name: Create the disk image
+  ansible.builtin.shell:
+    executable: /bin/bash
+    cmd: |
+      set -o pipefail
+      qemu-img create \
+        -q \
+        -F "qcow2" \
+        -b "{{ backing_file_path }}" \
+        -f "qcow2" \
+        "{{ disk_dest_dir_path }}/{{ disk_prefix }}.qcow2"
+
+      chmod 600 "{{ disk_dest_dir_path }}/{{ disk_prefix }}.qcow2"
+      sha256sum "{{ disk_dest_dir_path }}/{{ disk_prefix }}.qcow2" | awk -F " " '{ print $1 }'
+  changed_when: not current_disk_inode.stat.exists
+                or current_disk_inode.stat.checksum != disk_inode_checksum.stdout
+  become: true
+  register: disk_inode_checksum

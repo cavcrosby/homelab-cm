@@ -38,7 +38,7 @@ locals {
 source "qemu" "poseidon_k8s_controller" {
   iso_url              = local.iso_url
   iso_checksum         = local.iso_checksum
-  output_directory     = "./packer/qemu-poseidon_k8s_controller"
+  output_directory     = "./playbooks/packer/qemu-poseidon_k8s_controller"
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
@@ -65,7 +65,7 @@ source "qemu" "poseidon_k8s_controller" {
 source "qemu" "poseidon_k8s_worker" {
   iso_url              = local.iso_url
   iso_checksum         = local.iso_checksum
-  output_directory     = "./packer/qemu-poseidon_k8s_worker"
+  output_directory     = "./playbooks/packer/qemu-poseidon_k8s_worker"
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
@@ -108,7 +108,7 @@ build {
 
   post-processor "shell-local" {
     inline = [
-      "mv --verbose \"./packer/${source.type}-${source.name}/packer-${source.name}\" \"./packer/${source.type}-${source.name}/${source.name}.qcow2\""
+      "mv --verbose \"./playbooks/packer/${source.type}-${source.name}/packer-${source.name}\" \"./playbooks/packer/${source.type}-${source.name}/${source.name}.qcow2\""
     ]
   }
 }

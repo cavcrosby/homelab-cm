@@ -1,7 +1,9 @@
 ---
-- name: Install and configure QEMU/KVM
+- name: Setup QEMU/KVM
   hosts: vmms
-  tags: install_qemu_kvm
+  tags: setup_qemu_kvm
+  vars:
+    libvirt_pool_dir_path: /var/lib/libvirt/images
   vars_files:
     - "{{ network_configs_path }}"
 
@@ -125,7 +127,14 @@
           community.libvirt.virt_net:
             name: poseidon-k8s-homelab-cm
             command: define
-            xml: "{{ lookup('ansible.builtin.template', poseidon_k8s_network_config_file_template) }}"
+            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_network_config_file_template) }}"
+
+        - name: Add a static entry into the poseidon homelab network
+          community.libvirt.virt_net:
+            name: poseidon-k8s-homelab-cm
+            command: modify
+            xml: <host mac='{{ item.poseidon_k8s_mac_addr }}' name='{{ item.name }}' ip='{{ item.poseidon_k8s_ipv4_addr }}'/>
+          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs + libvirt_poseidon_k8s_worker_domain_configs }}"
 
         - name: Have the poseidon homelab network start up on boot
           community.libvirt.virt_net:
@@ -136,3 +145,61 @@
           community.libvirt.virt_net:
             name: poseidon-k8s-homelab-cm
             state: active
+
+    - name: Copy over the poseidon Kubernetes controller node QEMU backing image
+      ansible.builtin.copy:
+        dest: "{{ libvirt_pool_dir_path }}"
+        src: ./packer/qemu-poseidon_k8s_controller/poseidon_k8s_controller.qcow2
+        mode: "600"
+      become: true
+
+    - name: Copy over the poseidon Kubernetes worker node QEMU backing image
+      ansible.builtin.copy:
+        dest: "{{ libvirt_pool_dir_path }}"
+        src: ./packer/qemu-poseidon_k8s_worker/poseidon_k8s_worker.qcow2
+        mode: "600"
+      become: true
+
+    - name: Setup libvirt domains
+      vars:
+        ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+      block:
+        - name: Create the poseidon Kubernetes controller nodes' disk
+          ansible.builtin.include_role:
+            name: qemu_img
+          vars:
+            disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
+            backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_controller.qcow2"
+            disk_prefix: "{{ item.name }}"
+          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
+
+        - name: Define the poseidon Kubernetes controller nodes' domain
+          community.libvirt.virt:
+            command: define
+            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_controller_domain_template) }}"
+            autostart: "{{ libvirt_poseidon_k8s_node_domain_autostart }}"
+          vars:
+            domain_name: "{{ item.name }}"
+            domain_homelab_mac_addr: "{{ item.homelab_mac_addr }}"
+            domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
+          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
+
+        - name: Create the poseidon Kubernetes worker nodes' disk
+          ansible.builtin.include_role:
+            name: qemu_img
+          vars:
+            disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
+            backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_worker.qcow2"
+            disk_prefix: "{{ item.name }}"
+          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"
+
+        - name: Define the poseidon Kubernetes worker nodes' domain
+          community.libvirt.virt:
+            command: define
+            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_worker_domain_template) }}"
+            autostart: "{{ libvirt_poseidon_k8s_node_domain_autostart }}"
+          vars:
+            domain_name: "{{ item.name }}"
+            domain_homelab_mac_addr: "{{ item.homelab_mac_addr }}"
+            domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
+          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"

@@ -152,6 +152,24 @@ ansible_host_vars.each do |machine_name, machine_attrs|
 
     machine_attrs.delete("vagrant_external_config_refs")
   end
+
+  # Evals each key value pair's value in domain_config based on
+  # ansible_host_vars[domain_config[name]].
+  if machine_attrs.key?("libvirt_poseidon_k8s_controller_domain_configs")
+    domain_configs = machine_attrs["libvirt_poseidon_k8s_controller_domain_configs"]
+    domain_configs.each do |domain_config|
+      traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
+    end
+    vagrant_homelab_network_configs["libvirt_poseidon_k8s_controller_domain_configs"] = domain_configs
+  end
+
+  if machine_attrs.key?("libvirt_poseidon_k8s_worker_domain_configs")
+    domain_configs = machine_attrs["libvirt_poseidon_k8s_worker_domain_configs"]
+    domain_configs.each do |domain_config|
+      traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
+    end
+    vagrant_homelab_network_configs["libvirt_poseidon_k8s_worker_domain_configs"] = domain_configs
+  end
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|

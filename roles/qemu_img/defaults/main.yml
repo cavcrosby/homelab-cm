@@ -1,0 +1,9 @@
+---
+# dir path for the created disk image
+disk_dest_dir_path: /var/lib/libvirt/images
+
+# path to the file to use as the base for the created disk image
+backing_file_path: ""
+
+# prefix to use as part of the created disk image filename (e.g. ${prefix}.qcow2)
+disk_prefix: ""

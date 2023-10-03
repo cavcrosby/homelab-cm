@@ -276,7 +276,50 @@
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bullseye64",
             "homelab_network_interface_name": "eth1",
-            "poseidon_k8s_network_config_file_template": "poseidon/staging-libvirt-network.xml.j2"
+            "libvirt_poseidon_k8s_network_config_file_template": "poseidon/staging-libvirt-network.xml.j2",
+            "libvirt_poseidon_k8s_node_domain_autostart": false,
+            "libvirt_poseidon_k8s_controller_domain_template": "poseidon/staging-libvirt-k8s-controller.xml.j2",
+            "libvirt_poseidon_k8s_worker_domain_template": "poseidon/staging-libvirt-k8s-worker.xml.j2",
+            "libvirt_poseidon_k8s_controller_domain_configs": [
+                {
+                    "name": "poseidon-k8s-controller1",
+                    "homelab_mac_addr": "52:54:00:2e:96:6b",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:c5:1a:ee"
+                },
+                {
+                    "name": "poseidon-k8s-controller2",
+                    "homelab_mac_addr": "52:54:00:29:f0:60",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:e7:7d:fd"
+                },
+                {
+                    "name": "poseidon-k8s-controller3",
+                    "homelab_mac_addr": "52:54:00:84:8a:95",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:24:e9:9b"
+                }
+            ],
+            "libvirt_poseidon_k8s_worker_domain_configs": [
+                {
+                    "name": "poseidon-k8s-worker1",
+                    "homelab_mac_addr": "52:54:00:c4:42:69",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:16:a9:70"
+                },
+                {
+                    "name": "poseidon-k8s-worker2",
+                    "homelab_mac_addr": "52:54:00:e7:32:af",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:be:a4:a0"
+                },
+                {
+                    "name": "poseidon-k8s-worker3",
+                    "homelab_mac_addr": "52:54:00:4f:23:3f",
+                    "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                    "poseidon_k8s_mac_addr": "52:54:00:ce:fd:19"
+                }
+            ]
         },
         "irc-client1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.100",

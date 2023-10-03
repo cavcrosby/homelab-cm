@@ -317,8 +317,8 @@ ${CLEAN}:
 >	rm \
 		--recursive \
 		--force \
-		"./packer/qemu-poseidon_k8s_controller" \
-		"./packer/qemu-poseidon_k8s_worker"
+		"./playbooks/packer/qemu-poseidon_k8s_controller" \
+		"./playbooks/packer/qemu-poseidon_k8s_worker"
 
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
