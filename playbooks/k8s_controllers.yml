@@ -88,7 +88,6 @@
     - name: Register the self-signed CA certificate file inode
       ansible.builtin.stat:
         path: "{{ k8s_root_cacert_path }}"
-      become: true
       register: k8s_root_cacert_inode
 
     - name: Register the modification time of the self-signed CA certificate
@@ -112,7 +111,6 @@
             dest: "{{ etcd_download_path }}"
             checksum: sha256:4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb.
             mode: "755"
-          become: true
 
         - name: Extract the etcd tarball into the desired directory
           ansible.builtin.unarchive:
@@ -206,7 +204,6 @@
       changed_when:
         - initial_k8s_root_cacert_mtime is defined
         - initial_k8s_root_cacert_mtime != (k8s_root_cacert_inode.stat.mtime | string)
-      become: true
       register: k8s_root_cacert_inode
       notify:
         - Restart haproxy

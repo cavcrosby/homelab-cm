@@ -11,7 +11,6 @@
     - name: Register the default grub configuration file inode
       ansible.builtin.stat:
         path: "{{ default_grub_path }}"
-      become: true
       register: default_grub_config_inode
 
     - name: Initial check if systemd.unified_cgroup_hierarchy=0 is added to GRUB_CMDLINE_LINUX_DEFAULT
@@ -43,7 +42,6 @@
           ansible.builtin.stat:
             path: "{{ grub_config_path }}"
             checksum_algorithm: sha256
-          become: true
           register: current_grub_config_inode
 
         - name: Update grub.cfg (debian-like)
@@ -77,7 +75,6 @@
     - name: Get the current merged netplan configuration
       ansible.builtin.command: netplan get all
       changed_when: false
-      become: true
       register: current_netplan_config
 
     # The generic/ubuntu2204 vagrant box has DNS configs that causes

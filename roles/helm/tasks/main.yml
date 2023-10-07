@@ -24,7 +24,6 @@
   ansible.builtin.stat:
     path: "{{ _helm_keyring_install_path }}"
     checksum_algorithm: sha256
-  become: true
   register: current_installed_gpg_key_inode
 
 - name: Grab Helm's official GPG key
