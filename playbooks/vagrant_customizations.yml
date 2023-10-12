@@ -42,6 +42,7 @@
           ansible.builtin.stat:
             path: "{{ grub_config_path }}"
             checksum_algorithm: sha256
+          become: true
           register: current_grub_config_inode
 
         - name: Update grub.cfg (debian-like)
@@ -50,7 +51,7 @@
             cmd: |
               set -o pipefail
               grub-mkconfig --output "{{ grub_config_path }}"
-              sha256sum "{{ grub_config_path }}" | gawk --field-separator " " '{ print $1 }'
+              sha256sum "{{ grub_config_path }}" | awk -F " " '{ print $1 }'
           changed_when: current_grub_config_inode.stat.checksum != grub_config_checksum.stdout
           become: true
           register: grub_config_checksum
@@ -64,66 +65,3 @@
       when:
         - default_grub_config_inode.stat.exists
         - line_check.found == 0
-
-- name: Remove preset Vagrant box configurations
-  hosts:
-    - k8s_workers
-    - k8s_controllers
-  tags: remove_preset_vagrant_box_configs
-
-  tasks:
-    - name: Get the current merged netplan configuration
-      ansible.builtin.command: netplan get all
-      changed_when: false
-      register: current_netplan_config
-
-    # The generic/ubuntu2204 vagrant box has DNS configs that causes
-    # /run/systemd/resolve/resolv.conf to have too many DNS nameservers added to it.
-    # Hence the need to undo some of the box's configs, for reference on how the
-    # box is configured in regards to DNS:
-    # https://github.com/lavabit/robox/blob/master/scripts/ubuntu2204/network.sh
-    #
-    # This above issue collides with Kubernetes when it tries to use the mentioned
-    # 'resolv.conf'. For reference on the issue I saw:
-    # https://github.com/kubernetes/kubernetes/issues/82756
-    - name: Remove created netplan yaml
-      ansible.builtin.file:
-        path: /etc/netplan/01-netcfg.yaml
-        state: absent
-      become: true
-      notify:
-        - Apply netplan configurations
-        - Restart systemd-networkd
-        - Restart systemd-resolved
-
-    # defaults can be restored when deleting th resolved.conf and all drop-ins
-    - name: Set the systemd resolved.conf configuration back to defaults
-      ansible.builtin.file:
-        path: /etc/systemd/resolved.conf
-        state: absent
-      become: true
-      notify:
-        - Restart systemd-networkd
-        - Restart systemd-resolved
-
-  handlers:
-    - name: Apply netplan configurations
-      ansible.builtin.shell: |
-        netplan generate
-        netplan get all
-      changed_when: current_netplan_config.stdout != netplan_config.stdout
-      become: true
-      register: netplan_config
-
-    - name: Restart systemd-networkd
-      ansible.builtin.systemd:
-        name: systemd-networkd
-        enabled: true
-        state: restarted
-      become: true
-
-    - name: Restart systemd-resolved
-      ansible.builtin.systemd:
-        name: systemd-resolved
-        state: restarted
-      become: true

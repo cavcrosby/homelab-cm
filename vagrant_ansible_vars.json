@@ -10,7 +10,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
             },
@@ -36,7 +36,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
             },
@@ -62,7 +62,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
             },
@@ -88,7 +88,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "k8s_service_subnet": "172.17.0.0/23",
             "k8s_pod_subnet": "172.16.0.0/16",
@@ -123,7 +123,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "vrrp_state": "BACKUP",
             "vrrp_interface": "eth2",
@@ -152,7 +152,7 @@
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
-            "vagrant_vm_box": "generic/ubuntu2204",
+            "vagrant_vm_box": "debian/bookworm64",
             "haproxy_config_file_template": "poseidon/k8s-haproxy.cfg.j2",
             "vrrp_state": "BACKUP",
             "vrrp_interface": "eth2",

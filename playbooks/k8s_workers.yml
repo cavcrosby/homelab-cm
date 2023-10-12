@@ -30,6 +30,8 @@
 - name: Perform initial setup for k8s_worker (poseidon)
   hosts: k8s_workers:&poseidon
   tags: do_initial_poseidon_k8s_worker_setup
+  vars:
+    containerd_deb: containerd_{{ containerd_version }}_amd64.deb
   vars_files:
     - ./vars/{{ k8s_software_versions_file }}
 
@@ -40,13 +42,27 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
+    - name: Copy the locally built containerd package over (debian-like)
+      ansible.builtin.copy:
+        dest: /tmp/{{ containerd_deb }}
+        src: ./build/{{ containerd_deb }}
+        mode: "755"
+      when: ansible_os_family | lower == "debian"
+
     - name: Install containerd (debian-like)
       ansible.builtin.apt:
-        name:
-          - containerd={{ containerd_version }}
+        deb: /tmp/{{ containerd_deb }}
         state: present
       become: true
       when: ansible_os_family | lower == "debian"
+
+    - name: Remove the default Debian packaged containerd configuration file
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: absent
+      become: true
+      notify:
+        - Restart containerd
 
     - name: Prevent containerd from being upgraded
       ansible.builtin.dpkg_selections:
@@ -67,6 +83,12 @@
       community.general.iptables_state:
         path: "{{ iptables_rules_path }}"
         state: saved
+      become: true
+
+    - name: Restart containerd
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
       become: true
 
 - name: Configure k8s_worker to be a Kubernetes worker node

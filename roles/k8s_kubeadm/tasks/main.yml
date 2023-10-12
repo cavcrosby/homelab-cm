@@ -26,6 +26,7 @@
       - apt-transport-https
       - ca-certificates
       - curl
+      - gnupg
     state: present
   become: true
   when: ansible_os_family | lower == "debian"

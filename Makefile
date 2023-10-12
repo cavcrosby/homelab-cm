@@ -4,6 +4,8 @@
 
 # recursively expanded variables
 SHELL = /usr/bin/sh
+CONTAINERD_UPSTREAM_PREFIX = containerd-1.5.9~ds1
+BUILD_DIR_PATH = ./playbooks/build
 TRUTHY_VALUES = \
     true\
     1
@@ -40,6 +42,7 @@ PRODUCTION = production
 STAGING = staging
 ANSIBLE_SECRETS = ansible-secrets
 K8S_NODE_IMAGES = k8s-node-images
+CONTAINERD_DEB = containerd-deb
 LINT = lint
 DEVELOPMENT_SHELL = development-shell
 CLEAN = clean
@@ -83,6 +86,9 @@ PIP = pip
 NPM = npm
 NPX = npx
 PRE_COMMIT = pre-commit
+DGET = dget
+DOCKER = docker
+GO = go
 
 # simply expanded variables
 executables := \
@@ -100,13 +106,17 @@ executables := \
 	${BASH}\
 	${PYTHON}\
 	${NPM}\
-	${PACKER}
+	${PACKER}\
+	${DGET}\
+	${DOCKER}\
+	${GO}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 src_yml := $(shell find . \( -type f \) \
 	-and \( -name '*.yml' \) \
 	-and ! \( -path './vendor/*' \) \
 	-and ! \( -path './node_modules/*' \) \
+	-and ! \( -path './playbooks/build/*' \) \
 )
 
 # provider VM identifiers
@@ -311,6 +321,29 @@ ${K8S_NODE_IMAGES}:
 		-var encrypted_ssh_password='$(value K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD)' \
 		"./k8s-nodes.pkr.hcl"
 
+.PHONY: ${CONTAINERD_DEB}
+${CONTAINERD_DEB}:
+	# group cmds right of || because otherwise dget always runs, see
+	# https://unix.stackexchange.com/questions/88850/precedence-of-the-shell-logical-operators#answer-88865
+>	@[ -d "${BUILD_DIR_PATH}/${CONTAINERD_UPSTREAM_PREFIX}" ] \
+		|| ( mkdir --parents "${BUILD_DIR_PATH}" \
+		&& cd "${BUILD_DIR_PATH}" \
+		&& ${DGET} \
+				--allow-unauthenticated \
+				"https://snapshot.debian.org/archive/debian/20220303T093013Z/pool/main/c/containerd/$(subst -,_,${CONTAINERD_UPSTREAM_PREFIX})-1.dsc" )
+
+>	cd "${BUILD_DIR_PATH}/${CONTAINERD_UPSTREAM_PREFIX}" \
+		&& ${GO} mod vendor \
+		&& sed --in-place 's_github.com/containerd/containerd => ./.empty-mod/__' "go.mod" \
+		&& sed --in-place 's_# github.com/containerd/containerd => ./.empty-mod/__' "./vendor/modules.txt"
+
+>	@[ -n "$$(${DOCKER} image ls --quiet "${CONTAINERD_DEB}")" ] \
+		|| ${DOCKER} build \
+				--build-arg CONTAINERD_UPSTREAM_PREFIX="${CONTAINERD_UPSTREAM_PREFIX}" \
+				--tag "${CONTAINERD_DEB}" "${CURDIR}"
+
+>	${DOCKER} run --rm --volume "${CURDIR}/playbooks/build:/build" "${CONTAINERD_DEB}"
+
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
@@ -320,6 +353,8 @@ ${CLEAN}:
 		"./playbooks/packer/qemu-poseidon_k8s_controller" \
 		"./playbooks/packer/qemu-poseidon_k8s_worker"
 
+>	rm --recursive --force "${BUILD_DIR_PATH}"
+>	${DOCKER} rmi --force "${CONTAINERD_DEB}"
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
