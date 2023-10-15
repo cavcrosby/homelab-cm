@@ -239,16 +239,16 @@ ${DEVELOPMENT_SHELL}:
 
 .PHONY: ${ANSIBLE_SECRETS}
 ${ANSIBLE_SECRETS}:
->	@${NPX} ${BW} login --check > /dev/null 2>&1 || \
-		{ \
-			echo "make: login to bitwarden and export BW_SESSION before running this target"; \
-			exit 1; \
-		}
->	@${NPX} ${BW} unlock --check > /dev/null 2>&1 || \
-		{ \
-			echo "make: unlock bitwarden vault and export BW_SESSION before running this target"; \
-			exit 1; \
-		}
+>	@${NPX} ${BW} login --check > /dev/null 2>&1 \
+		|| { \
+				echo "make: login to bitwarden and export BW_SESSION before running this target"; \
+				exit 1; \
+			}
+>	@${NPX} ${BW} unlock --check > /dev/null 2>&1 \
+		|| { \
+				echo "make: unlock bitwarden vault and export BW_SESSION before running this target"; \
+				exit 1; \
+			}
 ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${NPX} ${BW} delete attachment \
@@ -307,11 +307,11 @@ endif
 
 .PHONY: ${K8S_NODE_IMAGES}
 ${K8S_NODE_IMAGES}:
->	@[ -n "${K8S_NODE_IMAGES_SSH_PASSWORD}" ] || \
-		{ echo "make: K8S_NODE_IMAGES_SSH_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${K8S_NODE_IMAGES_SSH_PASSWORD}" ] \
+		|| { echo "make: K8S_NODE_IMAGES_SSH_PASSWORD was not passed into make"; exit 1; }
 
->	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD}" ] || \
-		{ echo "make: K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD}" ] \
+		|| { echo "make: K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD was not passed into make"; exit 1; }
 
 	# Password and password hashes could contain the '$' char which make will try
 	# to perform variable expansion on, hence the value func is used to prevent said
