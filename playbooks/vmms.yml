@@ -38,6 +38,7 @@
         # libvirt-daemon-system).
         groups: libvirt
         state: present
+        append: true
       become: true
 
     - name: Setup the libvirt system user
