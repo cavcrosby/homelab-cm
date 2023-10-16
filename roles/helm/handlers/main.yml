@@ -6,7 +6,7 @@
   ansible.builtin.shell:
     executable: /bin/bash
     cmd: |
-      set -o pipefail
+      set -eo pipefail
       gpg --batch --output "{{ _helm_keyring_install_path }}" --dearmor "{{ _helm_keyring_download_path }}"
       sha256sum "{{ _helm_keyring_install_path }}" | awk -F " " '{ print $1 }'
   changed_when: not current_installed_gpg_key_inode.stat.exists

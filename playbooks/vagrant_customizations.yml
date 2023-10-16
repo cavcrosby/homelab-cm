@@ -49,7 +49,7 @@
           ansible.builtin.shell:
             executable: /bin/bash
             cmd: |
-              set -o pipefail
+              set -eo pipefail
               grub-mkconfig --output "{{ grub_config_path }}"
               sha256sum "{{ grub_config_path }}" | awk -F " " '{ print $1 }'
           changed_when: current_grub_config_inode.stat.checksum != grub_config_checksum.stdout

@@ -10,7 +10,7 @@
   ansible.builtin.shell:
     executable: /bin/bash
     cmd: |
-      set -o pipefail
+      set -eo pipefail
       qemu-img create \
         -q \
         -F "qcow2" \
