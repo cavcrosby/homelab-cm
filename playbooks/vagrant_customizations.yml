@@ -27,11 +27,11 @@
     - name: Add systemd.unified_cgroup_hierarchy=0 to GRUB_CMDLINE_LINUX_DEFAULT
       ansible.builtin.import_role:
         name: cavcrosby.general.managed_lineinfile
+      become: true
       vars:
         managed_lineinfile_path: "{{ default_grub_path }}"
         managed_lineinfile_regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"'
         managed_lineinfile_line: GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"
-      become: true
       when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg

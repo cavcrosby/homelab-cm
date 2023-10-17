@@ -8,9 +8,9 @@
     mode: "644"
     force: false
   become: true
-  loop: "{{ systemd_networkd_files }}"
   notify:
     - Start and enable systemd-networkd
     - Remove the 'networking' daemon interfaces file (debian-like)
     - Stop and disable the 'networking' daemon (debian-like)
     - Restart systemd-networkd
+  loop: "{{ systemd_networkd_files }}"

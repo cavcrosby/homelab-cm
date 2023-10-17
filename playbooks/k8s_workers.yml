@@ -30,10 +30,10 @@
 - name: Perform initial setup for k8s_worker (poseidon)
   hosts: k8s_workers:&poseidon
   tags: do_initial_poseidon_k8s_worker_setup
-  vars:
-    containerd_deb: containerd_{{ containerd_version }}_amd64.deb
   vars_files:
     - ./vars/{{ k8s_software_versions_file }}
+  vars:
+    containerd_deb: containerd_{{ containerd_version }}_amd64.deb
 
   pre_tasks:
     - name: Update apt's package index
