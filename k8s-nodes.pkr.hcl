@@ -20,18 +20,18 @@ variable "encrypted_ssh_password" {
 }
 
 locals {
-  iso_url              = "https://releases.ubuntu.com/22.04/ubuntu-22.04.2-live-server-amd64.iso"
-  iso_checksum         = "sha256:5e38b55d57d94ff029719342357325ed3bda38fa80054f9330dc789cd2d43931"
+  iso_url              = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.2.0-amd64-netinst.iso"
+  iso_checksum         = "sha256:23ab444503069d9ef681e3028016250289a33cc7bab079259b73100daee0af66"
   ssh_username         = "ansible"
   ssh_private_key_file = "~/.ssh/id_rsa"
-  user_data_tpl_file   = "${path.root}/autoinstall.pkrtpl.hcl"
+  preseed_tpl_file     = "${path.root}/preseed.pkrtpl.hcl"
   boot_command = [
-    "<tab><wait>",
-    "c<wait>",
-    "linux /casper/vmlinuz autoinstall quiet ",
-    "ds='nocloud-net;seedfrom=http://{{ .HTTPIP }}:{{ .HTTPPort }}/'<enter><wait>",
-    "initrd /casper/initrd<enter><wait>",
-    "boot<enter>"
+    "<esc><wait>",
+    "/install.amd/vmlinuz ",
+    "initrd=/install.amd/initrd.gz ",
+    "auto-install/enable=true ",
+    "debconf/priority=critical ",
+    "preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/./preseed.cfg<enter><wait>",
   ]
 }
 
@@ -49,10 +49,17 @@ source "qemu" "poseidon_k8s_controller" {
   ssh_pty              = true
 
   http_content = {
-    "/user-data" = templatefile(local.user_data_tpl_file, {
+    "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
       password = var.encrypted_ssh_password
     })
-    "/meta-data" = ""
+    "/authorized_keys" = join(
+      "",
+      [
+        file("${path.root}/playbooks/ssh_keys/id_rsa_ron.pub"),
+        file("${path.root}/playbooks/ssh_keys/id_rsa_roxanne.pub")
+      ]
+    ),
+    "/late_commands" = file("${path.root}/scripts/late_commands")
   }
   qemuargs = [
     [
@@ -76,10 +83,17 @@ source "qemu" "poseidon_k8s_worker" {
   ssh_pty              = true
 
   http_content = {
-    "/user-data" = templatefile(local.user_data_tpl_file, {
+    "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
       password = var.encrypted_ssh_password
     })
-    "/meta-data" = ""
+    "/authorized_keys" = join(
+      "",
+      [
+        file("${path.root}/playbooks/ssh_keys/id_rsa_ron.pub"),
+        file("${path.root}/playbooks/ssh_keys/id_rsa_roxanne.pub")
+      ]
+    ),
+    "/late_commands" = file("${path.root}/scripts/late_commands")
   }
   qemuargs = [
     [
@@ -97,8 +111,8 @@ build {
 
   provisioner "shell" {
     inline = [
-      "cloud-init status --wait",
-      "apt-get update && apt-get upgrade --assume-yes"
+      "apt-get update",
+      "apt-get upgrade --assume-yes"
     ]
     execute_command = "chmod +x {{ .Path }}; echo '${var.ssh_password}' | sudo --stdin {{ .Vars }} {{ .Path }}"
     environment_vars = [

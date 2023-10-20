@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Runs commands as part of the preseed/late_command Debian installer question.
+
+set -e
+
+mkdir "/home/ansible/.ssh"
+chmod 700 "/home/ansible/.ssh"
+cp "/tmp/authorized_keys" "/home/ansible/.ssh"
+chmod 600 "/home/ansible/.ssh/authorized_keys"
+chown --recursive "ansible:ansible" "/home/ansible/.ssh"
+sed \
+    --regexp-extended \
+    --in-place \
+    's|^#?PubkeyAuthentication.+|PubkeyAuthentication yes|' \
+    "/etc/ssh/sshd_config"
+
+sed \
+    --regexp-extended \
+    --in-place \
+    's|^#?PasswordAuthentication.+|PasswordAuthentication no|' \
+    "/etc/ssh/sshd_config"
+
+sed \
+    --regexp-extended \
+    --in-place \
+    's|^#?AuthorizedKeysFile.+|AuthorizedKeysFile    .ssh/authorized_keys|' \
+    "/etc/ssh/sshd_config"
+
+printf "%s\n" "Defaults:ansible !requiretty" > "/etc/sudoers.d/ansible"
+printf "%s\n" "ansible ALL=(ALL) ALL" >> "/etc/sudoers.d/ansible"
+
+exit 0
