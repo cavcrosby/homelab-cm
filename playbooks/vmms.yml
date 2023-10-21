@@ -41,7 +41,7 @@
         append: true
       become: true
 
-    - name: Setup the libvirt-ro system user
+    - name: Setup the libvirt-ro user
       block:
         - name: Create the libvirt-ro group
           ansible.builtin.group:
@@ -49,7 +49,7 @@
             state: present
           become: true
 
-        - name: Create the libvirt-ro system user
+        - name: Create the libvirt-ro user
           ansible.builtin.user:
             name: libvirt-ro
             group: libvirt-ro
@@ -58,7 +58,7 @@
             shell: /bin/bash
           become: true
 
-        - name: Create the libvirt-ro system user's .ssh directory
+        - name: Create the libvirt-ro user's .ssh directory
           ansible.builtin.file:
             path: /home/libvirt-ro/.ssh
             owner: libvirt-ro
@@ -67,7 +67,7 @@
             mode: "700"
           become: true
 
-        - name: Create the authorized_keys file to enable SSH access as the libvirt-ro system user
+        - name: Create the authorized_keys file to enable SSH access as the libvirt-ro user
           ansible.builtin.copy:
             dest: /home/libvirt-ro/.ssh/authorized_keys
             owner: libvirt-ro

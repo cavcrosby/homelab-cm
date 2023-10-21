@@ -23,9 +23,9 @@
   hosts: irc_clients
   tags: install_weechat
   vars:
-    irc_system_user: weechat
-    irc_system_user_home: /home/{{ irc_system_user }}
-    weechat_certs_directory: "{{ irc_system_user_home }}/.weechat/certs"
+    irc_user: weechat
+    irc_user_home: /home/{{ irc_user }}
+    weechat_certs_directory: "{{ irc_user_home }}/.weechat/certs"
 
   pre_tasks:
     - name: Update apt's package index
@@ -35,8 +35,8 @@
       when: ansible_os_family | lower == "debian"
 
   tasks:
-    - name: Setup the IRC system user
-      ansible.builtin.import_tasks: ./tasks/setup_irc_sysuser.yml
+    - name: Setup the IRC user
+      ansible.builtin.import_tasks: ./tasks/setup_irc_user.yml
 
     - name: Install WeeChat (debian-like)
       ansible.builtin.apt:
@@ -49,8 +49,8 @@
     - name: Create WeeChat's certificates directory
       ansible.builtin.file:
         path: "{{ weechat_certs_directory }}"
-        owner: "{{ irc_system_user }}"
-        group: "{{ irc_system_user }}"
+        owner: "{{ irc_user }}"
+        group: "{{ irc_user }}"
         state: directory
         mode: "775"
       become: true
@@ -59,8 +59,8 @@
       ansible.builtin.copy:
         dest: "{{ weechat_certs_directory }}/{{ item | basename }}"
         src: "{{ item }}"
-        owner: "{{ irc_system_user }}"
-        group: "{{ irc_system_user }}"
+        owner: "{{ irc_user }}"
+        group: "{{ irc_user }}"
         mode: "600"
       become: true
       loop:

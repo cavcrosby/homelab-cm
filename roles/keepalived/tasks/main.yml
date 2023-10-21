@@ -33,7 +33,7 @@
         state: present
       become: true
 
-    - name: Create the keepalived_script user
+    - name: Create the keepalived_script system user
       ansible.builtin.user:
         name: keepalived_script
         group: keepalived_script
