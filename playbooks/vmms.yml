@@ -41,35 +41,37 @@
         append: true
       become: true
 
-    - name: Setup the libvirt system user
-      vars:
-        libvirt_system_user: libvirt
-        libvirt_system_user_home: /home/libvirt
+    - name: Setup the libvirt-ro system user
       block:
-        - name: Create the libvirt system user (debian-like)
-          ansible.builtin.user:
-            name: "{{ libvirt_system_user }}"
+        - name: Create the libvirt-ro group
+          ansible.builtin.group:
+            name: libvirt-ro
             state: present
-            home: "{{ libvirt_system_user_home }}"
-            shell: /bin/sh
-            system: true
           become: true
-          when: ansible_os_family | lower == "debian"
 
-        - name: Create the libvirt system user's .ssh directory
+        - name: Create the libvirt-ro system user
+          ansible.builtin.user:
+            name: libvirt-ro
+            group: libvirt-ro
+            state: present
+            home: /home/libvirt-ro
+            shell: /bin/bash
+          become: true
+
+        - name: Create the libvirt-ro system user's .ssh directory
           ansible.builtin.file:
-            path: "{{ libvirt_system_user_home }}/.ssh"
-            owner: "{{ libvirt_system_user }}"
-            group: "{{ libvirt_system_user }}"
+            path: /home/libvirt-ro/.ssh
+            owner: libvirt-ro
+            group: libvirt-ro
             state: directory
             mode: "700"
           become: true
 
-        - name: Create the authorized_keys file to enable SSH access as the libvirt system user
+        - name: Create the authorized_keys file to enable SSH access as the libvirt-ro system user
           ansible.builtin.copy:
-            dest: "{{ libvirt_system_user_home }}/.ssh/authorized_keys"
-            owner: "{{ libvirt_system_user }}"
-            group: "{{ libvirt_system_user }}"
+            dest: /home/libvirt-ro/.ssh/authorized_keys
+            owner: libvirt-ro
+            group: libvirt-ro
             mode: "600"
             content: |
               {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_ron.pub') }}
