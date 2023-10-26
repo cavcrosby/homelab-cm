@@ -1,0 +1,69 @@
+#!/bin/bash
+#
+# Checks the vagrant package installed via the distro's package manager.
+
+set -eo pipefail
+
+if [ -r "/etc/os-release" ]; then
+    . "/etc/os-release"
+elif [ -r "/usr/lib/os-release" ]; then
+    . "/usr/lib/os-release"
+else
+    printf "%s: %s\n" "$(basename "$0")" "could not source /etc/os-release or /usr/lib/os-release!" >&2
+    exit 1
+fi
+
+# constants
+PROGNAME="$(basename "$0")"
+readonly PROGNAME
+readonly FALSE=0
+readonly TRUE=1
+readonly VAGRANT_UPSTREAM_VERSION="2.3.7"
+readonly VAGRANT_APT_REPO="apt.releases.hashicorp.com"
+
+if echo "${ID_LIKE}" | grep --quiet "debian"; then
+    if ! [ "$(apt-cache search --names-only '^vagrant$')" ]; then
+        printf "%s: %s\n" "${PROGNAME}" "no deb repositories configured that host the vagrant package" >&2
+        exit 1
+    fi
+
+    vagrant_apt_cache="$(apt-cache policy vagrant)"
+    while read -r line; do
+        if echo "${line}" | grep --quiet "Installed:"; then
+            if ! echo "${line}" | grep --quiet "${VAGRANT_UPSTREAM_VERSION}"; then
+                printf "%s: %s\n" "${PROGNAME}" "expected a vagrant ${VAGRANT_UPSTREAM_VERSION} package to be installed" >&2
+                exit 1
+            fi
+        fi
+    done <<< "${vagrant_apt_cache}"
+
+    under_version_table="${FALSE}"
+    is_vagrant_upstream_version_entries="${FALSE}"
+    while read -r line; do
+        if (( under_version_table )); then
+            if (( is_vagrant_upstream_version_entries )); then
+                # 1|100|500|990 come from APT's Default Priority Assignments under apt_preferences(5)
+                if ! echo "${line}" | grep --quiet --extended-regexp '^(1|100|500|990) '; then
+                    is_vagrant_upstream_version_entries="${FALSE}"
+                else
+                    if echo "${line}" | grep --quiet --extended-regexp "^(500|990) .+$(dpkg --print-architecture)"; then
+                        if ! echo "${line}" | grep --quiet "${VAGRANT_APT_REPO}"; then
+                            printf "%s: %s\n" "${PROGNAME}" "vagrant package installed did not come from ${VAGRANT_APT_REPO}" >&2
+                            exit 1
+                        fi
+                    fi
+                fi
+            else
+                if echo "${line}" | grep --quiet "${VAGRANT_UPSTREAM_VERSION}"; then
+                    is_vagrant_upstream_version_entries="${TRUE}"
+                fi
+            fi
+        else
+            if echo "${line}" | grep --quiet "Version table:"; then
+                under_version_table="${TRUE}"
+            fi
+        fi
+    done <<< "${vagrant_apt_cache}"
+fi
+
+exit 0

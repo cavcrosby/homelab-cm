@@ -184,6 +184,7 @@ ${HELP}:
 
 .PHONY: ${SETUP}
 ${SETUP}:
+>	./scripts/chk_vagrant_pkg
 >	${BUNDLE} install
 >	${VAGRANT} plugin install "$$(find ./vendor -name 'vagrant-libvirt-*.gem')"
 >	${NPM} install
