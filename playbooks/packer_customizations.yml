@@ -1,0 +1,20 @@
+---
+- name: Perform packer customizations
+  hosts:
+    - k8s_workers
+    - k8s_controllers
+  tags: do_packer_customizations
+
+  tasks:
+    - name: Upgrade all packages (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Setup systemd-networkd networking
+      ansible.builtin.include_role:
+        name: systemd_networkd
+      vars:
+        systemd_networkd_files: "{{ k8s_node_systemd_networkd_files }}"

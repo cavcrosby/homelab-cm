@@ -31,6 +31,7 @@ vagrant_homelab_network_configs = {
 
 # exported constants
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"]
+VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR = "192.168.2.1"
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
@@ -123,12 +124,17 @@ ansible_host_vars.each do |machine_name, machine_attrs|
     # passing a function as a argument was inspired by:
     # https://stackoverflow.com/questions/522720/passing-a-method-as-a-parameter-in-ruby#answer-4094968
     traverse_configs(method(:eval_config_ref), machine_attrs, vagrant_config_refs)
+
     vagrant_config_refs.keys().each do |config_name|
       config_ref = vagrant_config_refs[config_name]
       if config_name.eql?("dhcp_systemd_networkd_files")
         vagrant_homelab_network_configs[config_name] = config_ref
       else
-        machine_attrs[config_name] = config_ref
+        if config_ref.kind_of?(Array) || config_ref.kind_of?(Hash)
+          machine_attrs[config_name] = "'#{config_ref.to_json}'"
+        else
+          machine_attrs[config_name] = config_ref
+        end
       end
     end
 
@@ -221,7 +227,7 @@ _EOF_
           mac: machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"],
           ip: machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"],
           libvirt__network_name: "poseidon-k8s-homelab-cm",
-          libvirt__host_ip: "192.168.2.1",
+          libvirt__host_ip: VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR,
           libvirt__dhcp_enabled: false
       end
 

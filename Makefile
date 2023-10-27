@@ -308,18 +308,18 @@ endif
 
 .PHONY: ${K8S_NODE_IMAGES}
 ${K8S_NODE_IMAGES}:
->	@[ -n "${K8S_NODE_IMAGES_SSH_PASSWORD}" ] \
-		|| { echo "make: K8S_NODE_IMAGES_SSH_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD}" ] \
+		|| { echo "make: K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
 
->	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD}" ] \
-		|| { echo "make: K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD}" ] \
+		|| { echo "make: K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
 
 	# Password and password hashes could contain the '$' char which make will try
 	# to perform variable expansion on, hence the value func is used to prevent said
 	# expansion.
 >	${PACKER} build \
-		-var ssh_password='$(value K8S_NODE_IMAGES_SSH_PASSWORD)' \
-		-var encrypted_ssh_password='$(value K8S_NODE_IMAGES_ENCRYPTED_SSH_PASSWORD)' \
+		-var ansible_user_password='$(value K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD)' \
+		-var encrypted_ansible_user_password='$(value K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD)' \
 		"./k8s-nodes.pkr.hcl"
 
 .PHONY: ${CONTAINERD_DEB}

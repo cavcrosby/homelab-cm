@@ -11,8 +11,103 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bookworm64",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
-                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -37,8 +132,103 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bookworm64",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
-                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -63,8 +253,103 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
             "vagrant_vm_box": "debian/bookworm64",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
-                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -99,10 +384,105 @@
             "vrrp_state": "MASTER",
             "vrrp_interface": "eth2",
             "vrrp_priority": "150",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller2": {
@@ -128,10 +508,105 @@
             "vrrp_state": "BACKUP",
             "vrrp_interface": "eth2",
             "vrrp_priority": "100",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {
@@ -157,10 +632,105 @@
             "vrrp_state": "BACKUP",
             "vrrp_interface": "eth2",
             "vrrp_priority": "100",
+            "mgmt_network_interface_name": "eth0",
+            "homelab_network_interface_name": "eth1",
+            "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
+                "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
+                "k8s_node_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_poseidon_k8s_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "poseidon_k8s_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "poseidon_k8s_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_poseidon_k8s_ipv4_addr",
+                                    "/24"
+                                ]
+                            },
+                            "Gateway": "${VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR}"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
             },
             "vagrant_external_config_refs": {
                 "poseidon-k8s-controller1": {

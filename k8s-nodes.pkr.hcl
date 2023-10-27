@@ -4,17 +4,21 @@ packer {
       version = "= 1.0.9"
       source  = "github.com/hashicorp/qemu"
     }
+    ansible = {
+      version = "= 1.1.0"
+      source  = "github.com/hashicorp/ansible"
+    }
   }
 
   required_version = "~> 1.8.0"
 }
 
-variable "ssh_password" {
+variable "ansible_user_password" {
   type        = string
-  description = "A plaintext password to use to authenticate with SSH."
+  description = "A plaintext password for the ansible_user."
 }
 
-variable "encrypted_ssh_password" {
+variable "encrypted_ansible_user_password" {
   type        = string
   description = "The plaintext password hashed by a method supported by crypt(5)."
 }
@@ -42,7 +46,7 @@ source "qemu" "poseidon_k8s_controller" {
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
-  shutdown_command     = "echo '${var.ssh_password}' | sudo --stdin shutdown --poweroff now"
+  shutdown_command     = "echo '${var.ansible_user_password}' | sudo --stdin shutdown --poweroff now"
   memory               = 2048
   disk_size            = "20G"
   ssh_timeout          = "20m"
@@ -50,7 +54,7 @@ source "qemu" "poseidon_k8s_controller" {
 
   http_content = {
     "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
-      password = var.encrypted_ssh_password
+      password = var.encrypted_ansible_user_password
     })
     "/authorized_keys" = join(
       "",
@@ -76,7 +80,7 @@ source "qemu" "poseidon_k8s_worker" {
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
-  shutdown_command     = "echo '${var.ssh_password}' | sudo --stdin shutdown --poweroff now"
+  shutdown_command     = "echo '${var.ansible_user_password}' | sudo --stdin shutdown --poweroff now"
   memory               = 2048
   disk_size            = "30G"
   ssh_timeout          = "20m"
@@ -84,7 +88,7 @@ source "qemu" "poseidon_k8s_worker" {
 
   http_content = {
     "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
-      password = var.encrypted_ssh_password
+      password = var.encrypted_ansible_user_password
     })
     "/authorized_keys" = join(
       "",
@@ -109,15 +113,47 @@ build {
     "source.qemu.poseidon_k8s_worker"
   ]
 
-  provisioner "shell" {
-    inline = [
-      "apt-get update",
-      "apt-get upgrade --assume-yes"
+  provisioner "ansible" {
+    playbook_file = "./playbooks/packer_customizations.yml"
+    user          = "ansible"
+    use_proxy     = false
+    extra_arguments = [
+      "--extra-vars",
+      "ansible_become_pass='${var.ansible_user_password}'"
     ]
-    execute_command = "chmod +x {{ .Path }}; echo '${var.ssh_password}' | sudo --stdin {{ .Vars }} {{ .Path }}"
-    environment_vars = [
-      "DEBIAN_FRONTEND=noninteractive"
-    ]
+
+    override = {
+      poseidon_k8s_controller = {
+        groups = [
+          "k8s_controllers"
+        ],
+        inventory_file_template = join(
+          "",
+          [
+            "{{ .HostAlias }} ",
+            "ansible_host={{ .Host }} ",
+            "ansible_user={{ .User }} ",
+            "ansible_port={{ .Port }} ",
+            "k8s_node_systemd_networkd_files='[{\"filename\":\"en.link\",\"Match\":{\"OriginalName\":\"en*\"},\"Link\":{\"NamePolicy\":\"keep\"}},{\"filename\":\"en.network\",\"Match\":{\"Name\":\"en*\"},\"Network\":{\"DHCP\":\"true\"}}]'\n"
+          ]
+        )
+      }
+      poseidon_k8s_worker = {
+        groups = [
+          "k8s_workers"
+        ],
+        inventory_file_template = join(
+          "",
+          [
+            "{{ .HostAlias }} ",
+            "ansible_host={{ .Host }} ",
+            "ansible_user={{ .User }} ",
+            "ansible_port={{ .Port }} ",
+            "k8s_node_systemd_networkd_files='[{\"filename\":\"en.link\",\"Match\":{\"OriginalName\":\"en*\"},\"Link\":{\"NamePolicy\":\"keep\"}},{\"filename\":\"en.network\",\"Match\":{\"Name\":\"en*\"},\"Network\":{\"DHCP\":\"true\"}}]'\n"
+          ]
+        )
+      }
+    }
   }
 
   post-processor "shell-local" {

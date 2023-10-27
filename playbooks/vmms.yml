@@ -31,7 +31,7 @@
         mode: "644"
       become: true
 
-    - name: Append the ansible user to the libvirt group
+    - name: Append the ansible_user to the libvirt group
       ansible.builtin.user:
         name: "{{ ansible_user }}"
         # This group should already be created from a libvirt daemon pkg (e.g.
