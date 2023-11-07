@@ -59,7 +59,7 @@
             - default_grub_config_inode.stat.exists
             - ansible_os_family | lower == "debian"
 
-    - name: Reboot hosts to have new boot parameter(s) take effect
+    - name: Reboot hosts
       ansible.builtin.reboot:
       become: true
       when:
