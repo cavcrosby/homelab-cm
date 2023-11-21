@@ -180,6 +180,10 @@ end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm"
+  TRUTHY_VALUES = [
+    "1",
+    "true"
+  ]
 
   # general VM configuration
   config.vm.synced_folder ".", "/vagrant", disabled: true
@@ -276,96 +280,111 @@ _EOF_
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
 
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/dhcp_servers.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          ansible.extra_vars = {
-            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }.merge(ansible_extra_vars)
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+        if TRUTHY_VALUES.include? ENV["ANSIBLE_MAINTENANCE_PLAYBOOK"]
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/maintenance.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
-        end
-
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/dns_servers.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          ansible.extra_vars = {
-            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }.merge(ansible_extra_vars)
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+        else
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/dhcp_servers.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+            }.merge(ansible_extra_vars)
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
-        end
 
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/load_balancers.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          ansible.extra_vars = {
-            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }.merge(ansible_extra_vars)
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/dns_servers.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+            }.merge(ansible_extra_vars)
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
-        end
 
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/vmms.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          ansible.extra_vars = {
-            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }.merge(ansible_extra_vars)
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/load_balancers.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+            }.merge(ansible_extra_vars)
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
-        end
 
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/vagrant_customizations.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/vmms.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+            }.merge(ansible_extra_vars)
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
-        end
 
-        machine.vm.provision "ansible" do |ansible|
-          ansible.playbook = "./playbooks/site.yml"
-          ansible.compatibility_mode = "2.0"
-          ansible.limit = "all"
-          ansible.ask_become_pass = true
-          ansible.tags = ENV["ANSIBLE_TAGS"]
-          ansible.host_vars = ansible_host_vars
-          ansible.groups = ANSIBLE_GROUPS
-          ansible.extra_vars = {
-            network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
-          }.merge(ansible_extra_vars)
-          if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-            ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/vagrant_customizations.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
+          end
+
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/site.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = "all"
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ANSIBLE_GROUPS
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+            }.merge(ansible_extra_vars)
+            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
+              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
+            end
           end
         end
       end

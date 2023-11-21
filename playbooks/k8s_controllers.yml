@@ -15,6 +15,7 @@
         python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
         python_virtualenv_pkgs:
           - kubernetes
+          - psutil
           - pyyaml
 
     - name: Add sourcing of the Python virtual environment

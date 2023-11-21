@@ -26,6 +26,6 @@
   ansible.builtin.get_url:
     url: https://github.com/projectcalico/calico/releases/download/{{ calico_chart_version }}/calicoctl-linux-amd64
     dest: /usr/local/bin/calicoctl
-    checksum: sha256:22d7ba5547aff1b4202ddd55952c1e5b6e45e416cd79e1721438aab54a23324a
+    checksum: sha256:52e8231d14f626c9b3273659697d95559c72e1b081e713b86eaa7f6910bda384
     mode: "755"
   become: true

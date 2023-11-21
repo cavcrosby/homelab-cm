@@ -1,0 +1,378 @@
+---
+- name: Upgrade all machines' packages
+  hosts: all
+  tags: upgrade_all_machines_packages
+
+  tasks:
+    - name: Upgrade all packages (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+        upgrade: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+- name: Check kube_apiservers backend availability
+  hosts: k8s_controllers
+  tags: check_kube_apiservers_backend
+
+  tasks:
+    - name: Wait for the kube_apiservers port
+      ansible.builtin.wait_for:
+        port: "{{ k8s_api_server_port }}"
+        timeout: 15
+        state: started
+
+    - name: Check connection to the /readyz endpoint and see that it returns a status 200
+      ansible.builtin.uri:
+        url: https://{{ ansible_hostname }}:{{ k8s_api_server_port }}/readyz
+        ca_path: "{{ k8s_root_cacert_path }}"
+
+- name: Check poseidon_k8s_http_ingresses backend availability (poseidon)
+  hosts: k8s_workers:&poseidon
+  tags: check_poseidon_k8s_http_ingresses_backend
+
+  tasks:
+    - name: Wait for the poseidon_ingress_nginx_node_http_port port
+      ansible.builtin.wait_for:
+        port: "{{ poseidon_ingress_nginx_node_http_port }}"
+        timeout: 60
+        state: started
+
+- name: Upgrade Kubernetes cluster (poseidon)
+  hosts:
+    - k8s_first_controllers:&poseidon
+    - k8s_ha_controllers:&poseidon
+    - k8s_workers:&poseidon
+  tags: upgrade_poseidon_k8s_cluster
+  serial: 1
+  vars_files:
+    - ./vars/{{ k8s_software_versions_file }}
+    - ./vars/ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+
+  tasks:
+    - name: Gather Kubernetes cluster information
+      kubernetes.core.k8s_cluster_info:
+        kubeconfig: /etc/kubernetes/admin.conf
+        host: https://{{ ansible_hostname }}:{{ k8s_api_server_port }}
+      changed_when: false
+      failed_when:
+        - k8s_cluster_info.msg is defined
+        - "'No configuration found' not in k8s_cluster_info.msg"
+      become: true
+      register: k8s_cluster_info
+      when: "inventory_hostname in groups['k8s_controllers']"
+
+    - name: Get a list of all the Kubernetes controller nodes
+      kubernetes.core.k8s_info:
+        kind: Node
+        kubeconfig: "{{ inventory_hostname in groups['k8s_controllers'] | ternary('/etc/kubernetes/admin.conf', '/etc/kubernetes/kubelet.conf', omit) }}"
+        label_selectors:
+          - node-role.kubernetes.io/control-plane
+      become: true
+      register: k8s_controller_list
+
+    - name: Upgrade the Kubernetes node
+      block:
+        - name: Stop and disable the apt-daily timer
+          ansible.builtin.systemd:
+            name: apt-daily.timer
+            enabled: false
+            state: stopped
+          become: true
+
+        - name: Stop and disable the apt-daily service
+          ansible.builtin.systemd:
+            name: apt-daily.service
+            enabled: false
+            state: stopped
+          become: true
+
+        - name: Get process ID of the apt-daily-upgrade service
+          ansible.builtin.shell:
+            executable: /bin/bash
+            # MainPID is 0 if there is no active process, see org.freedesktop.systemd1(5)
+            cmd: |
+              set -eo pipefail
+              main_pid="$(systemctl show --value --property "MainPID" "apt-daily-upgrade.service")"
+              if [ "${main_pid}" != "0" ]; then
+                printf '%s' "${main_pid}"
+              fi
+          changed_when: false
+          register: apt_daily_upgrade_pid
+
+        - name: Send SIGTERM to apt-daily-upgrade process group
+          ansible.builtin.command: kill --signal "SIGTERM" -- "-{{ apt_daily_upgrade_pid.stdout }}"
+          changed_when: false
+          become: true
+          when: apt_daily_upgrade_pid.stdout | length != 0
+
+        - name: Wait for apt-daily-upgrade process to exit
+          ansible.builtin.wait_for:
+            path: /proc/{{ apt_daily_upgrade_pid.stdout }}
+            timeout: 30
+            delay: 5
+            state: absent
+          when: apt_daily_upgrade_pid.stdout | length != 0
+
+        - name: Stop and disable the apt-daily-upgrade timer
+          ansible.builtin.systemd:
+            name: apt-daily-upgrade.timer
+            enabled: false
+            state: stopped
+          become: true
+
+        - name: Stop and disable the apt-daily-upgrade service
+          ansible.builtin.systemd:
+            name: apt-daily-upgrade.service
+            enabled: false
+            state: stopped
+          become: true
+
+        - name: Get process IDs of apt.systemd.daily
+          community.general.pids:
+            pattern: '\/usr\/lib\/apt\/apt\.systemd\.daily'
+          register: apt_systemd_daily_pids
+
+        - name: Send SIGTERM to apt.systemd.daily processes
+          ansible.builtin.command: kill --signal "SIGTERM" "{{ item }}"
+          changed_when: false
+          become: true
+          loop: "{{ apt_systemd_daily_pids.pids }}"
+
+        - name: Wait for apt.systemd.daily processes to exit
+          ansible.builtin.wait_for:
+            path: /proc/{{ item }}
+            timeout: 30
+            state: absent
+          loop: "{{ apt_systemd_daily_pids.pids }}"
+
+        - name: Get process IDs of unattended-upgrade
+          community.general.pids:
+            pattern: '\/usr\/bin\/unattended-upgrade$'
+          register: unattended_upgrade_pids
+
+        - name: Send SIGTERM to unattended-upgrade processes
+          ansible.builtin.command: kill --signal "SIGTERM" "{{ item }}"
+          changed_when: false
+          become: true
+          loop: "{{ unattended_upgrade_pids.pids }}"
+
+        - name: Wait for unattended-upgrade processes to exit
+          ansible.builtin.wait_for:
+            path: /proc/{{ item }}
+            timeout: 30
+            state: absent
+          loop: "{{ unattended_upgrade_pids.pids }}"
+
+        - name: Upgrade kubeadm (debian-like)
+          ansible.builtin.apt:
+            name:
+              - kubeadm={{ kubeadm_version }}
+            state: present
+            allow_change_held_packages: true
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Prevent kubeadm from being upgraded (debian-like)
+          ansible.builtin.dpkg_selections:
+            name: kubeadm
+            selection: hold
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_first_controller)
+          ansible.builtin.shell:
+            executable: /bin/bash
+            cmd: |
+              set -eo pipefail
+              kubeadm upgrade apply --yes "{{ kubernetes_version }}" > "/dev/null"
+              kubectl version \
+                --server "https://{{ ansible_hostname }}:{{ k8s_api_server_port }}" \
+                --output "json" \
+                | jq --raw-output '.["serverVersion"]["gitVersion"]'
+          changed_when: k8s_cluster_info.version.server.kubernetes.gitVersion != k8s_server_version.stdout
+          become: true
+          register: k8s_server_version
+          when: "inventory_hostname in groups['k8s_first_controllers']"
+
+        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_ha_controller)
+          ansible.builtin.shell:
+            executable: /bin/bash
+            cmd: |
+              set -eo pipefail
+              kubeadm upgrade node > "/dev/null"
+              kubectl version \
+                --server "https://{{ ansible_hostname }}:{{ k8s_api_server_port }}" \
+                --output "json" \
+                | jq --raw-output '.["serverVersion"]["gitVersion"]'
+          changed_when: k8s_cluster_info.version.server.kubernetes.gitVersion != k8s_server_version.stdout
+          become: true
+          register: k8s_server_version
+          when: "inventory_hostname in groups['k8s_ha_controllers']"
+
+        - name: Register the local kubelet configuration file inode
+          ansible.builtin.stat:
+            path: /var/lib/kubelet/config.yaml
+            checksum_algorithm: sha256
+          register: current_kubelet_config
+
+        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_worker)
+          ansible.builtin.shell:
+            executable: /bin/bash
+            cmd: |
+              set -eo pipefail
+              kubeadm upgrade node > "/dev/null"
+              sha256sum "{{ current_kubelet_config.stat.path }}" | awk -F " " '{ print $1 }'
+          changed_when: current_kubelet_config.stat.checksum != kubelet_config_checksum.stdout
+          become: true
+          register: kubelet_config_checksum
+          when: "inventory_hostname in groups['k8s_workers']"
+
+        - name: Upgrade the Calico CNI
+          vars:
+            operator_crds_manifest_path: /tmp/operator-crds.yaml
+          when: "inventory_hostname in groups['k8s_first_controllers']"
+          block:
+            - name: Download operator-crds manifest
+              ansible.builtin.get_url:
+                url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_chart_version }}/manifests/operator-crds.yaml
+                dest: "{{ operator_crds_manifest_path }}"
+                checksum: sha256:ec6a3987d5298be19f7e7faeb9f00d8136d3c4ffc85f6e5ba9180452938e9b56.
+                mode: "755"
+
+            - name: Apply operator-crds manifest to the cluster
+              kubernetes.core.k8s:
+                src: "{{ operator_crds_manifest_path }}"
+                kubeconfig: /etc/kubernetes/admin.conf
+                state: present
+              become: true
+
+            - name: Upgrade the Calico Helm chart
+              ansible.builtin.import_tasks: ./tasks/setup_calico.yml
+
+        - name: Drain the Kubernetes node of workloads
+          delegate_to: "{{ (k8s_controller_list | community.general.json_query('resources[*].metadata.name') | list)[0] }}"
+          kubernetes.core.k8s_drain:
+            name: "{{ ansible_hostname }}"
+            kubeconfig: /etc/kubernetes/admin.conf
+            state: drain
+            delete_options:
+              ignore_daemonsets: true
+              delete_emptydir_data: true
+          become: true
+
+        - name: Upgrade kubelet (debian-like)
+          ansible.builtin.apt:
+            name:
+              - kubelet={{ kubelet_version }}
+            state: present
+            allow_change_held_packages: true
+          become: true
+          notify:
+            - Issue daemon-reload, then restart the kubelet service
+          when: ansible_os_family | lower == "debian"
+
+        - name: Flush handlers
+          ansible.builtin.meta: flush_handlers
+
+        - name: Upgrade kubectl (debian-like)
+          ansible.builtin.apt:
+            name:
+              - kubectl={{ kubectl_version }}
+            state: present
+            allow_change_held_packages: true
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Prevent kubelet from being upgraded (debian-like)
+          ansible.builtin.dpkg_selections:
+            name: kubelet
+            selection: hold
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Prevent kubectl from being upgraded (debian-like)
+          ansible.builtin.dpkg_selections:
+            name: kubectl
+            selection: hold
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Stop and enable the apt-daily timer
+          ansible.builtin.systemd:
+            name: apt-daily.timer
+            enabled: true
+            state: stopped
+          become: true
+
+        - name: Stop and enable the apt-daily service
+          ansible.builtin.systemd:
+            name: apt-daily.service
+            enabled: true
+            state: stopped
+          become: true
+
+        - name: Stop and enable the apt-daily-upgrade timer
+          ansible.builtin.systemd:
+            name: apt-daily-upgrade.timer
+            enabled: true
+            state: stopped
+          become: true
+
+        - name: Stop and enable the apt-daily-upgrade service
+          ansible.builtin.systemd:
+            name: apt-daily-upgrade.service
+            enabled: true
+            state: stopped
+          become: true
+      always:
+        - name: Mark the Kubernetes nodes as schedulable
+          delegate_to: "{{ (k8s_controller_list | community.general.json_query('resources[*].metadata.name') | list)[0] }}"
+          kubernetes.core.k8s_drain:
+            name: "{{ ansible_hostname }}"
+            kubeconfig: /etc/kubernetes/admin.conf
+            state: uncordon
+          become: true
+
+    - name: Copy over the kubeconfig file
+      become: true
+      block:
+        - name: Run whoami
+          ansible.builtin.command: whoami
+          changed_when: false
+          register: whoami_completed_proc
+
+        - name: Get the running user's info
+          ansible.builtin.getent:
+            database: passwd
+            key: "{{ whoami_completed_proc.stdout }}"
+
+        - name: Copy over the kubeconfig file (k8s_controller)
+          ansible.builtin.copy:
+            dest: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+            src: /etc/kubernetes/admin.conf
+            owner: "{{ whoami_completed_proc.stdout }}"
+            group: "{{ whoami_completed_proc.stdout }}"
+            mode: "600"
+            remote_src: true
+          become: true
+          when: "inventory_hostname in groups['k8s_controllers']"
+
+        - name: Copy over the kubeconfig file (k8s_worker)
+          ansible.builtin.copy:
+            dest: "{{ getent_passwd[whoami_completed_proc.stdout][4] }}/.kube/config"
+            src: /etc/kubernetes/kubelet.conf
+            mode: "600"
+            remote_src: true
+          become: true
+          when: "inventory_hostname in groups['k8s_workers']"
+
+  handlers:
+    - name: Issue daemon-reload, then restart the kubelet service
+      ansible.builtin.systemd:
+        name: kubelet
+        state: restarted
+        daemon_reload: true
+      become: true

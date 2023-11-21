@@ -40,6 +40,8 @@ HELP = help
 SETUP = setup
 PRODUCTION = production
 STAGING = staging
+PRODUCTION_MAINTENANCE = production-maintenance
+STAGING_MAINTENANCE = staging-maintenance
 ANSIBLE_SECRETS = ansible-secrets
 K8S_NODE_IMAGES = k8s-node-images
 CONTAINERD_DEB = containerd-deb
@@ -59,6 +61,7 @@ LOG =
 LOG_PATH = ./ansible.log
 VAGRANT_PROVIDER = ${LIBVIRT}
 export ANSIBLE_EXTRA_VARS =
+export ANSIBLE_MAINTENANCE_PLAYBOOK =
 export ANSIBLE_TAGS = all
 
 # ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
@@ -224,6 +227,18 @@ ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
 endif
+
+.PHONY: ${PRODUCTION_MAINTENANCE}
+${PRODUCTION_MAINTENANCE}:
+>	${ANSIBLE_PLAYBOOK} \
+		${ANSIBLE_VERBOSITY_OPT} \
+		--ask-become-pass \
+		--inventory "production" \
+		"./playbooks/maintenance.yml"
+
+.PHONY: ${STAGING_MAINTENANCE}
+${STAGING_MAINTENANCE}:
+>	${MAKE} ANSIBLE_MAINTENANCE_PLAYBOOK="true" "${STAGING}"
 
 .PHONY: ${LINT}
 ${LINT}:
