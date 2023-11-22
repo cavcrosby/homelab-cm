@@ -6,14 +6,14 @@
     state: started
   become: true
 
-- name: Remove the 'networking' daemon interfaces file (debian-like)
+- name: Remove the networking service's interfaces file (debian-like)
   ansible.builtin.file:
     path: /etc/network/interfaces
     state: absent
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Stop and disable the 'networking' daemon (debian-like)
+- name: Stop and disable the networking service (debian-like)
   ansible.builtin.systemd:
     name: networking
     enabled: false

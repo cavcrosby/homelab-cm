@@ -10,7 +10,7 @@
   become: true
   notify:
     - Start and enable systemd-networkd
-    - Remove the 'networking' daemon interfaces file (debian-like)
-    - Stop and disable the 'networking' daemon (debian-like)
+    - Remove the networking service's interfaces file (debian-like)
+    - Stop and disable the networking service (debian-like)
     - Restart systemd-networkd
   loop: "{{ systemd_networkd_files }}"
