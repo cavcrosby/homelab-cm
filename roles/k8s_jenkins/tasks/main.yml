@@ -1,5 +1,5 @@
 ---
-- name: Create the Jenkins namespace
+- name: Create the Jenkins namespace in the Kubernetes cluster
   kubernetes.core.k8s:
     api_version: v1
     kind: Namespace
@@ -9,7 +9,7 @@
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
 
-- name: Apply the Jenkins manifest to the cluster
+- name: Apply the Jenkins manifest to the Kubernetes cluster
   kubernetes.core.k8s:
     template: "{{ jenkins_manifest_template }}"
     state: present

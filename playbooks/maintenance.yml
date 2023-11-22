@@ -242,7 +242,7 @@
                 checksum: sha256:ec6a3987d5298be19f7e7faeb9f00d8136d3c4ffc85f6e5ba9180452938e9b56.
                 mode: "755"
 
-            - name: Apply operator-crds manifest to the cluster
+            - name: Apply operator-crds manifest to the Kubernetes cluster
               kubernetes.core.k8s:
                 src: "{{ operator_crds_manifest_path }}"
                 kubeconfig: /etc/kubernetes/admin.conf

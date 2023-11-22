@@ -35,7 +35,7 @@
         ingress_nginx_namespace: ingress-nginx
         dockerhub_creds_secret_name: dockerhub-creds
       block:
-        - name: Create the Ingress NGINX namespace
+        - name: Create the Ingress NGINX namespace in the Kubernetes cluster
           kubernetes.core.k8s:
             api_version: v1
             kind: Namespace
@@ -45,7 +45,7 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
 
-        - name: Apply the Ingress NGINX Kubernetes manifest to the cluster
+        - name: Apply the Ingress NGINX manifest to the Kubernetes cluster
           kubernetes.core.k8s:
             template: "{{ ingress_nginx_manifest_template }}"
             state: present
