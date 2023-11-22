@@ -98,3 +98,4 @@
         src: /etc/kubernetes/kubelet.conf
         mode: "600"
         remote_src: true
+      become: true
