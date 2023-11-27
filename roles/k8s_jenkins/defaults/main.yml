@@ -1,6 +1,6 @@
 ---
-jenkins_instance_name: jenkins-torkel
-jenkins_instance_image: cavcrosby/jenkins-torkel:latest
+jenkins_instance_name: jenkins-homelab
+jenkins_instance_image: cavcrosby/jenkins-homelab:latest
 
 # used to setup Jenkins instance type on Kubernetes
 jenkins_manifest_template: jenkins.yml.j2

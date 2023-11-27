@@ -2,7 +2,7 @@
 {% set jenkins_service = "jenkins" %}
 ---
 {#
-  Manifest that deploys jenkins (jenkins-torkel) onto Kubernetes.
+  Manifest that deploys jenkins (jenkins-homelab) onto Kubernetes.
 #}
 apiVersion: v1
 kind: Secret
@@ -11,9 +11,9 @@ metadata:
   name: jenkins-secrets
   namespace: {{ jenkins_instance_name }}
 stringData:
-  jenkins_admin_password: {{ jenkins_torkel_admin_password }}
+  jenkins_admin_password: {{ jenkins_homelab_admin_password }}
   jenkins_admin_email_secret: {{ smtp_email_secret }}
-  jenkins_github_credential_secret: {{ jenkins_torkel_github_credential_secret }}
+  jenkins_github_credential_secret: {{ jenkins_homelab_github_credential_secret }}
 
 ---
 apiVersion: v1
@@ -49,7 +49,7 @@ stringData:
   gps.json: |-
     {
       "github_username": "cavcrosby",
-      "github_api_token": "{{ jenkins_torkel_github_credential_secret }}",
+      "github_api_token": "{{ jenkins_homelab_github_credential_secret }}",
       "script_configs": {
         "update_remote_forks.py": {
           "webhosted_git_account_url": "git@github.com:cavcrosby",
@@ -210,7 +210,7 @@ spec:
           - name: JENKINS_ADMIN_FULLNAME
             value: Conner Crosby
           - name: JENKINS_ADMIN_EMAIL
-            value: cavcrosby+jenkins-torkel@gmail.com
+            value: cavcrosby+jenkins-homelab@gmail.com
           - name: JENKINS_ADMIN_EMAIL_SECRET
             valueFrom:
               secretKeyRef:

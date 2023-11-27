@@ -12,9 +12,9 @@
     - role: k8s_jenkins
       vars:
         cluster_domain: "{{ homelab_poseidon_k8s_network_domain }}"
-        jenkins_instance_name: jenkins-torkel
-        jenkins_instance_image: cavcrosby/jenkins-torkel:latest
-        jenkins_manifest_template: k8s-jenkins-torkel.yml.j2
+        jenkins_instance_name: jenkins-homelab
+        jenkins_instance_image: cavcrosby/jenkins-homelab:latest
+        jenkins_manifest_template: k8s-jenkins-homelab.yml.j2
         jenkins_k8s_service_account: jenkins
         jenkins_http_port: 8080
         jenkins_agent_port: 50000
