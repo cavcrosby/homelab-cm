@@ -132,7 +132,7 @@
 
         - name: Get process IDs of apt.systemd.daily
           community.general.pids:
-            pattern: '\/usr\/lib\/apt\/apt\.systemd\.daily'
+            pattern: '/usr/lib/apt/apt\.systemd\.daily'
           register: apt_systemd_daily_pids
 
         - name: Send SIGTERM to apt.systemd.daily processes
@@ -150,7 +150,7 @@
 
         - name: Get process IDs of unattended-upgrade
           community.general.pids:
-            pattern: '\/usr\/bin\/unattended-upgrade$'
+            pattern: '/usr/bin/unattended-upgrade$'
           register: unattended_upgrade_pids
 
         - name: Send SIGTERM to unattended-upgrade processes
