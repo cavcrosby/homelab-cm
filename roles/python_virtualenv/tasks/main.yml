@@ -35,7 +35,7 @@
       ansible.builtin.find:
         paths: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}/lib"
         file_type: directory
-        patterns: python*
+        patterns: 'python*'
         depth: 1
       failed_when: site_packages_find.files | length != 1
       register: site_packages_find
@@ -55,7 +55,7 @@
     - name: Find python3-apt's apt_pkg shared object path
       ansible.builtin.find:
         paths: /usr/lib/python3/dist-packages
-        patterns: apt_pkg*.so
+        patterns: 'apt_pkg*.so'
       register: apt_pkg_find
 
     - name: Link python3-apt's apt_pkg
@@ -67,7 +67,7 @@
     - name: Find python3-apt's apt_inst shared object path
       ansible.builtin.find:
         paths: /usr/lib/python3/dist-packages
-        patterns: apt_inst*.so
+        patterns: 'apt_inst*.so'
       register: apt_inst_find
 
     - name: Link python3-apt's apt_inst
