@@ -34,7 +34,7 @@
     - name: Enable the pam_access module for the login program (debian-like)
       ansible.builtin.replace:
         path: /etc/pam.d/login
-        regexp: '^#\s*account\s+required\s+pam_access.so$'
+        regexp: '^#\s*account\s+required\s+pam_access\.so$'
         # the replacement line was grabbed off a machine, so the spacing is intentional
         replace: account  required       pam_access.so
       become: true
