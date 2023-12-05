@@ -78,8 +78,7 @@
         mode: "600"
 
     - name: Join a Kubernetes cluster as a worker node
-      ansible.builtin.command: |
-        kubeadm join --config "{{ _k8s_worker_join_config_path }}"
+      ansible.builtin.command: kubeadm join --config "{{ _k8s_worker_join_config_path }}"
       changed_when: kubeadm_join_check.rc == 0
       become: true
       register: kubeadm_join_check
