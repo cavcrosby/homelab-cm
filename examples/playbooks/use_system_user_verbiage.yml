@@ -1,0 +1,48 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    # without 'system user' verbiage
+    - name: Create the foo group
+      ansible.builtin.group:
+        name: foo
+        state: present
+      become: true
+      register: foo_group
+
+    - name: Create the foo user
+      ansible.builtin.user:
+        name: foo
+        group: "{{ foo_group.name }}"
+        state: present
+        home: /home/foo
+        shell: /bin/bash
+      become: true
+      register: foo_user
+
+    - name: Create the foo user's .ssh directory
+      ansible.builtin.file:
+        path: "{{ foo_user.home }}/.ssh"
+        owner: "{{ foo_user.name }}"
+        group: "{{ foo_group.name }}"
+        state: directory
+        mode: "700"
+      become: true
+
+    # with 'system user' verbiage
+    - name: Create the bar group
+      ansible.builtin.group:
+        name: bar
+        state: present
+      become: true
+
+    - name: Create the bar system user
+      ansible.builtin.user:
+        name: bar
+        group: bar
+        state: present
+        shell: /sbin/nologin
+        system: true
+      become: true

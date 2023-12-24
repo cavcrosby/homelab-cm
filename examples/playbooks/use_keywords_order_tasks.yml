@@ -1,0 +1,29 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Print localhost
+      delegate_to: localhost
+      ansible.builtin.debug:
+        msg: localhost
+      check_mode: true
+      changed_when: false
+      failed_when: false
+      become: true
+      environment:
+        FOO: bar
+      register: foo
+      notify:
+        - Foo
+      vars:
+        foo: bar
+      loop:
+        - foo
+      when: true
+
+  handlers:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar

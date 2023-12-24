@@ -1,0 +1,27 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+  serial: 1
+  vars_files:
+    - ./vars/foo.yml
+  vars:
+    foo: bar
+
+  pre_tasks:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar
+
+  roles:
+    - foo
+
+  tasks:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar
+
+  handlers:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar

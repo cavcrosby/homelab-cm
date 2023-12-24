@@ -1,0 +1,12 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Assert that filter outputs localhost
+      ansible.builtin.assert:
+        that:
+          - "'localhost:80' | ansible.builtin.regex_replace(':80') == 'localhost'"
+        fail_msg: filter did not output localhost
+        success_msg: ok

@@ -1,0 +1,30 @@
+---
+- name: Verify the append_distro_specificness playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/append_distro_specificness.yml
+
+- name: Verify the double_quote_modes playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/double_quote_modes.yml
+
+- name: Verify the set_checksum_get_url playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/set_checksum_get_url.yml
+
+- name: Verify the set_errexit_pipefail playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/set_errexit_pipefail.yml
+
+- name: Verify the single_quote_patterns playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/single_quote_patterns.yml
+
+- name: Verify the use_fqcn_filters playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/use_fqcn_filters.yml
+
+- name: Verify the use_keywords_order_plays playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/use_keywords_order_plays.yml
+
+- name: Verify the use_keywords_order_tasks playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/use_keywords_order_tasks.yml
+
+- name: Verify the use_system_user_verbiage playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/use_system_user_verbiage.yml
+
+- name: Verify the utilize_tpl_searching_controller playbook execution
+  ansible.builtin.import_playbook: ../../../../examples/playbooks/utilize_tpl_searching_controller.yml

@@ -45,7 +45,9 @@ STAGING_MAINTENANCE = staging-maintenance
 ANSIBLE_SECRETS = ansible-secrets
 K8S_NODE_IMAGES = k8s-node-images
 CONTAINERD_DEB = containerd-deb
+EXAMPLES_TEST = examples-test
 LINT = lint
+FORMAT = format
 DEVELOPMENT_SHELL = development-shell
 CLEAN = clean
 
@@ -92,6 +94,9 @@ PRE_COMMIT = pre-commit
 DGET = dget
 DOCKER = docker
 GO = go
+MOLECULE = molecule
+MARKDOWNLINT_CLI2 = markdownlint-cli2
+PRETTIER = prettier
 
 # simply expanded variables
 executables := \
@@ -163,8 +168,10 @@ ${HELP}:
 >	@echo '  ${PRODUCTION}           - runs the main playbook for my homelab'
 >	@echo '  ${STAGING}              - runs the main playbook for my homelab, but in a'
 >	@echo '                         virtual environment setup by Vagrant'
->	@echo '  ${LINT}                 - lints the yaml configuration code and json'
->	@echo '                         configurations'
+>	@echo '  ${LINT}                 - lints the yaml configuration code, json configurations'
+>	@echo '                         and markdown documentation'
+>	@echo '  ${FORMAT}               - formats the markdown documentation'
+>	@echo '  ${EXAMPLES_TEST}        - tests the example'\''s yaml configuration code'
 >	@echo '  ${ANSIBLE_SECRETS}      - manage secrets used by this project, by default'
 >	@echo '                         secrets are pulled into the project'
 >	@echo '  ${DEVELOPMENT_SHELL}    - runs a bash shell with make variables injected into'
@@ -242,12 +249,21 @@ ${STAGING_MAINTENANCE}:
 
 .PHONY: ${LINT}
 ${LINT}:
->	@for fil in ${src_yml} ${PROJECT_VAGRANT_CONFIGURATION_FILE}; do \
+>	@for fil in ${src_yml} ${PROJECT_VAGRANT_CONFIGURATION_FILE} "./examples/${PROJECT_VAGRANT_CONFIGURATION_FILE}"; do \
 		if echo "$${fil}" | grep --quiet "-"; then \
 			echo "make: $${fil} should not contain a dash in the filename"; \
 		fi \
 	done
 >	${ANSIBLE_LINT}
+>	${NPX} ${MARKDOWNLINT_CLI2} \
+		'**/*.md' \
+		'!./node_modules' \
+		'!./vendor' \
+		'!${BUILD_DIR_PATH}'
+
+.PHONY: ${FORMAT}
+${FORMAT}:
+>	${NPX} ${PRETTIER} --write './docs/*.md'
 
 .PHONY: ${DEVELOPMENT_SHELL}
 ${DEVELOPMENT_SHELL}:
@@ -359,6 +375,11 @@ ${CONTAINERD_DEB}:
 				--tag "${CONTAINERD_DEB}" "${CURDIR}"
 
 >	${DOCKER} run --rm --volume "${CURDIR}/playbooks/build:/build" "${CONTAINERD_DEB}"
+
+.PHONY: ${EXAMPLES_TEST}
+${EXAMPLES_TEST}:
+>	env --chdir "./extensions" ${MOLECULE} converge --scenario-name "examples_docker"
+>	env --chdir "./extensions" ${MOLECULE} destroy --scenario-name "examples_docker"
 
 .PHONY: ${CLEAN}
 ${CLEAN}:

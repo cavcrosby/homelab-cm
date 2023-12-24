@@ -1,0 +1,30 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Create temporary file
+      ansible.builtin.tempfile:
+        state: file
+      register: temp_file
+
+    - name: Create an empty file
+      ansible.builtin.file:
+        path: "{{ temp_file.path }}"
+        state: touch
+        mode: "755"
+
+    - name: Register empty file
+      ansible.builtin.stat:
+        path: "{{ temp_file.path }}"
+        checksum_algorithm: sha256
+      register: empty_file_inode
+
+    - name: Assert that empty file filemode is 755
+      ansible.builtin.assert:
+        that:
+          # octal numbers must be quoted
+          - empty_file_inode.stat.mode == "0755"
+        fail_msg: filemode was set to => {{ empty_file_inode.stat.mode }}
+        success_msg: ok

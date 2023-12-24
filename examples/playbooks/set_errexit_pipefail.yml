@@ -1,0 +1,13 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Echo foo
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -eo pipefail
+          echo foo
+      changed_when: false

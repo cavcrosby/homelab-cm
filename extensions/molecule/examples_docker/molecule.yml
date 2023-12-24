@@ -1,0 +1,13 @@
+---
+driver:
+  name: docker
+platforms:
+  - name: instance
+    image: geerlingguy/docker-debian12-ansible:latest
+    pre_build_image: true
+provisioner:
+  name: ansible
+  playbooks:
+    converge: ../examples_resources/playbooks/converge.yml
+  env:
+    ANSIBLE_ROLES_PATH: ../../../examples/roles:../../../roles:${HOME}/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles

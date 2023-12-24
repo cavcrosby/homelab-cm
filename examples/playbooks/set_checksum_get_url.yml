@@ -1,0 +1,12 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Grab Helm's official GPG key
+      ansible.builtin.get_url:
+        url: https://baltocdn.com/helm/signing.asc
+        dest: /tmp/helm-keyring.asc
+        checksum: sha256:d8d0edbdc72338073b7b126be1454c7ebd29bf0da2f64fba87b82d2ae528626d
+        mode: "644"

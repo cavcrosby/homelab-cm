@@ -1,0 +1,16 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Create temporary file
+      ansible.builtin.tempfile:
+        state: file
+      register: temp_file
+
+    - name: Create the foo file
+      ansible.builtin.template:
+        src: foo.conf.j2
+        dest: "{{ temp_file.path }}"
+        mode: "644"

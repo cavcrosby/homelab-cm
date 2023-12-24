@@ -1,0 +1,17 @@
+---
+- name: Run convention tasks
+  hosts: all
+  tags: do_convention_tasks
+
+  tasks:
+    - name: Find distribution's awk programs (glob)
+      ansible.builtin.find:
+        paths: /usr/bin
+        # glob pattern
+        patterns: '*awk'
+
+    - name: Find distribution's awk programs (regexp)
+      ansible.builtin.find:
+        paths: /usr/bin
+        patterns: '\w*awk$'
+        use_regex: true
