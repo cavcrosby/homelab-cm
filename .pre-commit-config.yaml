@@ -26,3 +26,8 @@ repos:
       - id: prettier
         types:
           - markdown
+
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.1
+    hooks:
+      - id: gitleaks
