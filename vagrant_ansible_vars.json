@@ -899,7 +899,7 @@
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
-            "vagrant_vm_box": "debian/buster64"
+            "vagrant_vm_box": "debian/bullseye64"
         }
     },
     "ansible_groups": {
