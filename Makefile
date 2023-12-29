@@ -213,12 +213,14 @@ ifeq (${ANSIBLE_EXTRA_VARS},)
 		${ANSIBLE_VERBOSITY_OPT} \
 		--ask-become-pass \
 		--inventory "production" \
+		--tags "${ANSIBLE_TAGS}" \
 		"./playbooks/site.yml"
 else
 >	${ANSIBLE_PLAYBOOK} \
 		${ANSIBLE_VERBOSITY_OPT} \
 		--ask-become-pass \
 		--inventory "production" \
+		--tags "${ANSIBLE_TAGS}" \
 		--extra-vars ${ANSIBLE_EXTRA_VARS} \
 		"./playbooks/site.yml"
 endif
@@ -241,6 +243,7 @@ ${PRODUCTION_MAINTENANCE}:
 		${ANSIBLE_VERBOSITY_OPT} \
 		--ask-become-pass \
 		--inventory "production" \
+		--tags "${ANSIBLE_TAGS}" \
 		"./playbooks/maintenance.yml"
 
 .PHONY: ${STAGING_MAINTENANCE}
