@@ -1,0 +1,10 @@
+# {{ ansible_managed }}
+#
+# A config file for fail2ban's sshd jail.
+
+[sshd]
+enabled = true
+mode = ddos
+findtime = 1h
+maxretry = 5
+bantime  = 1h
