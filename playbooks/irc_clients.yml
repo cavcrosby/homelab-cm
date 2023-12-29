@@ -71,5 +71,71 @@
   hosts: lightsail_instances
   tags: do_lightsail_customizations
 
-  roles:
-    - lightsail
+  tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install fail2ban (debian-like)
+      ansible.builtin.apt:
+        name:
+          - fail2ban
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Create the local fail2ban sshd jail configuration file
+      ansible.builtin.template:
+        src: f2b-sshd.local.j2
+        dest: /etc/fail2ban/jail.d/00_sshd.local
+        mode: "644"
+      become: true
+      notify:
+        - Restart the fail2ban service
+
+    - name: Lockdown the root account
+      ansible.builtin.user:
+        name: root
+        state: present
+        password: !
+        password_lock: true
+      become: true
+
+    - name: Set PermitRootLogin to no for the SSH daemon
+      ansible.builtin.replace:
+        path: /etc/ssh/sshd_config
+        regexp: '^#\s*PermitRootLogin\s+prohibit-password$'
+        replace: PermitRootLogin no
+      become: true
+      notify:
+        - Restart the sshd service
+
+    - name: Create customizations on top of the default cloud-init configurations
+      ansible.builtin.template:
+        src: lightsail-cloud-init.cfg.j2
+        dest: /etc/cloud/cloud.cfg.d/99_{{ inventory_hostname }}.cfg
+        mode: "644"
+      become: true
+
+    - name: Rerun particular cloud-init modules
+      ansible.builtin.shell: |
+        set -e
+        cloud-init single --name "cc_set_hostname"
+        cloud-init single --name "cc_update_etc_hosts"
+      changed_when: false
+      become: true
+
+  handlers:
+    - name: Restart the fail2ban service
+      ansible.builtin.service:
+        name: fail2ban
+        state: restarted
+      become: true
+
+    - name: Restart the sshd service
+      ansible.builtin.service:
+        name: sshd
+        state: restarted
+      become: true
