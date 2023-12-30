@@ -82,7 +82,6 @@ VAGRANT = vagrant
 PACKER = packer
 BUNDLE = bundle
 GEM = gem
-PERL = perl
 PKILL = pkill
 JQ = jq
 BW = bw
@@ -104,7 +103,6 @@ executables := \
 	${VAGRANT}\
 	${PKILL}\
 	${JQ}\
-	${PERL}\
 	${ANSIBLE_PLAYBOOK}\
 	${ANSIBLE_GALAXY}\
 	${ANSIBLE_LINT}\
@@ -146,7 +144,7 @@ LIBVIRT_DOMAINS := $(shell \
 )
 
 ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
-	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | ${PERL} -pi -e 'chomp if eof' 2> /dev/null | grep "$${domain}"; done),)
+	ifneq ($(shell for domain in ${LIBVIRT_DOMAINS}; do ${VIRSH} list --all --name | head --lines -1 | grep "$${domain}"; done),)
 		VMS_EXISTS := true
 	endif
 # else (${VAGRANT_PROVIDER},${VBOX})
