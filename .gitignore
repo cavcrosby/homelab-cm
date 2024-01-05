@@ -349,5 +349,3 @@ playbooks/vars/ansible_secrets.yml
 playbooks/ssh_keys
 playbooks/rsa_keys
 playbooks/certs
-playbooks/packer/qemu-poseidon_k8s_controller
-playbooks/packer/qemu-poseidon_k8s_worker
