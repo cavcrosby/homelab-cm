@@ -845,11 +845,72 @@
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bullseye64",
+            "mgmt_network_interface_name": "eth0",
             "homelab_network_interface_name": "eth1",
             "libvirt_poseidon_k8s_network_config_file_template": "poseidon/staging-libvirt-network.xml.j2",
             "libvirt_poseidon_k8s_node_domain_autostart": false,
             "libvirt_poseidon_k8s_controller_domain_template": "poseidon/staging-libvirt-k8s-controller.xml.j2",
             "libvirt_poseidon_k8s_worker_domain_template": "poseidon/staging-libvirt-k8s-worker.xml.j2",
+            "vagrant_config_refs": {
+                "vmm_systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_homelab_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "homelab_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_mgmt_mac_addr"
+                        },
+                        "Link": {
+                            "NamePolicy": "keep"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "mgmt_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "mgmt_network_interface_name"
+                        },
+                        "Network": {
+                            "DHCP": "true"
+                        }
+                    }
+                ]
+            },
             "libvirt_poseidon_k8s_controller_domain_configs": [
                 {
                     "name": "poseidon-k8s-controller1",
