@@ -43,7 +43,7 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Copy the locally built containerd package over (debian-like)
+    - name: Copy over the locally built containerd package (debian-like)
       ansible.builtin.copy:
         dest: /tmp/{{ containerd_deb }}
         src: ./build/{{ containerd_deb }}
