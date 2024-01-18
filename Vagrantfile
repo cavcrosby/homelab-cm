@@ -127,14 +127,10 @@ ansible_host_vars.each do |machine_name, machine_attrs|
 
     vagrant_config_refs.keys().each do |config_name|
       config_ref = vagrant_config_refs[config_name]
-      if config_name.eql?("dhcp_systemd_networkd_files")
-        vagrant_homelab_network_configs[config_name] = config_ref
+      if config_ref.kind_of?(Array) || config_ref.kind_of?(Hash)
+        machine_attrs[config_name] = "'#{config_ref.to_json}'"
       else
-        if config_ref.kind_of?(Array) || config_ref.kind_of?(Hash)
-          machine_attrs[config_name] = "'#{config_ref.to_json}'"
-        else
-          machine_attrs[config_name] = config_ref
-        end
+        machine_attrs[config_name] = config_ref
       end
     end
 
@@ -166,7 +162,7 @@ ansible_host_vars.each do |machine_name, machine_attrs|
     domain_configs.each do |domain_config|
       traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
     end
-    vagrant_homelab_network_configs["libvirt_poseidon_k8s_controller_domain_configs"] = domain_configs
+    machine_attrs["libvirt_poseidon_k8s_controller_domain_configs"] = "'#{domain_configs.to_json}'"
   end
 
   if machine_attrs.key?("libvirt_poseidon_k8s_worker_domain_configs")
@@ -174,7 +170,7 @@ ansible_host_vars.each do |machine_name, machine_attrs|
     domain_configs.each do |domain_config|
       traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
     end
-    vagrant_homelab_network_configs["libvirt_poseidon_k8s_worker_domain_configs"] = domain_configs
+    machine_attrs["libvirt_poseidon_k8s_worker_domain_configs"] = "'#{domain_configs.to_json}'"
   end
 end
 

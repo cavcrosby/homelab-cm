@@ -2,8 +2,6 @@
 - name: Setup QEMU/KVM
   hosts: vmms
   tags: setup_qemu_kvm
-  vars_files:
-    - "{{ network_configs_path }}"
   vars:
     libvirt_pool_dir_path: /var/lib/libvirt/images
 
