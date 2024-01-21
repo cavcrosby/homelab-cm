@@ -186,6 +186,8 @@ ${HELP}:
 >	@echo '                             secrets (options: put)'
 >	@echo '  ANSIBLE_EXTRA_VARS       - pass variables into the ansible-playbook runtime, see'
 >	@echo '                             --extra-vars documentation on argument format'
+>	@echo '  ANSIBLE_LIMIT            - set a pattern to further limit selected hosts, see'
+>	@echo '                             --limit documentation on argument format'
 >	@echo '  LOG                      - when set, stdout/stderr will be redirected to a log'
 >	@echo '                             file (if the target supports it)'
 >	@echo '  LOG_PATH                 - used with LOG, determines the log path (default: ./ansible.log)'
@@ -205,23 +207,14 @@ ${SETUP}:
 >	${PRE_COMMIT} install
 
 .PHONY: ${PRODUCTION}
+${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
+				--ask-become-pass\
+				--inventory "production"\
+				--tags "${ANSIBLE_TAGS}"
+${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
+${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_EXTRA_VARS},--extra-vars ${ANSIBLE_EXTRA_VARS},)
 ${PRODUCTION}:
-ifeq (${ANSIBLE_EXTRA_VARS},)
->	${ANSIBLE_PLAYBOOK} \
-		${ANSIBLE_VERBOSITY_OPT} \
-		--ask-become-pass \
-		--inventory "production" \
-		--tags "${ANSIBLE_TAGS}" \
-		"./playbooks/site.yml"
-else
->	${ANSIBLE_PLAYBOOK} \
-		${ANSIBLE_VERBOSITY_OPT} \
-		--ask-become-pass \
-		--inventory "production" \
-		--tags "${ANSIBLE_TAGS}" \
-		--extra-vars ${ANSIBLE_EXTRA_VARS} \
-		"./playbooks/site.yml"
-endif
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/site.yml"
 
 .PHONY: ${STAGING}
 ${STAGING}:
@@ -236,13 +229,13 @@ else
 endif
 
 .PHONY: ${PRODUCTION_MAINTENANCE}
+${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
+							--ask-become-pass\
+							--inventory "production"\
+							--tags "${ANSIBLE_TAGS}"
+${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
 ${PRODUCTION_MAINTENANCE}:
->	${ANSIBLE_PLAYBOOK} \
-		${ANSIBLE_VERBOSITY_OPT} \
-		--ask-become-pass \
-		--inventory "production" \
-		--tags "${ANSIBLE_TAGS}" \
-		"./playbooks/maintenance.yml"
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/maintenance.yml"
 
 .PHONY: ${STAGING_MAINTENANCE}
 ${STAGING_MAINTENANCE}:

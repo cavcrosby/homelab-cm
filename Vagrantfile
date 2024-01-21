@@ -280,7 +280,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/maintenance.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -293,7 +293,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/dhcp_servers.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -309,7 +309,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/dns_servers.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -325,7 +325,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/load_balancers.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -341,7 +341,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/vmms.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -357,7 +357,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/vagrant_customizations.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
@@ -370,7 +370,7 @@ _EOF_
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/site.yml"
             ansible.compatibility_mode = "2.0"
-            ansible.limit = "all"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
