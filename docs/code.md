@@ -5,6 +5,18 @@
 - The directory structure follows what is recommended by ansible-lint
   <https://ansible.readthedocs.io/projects/lint/usage/#linting-playbooks-and-roles>.
 
+- The `site.yml` playbook serves as the main playbook that defines my homelab
+  infrastructure. Below are a few additional playbooks that are worth
+  mentioning.
+
+  - The `on_prem.yml` playbook aggregates common configurations for my on
+    premises hosts. This playbook should be ran before others in the `site.yml`
+    playbook.
+
+  - The `vagrant_customizations.yml` playbook modifies Vagrant provided hosts to
+    be mostly comparable to production hosts. This playbook should be ran before
+    running the `site.yml` playbook.
+
 - The `ansible` groups have been defined based mostly on their associated
   function. The rest are defined (loosely) based on geography.
 

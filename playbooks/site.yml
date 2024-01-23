@@ -2,6 +2,18 @@
 - name: Configure the on premises nodes
   ansible.builtin.import_playbook: on_prem.yml
 
+- name: Configure the DHCP servers
+  ansible.builtin.import_playbook: dhcp_servers.yml
+
+- name: Configure the DNS servers
+  ansible.builtin.import_playbook: dns_servers.yml
+
+- name: Configure the load balancers
+  ansible.builtin.import_playbook: load_balancers.yml
+
+- name: Configure the virtual machine monitors
+  ansible.builtin.import_playbook: vmms.yml
+
 - name: Configure the Kubernetes controller nodes
   ansible.builtin.import_playbook: k8s_controllers.yml
 
