@@ -21,12 +21,6 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files: "{{ vmm_systemd_networkd_files }}"
-
     - name: Set the libvirt default connect URI for all users
       ansible.builtin.template:
         src: libvirt_default_uri.j2

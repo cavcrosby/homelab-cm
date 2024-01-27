@@ -7,6 +7,10 @@
     pam_access_configs_dir_path: /etc/security/access.d
 
   tasks:
+    - name: Setup systemd-networkd networking
+      ansible.builtin.include_role:
+        name: systemd_networkd
+
     - name: Lockdown the root account
       ansible.builtin.user:
         name: root

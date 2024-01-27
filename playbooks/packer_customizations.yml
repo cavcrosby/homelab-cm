@@ -13,8 +13,10 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files: "{{ k8s_node_systemd_networkd_files }}"
+    - name: Create the networking interfaces file (debian-like)
+      ansible.builtin.template:
+        src: interfaces.j2
+        dest: /etc/network/interfaces
+        mode: "644"
+      become: true
+      when: ansible_os_family | lower == "debian"

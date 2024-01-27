@@ -65,16 +65,3 @@
       when:
         - default_grub_config_inode.stat.exists
         - line_check.found == 0
-
-- name: Setup systemd-networkd
-  hosts:
-    - k8s_workers
-    - k8s_controllers
-  tags: setup_systemd_networkd
-
-  tasks:
-    - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files: "{{ k8s_node_systemd_networkd_files }}"

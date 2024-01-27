@@ -5,13 +5,6 @@
   vars_files:
     - "{{ network_configs_path }}"
 
-  pre_tasks:
-    - name: Setup systemd-networkd networking
-      ansible.builtin.include_role:
-        name: systemd_networkd
-      vars:
-        systemd_networkd_files: "{{ dhcp_systemd_networkd_files }}"
-
   roles:
     - role: dnsmasq_dhcp
       vars:

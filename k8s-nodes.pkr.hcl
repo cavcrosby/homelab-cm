@@ -133,8 +133,7 @@ build {
             "{{ .HostAlias }} ",
             "ansible_host={{ .Host }} ",
             "ansible_user={{ .User }} ",
-            "ansible_port={{ .Port }} ",
-            "k8s_node_systemd_networkd_files='[{\"filename\":\"en.link\",\"Match\":{\"OriginalName\":\"en*\"},\"Link\":{\"NamePolicy\":\"keep\"}},{\"filename\":\"en.network\",\"Match\":{\"Name\":\"en*\"},\"Network\":{\"DHCP\":\"true\"}}]'\n"
+            "ansible_port={{ .Port }}\n"
           ]
         )
       }
@@ -148,8 +147,7 @@ build {
             "{{ .HostAlias }} ",
             "ansible_host={{ .Host }} ",
             "ansible_user={{ .User }} ",
-            "ansible_port={{ .Port }} ",
-            "k8s_node_systemd_networkd_files='[{\"filename\":\"en.link\",\"Match\":{\"OriginalName\":\"en*\"},\"Link\":{\"NamePolicy\":\"keep\"}},{\"filename\":\"en.network\",\"Match\":{\"Name\":\"en*\"},\"Network\":{\"DHCP\":\"true\"}}]'\n"
+            "ansible_port={{ .Port }}\n"
           ]
         )
       }

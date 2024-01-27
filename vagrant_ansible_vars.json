@@ -16,7 +16,7 @@
             "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -137,7 +137,7 @@
             "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -258,7 +258,7 @@
             "poseidon_k8s_network_interface_name": "eth2",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -391,7 +391,7 @@
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "poseidon_k8s_controller1_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -515,7 +515,7 @@
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "poseidon_k8s_controller2_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -639,7 +639,7 @@
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
-                "k8s_node_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -759,7 +759,7 @@
                 "dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "load_balancer_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
-                "dhcp_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
@@ -852,7 +852,7 @@
             "libvirt_poseidon_k8s_controller_domain_template": "poseidon/staging-libvirt-k8s-controller.xml.j2",
             "libvirt_poseidon_k8s_worker_domain_template": "poseidon/staging-libvirt-k8s-worker.xml.j2",
             "vagrant_config_refs": {
-                "vmm_systemd_networkd_files": [
+                "systemd_networkd_files": [
                     {
                         "filename": {
                             "join": [
