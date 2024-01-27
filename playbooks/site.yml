@@ -1,5 +1,5 @@
 ---
-- name: Configure the on premises nodes
+- name: Configure the on-premises nodes
   ansible.builtin.import_playbook: on_prem.yml
 
 - name: Configure the DHCP servers
