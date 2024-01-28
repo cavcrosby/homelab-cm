@@ -276,7 +276,7 @@ _EOF_
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
 
-        if TRUTHY_VALUES.include? ENV["ANSIBLE_MAINTENANCE_PLAYBOOK"]
+        if TRUTHY_VALUES.include? ENV["USE_MAINTENANCE_PLAYBOOK"]
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/maintenance.yml"
             ansible.compatibility_mode = "2.0"
