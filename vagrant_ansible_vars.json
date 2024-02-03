@@ -749,7 +749,7 @@
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
-            "vagrant_vm_box": "debian/bullseye64",
+            "vagrant_vm_box": "debian/bookworm64",
             "dhcp_config_file_template": "staging-dnsmasq-dhcp.conf.j2",
             "dns_config_file_template": "staging-dnsmasq-dns.conf.j2",
             "mgmt_network_interface_name": "eth0",
