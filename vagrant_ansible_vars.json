@@ -844,7 +844,7 @@
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 10,
-            "vagrant_vm_box": "debian/bullseye64",
+            "vagrant_vm_box": "debian/bookworm64",
             "mgmt_network_interface_name": "eth0",
             "homelab_network_interface_name": "eth1",
             "libvirt_poseidon_k8s_network_config_file_template": "poseidon/staging-libvirt-network.xml.j2",
