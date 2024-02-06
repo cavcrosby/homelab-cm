@@ -10,6 +10,7 @@ defaults
 
 frontend http
   bind {{ load_balancer_listen_ipv4_addr }}:80
+  acl is_jenkins_homelab req.hdr(host) jenkins.{{ homelab_network_domain }}
   acl is_jenkins_homelab req.hdr(host) jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}
 
   use_backend poseidon_k8s_http_ingresses if is_jenkins_homelab

@@ -53,3 +53,4 @@ ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | 
 
 host-record=jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }},{{ staging_node1_homelab_ipv4_addr }}
 ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}
+cname=jenkins.{{ homelab_network_domain }},jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}

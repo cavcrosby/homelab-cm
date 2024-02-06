@@ -1,4 +1,34 @@
 ---
+- name: Create the administrator managed libexec directory
+  ansible.builtin.file:
+    path: /usr/local/libexec
+    state: directory
+    mode: "775"
+  become: true
+  register: admin_managed_libexec_dir
+
+- name: Create the reload_udev_offline script
+  ansible.builtin.template:
+    src: reload_udev_offline.j2
+    dest: "{{ admin_managed_libexec_dir.path }}/reload_udev_offline"
+    mode: "744"
+  become: true
+  register: reload_udev_offline_script
+
+- name: Create a reload-udev-offline service unit file
+  ansible.builtin.template:
+    src: reload-udev-offline.service.j2
+    dest: /etc/systemd/system/reload-udev-offline.service
+    mode: "644"
+  become: true
+
+- name: Create a reload-udev-offline timer unit file
+  ansible.builtin.template:
+    src: reload-udev-offline.timer.j2
+    dest: /etc/systemd/system/reload-udev-offline.timer
+    mode: "644"
+  become: true
+
 - name: Add systemd network files
   ansible.builtin.template:
     src: systemd.network.j2
@@ -9,8 +39,12 @@
     force: false
   become: true
   notify:
-    - Start and enable systemd-networkd
+    - Start and enable systemd-networkd service
     - Remove the networking service's interfaces file (debian-like)
     - Stop and disable the networking service (debian-like)
-    - Restart systemd-networkd
+    - Restart systemd-networkd service
+    - Reload udev while offline
   loop: "{{ systemd_networkd_files }}"
+
+- name: Flush handlers
+  ansible.builtin.meta: flush_handlers

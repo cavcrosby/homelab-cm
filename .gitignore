@@ -340,6 +340,7 @@ build-iPhoneSimulator/
 # .rubocop-https?--*
 
 # repo specific
+production
 .vagrant
 .python-version
 *.log

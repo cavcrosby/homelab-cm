@@ -261,6 +261,16 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+  - host: jenkins.{{ homelab_network_domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ jenkins_service }}
+            port:
+              number: {{ jenkins_http_port }}
   - host: {{ jenkins_instance_name }}.{{ cluster_domain }}
     http:
       paths:

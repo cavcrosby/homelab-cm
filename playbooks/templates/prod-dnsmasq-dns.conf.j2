@@ -45,8 +45,9 @@ domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 
 # Add A, AAAA and PTR records to the DNS. This adds one or more names to the DNS
 # with associated IPv4 (A) and IPv6 (AAAA) records.
-host-record=ron.{{ homelab_network_domain }},{{ ron_ipv4_addr }}
-ptr-record={{ ron_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_network_domain }}
+host-record={{ homelab_poseidon_k8s_network_domain }},{{ poseidon_k8s_controller1_cluster_ipv4_addr }}
+ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_poseidon_k8s_network_domain }}
 
-host-record=roxanne.{{ homelab_network_domain }},{{ roxanne_ipv4_addr }}
-ptr-record={{ roxanne_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_network_domain }}
+host-record=jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }},{{ gerald_homelab_ipv4_addr }}
+ptr-record={{ gerald_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}
+cname=jenkins.{{ homelab_network_domain }},jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}

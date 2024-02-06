@@ -1,0 +1,31 @@
+<!-- Domain config for a Poseidon Kubernetes controller node. -->
+<domain type='kvm'>
+  <name>{{ domain_name }}</name>
+  <memory unit='MB'>2048</memory>
+  <vcpu>2</vcpu>
+  <os>
+    <type arch='x86_64'>hvm</type>
+  </os>
+  <clock sync='utc'/>
+  <devices>
+    <emulator>/usr/bin/qemu-system-x86_64</emulator>
+    <disk type='file' device='disk'>
+      <driver name='qemu' type='qcow2'/>
+      <source file='{{ libvirt_pool_dir_path }}/{{ domain_name }}.qcow2'/>
+      <backingStore type='file'>
+        <format type='qcow2'/>
+        <source file='{{ libvirt_pool_dir_path }}/poseidon_k8s_controller.qcow2'/>
+      </backingStore>
+      <target dev='vda'/>
+    </disk>
+    <interface type='network'>
+      <source network='homelab-cm'/>
+      <mac address='{{ domain_homelab_mac_addr }}'/>
+    </interface>
+    <interface type='network'>
+      <source network='poseidon-k8s-homelab-cm'/>
+      <mac address='{{ domain_poseidon_k8s_mac_addr }}'/>
+    </interface>
+    <graphics type='vnc' port='-1'/>
+  </devices>
+</domain>

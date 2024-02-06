@@ -1,7 +1,7 @@
 ---
-- name: Start and enable systemd-networkd
+- name: Start and enable systemd-networkd service
   ansible.builtin.systemd:
-    name: systemd-networkd
+    name: systemd-networkd.service
     enabled: true
     state: started
   become: true
@@ -15,15 +15,27 @@
 
 - name: Stop and disable the networking service (debian-like)
   ansible.builtin.systemd:
-    name: networking
+    name: networking.service
     enabled: false
     state: stopped
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Restart systemd-networkd
+- name: Restart systemd-networkd service
   ansible.builtin.systemd:
-    name: systemd-networkd
+    name: systemd-networkd.service
     enabled: true
     state: restarted
   become: true
+
+- name: Start reload-udev-offline timer
+  ansible.builtin.systemd:
+    name: reload-udev-offline.timer
+    state: started
+  become: true
+  listen: Reload udev while offline
+
+- name: Wait for hosts to become reachable
+  ansible.builtin.wait_for_connection:
+    delay: 10
+  listen: Reload udev while offline
