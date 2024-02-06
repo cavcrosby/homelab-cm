@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Coldplug All udev Devices (Offline)
+
+[Service]
+ExecStart={{ reload_udev_offline_script.dest }}

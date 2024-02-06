@@ -38,6 +38,7 @@ export ANSIBLE_CONFIG = ./ansible.cfg
 # targets
 HELP = help
 SETUP = setup
+INVENTORY = inventory
 PRODUCTION = production
 STAGING = staging
 PRODUCTION_MAINTENANCE = production-maintenance
@@ -72,6 +73,7 @@ export ANSIBLE_TAGS = all
 export ANSIBLE_VERBOSITY_OPT = -v
 
 # executables
+ANSIBLE = ansible
 ANSIBLE_GALAXY = ansible-galaxy
 ANSIBLE_LINT = ansible-lint
 ANSIBLE_PLAYBOOK = ansible-playbook
@@ -163,6 +165,7 @@ ${HELP}:
 >	@echo 'Common make targets:'
 >	@echo '  ${SETUP}                - installs the distro-independent dependencies for this'
 >	@echo '                         project'
+>	@echo '  ${INVENTORY}            - creates the production inventory file'
 >	@echo '  ${PRODUCTION}           - runs the main playbook for my homelab'
 >	@echo '  ${STAGING}              - runs the main playbook for my homelab, but in a'
 >	@echo '                         virtual environment setup by Vagrant'
@@ -205,6 +208,14 @@ ${SETUP}:
 
 >	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 >	${PRE_COMMIT} install
+
+.PHONY: ${INVENTORY}
+${INVENTORY}:
+>	${ANSIBLE} \
+		--module-name "ansible.builtin.template" \
+		--args 'src=./production.j2 dest=./production mode="644"' \
+		--extra-vars "@./playbooks/vars/network_configs.yml" \
+		"localhost"
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
@@ -378,6 +389,7 @@ ${EXAMPLES_TEST}:
 .PHONY: ${CLEAN}
 ${CLEAN}:
 >	rm --force *.log
+>	rm --force "./production"
 >	rm \
 		--recursive \
 		--force \

@@ -65,3 +65,85 @@
       when:
         - default_grub_config_inode.stat.exists
         - line_check.found == 0
+
+- name: Add net.ifnames=1 to grub boot command(s)
+  hosts: on_prem
+  tags: add_net_ifnames
+  vars:
+    default_grub_path: /etc/default/grub
+
+  tasks:
+    - name: Register the default grub configuration file inode
+      ansible.builtin.stat:
+        path: "{{ default_grub_path }}"
+      register: default_grub_config_inode
+
+    - name: Initial check if net.ifnames=1 is added to GRUB_CMDLINE_LINUX_DEFAULT
+      ansible.builtin.lineinfile:
+        state: absent
+        path: "{{ default_grub_path }}"
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"'
+      check_mode: true
+      changed_when: false
+      become: true
+      register: line_check
+      when: default_grub_config_inode.stat.exists
+
+    - name: Add net.ifnames=1 to GRUB_CMDLINE_LINUX_DEFAULT
+      ansible.builtin.import_role:
+        name: cavcrosby.general.managed_lineinfile
+      become: true
+      vars:
+        managed_lineinfile_path: "{{ default_grub_path }}"
+        managed_lineinfile_regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"'
+        managed_lineinfile_line: GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"
+      when: default_grub_config_inode.stat.exists
+
+    - name: Update grub.cfg
+      vars:
+        grub_config_path: /boot/grub/grub.cfg
+      block:
+        - name: Register the current grub configuration file inode
+          ansible.builtin.stat:
+            path: "{{ grub_config_path }}"
+            checksum_algorithm: sha256
+          become: true
+          register: current_grub_config_inode
+
+        - name: Update grub.cfg (debian-like)
+          ansible.builtin.shell:
+            executable: /bin/bash
+            cmd: |
+              set -eo pipefail
+              grub-mkconfig --output "{{ grub_config_path }}"
+              sha256sum "{{ grub_config_path }}" | awk -F " " '{ print $1 }'
+          changed_when: current_grub_config_inode.stat.checksum != grub_config_checksum.stdout
+          become: true
+          register: grub_config_checksum
+          when:
+            - default_grub_config_inode.stat.exists
+            - ansible_os_family | lower == "debian"
+
+    - name: Create the networking interfaces file (debian-like)
+      ansible.builtin.copy:
+        dest: /etc/network/interfaces
+        mode: "644"
+        content: |
+          # interfaces(5) file used by ifup(8) and ifdown(8)
+          # Include files from /etc/network/interfaces.d:
+          source-directory /etc/network/interfaces.d
+
+          auto mac/{{ vagrant_vm_mgmt_mac_addr }}/1=en
+          iface en inet dhcp
+      become: true
+      when:
+        - default_grub_config_inode.stat.exists
+        - ansible_os_family | lower == "debian"
+        - line_check.found == 0
+
+    - name: Reboot hosts
+      ansible.builtin.reboot:
+      become: true
+      when:
+        - default_grub_config_inode.stat.exists
+        - line_check.found == 0

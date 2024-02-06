@@ -7,6 +7,20 @@
     pam_access_configs_dir_path: /etc/security/access.d
 
   tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install on-premises node-wide tooling (debian-like)
+      ansible.builtin.apt:
+        name:
+          - jq
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
     - name: Setup systemd-networkd networking
       ansible.builtin.include_role:
         name: systemd_networkd

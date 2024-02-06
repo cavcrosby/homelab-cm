@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Trigger reloading of udev while offline
+
+[Timer]
+OnActiveSec=5
+Unit=reload-udev-offline.service

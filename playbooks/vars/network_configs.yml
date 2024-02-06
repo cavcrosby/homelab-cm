@@ -1,19 +1,60 @@
 ---
-homelab_network_subnet: 10.10.90.0/24
-homelab_network_gateway_ipv4_addr: 10.10.90.1
+homelab_network_domain: homelab.cavcrosby.tech
+homelab_poseidon_k8s_network_domain: poseidon.homelab.cavcrosby.tech
+homelab_poseidon_vrrp_server_vip: 192.168.1.2
+homelab_network_subnet: 192.168.0.0/24
+homelab_network_gateway_ipv4_addr: 192.168.0.1
 homelab_network_subnet_mask: 255.255.255.0
-homelab_network_lower_bound: 10.10.90.50
-homelab_network_upper_bound: 10.10.90.254
+homelab_network_lower_bound: 192.168.0.50
+homelab_network_upper_bound: 192.168.0.254
 
-gerald_mac_addr: 3C:D9:2B:56:A5:4B
-gerald_ipv4_addr: 10.10.90.3
+gerald_homelab_mac_addr: 3C:D9:2B:56:A5:4B
+gerald_homelab_ipv4_addr: 192.168.0.3
 
-ron_wireless_mac_addr: D0:C6:37:44:CD:C0
-ron_mac_addr: D8:BB:C1:96:12:6B
-ron_ipv4_addr: 10.10.90.50
+kronk_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
+kronk_idrac_homelab_ipv4_addr: 192.168.0.4
 
-dexter_mac_addr: 52:45:1A:8A:E9:79
-dexter_ipv4_addr: 10.10.90.51
+kronk_homelab_mac_addr: 18:66:DA:6B:8D:0B
+kronk_homelab_ipv4_addr: 192.168.0.5
 
-roxanne_mac_addr: A4:C3:F0:9C:28:CC
-roxanne_ipv4_addr: 10.10.90.52
+poseidon_k8s_worker1_homelab_network_interface_name: en0
+poseidon_k8s_worker1_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_worker1_homelab_mac_addr: 52:54:00:e6:7b:bd
+poseidon_k8s_worker1_homelab_ipv4_addr: 192.168.0.6
+poseidon_k8s_worker1_poseidon_k8s_mac_addr: 52:54:00:f0:f1:0f
+poseidon_k8s_worker1_poseidon_k8s_ipv4_addr: 192.168.1.3
+
+poseidon_k8s_worker2_homelab_network_interface_name: en0
+poseidon_k8s_worker2_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_worker2_homelab_mac_addr: 52:54:00:ec:ca:89
+poseidon_k8s_worker2_homelab_ipv4_addr: 192.168.0.7
+poseidon_k8s_worker2_poseidon_k8s_mac_addr: 52:54:00:38:0f:19
+poseidon_k8s_worker2_poseidon_k8s_ipv4_addr: 192.168.1.4
+
+poseidon_k8s_worker3_homelab_network_interface_name: en0
+poseidon_k8s_worker3_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_worker3_homelab_mac_addr: 52:54:00:a5:b4:61
+poseidon_k8s_worker3_homelab_ipv4_addr: 192.168.0.8
+poseidon_k8s_worker3_poseidon_k8s_mac_addr: 52:54:00:59:f1:f2
+poseidon_k8s_worker3_poseidon_k8s_ipv4_addr: 192.168.1.5
+
+poseidon_k8s_controller1_homelab_network_interface_name: en0
+poseidon_k8s_controller1_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_controller1_homelab_mac_addr: 52:54:00:ae:ec:58
+poseidon_k8s_controller1_homelab_ipv4_addr: 192.168.0.9
+poseidon_k8s_controller1_poseidon_k8s_mac_addr: 52:54:00:d6:f4:df
+poseidon_k8s_controller1_poseidon_k8s_ipv4_addr: 192.168.1.6
+
+poseidon_k8s_controller2_homelab_network_interface_name: en0
+poseidon_k8s_controller2_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_controller2_homelab_mac_addr: 52:54:00:7a:eb:5b
+poseidon_k8s_controller2_homelab_ipv4_addr: 192.168.0.10
+poseidon_k8s_controller2_poseidon_k8s_mac_addr: 52:54:00:bf:d7:4e
+poseidon_k8s_controller2_poseidon_k8s_ipv4_addr: 192.168.1.7
+
+poseidon_k8s_controller3_homelab_network_interface_name: en0
+poseidon_k8s_controller3_poseidon_k8s_network_interface_name: en1
+poseidon_k8s_controller3_homelab_mac_addr: 52:54:00:50:9f:b3
+poseidon_k8s_controller3_homelab_ipv4_addr: 192.168.0.11
+poseidon_k8s_controller3_poseidon_k8s_mac_addr: 52:54:00:9e:de:f3
+poseidon_k8s_controller3_poseidon_k8s_ipv4_addr: 192.168.1.8
