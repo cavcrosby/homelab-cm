@@ -1,4 +1,4 @@
 ansible-lint ==24.2.0
-pre-commit ==3.6.0
+pre-commit ==3.6.1
 molecule ==24.2.0
 molecule-plugins[docker] ==23.5.3
