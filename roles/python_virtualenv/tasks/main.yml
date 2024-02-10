@@ -16,7 +16,7 @@
 
 - name: Create the Python virtual environments directory
   ansible.builtin.file:
-    path: "{{ python_virtualenvs_path }}"
+    path: "{{ python_virtualenv_path }}"
     state: directory
     mode: "755"
 
@@ -25,15 +25,15 @@
     # This task module requires at least one package to install for initial
     # virtualenv setup.
     name: "{{ python_virtualenv_pkgs }}"
-    virtualenv: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
-    virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}"
+    virtualenv: "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}"
+    virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}"
 
 - name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages (debian-like)
   when: ansible_os_family | lower == "debian"
   block:
     - name: Determine the virtual environment's site-packages directory
       ansible.builtin.find:
-        paths: "{{ python_virtualenvs_path }}/{{ python_virtualenv_name }}/lib"
+        paths: "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}/lib"
         file_type: directory
         patterns: 'python*'
         depth: 1

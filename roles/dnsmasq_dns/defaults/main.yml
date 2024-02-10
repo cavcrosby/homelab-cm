@@ -1,17 +1,17 @@
 ---
 # used to determine what interface to listen for DNS requests
-dns_listen_ipv4_addr: 127.0.0.2
+dnsmasq_dns_listen_ipv4_addr: 127.0.0.2
 
 # subnet for the domain
-dns_subnet: 127.0.0.0/8
+dnsmasq_dns_subnet: 127.0.0.0/8
 
 # specify the DNS domain for DHCP
-dns_local_domain: ansible.localhost
+dnsmasq_dns_local_domain: ansible.localhost
 
 # which dnsmasq (dns) jinja template to use
-dns_config_file_template: dns.conf.j2
+dnsmasq_dns_config_file_template: dns.conf.j2
 
 # evaluated jinja template filename on the target system
-dns_config_target_file: "{{ (dns_config_file_template | basename | splitext)[:-1] | join('.') }}"
+dnsmasq_dns_config_target_file: "{{ (dnsmasq_dns_config_file_template | basename | splitext)[:-1] | join('.') }}"
 
-_dns_config_file_path: /etc/dnsmasq.d/{{ dns_config_target_file }}
+_dnsmasq_dns_config_file_path: /etc/dnsmasq.d/{{ dnsmasq_dns_config_target_file }}

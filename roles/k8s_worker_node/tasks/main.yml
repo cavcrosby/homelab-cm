@@ -54,31 +54,31 @@
   block:
     - name: Create the kubeadm patches directory
       ansible.builtin.file:
-        path: "{{ kubeadm_patches_dir_path }}"
+        path: "{{ k8s_worker_node_kubeadm_patches_dir_path }}"
         recurse: true
         state: directory
       become: true
       when:
-        - k8s_worker_join_patch_templates | length != 0
+        - k8s_worker_node_join_patch_templates | length != 0
 
     - name: Create the kubeadm (join) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
+        dest: "{{ k8s_worker_node_kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
-      loop: "{{ k8s_worker_join_patch_templates }}"
+      loop: "{{ k8s_worker_node_join_patch_templates }}"
       when:
-        - k8s_worker_join_patch_templates | length != 0
+        - k8s_worker_node_join_patch_templates | length != 0
 
     - name: Create the kubeadm (join) configuration file
       ansible.builtin.template:
-        src: "{{ k8s_worker_join_config_template }}"
-        dest: "{{ _k8s_worker_join_config_path }}"
+        src: "{{ k8s_worker_node_join_config_template }}"
+        dest: "{{ _k8s_worker_node_join_config_path }}"
         mode: "600"
 
     - name: Join a Kubernetes cluster as a worker node
-      ansible.builtin.command: kubeadm join --config "{{ _k8s_worker_join_config_path }}"
+      ansible.builtin.command: kubeadm join --config "{{ _k8s_worker_node_join_config_path }}"
       changed_when: kubeadm_join_check.rc == 0
       become: true
       register: kubeadm_join_check

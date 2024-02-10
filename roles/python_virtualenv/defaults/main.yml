@@ -2,7 +2,7 @@
 python_virtualenv_name: ansible-client
 
 # dir path for Python virtualenvs
-python_virtualenvs_path: /home/{{ ansible_user_id }}/python-venvs
+python_virtualenv_path: /home/{{ ansible_user_id }}/python-venvs
 
 # the packages to include in the ansible_user's Python virtualenv
 python_virtualenv_pkgs:

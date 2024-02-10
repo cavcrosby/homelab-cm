@@ -1,10 +1,10 @@
 ---
-k8s_gpg_sha256_checksum: ""
-kubernetes_version: v1.24.3
-kubeadm_version: 1.24.3-1.1
-kubectl_version: 1.24.3-1.1
-kubelet_version: 1.24.3-1.1
-cri_tools_version: 1.25.0-1.1
+k8s_kubeadm_gpg_sha256_checksum: ""
+k8s_kubeadm_kubernetes_version: v1.24.3
+k8s_kubeadm_version: 1.24.3-1.1
+k8s_kubeadm_kubectl_version: 1.24.3-1.1
+k8s_kubeadm_kubelet_version: 1.24.3-1.1
+k8s_kubeadm_cri_tools_version: 1.25.0-1.1
 
-_k8s_keyring_download_path: /tmp/kubernetes-signing.asc
-_k8s_keyring_install_path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+_k8s_kubeadm_kubernetes_keyring_download_path: /tmp/kubernetes-signing.asc
+_k8s_kubeadm_kubernetes_keyring_install_path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg

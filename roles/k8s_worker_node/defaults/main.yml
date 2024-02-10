@@ -1,13 +1,13 @@
 ---
 # Dir that will contain patches to combine with InitConfiguration and
 # JoinConfiguration on individual nodes.
-kubeadm_patches_dir_path: /run/ansible
+k8s_worker_node_kubeadm_patches_dir_path: /run/ansible
 
 # file that contains elements specific to 'kubeadm join' runtime information
-k8s_worker_join_config_template: ""
-k8s_worker_join_patch_templates: []
+k8s_worker_node_join_config_template: ""
+k8s_worker_node_join_patch_templates: []
 
 # file that is used to save the current iptables rules
-iptables_rules_path: /etc/iptables/rules.v4
+k8s_worker_node_iptables_rules_path: /etc/iptables/rules.v4
 
-_k8s_worker_join_config_path: /tmp/{{ (k8s_worker_join_config_template | basename | splitext)[:-1] | join('.') }}
+_k8s_worker_node_join_config_path: /tmp/{{ (k8s_worker_node_join_config_template | basename | splitext)[:-1] | join('.') }}

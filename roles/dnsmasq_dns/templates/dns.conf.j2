@@ -4,7 +4,7 @@
 
 # Or which to listen on by address (remember to include 127.0.0.1 if
 # you use this.)
-listen-address=::1,127.0.0.1,{{ dns_listen_ipv4_addr }}
+listen-address=::1,127.0.0.1,{{ dnsmasq_dns_listen_ipv4_addr }}
 
 # Never forward plain names (without a dot or domain part)
 domain-needed
@@ -41,4 +41,4 @@ no-dhcp-interface={{ no_dhcp_interface }}
 # 2) Sets the "domain" DHCP option thereby potentially setting the
 #    domain of all systems configured by DHCP
 # 3) Provides the domain part for "expand-hosts"
-domain={{ dns_local_domain }},{{ dns_subnet }},local
+domain={{ dnsmasq_dns_local_domain }},{{ dnsmasq_dns_subnet }},local

@@ -1,9 +1,9 @@
 ---
-kubernetes_version: v1.25.15
-kubeadm_version: 1.25.15-1.1
-kubectl_version: 1.25.15-1.1
-kubelet_version: 1.25.15-1.1
-cri_tools_version: 1.25.0-1.1
+k8s_kubeadm_kubernetes_version: v1.25.15
+k8s_kubeadm_version: 1.25.15-1.1
+k8s_kubeadm_kubectl_version: 1.25.15-1.1
+k8s_kubeadm_kubelet_version: 1.25.15-1.1
+k8s_kubeadm_cri_tools_version: 1.25.0-1.1
 etcdctl_version: v3.5.6
 containerd_version: 1.5.9~ds1-1
 calico_chart_version: v3.24.6  # chart version points to app version v3.24.6
