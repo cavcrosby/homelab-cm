@@ -91,7 +91,7 @@
         name: python_virtualenv
       vars:
         python_virtualenv_name: "{{ ansible_user_python_virtualenv_name }}"
-        python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
+        python_virtualenv_path: "{{ ansible_user_python_virtualenvs_path }}"
         python_virtualenv_pkgs:
           - libvirt-python
           - lxml
@@ -169,9 +169,9 @@
           ansible.builtin.include_role:
             name: qemu_img
           vars:
-            disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
-            backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_controller.qcow2"
-            disk_prefix: "{{ item.name }}"
+            qemu_img_disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
+            qemu_img_backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_controller.qcow2"
+            qemu_img_disk_prefix: "{{ item.name }}"
           loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
 
         - name: Define the poseidon Kubernetes controller nodes' domain
@@ -189,9 +189,9 @@
           ansible.builtin.include_role:
             name: qemu_img
           vars:
-            disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
-            backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_worker.qcow2"
-            disk_prefix: "{{ item.name }}"
+            qemu_img_disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
+            qemu_img_backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_worker.qcow2"
+            qemu_img_disk_prefix: "{{ item.name }}"
           loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"
 
         - name: Define the poseidon Kubernetes worker nodes' domain

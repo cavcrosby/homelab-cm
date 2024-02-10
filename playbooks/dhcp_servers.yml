@@ -8,4 +8,4 @@
   roles:
     - role: dnsmasq_dhcp
       vars:
-        dhcp_config_target_file: homelab-dhcp.conf
+        dnsmasq_dhcp_config_target_file: homelab-dhcp.conf

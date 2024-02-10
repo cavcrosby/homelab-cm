@@ -15,8 +15,8 @@
 
 - name: Create the dnsmasq (dns) configuration file
   ansible.builtin.template:
-    src: "{{ dns_config_file_template }}"
-    dest: "{{ _dns_config_file_path }}"
+    src: "{{ dnsmasq_dns_config_file_template }}"
+    dest: "{{ _dnsmasq_dns_config_file_path }}"
     mode: "644"
     validate: dnsmasq --test --conf-file=%s
   become: true

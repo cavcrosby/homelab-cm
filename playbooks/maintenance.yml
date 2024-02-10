@@ -169,7 +169,7 @@
         - name: Upgrade kubeadm (debian-like)
           ansible.builtin.apt:
             name:
-              - kubeadm={{ kubeadm_version }}
+              - kubeadm={{ k8s_kubeadm_version }}
             state: present
             allow_change_held_packages: true
           become: true
@@ -182,12 +182,12 @@
           become: true
           when: ansible_os_family | lower == "debian"
 
-        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_first_controller)
+        - name: Apply the new Kubernetes version to the Kubernetes node (k8s_first_controller)
           ansible.builtin.shell:
             executable: /bin/bash
             cmd: |
               set -eo pipefail
-              kubeadm upgrade apply --yes "{{ kubernetes_version }}" > "/dev/null"
+              kubeadm upgrade apply --yes "{{ k8s_kubeadm_kubernetes_version }}" > "/dev/null"
               kubectl version \
                 --server "https://{{ ansible_hostname }}:{{ k8s_api_server_port }}" \
                 --output "json" \
@@ -197,7 +197,7 @@
           register: k8s_server_version
           when: "inventory_hostname in groups['k8s_first_controllers']"
 
-        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_ha_controller)
+        - name: Apply the new Kubernetes version to the Kubernetes node (k8s_ha_controller)
           ansible.builtin.shell:
             executable: /bin/bash
             cmd: |
@@ -218,7 +218,7 @@
             checksum_algorithm: sha256
           register: current_kubelet_config
 
-        - name: Apply the new kubernetes_version to the Kubernetes node (k8s_worker)
+        - name: Apply the new Kubernetes version to the Kubernetes node (k8s_worker)
           ansible.builtin.shell:
             executable: /bin/bash
             cmd: |
@@ -266,7 +266,7 @@
         - name: Upgrade kubelet (debian-like)
           ansible.builtin.apt:
             name:
-              - kubelet={{ kubelet_version }}
+              - kubelet={{ k8s_kubeadm_kubelet_version }}
             state: present
             allow_change_held_packages: true
           become: true
@@ -280,7 +280,7 @@
         - name: Upgrade kubectl (debian-like)
           ansible.builtin.apt:
             name:
-              - kubectl={{ kubectl_version }}
+              - kubectl={{ k8s_kubeadm_kubectl_version }}
             state: present
             allow_change_held_packages: true
           become: true

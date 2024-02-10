@@ -18,12 +18,12 @@ bootstrapTokens:
   - token: {{ k8s_bootstrap_token }}
     ttl: 1h0m0s
 patches:
-  directory: {{ kubeadm_patches_dir_path }}
+  directory: {{ k8s_control_plane_kubeadm_patches_dir_path }}
 
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
-kubernetesVersion: {{ kubernetes_version }}
+kubernetesVersion: {{ k8s_kubeadm_kubernetes_version }}
 controlPlaneEndpoint: {{ k8s_controller_endpoint }}
 networking:
   serviceSubnet: {{ k8s_service_subnet }}

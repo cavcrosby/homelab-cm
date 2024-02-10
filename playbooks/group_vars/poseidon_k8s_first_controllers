@@ -1,4 +1,4 @@
 ---
-k8s_controller_init_config_template: poseidon/k8s-first-controller.yml.j2
-k8s_controller_init_patch_templates:
+k8s_control_plane_init_config_template: poseidon/k8s-first-controller.yml.j2
+k8s_control_plane_init_patch_templates:
   - poseidon/kubeletconfiguration.yaml.j2

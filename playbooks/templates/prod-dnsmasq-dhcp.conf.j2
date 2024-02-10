@@ -4,7 +4,7 @@
 
 # Or which to listen on by address (remember to include 127.0.0.1 if
 # you use this.)
-listen-address={{ dhcp_listen_ipv4_addr }}
+listen-address={{ dnsmasq_dhcp_listen_ipv4_addr }}
 
 # If you want dnsmasq to provide only DNS service on an interface,
 # configure it as shown above, and then use the following line to
@@ -39,7 +39,7 @@ dhcp-host={{ poseidon_k8s_controller3_homelab_mac_addr }},poseidon-k8s-controlle
 
 # Override the default route supplied by dnsmasq, which assumes the
 # router is the same machine as the one running dnsmasq.
-dhcp-option=option:router,{{ dhcp_network_gateway_ipv4_addr }}
+dhcp-option=option:router,{{ dnsmasq_dhcp_network_gateway_ipv4_addr }}
 
 # Set the DHCP server to enable DHCPv4 Rapid Commit Option per RFC 4039.
 # In this mode it will respond to a DHCPDISCOVER message including a Rapid Commit
