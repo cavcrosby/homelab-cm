@@ -3,7 +3,7 @@
     "node": ">=18 <19"
   },
   "dependencies": {
-    "@bitwarden/cli": "^2023.0.0"
+    "@bitwarden/cli": "^2024.0.0"
   },
   "devDependencies": {
     "markdownlint-cli2": "^0.12.0",
