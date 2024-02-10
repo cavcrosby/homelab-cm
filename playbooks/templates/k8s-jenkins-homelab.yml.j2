@@ -9,7 +9,7 @@ kind: Secret
 type: Opaque
 metadata:
   name: jenkins-secrets
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 stringData:
   jenkins_admin_password: {{ jenkins_homelab_admin_password }}
   jenkins_admin_email_secret: {{ smtp_email_secret }}
@@ -20,8 +20,8 @@ apiVersion: v1
 kind: Secret
 type: kubernetes.io/dockerconfigjson
 metadata:
-  name: {{ dockerhub_creds_secret_name }}
-  namespace: {{ jenkins_instance_name }}
+  name: {{ k8s_jenkins_dockerhub_creds_secret_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}
 
@@ -30,7 +30,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: github-ssh-key
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 type: kubernetes.io/ssh-auth
 stringData:
   ssh-privatekey: |
@@ -44,7 +44,7 @@ kind: Secret
 type: Opaque
 metadata:
   name: gps-configs
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 stringData:
   gps.json: |-
     {
@@ -104,9 +104,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ jenkins_agent_handler }}
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
   labels:
-    app.kubernetes.io/name: {{ jenkins_instance_name }}
+    app.kubernetes.io/name: {{ k8s_jenkins_instance_name }}
 rules:
 - apiGroups: [""]  # "" indicates the core API group
   resources: ["pods", "pods/exec"]
@@ -123,59 +123,59 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: default
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 imagePullSecrets:
-  - name: {{ dockerhub_creds_secret_name }}
+  - name: {{ k8s_jenkins_dockerhub_creds_secret_name }}
 
 ---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ jenkins_k8s_service_account }}
-  namespace: {{ jenkins_instance_name }}
+  name: {{ k8s_jenkins_k8s_service_account }}
+  namespace: {{ k8s_jenkins_instance_name }}
 imagePullSecrets:
-  - name: {{ dockerhub_creds_secret_name }}
+  - name: {{ k8s_jenkins_dockerhub_creds_secret_name }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ jenkins_agent_handler }}-binding
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
   name: {{ jenkins_agent_handler }}
 subjects:
 - kind: ServiceAccount
-  name: {{ jenkins_k8s_service_account }}
-  namespace: {{ jenkins_instance_name }}
+  name: {{ k8s_jenkins_k8s_service_account }}
+  namespace: {{ k8s_jenkins_instance_name }}
 
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ jenkins_instance_name }}
-  namespace: {{ jenkins_instance_name }}
+  name: {{ k8s_jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ jenkins_instance_name }}
+      app: {{ k8s_jenkins_instance_name }}
   template:
     metadata:
       labels:
-        app: {{ jenkins_instance_name }}
+        app: {{ k8s_jenkins_instance_name }}
     spec:
-      serviceAccountName: {{ jenkins_k8s_service_account }}
+      serviceAccountName: {{ k8s_jenkins_k8s_service_account }}
       containers:
       - name: jenkins
-        image: {{ jenkins_instance_image }}
+        image: {{ k8s_jenkins_instance_image }}
         ports:
           - name: http-port
-            containerPort: {{ jenkins_http_port }}
+            containerPort: {{ k8s_jenkins_http_port }}
           - name: agent-port
-            containerPort: {{ jenkins_agent_port }}
+            containerPort: {{ k8s_jenkins_agent_port }}
         resources:
           requests:
             cpu: 1000m
@@ -183,7 +183,7 @@ spec:
         readinessProbe:
           httpGet:
             path: /login
-            port: {{ jenkins_http_port }}
+            port: {{ k8s_jenkins_http_port }}
           initialDelaySeconds: 30
           periodSeconds: 10
           timeoutSeconds: 5
@@ -191,7 +191,7 @@ spec:
         livenessProbe:
           httpGet:
             path: /login
-            port: {{ jenkins_http_port }}
+            port: {{ k8s_jenkins_http_port }}
           initialDelaySeconds: 60
           periodSeconds: 10
           timeoutSeconds: 5
@@ -199,7 +199,7 @@ spec:
         env:
           - name: JENKINS_URL
             # <svc-name>.<namespace-name>.svc.<cluster-dns-domain>
-            value: {{ jenkins_service }}.{{ jenkins_instance_name }}.svc.{{ cluster_domain }}:{{ jenkins_http_port }}
+            value: {{ jenkins_service }}.{{ k8s_jenkins_instance_name }}.svc.{{ k8s_jenkins_cluster_domain }}:{{ k8s_jenkins_http_port }}
           - name: JENKINS_ADMIN_ID
             value: cavcrosby
           - name: JENKINS_ADMIN_PASSWORD
@@ -239,25 +239,25 @@ apiVersion: v1
 kind: Service
 metadata:
   name: {{ jenkins_service }}
-  namespace: {{ jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 spec:
   type: ClusterIP
   ports:
     - name: http-port
-      port: {{ jenkins_http_port }}
-      targetPort: {{ jenkins_http_port }}
+      port: {{ k8s_jenkins_http_port }}
+      targetPort: {{ k8s_jenkins_http_port }}
     - name: agent-port
-      port: {{ jenkins_agent_port }}
-      targetPort: {{ jenkins_agent_port }}
+      port: {{ k8s_jenkins_agent_port }}
+      targetPort: {{ k8s_jenkins_agent_port }}
   selector:
-    app: {{ jenkins_instance_name }}
+    app: {{ k8s_jenkins_instance_name }}
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ jenkins_instance_name }}
-  namespace: {{ jenkins_instance_name }}
+  name: {{ k8s_jenkins_instance_name }}
+  namespace: {{ k8s_jenkins_instance_name }}
 spec:
   ingressClassName: nginx
   rules:
@@ -270,8 +270,8 @@ spec:
           service:
             name: {{ jenkins_service }}
             port:
-              number: {{ jenkins_http_port }}
-  - host: {{ jenkins_instance_name }}.{{ cluster_domain }}
+              number: {{ k8s_jenkins_http_port }}
+  - host: {{ k8s_jenkins_instance_name }}.{{ k8s_jenkins_cluster_domain }}
     http:
       paths:
       - path: /
@@ -280,4 +280,4 @@ spec:
           service:
             name: {{ jenkins_service }}
             port:
-              number: {{ jenkins_http_port }}
+              number: {{ k8s_jenkins_http_port }}

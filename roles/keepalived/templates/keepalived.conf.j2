@@ -3,11 +3,11 @@
 # Config file for keepalived.
 
 vrrp_instance VI_1 {
-    state {{ vrrp_state }}
-    interface {{ vrrp_interface }}
-    virtual_router_id {{ vrrp_virtual_router_id }}
-    priority {{ vrrp_priority }}
+    state {{ keepalived_vrrp_state }}
+    interface {{ keepalived_vrrp_interface }}
+    virtual_router_id {{ keepalived_vrrp_virtual_router_id }}
+    priority {{ keepalived_vrrp_priority }}
     virtual_ipaddress {
-        {{ vrrp_server_vip }}
+        {{ keepalived_ }}
     }
 }

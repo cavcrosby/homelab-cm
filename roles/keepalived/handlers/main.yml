@@ -7,6 +7,6 @@
 
 - name: Save the current iptables rules
   community.general.iptables_state:
-    path: "{{ iptables_rules_path }}"
+    path: "{{ keepalived_iptables_rules_path }}"
     state: saved
   become: true

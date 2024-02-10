@@ -22,4 +22,4 @@ discovery:
     caCertHashes:
       - {{ k8s_ca_key_hash }}
 patches:
-  directory: {{ kubeadm_patches_dir_path }}
+  directory: {{ k8s_control_plane_kubeadm_patches_dir_path }}

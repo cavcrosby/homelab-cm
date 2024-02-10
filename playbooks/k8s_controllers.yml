@@ -12,7 +12,7 @@
         name: python_virtualenv
       vars:
         python_virtualenv_name: "{{ ansible_user_python_virtualenv_name }}"
-        python_virtualenvs_path: "{{ ansible_user_python_virtualenvs_path }}"
+        python_virtualenv_path: "{{ ansible_user_python_virtualenvs_path }}"
         python_virtualenv_pkgs:
           - kubernetes
           - psutil
@@ -155,6 +155,7 @@
         keepalived_config_target_file: keepalived.conf
         keepalived_health_check_script_template: poseidon/k8s-chklb.j2
         keepalived_health_check_target_script: chklb
+        keepalived_iptables_rules_path: /etc/iptables/rules.v4
 
     - role: helm
       vars:
@@ -165,7 +166,7 @@
   handlers:
     - name: Save the current iptables rules
       community.general.iptables_state:
-        path: "{{ iptables_rules_path }}"
+        path: "{{ k8s_control_plane_iptables_rules_path }}"
         state: saved
       become: true
 

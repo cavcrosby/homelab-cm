@@ -11,14 +11,14 @@
   roles:
     - role: k8s_jenkins
       vars:
-        cluster_domain: "{{ homelab_poseidon_k8s_network_domain }}"
-        jenkins_instance_name: jenkins-homelab
-        jenkins_instance_image: cavcrosby/jenkins-homelab:latest
-        jenkins_manifest_template: k8s-jenkins-homelab.yml.j2
-        jenkins_k8s_service_account: jenkins
-        jenkins_http_port: 8080
-        jenkins_agent_port: 50000
-        dockerhub_creds_secret_name: dockerhub-creds
+        k8s_jenkins_cluster_domain: "{{ homelab_poseidon_k8s_network_domain }}"
+        k8s_jenkins_instance_name: jenkins-homelab
+        k8s_jenkins_instance_image: cavcrosby/jenkins-homelab:latest
+        k8s_jenkins_manifest_template: k8s-jenkins-homelab.yml.j2
+        k8s_jenkins_k8s_service_account: jenkins
+        k8s_jenkins_http_port: 8080
+        k8s_jenkins_agent_port: 50000
+        k8s_jenkins_dockerhub_creds_secret_name: dockerhub-creds
 
 - name: Install Helm charts (poseidon)
   hosts: k8s_first_controllers:&poseidon

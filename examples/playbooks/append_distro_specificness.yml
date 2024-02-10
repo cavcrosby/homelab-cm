@@ -30,6 +30,6 @@
         name: python_virtualenv
       vars:
         python_virtualenv_name: foo
-        python_virtualenvs_path: "{{ temp_dir.path }}"
+        python_virtualenv_path: "{{ temp_dir.path }}"
         python_virtualenv_pkgs:
           - libvirt-python

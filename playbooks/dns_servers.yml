@@ -8,4 +8,4 @@
   roles:
     - role: dnsmasq_dns
       vars:
-        dns_config_target_file: homelab-dns.conf
+        dnsmasq_dns_config_target_file: homelab-dns.conf
