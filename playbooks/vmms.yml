@@ -97,12 +97,13 @@
           - lxml
 
     - name: Add sourcing of the Python virtual environment
-      ansible.builtin.import_role:
-        name: cavcrosby.general.managed_lineinfile
-      vars:
-        managed_lineinfile_path: "{{ ansible_user_home }}/.bashrc"
-        managed_lineinfile_regexp: '^source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"'
-        managed_lineinfile_line: source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"
+      ansible.builtin.blockinfile:
+        state: present
+        path: "{{ ansible_user_home }}/.bashrc"
+        marker: "# {mark} ANSIBLE MANAGED -- source the python virtualenv"
+        prepend_newline: true
+        block: |
+          source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"
 
     - name: Setup libvirt networking
       vars:

@@ -74,7 +74,6 @@ export ANSIBLE_VERBOSITY_OPT = -v
 
 # executables
 ANSIBLE = ansible
-ANSIBLE_GALAXY = ansible-galaxy
 ANSIBLE_LINT = ansible-lint
 ANSIBLE_PLAYBOOK = ansible-playbook
 ANSIBLE_VAULT = ansible-vault
@@ -106,7 +105,6 @@ executables := \
 	${PKILL}\
 	${JQ}\
 	${ANSIBLE_PLAYBOOK}\
-	${ANSIBLE_GALAXY}\
 	${ANSIBLE_LINT}\
 	${ANSIBLE_VAULT}\
 	${BUNDLE}\
@@ -206,7 +204,6 @@ ${SETUP}:
 		--requirement "./requirements.txt" \
 		--requirement "./dev-requirements.txt"
 
->	${ANSIBLE_GALAXY} collection install --requirements-file "./meta/requirements.yml"
 >	${PRE_COMMIT} install
 
 .PHONY: ${INVENTORY}

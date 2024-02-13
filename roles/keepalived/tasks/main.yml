@@ -61,15 +61,16 @@
     - Restart keepalived
 
 - name: Alter the keepalived configuration to use a non-default configuration path
-  ansible.builtin.import_role:
-    name: cavcrosby.general.managed_lineinfile
+  ansible.builtin.blockinfile:
+    state: present
+    path: /etc/default/keepalived
+    marker: "# {mark} ANSIBLE MANAGED -- use non-default keepalived config path"
+    prepend_newline: true
+    block: |
+      DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"
   become: true
   notify:
     - Restart keepalived
-  vars:
-    managed_lineinfile_path: /etc/default/keepalived
-    managed_lineinfile_regexp: '^DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"'
-    managed_lineinfile_line: DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"
 
 - name: Enable the keepalived service
   ansible.builtin.service:

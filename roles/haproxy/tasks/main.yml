@@ -24,15 +24,16 @@
 # reference on the option used to specifiy a config directory:
 # https://serverfault.com/questions/1020003/provide-multiple-cfg-files-for-haproxy-loadbalancer#answer-1020407
 - name: Alter the haproxy configuration to be aggregated from a directory
-  ansible.builtin.import_role:
-    name: cavcrosby.general.managed_lineinfile
+  ansible.builtin.blockinfile:
+    state: present
+    path: /etc/default/haproxy
+    marker: "# {mark} ANSIBLE MANAGED -- aggregate haproxy config from dir"
+    prepend_newline: true
+    block: |
+      CONFIG="{{ _haproxy_config_dir_path }}"
   become: true
   notify:
     - Restart haproxy
-  vars:
-    managed_lineinfile_path: /etc/default/haproxy
-    managed_lineinfile_regexp: '^CONFIG="{{ _haproxy_config_dir_path }}"'
-    managed_lineinfile_line: CONFIG="{{ _haproxy_config_dir_path }}"
 
 - name: Create the haproxy configuration file
   ansible.builtin.template:

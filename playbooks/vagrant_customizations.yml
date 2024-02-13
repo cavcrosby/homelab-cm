@@ -13,25 +13,17 @@
         path: "{{ default_grub_path }}"
       register: default_grub_config_inode
 
-    - name: Initial check if systemd.unified_cgroup_hierarchy=0 is added to GRUB_CMDLINE_LINUX_DEFAULT
-      ansible.builtin.lineinfile:
-        state: absent
-        path: "{{ default_grub_path }}"
-        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"'
-      check_mode: true
-      changed_when: false
-      become: true
-      register: line_check
-      when: default_grub_config_inode.stat.exists
-
     - name: Add systemd.unified_cgroup_hierarchy=0 to GRUB_CMDLINE_LINUX_DEFAULT
-      ansible.builtin.import_role:
-        name: cavcrosby.general.managed_lineinfile
+      ansible.builtin.blockinfile:
+        state: present
+        path: "{{ default_grub_path }}"
+        marker: "# {mark} ANSIBLE MANAGED -- add systemd.unified_cgroup_hierarchy=0 to GRUB_CMDLINE_LINUX_DEFAULT"
+        prepend_newline: true
+        block: |
+          GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"
       become: true
-      vars:
-        managed_lineinfile_path: "{{ default_grub_path }}"
-        managed_lineinfile_regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"'
-        managed_lineinfile_line: GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"
+      notify:
+        - Reboot hosts
       when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg
@@ -59,12 +51,10 @@
             - default_grub_config_inode.stat.exists
             - ansible_os_family | lower == "debian"
 
+  handlers:
     - name: Reboot hosts
       ansible.builtin.reboot:
       become: true
-      when:
-        - default_grub_config_inode.stat.exists
-        - line_check.found == 0
 
 - name: Add net.ifnames=1 to grub boot command(s)
   hosts: on_prem
@@ -78,25 +68,18 @@
         path: "{{ default_grub_path }}"
       register: default_grub_config_inode
 
-    - name: Initial check if net.ifnames=1 is added to GRUB_CMDLINE_LINUX_DEFAULT
-      ansible.builtin.lineinfile:
-        state: absent
-        path: "{{ default_grub_path }}"
-        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"'
-      check_mode: true
-      changed_when: false
-      become: true
-      register: line_check
-      when: default_grub_config_inode.stat.exists
-
     - name: Add net.ifnames=1 to GRUB_CMDLINE_LINUX_DEFAULT
-      ansible.builtin.import_role:
-        name: cavcrosby.general.managed_lineinfile
+      ansible.builtin.blockinfile:
+        state: present
+        path: "{{ default_grub_path }}"
+        marker: "# {mark} ANSIBLE MANAGED -- add net.ifnames=1 to GRUB_CMDLINE_LINUX_DEFAULT"
+        prepend_newline: true
+        block: |
+          GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"
       become: true
-      vars:
-        managed_lineinfile_path: "{{ default_grub_path }}"
-        managed_lineinfile_regexp: '^GRUB_CMDLINE_LINUX_DEFAULT="\${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"'
-        managed_lineinfile_line: GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"
+      notify:
+        - Create the networking interfaces file (debian-like)
+        - Reboot hosts
       when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg
@@ -124,6 +107,7 @@
             - default_grub_config_inode.stat.exists
             - ansible_os_family | lower == "debian"
 
+  handlers:
     - name: Create the networking interfaces file (debian-like)
       ansible.builtin.copy:
         dest: /etc/network/interfaces
@@ -136,14 +120,8 @@
           auto mac/{{ vagrant_vm_mgmt_mac_addr }}/1=en
           iface en inet dhcp
       become: true
-      when:
-        - default_grub_config_inode.stat.exists
-        - ansible_os_family | lower == "debian"
-        - line_check.found == 0
+      when: ansible_os_family | lower == "debian"
 
     - name: Reboot hosts
       ansible.builtin.reboot:
       become: true
-      when:
-        - default_grub_config_inode.stat.exists
-        - line_check.found == 0
