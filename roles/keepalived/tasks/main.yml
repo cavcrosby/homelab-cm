@@ -6,8 +6,7 @@
     protocol: tcp
     jump: ACCEPT
   become: true
-  notify:
-    - Save the current iptables rules
+  notify: Save the current iptables rules
 
 - name: Update apt's package index
   ansible.builtin.apt:
@@ -24,8 +23,7 @@
   when: ansible_os_family | lower == "debian"
 
 - name: Create track script for keepalived
-  when:
-    - keepalived_health_check_script_template | length != 0
+  when: keepalived_health_check_script_template | length != 0
   block:
     - name: Create the keepalived_script group
       ansible.builtin.group:
@@ -57,8 +55,7 @@
     dest: "{{ _keepalived_config_file_path }}"
     mode: "644"
   become: true
-  notify:
-    - Restart keepalived
+  notify: Restart keepalived
 
 - name: Alter the keepalived configuration to use a non-default configuration path
   ansible.builtin.blockinfile:
@@ -69,8 +66,7 @@
     block: |
       DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"
   become: true
-  notify:
-    - Restart keepalived
+  notify: Restart keepalived
 
 - name: Enable the keepalived service
   ansible.builtin.service:

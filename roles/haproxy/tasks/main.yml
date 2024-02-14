@@ -32,8 +32,7 @@
     block: |
       CONFIG="{{ _haproxy_config_dir_path }}"
   become: true
-  notify:
-    - Restart haproxy
+  notify: Restart haproxy
 
 - name: Create the haproxy configuration file
   ansible.builtin.template:
@@ -42,8 +41,7 @@
     mode: "644"
     validate: haproxy -c -f %s
   become: true
-  notify:
-    - Restart haproxy
+  notify: Restart haproxy
 
 - name: Enable and start the haproxy service
   ansible.builtin.service:

@@ -32,8 +32,7 @@
     dest: "{{ _helm_keyring_download_path }}"
     checksum: sha256:{{ helm_gpg_sha256_checksum }}
     mode: "644"
-  notify:
-    - Install Helm's GPG key
+  notify: Install Helm's GPG key
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

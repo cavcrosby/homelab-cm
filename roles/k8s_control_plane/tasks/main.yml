@@ -19,8 +19,7 @@
         jump: ACCEPT
         comment: (k8s) Kubernetes API server
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Configure etcd server client API ports
       ansible.builtin.iptables:
@@ -30,8 +29,7 @@
         jump: ACCEPT
         comment: (k8s) etcd server client API
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Configure Kubelet API ports
       ansible.builtin.iptables:
@@ -41,8 +39,7 @@
         jump: ACCEPT
         comment: (k8s) Kubelet API
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Configure kube-scheduler ports
       ansible.builtin.iptables:
@@ -52,8 +49,7 @@
         jump: ACCEPT
         comment: (k8s) kube-scheduler
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Configure kube-controller-manager ports
       ansible.builtin.iptables:
@@ -63,8 +59,7 @@
         jump: ACCEPT
         comment: (k8s) kube-controller-manager
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers

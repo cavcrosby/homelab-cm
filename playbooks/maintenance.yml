@@ -270,8 +270,7 @@
             state: present
             allow_change_held_packages: true
           become: true
-          notify:
-            - Issue daemon-reload, then restart the kubelet service
+          notify: Issue daemon-reload, then restart the kubelet service
           when: ansible_os_family | lower == "debian"
 
         - name: Flush handlers

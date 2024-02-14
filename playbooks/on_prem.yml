@@ -46,8 +46,7 @@
         dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
         mode: "644"
       become: true
-      notify:
-        - Restart systemd-logind
+      notify: Restart systemd-logind
 
     - name: Enable the pam_access module for the login program (debian-like)
       ansible.builtin.replace:
@@ -116,8 +115,7 @@
         content: |
           {{ inventory_hostname }}
       become: true
-      notify:
-        - Reboot hosts
+      notify: Reboot hosts
 
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers

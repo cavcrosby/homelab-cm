@@ -22,8 +22,7 @@
         block: |
           GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} systemd.unified_cgroup_hierarchy=0"
       become: true
-      notify:
-        - Reboot hosts
+      notify: Reboot hosts
       when: default_grub_config_inode.stat.exists
 
     - name: Update grub.cfg

@@ -15,13 +15,22 @@
       environment:
         FOO: bar
       register: foo
-      notify:
-        - Foo
+      notify: Foo
       vars:
         foo: bar
       loop:
         - foo
       when: true
+
+    - name: Print localhost again
+      ansible.builtin.debug:
+        msg: localhost
+      notify:
+        - Foo
+        - Bar
+      when:
+        - true
+        - true
 
   handlers:
     - name: Foo
@@ -32,3 +41,7 @@
       listen: Bar
       vars:
         foo: bar
+
+    - name: Bar
+      ansible.builtin.debug:
+        msg: baz

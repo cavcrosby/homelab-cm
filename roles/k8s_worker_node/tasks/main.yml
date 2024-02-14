@@ -19,8 +19,7 @@
         jump: ACCEPT
         comment: (k8s) Kubelet API
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Configure NodePort Services ports
       ansible.builtin.iptables:
@@ -30,8 +29,7 @@
         jump: ACCEPT
         comment: (k8s) NodePort Services
       become: true
-      notify:
-        - Save the current iptables rules
+      notify: Save the current iptables rules
 
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
@@ -58,8 +56,7 @@
         recurse: true
         state: directory
       become: true
-      when:
-        - k8s_worker_node_join_patch_templates | length != 0
+      when: k8s_worker_node_join_patch_templates | length != 0
 
     - name: Create the kubeadm (join) patches
       ansible.builtin.template:
@@ -68,8 +65,7 @@
         mode: "600"
       become: true
       loop: "{{ k8s_worker_node_join_patch_templates }}"
-      when:
-        - k8s_worker_node_join_patch_templates | length != 0
+      when: k8s_worker_node_join_patch_templates | length != 0
 
     - name: Create the kubeadm (join) configuration file
       ansible.builtin.template:

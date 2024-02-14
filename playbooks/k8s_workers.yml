@@ -63,8 +63,7 @@
         path: /etc/containerd
         state: absent
       become: true
-      notify:
-        - Restart containerd
+      notify: Restart containerd
 
     - name: Prevent containerd from being upgraded
       ansible.builtin.dpkg_selections:

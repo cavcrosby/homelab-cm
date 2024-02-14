@@ -7,8 +7,7 @@
     jump: ACCEPT
     comment: (k8s) Calico networking BGP
   become: true
-  notify:
-    - Save the current iptables rules
+  notify: Save the current iptables rules
 
 - name: Configure Calico networking (BGP) OUTPUT
   ansible.builtin.iptables:
@@ -18,5 +17,4 @@
     jump: ACCEPT
     comment: (k8s) Calico networking BGP
   become: true
-  notify:
-    - Save the current iptables rules
+  notify: Save the current iptables rules

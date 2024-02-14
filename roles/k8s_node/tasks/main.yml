@@ -5,8 +5,7 @@
     dest: /etc/modules-load.d/br_netfilter.conf
     mode: "644"
   become: true
-  notify:
-    - Restart systemd-modules-load
+  notify: Restart systemd-modules-load
 
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers

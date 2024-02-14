@@ -49,8 +49,7 @@
         dest: "{{ _k8s_kubeadm_kubernetes_keyring_download_path }}"
         checksum: sha256:{{ k8s_kubeadm_gpg_sha256_checksum }}
         mode: "644"
-      notify:
-        - Install Kubernetes's GPG key
+      notify: Install Kubernetes's GPG key
 
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers

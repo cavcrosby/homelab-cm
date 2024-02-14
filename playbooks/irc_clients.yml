@@ -92,8 +92,7 @@
         dest: /etc/fail2ban/jail.d/00_sshd.local
         mode: "644"
       become: true
-      notify:
-        - Restart the fail2ban service
+      notify: Restart the fail2ban service
 
     - name: Lockdown the root account
       ansible.builtin.user:
@@ -109,8 +108,7 @@
         regexp: '^#\s*PermitRootLogin\s+prohibit-password$'
         replace: PermitRootLogin no
       become: true
-      notify:
-        - Restart the sshd service
+      notify: Restart the sshd service
 
     - name: Create customizations on top of the default cloud-init configurations
       ansible.builtin.template:

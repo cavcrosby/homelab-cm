@@ -73,8 +73,7 @@
         path: /etc/containerd
         state: absent
       become: true
-      notify:
-        - Restart containerd
+      notify: Restart containerd
 
     - name: Prevent containerd from being upgraded
       ansible.builtin.dpkg_selections:
@@ -233,8 +232,7 @@
         - initial_k8s_root_cacert_mtime is defined
         - initial_k8s_root_cacert_mtime != (k8s_root_cacert_inode.stat.mtime | string)
       register: k8s_root_cacert_inode
-      notify:
-        - Restart haproxy
+      notify: Restart haproxy
 
   handlers:
     - name: Restart haproxy

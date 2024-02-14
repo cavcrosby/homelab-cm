@@ -89,6 +89,7 @@
 - [Append the ansible_managed macro in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
 - [Use fully qualified collection names for `ansible` filters.](../examples/playbooks/use_fqcn_filters.yml)
 - [Use the following order of `ansible` playbook keywords in a task.](../examples/playbooks/use_keywords_order_tasks.yml)
+- [Use yaml lists for the `notify`, and `when` playbook keywords only when there is more than one element.](../examples/playbooks/use_keywords_order_tasks.yml)
 - [Use the following order of `ansible` playbook keywords in a play.](../examples/playbooks/use_keywords_order_plays.yml)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)
 - [Set the `checksum` parameter in ansible.builtin.get_url tasks.](../examples/playbooks/set_checksum_get_url.yml)
