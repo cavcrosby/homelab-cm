@@ -39,6 +39,7 @@ export ANSIBLE_CONFIG = ./ansible.cfg
 HELP = help
 SETUP = setup
 INVENTORY = inventory
+PRESEED_CFG = preseed.cfg
 PRODUCTION = production
 STAGING = staging
 PRODUCTION_MAINTENANCE = production-maintenance
@@ -164,6 +165,7 @@ ${HELP}:
 >	@echo '  ${SETUP}                - installs the distro-independent dependencies for this'
 >	@echo '                         project'
 >	@echo '  ${INVENTORY}            - creates the production inventory file'
+>	@echo '  ${PRESEED_CFG}          - creates the production preseed.cfg file'
 >	@echo '  ${PRODUCTION}           - runs the main playbook for my homelab'
 >	@echo '  ${STAGING}              - runs the main playbook for my homelab, but in a'
 >	@echo '                         virtual environment setup by Vagrant'
@@ -212,6 +214,22 @@ ${INVENTORY}:
 		--module-name "ansible.builtin.template" \
 		--args 'src=./production.j2 dest=./production mode="644"' \
 		--extra-vars "@./playbooks/vars/network_configs.yml" \
+		"localhost"
+
+${PRESEED_CFG}: ./preseed.cfg.j2
+>	@[ -n "${DISK_ID}" ] \
+		|| { echo "make: DISK_ID was not passed into make"; exit 1; }
+
+>	@[ -n "${ENCRYPTED_ANSIBLE_USER_PASSWORD}" ] \
+		|| { echo "make: ENCRYPTED_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
+
+>	@[ -n "${ENCRYPTION_PASSPHRASE}" ] \
+		|| { echo "make: ENCRYPTION_PASSPHRASE was not passed into make"; exit 1; }
+
+>	${ANSIBLE} \
+		--module-name "ansible.builtin.template" \
+		--args 'src=$< dest=./$@ mode="644"' \
+		--extra-vars '{"disk_id": "${DISK_ID}","encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":true,"for_vms":false}' \
 		"localhost"
 
 .PHONY: ${PRODUCTION}
@@ -341,18 +359,23 @@ endif
 
 .PHONY: ${K8S_NODE_IMAGES}
 ${K8S_NODE_IMAGES}:
->	@[ -n "${K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD}" ] \
-		|| { echo "make: K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${ANSIBLE_USER_PASSWORD}" ] \
+		|| { echo "make: ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
 
->	@[ -n "${K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD}" ] \
-		|| { echo "make: K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
+>	@[ -n "${ENCRYPTED_ANSIBLE_USER_PASSWORD}" ] \
+		|| { echo "make: ENCRYPTED_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
 
 	# Password and password hashes could contain the '$' char which make will try
 	# to perform variable expansion on, hence the value func is used to prevent said
 	# expansion.
+>	${ANSIBLE} \
+		--module-name "ansible.builtin.template" \
+		--args 'src=./preseed.cfg.j2 dest=./playbooks/packer/preseed.cfg mode="644"' \
+		--extra-vars '{"encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":false,"for_vms":true}' \
+		"localhost"
+
 >	${PACKER} build \
-		-var ansible_user_password='$(value K8S_NODE_IMAGES_ANSIBLE_USER_PASSWORD)' \
-		-var encrypted_ansible_user_password='$(value K8S_NODE_IMAGES_ENCRYPTED_ANSIBLE_USER_PASSWORD)' \
+		-var ansible_user_password='$(value ANSIBLE_USER_PASSWORD)' \
 		"./k8s-nodes.pkr.hcl"
 
 .PHONY: ${CONTAINERD_DEB}

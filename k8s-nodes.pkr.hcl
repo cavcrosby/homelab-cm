@@ -18,17 +18,12 @@ variable "ansible_user_password" {
   description = "A plaintext password for the ansible_user."
 }
 
-variable "encrypted_ansible_user_password" {
-  type        = string
-  description = "The plaintext password hashed by a method supported by crypt(5)."
-}
-
 locals {
   iso_url              = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.2.0-amd64-netinst.iso"
   iso_checksum         = "sha256:23ab444503069d9ef681e3028016250289a33cc7bab079259b73100daee0af66"
   ssh_username         = "ansible"
   ssh_private_key_file = "~/.ssh/id_rsa"
-  preseed_tpl_file     = "${path.root}/preseed.pkrtpl.hcl"
+  preseed_file         = "${path.root}/playbooks/packer/preseed.cfg"
   boot_command = [
     "<esc><wait>",
     "/install.amd/vmlinuz ",
@@ -53,17 +48,9 @@ source "qemu" "poseidon_k8s_controller" {
   ssh_pty              = true
 
   http_content = {
-    "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
-      password = var.encrypted_ansible_user_password
-    })
-    "/authorized_keys" = join(
-      "",
-      [
-        file("${path.root}/playbooks/ssh_keys/id_rsa_ron.pub"),
-        file("${path.root}/playbooks/ssh_keys/id_rsa_roxanne.pub")
-      ]
-    ),
-    "/late_commands" = file("${path.root}/scripts/late_commands")
+    "/preseed.cfg"           = file(local.preseed_file)
+    "/authorized_keys"       = file("${path.root}/authorized_keys"),
+    "/scripts/late_commands" = file("${path.root}/scripts/late_commands")
   }
   qemuargs = [
     [
@@ -87,17 +74,9 @@ source "qemu" "poseidon_k8s_worker" {
   ssh_pty              = true
 
   http_content = {
-    "/preseed.cfg" = templatefile(local.preseed_tpl_file, {
-      password = var.encrypted_ansible_user_password
-    })
-    "/authorized_keys" = join(
-      "",
-      [
-        file("${path.root}/playbooks/ssh_keys/id_rsa_ron.pub"),
-        file("${path.root}/playbooks/ssh_keys/id_rsa_roxanne.pub")
-      ]
-    ),
-    "/late_commands" = file("${path.root}/scripts/late_commands")
+    "/preseed.cfg"           = file(local.preseed_file)
+    "/authorized_keys"       = file("${path.root}/authorized_keys"),
+    "/scripts/late_commands" = file("${path.root}/scripts/late_commands")
   }
   qemuargs = [
     [

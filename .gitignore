@@ -341,6 +341,7 @@ build-iPhoneSimulator/
 
 # repo specific
 production
+preseed.cfg
 .vagrant
 .python-version
 *.log

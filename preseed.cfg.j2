@@ -1,7 +1,9 @@
 #_preseed_V1
 d-i debian-installer/locale string en_US
 d-i keyboard-configuration/xkb-keymap select us
+{% if for_vms %}
 d-i netcfg/choose_interface select auto
+{% endif %}
 d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string unassigned-domain
 d-i netcfg/wireless_wep string
@@ -12,13 +14,50 @@ d-i mirror/http/proxy string
 d-i passwd/root-login boolean false
 d-i passwd/user-fullname string Red Hat Ansible
 d-i passwd/username string ansible
-d-i passwd/user-password-crypted password ${password}
+d-i passwd/user-password-crypted password {{ encrypted_password }}
 d-i clock-setup/utc boolean true
 d-i time/zone string US/Eastern
 d-i clock-setup/ntp boolean true
+{% if for_vms %}
 d-i partman-auto/disk string /dev/vda
-d-i partman-auto/method string regular
+{% endif %}
+d-i partman-auto/method string {{ 'crypto' if encrypt_disks else 'regular' }}
+{% if encrypt_disks %}
+d-i partman-auto-lvm/guided_size string max
+d-i partman-auto-lvm/new_vg_name string vg1
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman-crypto/passphrase password {{ encryption_passphrase }}
+d-i partman-crypto/passphrase-again password {{ encryption_passphrase }}
+d-i partman-auto-crypto/erase_disks boolean false
+d-i partman-auto/expert_recipe string \
+crypto :: \
+    1 1 1 free \
+        $iflabel{ gpt } $reusemethod{ } \
+        method{ biosgrub } \
+    . \
+    512 512 512 ext4 \
+        method{ format } format{ } \
+        use_filesystem{ } filesystem{ ext4 } \
+        mountpoint{ /boot } \
+    . \
+    2048 2048 2048 linux-swap \
+        $lvmok{ } lv_name{ swap } \
+        in_vg { vg1 } method{ swap } \
+        format{ } \
+    . \
+{# -1 indicates unlimited partition size #}
+    10240 10240 -1 ext4 \
+        $lvmok{ } lv_name{ root } \
+        in_vg { vg1 } method{ format } \
+        format{ } use_filesystem{ } \
+        filesystem{ ext4 } mountpoint{ / } \
+    .
+
+{% else %}
 d-i partman-auto/choose_recipe select atomic
+{% endif %}
 d-i partman-partitioning/choose_label select gpt
 d-i partman-partitioning/default_label string gpt
 d-i partman-md/confirm boolean true
@@ -37,12 +76,19 @@ d-i pkgsel/include string \
 popularity-contest popularity-contest/participate boolean true
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
+{% if for_vms %}
 d-i grub-installer/bootdev string default
+{% else %}
+d-i grub-installer/bootdev string /dev/disk/by-id/{{ disk_id | default('') }}
+{% endif %}
 d-i finish-install/reboot_in_progress note
 d-i preseed/early_command string \
     printf "%s\n" "$(debconf-get preseed/url)" > "/var/run/preseed.last_location";
 
+{% if not for_vms %}
+d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id | default('') }}")"
+{% endif %}
 d-i preseed/late_command string \
-    preseed_fetch /late_commands /target/tmp/late_commands; \
+    preseed_fetch /scripts/late_commands /target/tmp/late_commands; \
     preseed_fetch /authorized_keys /target/tmp/authorized_keys; \
     in-target /bin/sh /tmp/late_commands;
