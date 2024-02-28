@@ -1,4 +1,7 @@
 ---
+- name: Configure all nodes
+  ansible.builtin.import_playbook: all.yml
+
 - name: Configure the on-premises nodes
   ansible.builtin.import_playbook: on_prem.yml
 
