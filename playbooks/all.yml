@@ -1,0 +1,50 @@
+---
+- name: Perform setup for node
+  hosts: all
+  tags: do_node_setup
+
+  tasks:
+    - name: Install a custom en_US locale
+      block:
+        - name: Create the administrator managed locale definition files directory
+          ansible.builtin.file:
+            path: /usr/local/share/i18n/locales
+            recurse: true
+            state: directory
+          become: true
+          register: admin_managed_locale_defs_dir
+
+        - name: Create the administrator managed compiled locales directory
+          ansible.builtin.file:
+            path: /usr/local/lib/locale
+            state: directory
+            mode: "755"
+          become: true
+          register: admin_managed_compiled_locales_dir
+
+        - name: Create the locale definition file
+          ansible.builtin.template:
+            src: en_US.UTF-8.j2
+            dest: "{{ admin_managed_locale_defs_dir.path }}/en_US"
+            mode: "644"
+          become: true
+          register: locale_def_file
+
+        - name: Compile the locale definition file
+          ansible.builtin.command: >
+            localedef \
+              --quiet \
+              --no-archive \
+              --inputfile \
+              "{{ locale_def_file.dest }}" \
+              --charmap "UTF-8" \
+              "{{ admin_managed_compiled_locales_dir.path }}/en_US.UTF-8"
+          changed_when: false
+          become: true
+
+        - name: Set the LOCPATH for all users
+          ansible.builtin.template:
+            src: locpath.j2
+            dest: /etc/profile.d/locpath.sh
+            mode: "644"
+          become: true

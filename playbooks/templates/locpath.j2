@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+#
+# Sets the LOCPATH for compiled locales.
+
+export LOCPATH="{{ admin_managed_compiled_locales_dir.path }}:/usr/lib/locale"
