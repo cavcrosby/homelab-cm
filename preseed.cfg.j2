@@ -1,5 +1,7 @@
 #_preseed_V1
-d-i debian-installer/locale string en_US
+d-i debian-installer/language string en
+d-i debian-installer/country string US
+d-i debian-installer/locale string C.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
 {% if for_vms %}
 d-i netcfg/choose_interface select auto

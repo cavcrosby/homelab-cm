@@ -94,12 +94,17 @@
       become: true
       notify: Restart the fail2ban service
 
-    - name: Compile glibc's en_US.UTF-8 locale (debian-like)
+    - name: Compile glibc's C.UTF-8 locale (debian-like)
       community.general.locale_gen:
-        name: en_US.UTF-8
+        name: C.UTF-8
         state: present
       become: true
       when: ansible_os_family | lower == "debian"
+
+    - name: Set the locale to glibc's C.UTF-8
+      ansible.builtin.command: localectl set-locale "C.UTF-8"
+      changed_when: "'C.UTF-8' != ansible_env['LANG']"
+      become: true
 
     - name: Lockdown the root account
       ansible.builtin.user:

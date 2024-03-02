@@ -48,3 +48,10 @@
             dest: /etc/profile.d/locpath.sh
             mode: "644"
           become: true
+
+    - name: Compile glibc's en_US.UTF-8 locale (debian-like)
+      community.general.locale_gen:
+        name: en_US.UTF-8
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
