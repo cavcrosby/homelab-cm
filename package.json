@@ -2,10 +2,8 @@
   "engines": {
     "node": ">=20 <21"
   },
-  "dependencies": {
-    "@bitwarden/cli": "^2024.0.0"
-  },
   "devDependencies": {
+    "@bitwarden/cli": "^2024.0.0",
     "markdownlint-cli2": "^0.12.0",
     "prettier": "^3.1.1"
   }
