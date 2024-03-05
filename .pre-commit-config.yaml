@@ -12,7 +12,7 @@ repos:
     hooks:
       - id: ansible-lint
         additional_dependencies:
-          - ansible ==9.2.0
+          - ansible ==9.3.0
           - jmespath ==1.0.1
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2
