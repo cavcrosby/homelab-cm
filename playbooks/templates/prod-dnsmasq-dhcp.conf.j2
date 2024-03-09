@@ -27,9 +27,9 @@ dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{
 
 # Always give the host with Ethernet address <mac_addr>, the name <name>, and
 # IP address <ip_addr> and an infinite lease.
-dhcp-host={{ gerald_mac_addr }},gerald,{{ gerald_ipv4_addr }},infinite
-dhcp-host={{ kronk_idrac_mac_addr }},kronk-idrac,{{ kronk_idrac_ipv4_addr }},infinite
-dhcp-host={{ kronk_mac_addr }},kronk,{{ kronk_ipv4_addr }},infinite
+dhcp-host={{ gerald_homelab_mac_addr }},gerald,{{ gerald_homelab_ipv4_addr }},infinite
+dhcp-host={{ kronk_idrac_homelab_mac_addr }},kronk-idrac,{{ kronk_idrac_homelab_ipv4_addr }},infinite
+dhcp-host={{ kronk_homelab_mac_addr }},kronk,{{ kronk_homelab_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_worker1_homelab_mac_addr }},poseidon-k8s-worker1,{{ poseidon_k8s_worker1_homelab_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_worker2_homelab_mac_addr }},poseidon-k8s-worker2,{{ poseidon_k8s_worker2_homelab_ipv4_addr }},infinite
 dhcp-host={{ poseidon_k8s_worker3_homelab_mac_addr }},poseidon-k8s-worker3,{{ poseidon_k8s_worker3_homelab_ipv4_addr }},infinite
