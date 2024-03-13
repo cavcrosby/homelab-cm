@@ -4,6 +4,8 @@ all:
       children:
         bare_metal:
         virtual_machines:
+      vars:
+        preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
     k8s_controllers:
       children:
         k8s_first_controllers:

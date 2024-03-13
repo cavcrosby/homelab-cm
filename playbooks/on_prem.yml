@@ -2,6 +2,8 @@
 - name: Perform setup for on_prem node
   hosts: on_prem
   tags: do_on_prem_node_setup
+  vars_files:
+    - "{{ network_configs_path }}"
   vars:
     systemd_logind_configs_dir_path: /etc/systemd/logind.conf.d
     pam_access_configs_dir_path: /etc/security/access.d
@@ -24,6 +26,13 @@
     - name: Setup systemd-networkd networking
       ansible.builtin.include_role:
         name: systemd_networkd
+
+    - name: Create the resolver configuration file
+      ansible.builtin.template:
+        src: resolv.conf.j2
+        dest: /etc/resolv.conf
+        mode: "644"
+      become: true
 
     - name: Lockdown the root account
       ansible.builtin.user:

@@ -13,7 +13,7 @@ VAGRANT_CONFIG_JSON = JSON.parse(
 )
 
 ansible_host_vars = VAGRANT_CONFIG_JSON["ansible_host_vars"]
-ANSIBLE_GROUPS = VAGRANT_CONFIG_JSON["ansible_groups"]
+ansible_groups = VAGRANT_CONFIG_JSON["ansible_groups"]
 if VAGRANT_CONFIG_JSON.key?("vms_include")
   VMS_INCLUDE = VAGRANT_CONFIG_JSON["vms_include"]
 end
@@ -276,6 +276,10 @@ _EOF_
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
 
+        ansible_groups["on_prem:vars"] = {
+          "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]
+        }
+
         if TRUTHY_VALUES.include? ENV["USE_MAINTENANCE_PLAYBOOK"]
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/maintenance.yml"
@@ -284,7 +288,7 @@ _EOF_
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
-            ansible.groups = ANSIBLE_GROUPS
+            ansible.groups = ansible_groups
             if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
               ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
             end
@@ -297,7 +301,7 @@ _EOF_
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
-            ansible.groups = ANSIBLE_GROUPS
+            ansible.groups = ansible_groups
             if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
               ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
             end
@@ -310,7 +314,7 @@ _EOF_
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
-            ansible.groups = ANSIBLE_GROUPS
+            ansible.groups = ansible_groups
             ansible.extra_vars = {
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
             }.merge(ansible_extra_vars)

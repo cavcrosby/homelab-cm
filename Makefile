@@ -359,6 +359,9 @@ endif
 
 .PHONY: ${K8S_NODE_IMAGES}
 ${K8S_NODE_IMAGES}:
+>	@[ -n "${PREFERRED_NAMESERVER}" ] \
+		|| { echo "make: PREFERRED_NAMESERVER was not passed into make"; exit 1; }
+
 >	@[ -n "${ANSIBLE_USER_PASSWORD}" ] \
 		|| { echo "make: ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
 
@@ -376,6 +379,7 @@ ${K8S_NODE_IMAGES}:
 
 >	${PACKER} build \
 		-var ansible_user_password='$(value ANSIBLE_USER_PASSWORD)' \
+		-var preferred_nameserver="${PREFERRED_NAMESERVER}" \
 		"./k8s-nodes.pkr.hcl"
 
 .PHONY: ${CONTAINERD_DEB}

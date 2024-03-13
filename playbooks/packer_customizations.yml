@@ -20,3 +20,18 @@
         mode: "644"
       become: true
       when: ansible_os_family | lower == "debian"
+
+    - name: Create the resolver configuration file
+      ansible.builtin.copy:
+        dest: /etc/resolv.conf
+        mode: "644"
+        content: |
+          nameserver {{ preferred_nameserver }}
+      become: true
+
+    - name: Create the disable_make_resolv_conf script
+      ansible.builtin.template:
+        src: disable_make_resolv_conf.j2
+        dest: /etc/dhcp/dhclient-enter-hooks.d/disable_make_resolv_conf
+        mode: "644"
+      become: true

@@ -13,6 +13,11 @@ packer {
   required_version = "~> 1.10.0"
 }
 
+variable "preferred_nameserver" {
+  type        = string
+  description = "A IP address that follows the nameserver option from 'resolv.conf(5)'."
+}
+
 variable "ansible_user_password" {
   type        = string
   description = "A plaintext password for the ansible_user."
@@ -99,7 +104,9 @@ build {
     use_proxy     = false
     extra_arguments = [
       "--extra-vars",
-      "ansible_become_pass='${var.ansible_user_password}'"
+      "ansible_become_pass='${var.ansible_user_password}'",
+      "--extra-vars",
+      "preferred_nameserver='${var.preferred_nameserver}'"
     ]
 
     override = {

@@ -1,0 +1,7 @@
+# {{ ansible_managed }}
+#
+# Config file that follows resolv.conf(5).
+
+search {{ homelab_network_domain }}
+nameserver {{ preferred_nameserver }}
+nameserver {{ homelab_network_gateway_ipv4_addr }}
