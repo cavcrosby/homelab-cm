@@ -889,6 +889,7 @@
             "homelab_network_interface_name": "en1",
             "libvirt_poseidon_k8s_network_config_file_template": "poseidon/libvirt-network.xml.j2",
             "libvirt_poseidon_k8s_node_domain_autostart": false,
+            "libvirt_poseidon_k8s_node_domain_state": "shutdown",
             "libvirt_poseidon_k8s_controller_domain_template": "poseidon/staging-libvirt-k8s-controller.xml.j2",
             "libvirt_poseidon_k8s_worker_domain_template": "poseidon/staging-libvirt-k8s-worker.xml.j2",
             "vagrant_config_refs": {

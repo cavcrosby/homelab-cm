@@ -186,6 +186,12 @@
             domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
           loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
 
+        - name: Set the state of the poseidon Kubernetes controller nodes' domain
+          community.libvirt.virt:
+            name: "{{ item.name }}"
+            state: "{{ libvirt_poseidon_k8s_node_domain_state }}"
+          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
+
         - name: Create the poseidon Kubernetes worker nodes' disk
           ansible.builtin.include_role:
             name: qemu_img
@@ -204,4 +210,10 @@
             domain_name: "{{ item.name }}"
             domain_homelab_mac_addr: "{{ item.homelab_mac_addr }}"
             domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
+          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"
+
+        - name: Set the state of the poseidon Kubernetes worker nodes' domain
+          community.libvirt.virt:
+            name: "{{ item.name }}"
+            state: "{{ libvirt_poseidon_k8s_node_domain_state }}"
           loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"

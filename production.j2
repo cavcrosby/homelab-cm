@@ -270,6 +270,7 @@ all:
           ansible_user: ansible
           libvirt_poseidon_k8s_network_config_file_template: poseidon/libvirt-network.xml.j2
           libvirt_poseidon_k8s_node_domain_autostart: true
+          libvirt_poseidon_k8s_node_domain_state: running
           libvirt_poseidon_k8s_controller_domain_template: poseidon/prod-libvirt-k8s-controller.xml.j2
           libvirt_poseidon_k8s_worker_domain_template: poseidon/prod-libvirt-k8s-worker.xml.j2
           libvirt_poseidon_k8s_controller_domain_configs:
