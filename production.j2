@@ -268,6 +268,7 @@ all:
         kronk:
           ansible_host: {{ kronk_homelab_ipv4_addr }}
           ansible_user: ansible
+          homelab_network_interface_name: {{ kronk_homelab_network_interface_name }}
           libvirt_poseidon_k8s_network_config_file_template: poseidon/libvirt-network.xml.j2
           libvirt_poseidon_k8s_node_domain_autostart: true
           libvirt_poseidon_k8s_node_domain_state: running
