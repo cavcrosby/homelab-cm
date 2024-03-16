@@ -236,7 +236,8 @@ ${PRESEED_CFG}: ./preseed.cfg.j2
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
 				--ask-become-pass\
 				--inventory "production"\
-				--tags "${ANSIBLE_TAGS}"
+				--tags "${ANSIBLE_TAGS}"\
+				--extra-vars "network_configs_path=./vars/network_configs.yml"
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_EXTRA_VARS},--extra-vars ${ANSIBLE_EXTRA_VARS},)
 ${PRODUCTION}:
