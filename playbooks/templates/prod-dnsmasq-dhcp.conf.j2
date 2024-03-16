@@ -39,7 +39,7 @@ dhcp-host={{ poseidon_k8s_controller3_homelab_mac_addr }},poseidon-k8s-controlle
 
 # Override the default route supplied by dnsmasq, which assumes the
 # router is the same machine as the one running dnsmasq.
-dhcp-option=option:router,{{ dnsmasq_dhcp_network_gateway_ipv4_addr }}
+dhcp-option=option:router,{{ homelab_network_gateway_ipv4_addr }}
 
 # Set the DHCP server to enable DHCPv4 Rapid Commit Option per RFC 4039.
 # In this mode it will respond to a DHCPDISCOVER message including a Rapid Commit
