@@ -10,8 +10,7 @@
   mentioning.
 
   - The `on_prem.yml` playbook aggregates common configurations for my on
-    premises hosts. This playbook should be ran before others in the `site.yml`
-    playbook.
+    premises hosts.
 
   - The `vagrant_customizations.yml` playbook modifies Vagrant provided hosts to
     be mostly comparable to production hosts. This playbook should be ran before
