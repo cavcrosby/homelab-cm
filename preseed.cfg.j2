@@ -58,7 +58,19 @@ crypto :: \
     .
 
 {% else %}
-d-i partman-auto/choose_recipe select atomic
+d-i partman-basicfilesystems/no_swap boolean false
+d-i partman-auto/expert_recipe string \
+regular :: \
+    1 1 1 free \
+        $iflabel{ gpt } $reusemethod{ } \
+        method{ biosgrub } \
+    . \
+    10240 10240 -1 ext4 \
+        method{ format } format{ } \
+        use_filesystem{ } filesystem{ ext4 } \
+        mountpoint{ / } \
+    .
+
 {% endif %}
 d-i partman-partitioning/choose_label select gpt
 d-i partman-partitioning/default_label string gpt
