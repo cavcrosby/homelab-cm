@@ -1,4 +1,4 @@
-FROM debian:bookworm@sha256:b91baba9c2cae5edbe3b0ff50ae8f05157e3ae6f018372dcfc3aba224acb392b
+FROM debian:bookworm@sha256:e97ee92bf1e11a2de654e9f3da827d8dce32b54e0490ac83bfc65c8706568116
 
 ARG HOST_UID=1000
 ARG HOST_GID=1000
