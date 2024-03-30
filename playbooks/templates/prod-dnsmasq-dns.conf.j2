@@ -47,7 +47,3 @@ domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 # with associated IPv4 (A) and IPv6 (AAAA) records.
 host-record={{ homelab_poseidon_k8s_network_domain }},{{ poseidon_k8s_controller1_cluster_ipv4_addr }}
 ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_poseidon_k8s_network_domain }}
-
-host-record=jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }},{{ gerald_homelab_ipv4_addr }}
-ptr-record={{ gerald_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}
-cname=jenkins.{{ homelab_network_domain }},jenkins-homelab.{{ homelab_poseidon_k8s_network_domain }}

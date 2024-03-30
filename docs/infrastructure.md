@@ -40,7 +40,6 @@
   - [Calico CNI](https://trello.com/c/iRX5bxkG/49-integrate-calico-into-my-kubernetes-cluster)
   - [Ingress NGINX Controller](https://trello.com/c/Gfe7zpEG/45-add-an-ingress-controller-to-my-kubernetes-cluster)
   - [Metrics Server](https://trello.com/c/iOulE53j/108-integrate-the-metrics-server-into-my-kubernetes-cluster-poseidon)
-  - [Jenkins](https://trello.com/c/R3jZorII/61-integrate-jenkins-torkel-into-my-homelabs-kubernetes-cluster)
   - [HAProxy](https://trello.com/c/ctaRjPU7/40-integrate-haproxy-into-my-kubernetes-cluster-k8s-cluster-subnet)
   - [keepalived](https://trello.com/c/5hnN6ke6/78-reconsider-load-balancer-configuration-and-architecture-used-to-distribute-traffic-between-the-kubernetes-api-servers?search_id=f79767ea-223f-43fa-82c3-843a1ebf671c)
 

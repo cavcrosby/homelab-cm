@@ -1,9 +1,0 @@
----
-k8s_jenkins_instance_name: jenkins-homelab
-k8s_jenkins_instance_image: cavcrosby/jenkins-homelab:latest
-
-# used to setup Jenkins instance type on Kubernetes
-k8s_jenkins_manifest_template: jenkins.yml.j2
-
-# port used to access Jenkins controller console
-k8s_jenkins_http_port: 8080
