@@ -1,4 +1,31 @@
 ---
+- name: Install application manifests (poseidon)
+  hosts: k8s_first_controllers:&poseidon
+  tags: install_poseidon_k8s_app_manifests
+  vars_files:
+    - ./vars/ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+
+  tasks:
+    - name: Create the CronJobs namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: cronjobs
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Apply the CronJobs manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: poseidon/cronjobs.yml.j2
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+
 - name: Install Helm charts (poseidon)
   hosts: k8s_first_controllers:&poseidon
   tags: install_poseidon_k8s_helm_charts
