@@ -1,0 +1,37 @@
+---
+{#
+  Manifest for Kubernetes CronJob objects.
+#}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cronjobs-secrets
+  namespace: cronjobs
+stringData:
+  github_access_token: {{ github_access_token }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: update-github-forks
+  namespace: cronjobs
+spec:
+  schedule: "0 4 * * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          restartPolicy: Never
+          containers:
+            - name: gps-python
+              image: cavcrosby/gps-python
+              command:
+                - ./update_gh_forks.py
+              env:
+                - name: GITHUB_ACCESS_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: cronjobs-secrets
+                      key: github_access_token
