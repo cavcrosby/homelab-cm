@@ -204,7 +204,7 @@ ${SETUP}:
 >	${PYTHON} -m ${PIP} install --upgrade "${PIP}"
 >	${PYTHON} -m ${PIP} install \
 		--requirement "./requirements.txt" \
-		--requirement "./dev-requirements.txt"
+		--requirement "./requirements-dev.txt"
 
 >	${PRE_COMMIT} install
 
