@@ -75,6 +75,7 @@ export ANSIBLE_VERBOSITY_OPT = -v
 
 # executables
 ANSIBLE = ansible
+ANSIBLE_GALAXY = ansible-galaxy
 ANSIBLE_LINT = ansible-lint
 ANSIBLE_PLAYBOOK = ansible-playbook
 ANSIBLE_VAULT = ansible-vault
@@ -106,6 +107,7 @@ executables := \
 	${PKILL}\
 	${JQ}\
 	${ANSIBLE_PLAYBOOK}\
+	${ANSIBLE_GALAXY}\
 	${ANSIBLE_LINT}\
 	${ANSIBLE_VAULT}\
 	${BUNDLE}\
@@ -124,6 +126,7 @@ src_yml := $(shell find . \( -type f \) \
 	-and ! \( -path './vendor/*' \) \
 	-and ! \( -path './node_modules/*' \) \
 	-and ! \( -path './playbooks/build/*' \) \
+	-and ! \( -path './ansible/*' \) \
 )
 
 # provider VM identifiers
@@ -206,6 +209,10 @@ ${SETUP}:
 		--requirement "./requirements.txt" \
 		--requirement "./requirements-dev.txt"
 
+>	${ANSIBLE_GALAXY} collection install \
+		--requirements-file "./meta/requirements.yml" \
+		--collections-path "./ansible/collections"
+
 >	${PRE_COMMIT} install
 
 .PHONY: ${INVENTORY}
@@ -280,6 +287,7 @@ ${LINT}:
 		'**/*.md' \
 		'!./node_modules' \
 		'!./vendor' \
+		'!./ansible' \
 		'!${BUILD_DIR_PATH}'
 
 .PHONY: ${FORMAT}

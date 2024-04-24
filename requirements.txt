@@ -1,2 +1,2 @@
-ansible ==9.4.0
+ansible-core ==2.16.6
 jmespath ==1.0.1
