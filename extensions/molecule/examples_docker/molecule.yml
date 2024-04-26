@@ -10,4 +10,4 @@ provisioner:
   playbooks:
     converge: ../examples_resources/playbooks/converge.yml
   env:
-    ANSIBLE_ROLES_PATH: ../../../examples/roles:../../../roles:${HOME}/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
+    ANSIBLE_ROLES_PATH: ../../../examples/roles:../../../roles
