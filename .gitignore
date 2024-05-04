@@ -152,7 +152,7 @@ cython_debug/
 #.idea/
 
 # Logs
-logs
+# logs
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -344,7 +344,6 @@ production
 preseed.cfg
 .vagrant
 .python-version
-*.log
 *.png
 vendor/
 ansible/

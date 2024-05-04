@@ -23,6 +23,11 @@ variable "ansible_user_password" {
   description = "A plaintext password for the ansible_user."
 }
 
+variable "timezone_offset" {
+  type        = string
+  description = "A string representation of a time difference."
+}
+
 locals {
   iso_url              = "https://cdimage.debian.org/debian-cd/current/amd64/iso-cd/debian-12.2.0-amd64-netinst.iso"
   iso_checksum         = "sha256:23ab444503069d9ef681e3028016250289a33cc7bab079259b73100daee0af66"
@@ -122,7 +127,10 @@ build {
             "ansible_user={{ .User }} ",
             "ansible_port={{ .Port }}\n"
           ]
-        )
+        ),
+        ansible_env_vars = [
+          "ANSIBLE_LOG_PATH=./logs/ansible.log.${formatdate("YYYY-MM-DD'T'hh:mm:ss", timeadd(timestamp(), var.timezone_offset))}-${substr(uuidv4(), 0, 5)}"
+        ]
       }
       poseidon_k8s_worker = {
         groups = [
@@ -136,7 +144,10 @@ build {
             "ansible_user={{ .User }} ",
             "ansible_port={{ .Port }}\n"
           ]
-        )
+        ),
+        ansible_env_vars = [
+          "ANSIBLE_LOG_PATH=./logs/ansible.log.${formatdate("YYYY-MM-DD'T'hh:mm:ss", timeadd(timestamp(), var.timezone_offset))}-${substr(uuidv4(), 0, 5)}"
+        ]
       }
     }
   }

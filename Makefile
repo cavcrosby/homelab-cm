@@ -61,8 +61,6 @@ LIBVIRT = libvirt
 export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
 
 # to be (or can be) passed in at make runtime
-LOG =
-LOG_PATH = ./ansible.log
 VAGRANT_PROVIDER = ${LIBVIRT}
 export USE_MAINTENANCE_PLAYBOOK =
 export ANSIBLE_EXTRA_VARS =
@@ -157,10 +155,6 @@ ifeq (${VAGRANT_PROVIDER},${LIBVIRT})
 # 	endif
 endif
 
-ifneq ($(findstring ${LOG},${TRUTHY_VALUES}),)
-	override LOG := > ${LOG_PATH} 2>&1
-endif
-
 .PHONY: ${HELP}
 ${HELP}:
 	# inspired by the makefiles of the Linux kernel and Mercurial
@@ -194,9 +188,6 @@ ${HELP}:
 >	@echo '                             --extra-vars documentation on argument format'
 >	@echo '  ANSIBLE_LIMIT            - set a pattern to further limit selected hosts, see'
 >	@echo '                             --limit documentation on argument format'
->	@echo '  LOG                      - when set, stdout/stderr will be redirected to a log'
->	@echo '                             file (if the target supports it)'
->	@echo '  LOG_PATH                 - used with LOG, determines the log path (default: ./ansible.log)'
 
 .PHONY: ${SETUP}
 ${SETUP}:
@@ -240,6 +231,8 @@ ${PRESEED_CFG}: ./preseed.cfg.j2
 		"localhost"
 
 .PHONY: ${PRODUCTION}
+${PRODUCTION}: export ANSIBLE_LOG_PATH = \
+				./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
 				--ask-become-pass\
 				--inventory "production"\
@@ -251,18 +244,21 @@ ${PRODUCTION}:
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/site.yml"
 
 .PHONY: ${STAGING}
+${STAGING}: export ANSIBLE_LOG_PATH = \
+				./logs/ansible.log.staging-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
 ${STAGING}:
 ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 >	${VAGRANT} up \
 		--provision \
 		--no-destroy-on-error \
-		--provider "${VAGRANT_PROVIDER}" \
-		${LOG}
+		--provider "${VAGRANT_PROVIDER}"
 else
->	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}" ${LOG}
+>	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
 endif
 
 .PHONY: ${PRODUCTION_MAINTENANCE}
+${PRODUCTION_MAINTENANCE}: export ANSIBLE_LOG_PATH = \
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
 ${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
 							--ask-become-pass\
 							--inventory "production"\
@@ -389,6 +385,7 @@ ${K8S_NODE_IMAGES}:
 >	${PACKER} build \
 		-var ansible_user_password='$(value ANSIBLE_USER_PASSWORD)' \
 		-var preferred_nameserver="${PREFERRED_NAMESERVER}" \
+		-var timezone_offset="$(shell date '+%-:z' | awk -F ":" '{ print $$1"h" }')" \
 		"./k8s-nodes.pkr.hcl"
 
 .PHONY: ${CONTAINERD_DEB}
@@ -421,7 +418,7 @@ ${EXAMPLES_TEST}:
 
 .PHONY: ${CLEAN}
 ${CLEAN}:
->	rm --force *.log
+>	rm --force ./logs/ansible.log.*
 >	rm --force "./production"
 >	rm \
 		--recursive \
