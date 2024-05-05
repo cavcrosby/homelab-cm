@@ -119,15 +119,6 @@ build {
         groups = [
           "k8s_controllers"
         ],
-        inventory_file_template = join(
-          "",
-          [
-            "{{ .HostAlias }} ",
-            "ansible_host={{ .Host }} ",
-            "ansible_user={{ .User }} ",
-            "ansible_port={{ .Port }}\n"
-          ]
-        ),
         ansible_env_vars = [
           "ANSIBLE_LOG_PATH=./logs/ansible.log.${formatdate("YYYY-MM-DD'T'hh:mm:ss", timeadd(timestamp(), var.timezone_offset))}-${substr(uuidv4(), 0, 5)}"
         ]
@@ -136,15 +127,6 @@ build {
         groups = [
           "k8s_workers"
         ],
-        inventory_file_template = join(
-          "",
-          [
-            "{{ .HostAlias }} ",
-            "ansible_host={{ .Host }} ",
-            "ansible_user={{ .User }} ",
-            "ansible_port={{ .Port }}\n"
-          ]
-        ),
         ansible_env_vars = [
           "ANSIBLE_LOG_PATH=./logs/ansible.log.${formatdate("YYYY-MM-DD'T'hh:mm:ss", timeadd(timestamp(), var.timezone_offset))}-${substr(uuidv4(), 0, 5)}"
         ]
