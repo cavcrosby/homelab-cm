@@ -289,9 +289,6 @@ _EOF_
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
-            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
-            end
           end
         else
           machine.vm.provision "ansible" do |ansible|
@@ -302,9 +299,6 @@ _EOF_
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
-            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
-            end
           end
 
           machine.vm.provision "ansible" do |ansible|
@@ -318,9 +312,6 @@ _EOF_
             ansible.extra_vars = {
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
             }.merge(ansible_extra_vars)
-            if !ENV["ANSIBLE_VERBOSITY_OPT"].empty?
-              ansible.verbose = ENV["ANSIBLE_VERBOSITY_OPT"]
-            end
           end
         end
       end
