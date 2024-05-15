@@ -66,11 +66,6 @@ export USE_MAINTENANCE_PLAYBOOK =
 export ANSIBLE_EXTRA_VARS =
 export ANSIBLE_TAGS = all
 
-# ANSIBLE_VERBOSITY currently exists as an accounted env var for ansible, for
-# reference:
-# https://docs.ansible.com/ansible/latest/reference_appendices/config.html#envvar-ANSIBLE_VERBOSITY
-export ANSIBLE_VERBOSITY_OPT = -v
-
 # executables
 ANSIBLE = ansible
 ANSIBLE_GALAXY = ansible-galaxy
@@ -180,8 +175,8 @@ ${HELP}:
 >	@echo '                             Ansible to run (default: all)'
 >	@echo '  VAGRANT_PROVIDER         - set the provider used for the virtual environment'
 >	@echo '                             created by Vagrant (default: libvirt)'
->	@echo '  ANSIBLE_VERBOSITY_OPT    - set the verbosity level when running ansible commands,'
->	@echo '                             represented as the '-v' variant passed in (default: -v)'
+>	@echo '  ANSIBLE_VERBOSITY        - set the verbosity level when running ansible commands,'
+>	@echo '                             equivalent to the number of -v passed in the command line'
 >	@echo '  ANSIBLE_SECRETS_ACTION   - determines the action to take concerning project'
 >	@echo '                             secrets (options: put)'
 >	@echo '  ANSIBLE_EXTRA_VARS       - pass variables into the ansible-playbook runtime, see'
@@ -233,8 +228,7 @@ ${PRESEED_CFG}: ./preseed.cfg.j2
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}: export ANSIBLE_LOG_PATH = \
 				./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
-${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
-				--ask-become-pass\
+${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 				--inventory "production"\
 				--tags "${ANSIBLE_TAGS}"\
 				--extra-vars "network_configs_path=./vars/network_configs.yml"
@@ -259,8 +253,7 @@ endif
 .PHONY: ${PRODUCTION_MAINTENANCE}
 ${PRODUCTION_MAINTENANCE}: export ANSIBLE_LOG_PATH = \
 							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
-${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS := ${ANSIBLE_VERBOSITY_OPT}\
-							--ask-become-pass\
+${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 							--inventory "production"\
 							--tags "${ANSIBLE_TAGS}"
 ${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
@@ -376,7 +369,7 @@ ${K8S_NODE_IMAGES}:
 	# Password and password hashes could contain the '$' char which make will try
 	# to perform variable expansion on, hence the value func is used to prevent said
 	# expansion.
->	${ANSIBLE} \
+>	ANSIBLE_VERBOSITY=0 ${ANSIBLE} \
 		--module-name "ansible.builtin.template" \
 		--args 'src=./preseed.cfg.j2 dest=./playbooks/packer/preseed.cfg mode="644"' \
 		--extra-vars '{"encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":false,"for_vms":true}' \
