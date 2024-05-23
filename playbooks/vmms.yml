@@ -135,7 +135,11 @@
           community.libvirt.virt_net:
             name: poseidon-k8s-homelab-cm
             command: modify
-            xml: <host mac='{{ item.poseidon_k8s_mac_addr }}' name='{{ item.name }}' ip='{{ item.poseidon_k8s_ipv4_addr }}'/>
+            # <lease expiry='0'/> == infinite lease time
+            xml: |
+              <host mac='{{ item.poseidon_k8s_mac_addr }}' name='{{ item.name }}' ip='{{ item.poseidon_k8s_ipv4_addr }}'>
+                <lease expiry='0'/>
+              </host>
           loop: "{{ libvirt_poseidon_k8s_controller_domain_configs + libvirt_poseidon_k8s_worker_domain_configs }}"
 
         - name: Have the poseidon homelab network start up on boot
