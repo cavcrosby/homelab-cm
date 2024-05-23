@@ -60,6 +60,8 @@ all:
                 Name: {{ poseidon_k8s_controller1_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_controller1_poseidon_k8s_mac_addr }}
@@ -70,6 +72,8 @@ all:
                 Name: {{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
     poseidon_k8s_ha_controllers:
       hosts:
         poseidon-k8s-controller2:
@@ -95,6 +99,8 @@ all:
                 Name: {{ poseidon_k8s_controller2_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_controller2_poseidon_k8s_mac_addr }}
@@ -105,6 +111,8 @@ all:
                 Name: {{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
         poseidon-k8s-controller3:
           ansible_host: {{ poseidon_k8s_controller3_homelab_ipv4_addr }}
           ansible_user: ansible
@@ -128,6 +136,8 @@ all:
                 Name: {{ poseidon_k8s_controller3_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_controller3_poseidon_k8s_mac_addr }}
@@ -138,6 +148,8 @@ all:
                 Name: {{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
     poseidon_k8s_workers:
       hosts:
         poseidon-k8s-worker1:
@@ -158,6 +170,8 @@ all:
                 Name: {{ poseidon_k8s_worker1_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_worker1_poseidon_k8s_mac_addr }}
@@ -168,6 +182,8 @@ all:
                 Name: {{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
         poseidon-k8s-worker2:
           ansible_host: {{ poseidon_k8s_worker2_homelab_ipv4_addr }}
           ansible_user: ansible
@@ -186,6 +202,8 @@ all:
                 Name: {{ poseidon_k8s_worker2_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_worker2_poseidon_k8s_mac_addr }}
@@ -196,6 +214,8 @@ all:
                 Name: {{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
         poseidon-k8s-worker3:
           ansible_host: {{ poseidon_k8s_worker3_homelab_ipv4_addr }}
           ansible_user: ansible
@@ -214,6 +234,8 @@ all:
                 Name: {{ poseidon_k8s_worker3_homelab_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
             - filename: 00-{{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}.link
               Match:
                 MACAddress: {{ poseidon_k8s_worker3_poseidon_k8s_mac_addr }}
@@ -224,6 +246,8 @@ all:
                 Name: {{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
     irc_clients:
       children:
         lightsail_instances:
@@ -257,6 +281,8 @@ all:
               Network:
                 Address: {{ gerald_homelab_ipv4_addr }}/24
                 Gateway: {{ homelab_network_gateway_ipv4_addr }}
+              DHCPv4:
+                UseHostname: false
     dns_servers:
       hosts:
         gerald:
@@ -311,6 +337,8 @@ all:
                 Name: en0
               Network:
                 DHCP: true
+              DHCPv4:
+                UseHostname: false
       vars:
         poseidon_k8s_network_mac_addr: 52:54:00:78:a2:4f
         poseidon_k8s_network_gateway_ipv4_addr: 192.168.1.1
