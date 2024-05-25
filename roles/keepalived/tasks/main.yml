@@ -22,33 +22,6 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Create track script for keepalived
-  when: keepalived_health_check_script_template | length != 0
-  block:
-    - name: Create the keepalived_script group
-      ansible.builtin.group:
-        name: keepalived_script
-        state: present
-      become: true
-
-    - name: Create the keepalived_script system user
-      ansible.builtin.user:
-        name: keepalived_script
-        group: keepalived_script
-        state: present
-        shell: /sbin/nologin
-        system: true
-      become: true
-
-    - name: Create the track script for keepalived
-      ansible.builtin.template:
-        src: "{{ keepalived_health_check_script_template }}"
-        dest: "{{ _keepalived_health_check_script_path }}"
-        owner: keepalived_script
-        group: keepalived_script
-        mode: "755"
-      become: true
-
 - name: Create the keepalived configuration file
   ansible.builtin.template:
     src: "{{ keepalived_config_file_template }}"
