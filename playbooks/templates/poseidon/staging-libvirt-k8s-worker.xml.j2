@@ -21,10 +21,12 @@
     <interface type='network'>
       <source network='homelab-cm'/>
       <mac address='{{ domain_homelab_mac_addr }}'/>
+      <model type='virtio'/>
     </interface>
     <interface type='network'>
       <source network='poseidon-k8s-homelab-cm'/>
       <mac address='{{ domain_poseidon_k8s_mac_addr }}'/>
+      <model type='virtio'/>
     </interface>
     <graphics type='vnc' port='-1'/>
   </devices>
