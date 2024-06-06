@@ -58,11 +58,27 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Remove the default Debian packaged containerd configuration file
-      ansible.builtin.file:
-        path: /etc/containerd
-        state: absent
+    - name: Register the containerd configuration file
+      ansible.builtin.stat:
+        path: /etc/containerd/config.toml
+        checksum_algorithm: sha256
+      register: current_containerd_config_inode
+
+    - name: Create the containerd configuration file
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -eo pipefail
+          containerd config default > "{{ current_containerd_config_inode.stat.path }}"
+          sed \
+            --in-place \
+            "s/SystemdCgroup = false/SystemdCgroup = true/" \
+            "{{ current_containerd_config_inode.stat.path }}"
+
+          sha256sum "{{ current_containerd_config_inode.stat.path }}" | awk -F " " '{ print $1 }'
+      changed_when: current_containerd_config_inode.stat.checksum != containerd_config_checksum.stdout
       become: true
+      register: containerd_config_checksum
       notify: Restart containerd
 
     - name: Prevent containerd from being upgraded
