@@ -30,8 +30,8 @@ GEM
     nokogiri (1.16.5-x86_64-linux)
       racc (~> 1.4)
     racc (1.8.0)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.2.9)
+      strscan
     ruby-libvirt (0.8.3)
     strscan (3.1.0)
     vagrant-libvirt (0.12.2)
