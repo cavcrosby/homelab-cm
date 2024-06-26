@@ -80,10 +80,10 @@
 
     - name: Setup the Metrics Server
       vars:
-        sign_kubelet_csrs_target_script: sign_kubelet_csrs
+        sign_kubelet_csrs_target_script: sign-kubelet-csrs
         sign_kubelet_csrs_script_path: /usr/local/bin/{{ sign_kubelet_csrs_target_script }}
       block:
-        - name: Copy the sign_kubelet_csrs utility to the controller
+        - name: Copy the sign-kubelet-csrs utility to the controller
           ansible.builtin.copy:
             dest: "{{ sign_kubelet_csrs_script_path }}"
             src: ./scripts/{{ sign_kubelet_csrs_target_script }}

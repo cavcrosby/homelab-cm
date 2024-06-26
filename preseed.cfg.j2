@@ -103,6 +103,6 @@ d-i preseed/early_command string \
 d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id | default('') }}")"
 {% endif %}
 d-i preseed/late_command string \
-    preseed_fetch /scripts/late_commands /target/tmp/late_commands; \
+    preseed_fetch /scripts/late-commands /target/tmp/late-commands; \
     preseed_fetch /authorized_keys /target/tmp/authorized_keys; \
-    in-target /bin/sh /tmp/late_commands;
+    in-target /bin/sh /tmp/late-commands;

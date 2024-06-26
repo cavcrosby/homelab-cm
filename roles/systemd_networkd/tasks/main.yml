@@ -7,10 +7,10 @@
   become: true
   register: admin_managed_libexec_dir
 
-- name: Create the reload_udev_offline script
+- name: Create the reload-udev-offline script
   ansible.builtin.template:
-    src: reload_udev_offline.j2
-    dest: "{{ admin_managed_libexec_dir.path }}/reload_udev_offline"
+    src: reload-udev-offline.j2
+    dest: "{{ admin_managed_libexec_dir.path }}/reload-udev-offline"
     mode: "744"
   become: true
   register: reload_udev_offline_script

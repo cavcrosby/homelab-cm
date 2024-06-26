@@ -97,8 +97,7 @@
 - Append a file extension of '.yml' to all `ansible` yaml files.
 - Do not use dashes in `ansible` yaml's file names, instead use underscores.
 - Do not use underscores in Jinja template's file names, instead use dashes.
-  - The `libvirt_default_uri.j2` and `pam_access.conf.j2` templates are
-    exceptions.
+  - The `pam_access.conf.j2` template is an exception.
 - Append playbook plays with at least one tag.
 - Follow the indentation used through the codebase for all `ansible` yaml.
 - Add brief comments on roles' defaults variables that are not self-explanatory.

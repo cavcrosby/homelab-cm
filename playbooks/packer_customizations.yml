@@ -29,9 +29,9 @@
           nameserver {{ preferred_nameserver }}
       become: true
 
-    - name: Create the disable_make_resolv_conf script
+    - name: Create the disable-make-resolv-conf script
       ansible.builtin.template:
-        src: disable_make_resolv_conf.j2
-        dest: /etc/dhcp/dhclient-enter-hooks.d/disable_make_resolv_conf
+        src: disable-make-resolv-conf.sh.j2
+        dest: /etc/dhcp/dhclient-enter-hooks.d/disable-make-resolv-conf
         mode: "644"
       become: true
