@@ -11,4 +11,3 @@ playbooks/vars/ansible_secrets.yml
 playbooks/ssh_keys
 playbooks/rsa_keys
 playbooks/certs
-playbooks/build

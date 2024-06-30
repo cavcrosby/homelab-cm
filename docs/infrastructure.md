@@ -63,15 +63,15 @@
   1.  Run the `maintenance.yml` playbook.
 
 - Follow these instructions for upgrading an instance of the Kubernetes cluster
-  (Poseidon). This presumes the cluster is running at least on version `v1.25`.
+  (Poseidon). This presumes the cluster is running at least on version `v1.28`.
 
-  - If upgrading from version `1.25.x` to version `1.25.y` (where `y > x`):
+  - If upgrading from version `1.28.x` to version `1.28.y` (where `y > x`):
 
     1. Update `./playbooks/vars/poseidon_k8s_software_versions.yml` accordingly.
     2. Update `./playbooks/tasks/setup_calico.yml` accordingly.
     3. Run the `maintenance.yml` playbook.
 
-  - If upgrading from version `1.25.x` to version `1.26.x`:
+  - If upgrading from version `1.28.x` to version `1.29.x`:
 
     1. Update `./playbooks/vars/poseidon_k8s_software_versions.yml` accordingly.
     2. Update `./playbooks/tasks/setup_calico.yml` accordingly.

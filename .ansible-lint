@@ -1,4 +1,3 @@
 ---
 exclude_paths:
-  - playbooks/build
   - playbooks/packer

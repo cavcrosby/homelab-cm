@@ -239,7 +239,7 @@
               ansible.builtin.get_url:
                 url: https://raw.githubusercontent.com/projectcalico/calico/{{ calico_chart_version }}/manifests/operator-crds.yaml
                 dest: "{{ operator_crds_manifest_path }}"
-                checksum: sha256:ec6a3987d5298be19f7e7faeb9f00d8136d3c4ffc85f6e5ba9180452938e9b56.
+                checksum: sha256:8145029552352040a1cdda934fb7897c8416bd9706f94059e69bbb97329167c0..
                 mode: "755"
 
             - name: Apply operator-crds manifest to the Kubernetes cluster
