@@ -29,7 +29,7 @@ nic_names="$(get_nic_names)"
 # ERR is a special bash handler that has no corresponding signal
 trap 'networkctl up ${nic_names}' "ERR"
 
-# shellcheck disable=SC2086 # I want word splitting here
+# shellcheck disable=SC2086 # word splitting is wanted here
 networkctl down ${nic_names}
 systemctl restart "systemd-udev-trigger.service"
 while [ -z "${main_pid}" ] || [ "${main_pid}" != "0" ]; do
@@ -39,7 +39,7 @@ done
 
 nic_names="$(get_nic_names)"
 
-# shellcheck disable=SC2086 # I want word splitting here
+# shellcheck disable=SC2086 # word splitting is wanted here
 networkctl up ${nic_names}
 
 exit 0

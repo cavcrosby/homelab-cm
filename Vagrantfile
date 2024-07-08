@@ -135,7 +135,7 @@ ansible_host_vars.each do |machine_name, machine_attrs|
     end
 
     # Since all the key values pairs are resolved and put at the machine_attrs level,
-    # for now I will just discard the config_refs json.
+    # for now the config_refs json will be discarded.
     machine_attrs.delete("vagrant_config_refs")
   end
 
