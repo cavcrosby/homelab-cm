@@ -92,8 +92,7 @@
 
         - name: Approves CSRs that are pending from nodes' kubelets
           ansible.builtin.command: "{{ sign_kubelet_csrs_script_path }}"
-          changed_when: approve_csrs_script.stdout != ""
-          failed_when: approve_csrs_script.stderr != ""
+          changed_when: approve_csrs_script.stdout | length != 0
           become: true
           register: approve_csrs_script
 
