@@ -46,14 +46,6 @@
       become: true
       when: ansible_os_family | lower == "debian"
 
-    - name: Install controller-wide tooling (debian-like)
-      ansible.builtin.apt:
-        name:
-          - jq  # useful when parsing output from 'kubectl get <something> --output json'
-        state: present
-      become: true
-      when: ansible_os_family | lower == "debian"
-
     - name: Copy over the local containerd package (debian-like)
       ansible.builtin.copy:
         dest: /tmp/{{ containerd_deb }}

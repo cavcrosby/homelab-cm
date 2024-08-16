@@ -1,4 +1,18 @@
 ---
+- name: Update apt's package index
+  ansible.builtin.apt:
+    update_cache: true
+  become: true
+  when: ansible_os_family | lower == "debian"
+
+- name: Install packages required to run the reload-udev-offline script (debian-like)
+  ansible.builtin.apt:
+    name:
+      - jq
+    state: present
+  become: true
+  when: ansible_os_family | lower == "debian"
+
 - name: Create the administrator managed libexec directory
   ansible.builtin.file:
     path: /usr/local/libexec

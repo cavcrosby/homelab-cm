@@ -52,6 +52,20 @@
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
   tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install packages required by tasks in this play (debian-like)
+      ansible.builtin.apt:
+        name:
+          - jq
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
     - name: Gather Kubernetes cluster information
       kubernetes.core.k8s_cluster_info:
         kubeconfig: /etc/kubernetes/admin.conf

@@ -83,6 +83,20 @@
         sign_kubelet_csrs_target_script: sign-kubelet-csrs
         sign_kubelet_csrs_script_path: /usr/local/bin/{{ sign_kubelet_csrs_target_script }}
       block:
+        - name: Update apt's package index
+          ansible.builtin.apt:
+            update_cache: true
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Install packages required to run the sign-kubelet-csrs utility (debian-like)
+          ansible.builtin.apt:
+            name:
+              - jq
+            state: present
+          become: true
+          when: ansible_os_family | lower == "debian"
+
         - name: Copy the sign-kubelet-csrs utility to the controller
           ansible.builtin.copy:
             dest: "{{ sign_kubelet_csrs_script_path }}"
