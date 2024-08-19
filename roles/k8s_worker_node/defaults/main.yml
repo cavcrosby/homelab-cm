@@ -1,7 +1,7 @@
 ---
 # Dir that will contain patches to combine with InitConfiguration and
 # JoinConfiguration on individual nodes.
-k8s_worker_node_kubeadm_patches_dir_path: /run/ansible
+k8s_worker_node_kubeadm_patches_dir_path: /tmp/ansible
 
 # file that contains elements specific to 'kubeadm join' runtime information
 k8s_worker_node_join_config_template: ""

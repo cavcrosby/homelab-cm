@@ -1,7 +1,7 @@
 ---
 # Dir that will contain patches to combine with InitConfiguration and
 # JoinConfiguration on individual nodes.
-k8s_control_plane_kubeadm_patches_dir_path: /run/ansible
+k8s_control_plane_kubeadm_patches_dir_path: /tmp/ansible
 
 # file that contains elements specific to 'kubeadm init' runtime information
 k8s_control_plane_init_config_template: ""
