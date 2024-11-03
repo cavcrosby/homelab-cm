@@ -1,6 +1,6 @@
 ---
-homelab_network_domain: homelab.cavcrosby.tech
-homelab_poseidon_k8s_network_domain: poseidon.homelab.cavcrosby.tech
+homelab_network_domain: homelab.cavcrosby.net
+homelab_poseidon_k8s_network_domain: poseidon.homelab.cavcrosby.net
 homelab_poseidon_vrrp_server_vip: 192.168.1.2
 homelab_network_subnet: 192.168.0.0/24
 homelab_network_gateway_ipv4_addr: 192.168.0.1
