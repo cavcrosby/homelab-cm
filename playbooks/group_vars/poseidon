@@ -1,4 +1,4 @@
 ---
 controller_lb_port: 20357
-k8s_kubeadm_gpg_sha256_checksum: 5fe267a9ae47ffd566624057f2c8f64ab8a786a9c650e92cc22135381b04f12b
+k8s_kubeadm_gpg_sha256_checksum: 7627818cf7bae52f9008c93e8b1f961f53dea11d40891778de216fb1b43be54d
 k8s_controller_endpoint: "{{ homelab_poseidon_vrrp_server_vip }}:{{ controller_lb_port }}"
