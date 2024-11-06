@@ -7,7 +7,7 @@ require 'tempfile'
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
-VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "staging-homelab.cavcrosby.net"
+VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "homelab.staging.cavcrosby.net"
 VAGRANT_CONFIG_JSON = JSON.parse(
   File.read("#{ENV['PROJECT_VAGRANT_CONFIGURATION_FILE']}")
 )
