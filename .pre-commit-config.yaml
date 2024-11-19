@@ -1,13 +1,13 @@
 ---
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks.git
     rev: v4.6.0
     hooks:
       - id: end-of-file-fixer
       - id: check-added-large-files
       - id: trailing-whitespace
 
-  - repo: https://github.com/ansible-community/ansible-lint
+  - repo: https://github.com/ansible-community/ansible-lint.git
     rev: v24.6.0
     hooks:
       - id: ansible-lint
@@ -15,7 +15,7 @@ repos:
           - ansible-core ==2.17.0
           - jmespath ==1.0.1
 
-  - repo: https://github.com/DavidAnson/markdownlint-cli2
+  - repo: https://github.com/DavidAnson/markdownlint-cli2.git
     rev: v0.13.0
     hooks:
       - id: markdownlint-cli2
@@ -33,7 +33,7 @@ repos:
         additional_dependencies:
           - prettier@3.3.2
 
-  - repo: https://github.com/gitleaks/gitleaks
+  - repo: https://github.com/gitleaks/gitleaks.git
     rev: v8.18.3
     hooks:
       - id: gitleaks
