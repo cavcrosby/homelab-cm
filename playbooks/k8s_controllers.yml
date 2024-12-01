@@ -129,7 +129,7 @@
         etcd_download_path: /tmp/{{ etcd_tarball }}
         # regexp was inspired by:
         # https://stackoverflow.com/questions/61930563/extract-file-names-without-extension-ansible#answer-61931335
-        strip_exts_regexp: '^(.*v\d+\.\d+\.\d+[^\.]*).*'
+        strip_exts_regexp: ^(.*v\d+\.\d+\.\d+[^\.]*).*
       block:
         - name: Download the etcd tarball
           ansible.builtin.get_url:

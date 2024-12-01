@@ -1,30 +1,30 @@
 ---
-- name: Configure all nodes
+- name: Configure all nodes  # noqa tag-plays
   ansible.builtin.import_playbook: all.yml
 
-- name: Configure the on-premises nodes
+- name: Configure the on-premises nodes  # noqa tag-plays
   ansible.builtin.import_playbook: on_prem.yml
 
-- name: Configure the DHCP servers
+- name: Configure the DHCP servers  # noqa tag-plays
   ansible.builtin.import_playbook: dhcp_servers.yml
 
-- name: Configure the DNS servers
+- name: Configure the DNS servers  # noqa tag-plays
   ansible.builtin.import_playbook: dns_servers.yml
 
-- name: Configure the load balancers
+- name: Configure the load balancers  # noqa tag-plays
   ansible.builtin.import_playbook: load_balancers.yml
 
-- name: Configure the virtual machine monitors
+- name: Configure the virtual machine monitors  # noqa tag-plays
   ansible.builtin.import_playbook: vmms.yml
 
-- name: Configure the Kubernetes controller nodes
+- name: Configure the Kubernetes controller nodes  # noqa tag-plays
   ansible.builtin.import_playbook: k8s_controllers.yml
 
-- name: Configure the Kubernetes worker nodes
+- name: Configure the Kubernetes worker nodes  # noqa tag-plays
   ansible.builtin.import_playbook: k8s_workers.yml
 
-- name: Configure the Kubernetes controller nodes (post cluster aggregation)
+- name: Configure the Kubernetes controller nodes (post cluster aggregation)  # noqa tag-plays
   ansible.builtin.import_playbook: k8s_post_controllers.yml
 
-- name: Configure the IRC clients
+- name: Configure the IRC clients  # noqa tag-plays
   ansible.builtin.import_playbook: irc_clients.yml
