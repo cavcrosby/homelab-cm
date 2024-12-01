@@ -1,7 +1,7 @@
 ansible-lint ==24.6.0
-pre-commit ==3.7.1
 molecule ==24.6.0
 molecule-plugins[docker] ==23.5.3
 mypy ==1.13.0
-ruff ==0.8.0
+pre-commit ==3.7.1
 pytest ==8.3.4
+ruff ==0.8.0
