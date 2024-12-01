@@ -117,7 +117,7 @@
     - name: Set PermitRootLogin to no for the SSH daemon
       ansible.builtin.replace:
         path: /etc/ssh/sshd_config
-        regexp: '^#\s*PermitRootLogin\s+prohibit-password$'
+        regexp: ^#\s*PermitRootLogin\s+prohibit-password$
         replace: PermitRootLogin no
       become: true
       notify: Restart the sshd service
