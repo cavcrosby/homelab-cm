@@ -1,0 +1,18 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Print localhost
+      ansible.builtin.debug:
+        msg: localhost
+      notify:
+        - Foo
+      when:
+        - true
+
+  handlers:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar

@@ -4,7 +4,7 @@
   tags: do_irc_client_setup
 
   pre_tasks:
-    - name: Update apt's package index
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
       become: true
@@ -28,7 +28,7 @@
     weechat_certs_directory: "{{ irc_user_home }}/.weechat/certs"
 
   pre_tasks:
-    - name: Update apt's package index
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
       become: true
@@ -72,7 +72,7 @@
   tags: do_lightsail_customizations
 
   tasks:
-    - name: Update apt's package index
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
       become: true
@@ -117,7 +117,7 @@
     - name: Set PermitRootLogin to no for the SSH daemon
       ansible.builtin.replace:
         path: /etc/ssh/sshd_config
-        regexp: '^#\s*PermitRootLogin\s+prohibit-password$'
+        regexp: ^#\s*PermitRootLogin\s+prohibit-password$
         replace: PermitRootLogin no
       become: true
       notify: Restart the sshd service

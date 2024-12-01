@@ -1,0 +1,30 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Update apt's package index
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Add specified repository into sources list
+      ansible.builtin.apt_repository:
+        repo: deb http://archive.canonical.com/ubuntu hardy partner
+        state: present
+
+    - name: Prevent containerd from being upgraded
+      ansible.builtin.dpkg_selections:
+        name: containerd
+        selection: hold
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Compile glibc's en_US.UTF-8 locale
+      community.general.locale_gen:
+        name: en_US.UTF-8
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
