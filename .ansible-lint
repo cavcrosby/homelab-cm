@@ -1,3 +1,7 @@
 ---
+use_default_rules: true
 exclude_paths:
   - playbooks/packer
+
+rulesdir:
+  - rules
