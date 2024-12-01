@@ -1,5 +1,5 @@
 ---
-- name: Update apt's package index
+- name: Update apt's package index (debian-like)
   ansible.builtin.apt:
     update_cache: true
   become: true
@@ -37,7 +37,7 @@
 - name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: Add Helm's apt repository (x86_64)
+- name: Add Helm's apt repository (x86_64) (debian-like)
   ansible.builtin.apt_repository:
     repo: >
       deb [arch=amd64 signed-by={{ _helm_keyring_install_path }}]

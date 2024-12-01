@@ -10,3 +10,15 @@ email = "cavcrosby@gmail.com"
 
 [license]
 file = "./LICENSE"
+
+[tool.ruff.lint]
+extend-select = [
+    "I",
+    "UP",
+    "SIM",
+    "D",
+    "E501"
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
