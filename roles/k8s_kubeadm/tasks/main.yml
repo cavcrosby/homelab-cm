@@ -4,8 +4,8 @@
 - name: Disable swap permanently, persist reboots
   ansible.builtin.replace:
     path: /etc/fstab
-    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
-    replace: '#\1\2\3swap\4'
+    regexp: ^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$
+    replace: "#\\1\\2\\3swap\\4"
     backup: true
   become: true
 
@@ -14,7 +14,7 @@
   changed_when: false
   become: true
 
-- name: Update apt's package index
+- name: Update apt's package index (debian-like)
   ansible.builtin.apt:
     update_cache: true
   become: true
@@ -40,7 +40,7 @@
 - name: Setup Kubernetes's apt repository
   vars:
     # regexp derives from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
-    k8s_version_regexp: '^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$'  # noqa yaml[line-length]
+    k8s_version_regexp: ^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$  # noqa yaml[line-length]
     apt_repo_url: "{{ k8s_kubeadm_kubernetes_version | regex_replace(k8s_version_regexp, 'https://pkgs.k8s.io/core:/stable:/v\\1.\\2/deb') }}"
   block:
     - name: Grab Kubernetes's official GPG key
@@ -54,7 +54,7 @@
     - name: Flush handlers
       ansible.builtin.meta: flush_handlers
 
-    - name: Add Kubernetes's apt repository
+    - name: Add Kubernetes's apt repository (debian-like)
       ansible.builtin.apt_repository:
         repo: deb [signed-by={{ _k8s_kubeadm_kubernetes_keyring_install_path }}] {{ apt_repo_url }} /
         state: present
@@ -64,10 +64,10 @@
 - name: Install kubeadm, kubelet, kubectl, and cri-tools (debian-like)
   ansible.builtin.apt:
     name:
+      - cri-tools={{ k8s_kubeadm_cri_tools_version }}
       - kubeadm={{ k8s_kubeadm_version }}
       - kubectl={{ k8s_kubeadm_kubectl_version }}
       - kubelet={{ k8s_kubeadm_kubelet_version }}
-      - cri-tools={{ k8s_kubeadm_cri_tools_version }}
     state: present
   become: true
   when: ansible_os_family | lower == "debian"
@@ -75,28 +75,28 @@
 # Upgrading kubeadm, kubelet and kubectl may not exactly be straight forward due
 # to version constraints. For reference on the version constraints of the tools:
 # https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#k8s-install#installing-kubeadm-kubelet-and-kubectl
-- name: Prevent kubeadm from being upgraded
+- name: Prevent kubeadm from being upgraded (debian-like)
   ansible.builtin.dpkg_selections:
     name: kubeadm
     selection: hold
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Prevent kubectl from being upgraded
+- name: Prevent kubectl from being upgraded (debian-like)
   ansible.builtin.dpkg_selections:
     name: kubectl
     selection: hold
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Prevent kubelet from being upgraded
+- name: Prevent kubelet from being upgraded (debian-like)
   ansible.builtin.dpkg_selections:
     name: kubelet
     selection: hold
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Prevent cri-tools from being upgraded
+- name: Prevent cri-tools from being upgraded (debian-like)
   ansible.builtin.dpkg_selections:
     name: cri-tools
     selection: hold

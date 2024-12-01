@@ -72,43 +72,20 @@
 
 ## Conventions
 
-- [Set the errexit and pipefail options for ansible.builtin.shell tasks (bash).](../examples/playbooks/set_errexit_pipefail.yml)
-- [Single quote regular expression or glob patterns.](../examples/playbooks/single_quote_patterns.yml)
 - [Do not use abbreviations in task names.](../examples/playbooks/single_quote_patterns.yml)
   - Notice how distribution was used instead of distro.
-- [Double quote octal numbers to the mode parameter.](../examples/playbooks/double_quote_modes.yml)
-- [Use 'system user' verbiage only for operating system system-level user accounts.](../examples/playbooks/use_system_user_verbiage.yml)
-- [Be direct when possible when referring to operating system users in task names.](../examples/playbooks/use_system_user_verbiage.yml)
-  - Referring to the `ansible_user` is an exception.
-- [Append distribution specificness to tasks where appropriate.](../examples/playbooks/append_distro_specificness.yml)
-- [List package names to task parameters in alphabetical order.](../examples/playbooks/append_distro_specificness.yml)
 - [Group package installations based on the need.](../examples/playbooks/append_distro_specificness.yml)
 - [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Prefix all `ansible` tags with a verb.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Append the ansible_managed macro in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
 - [Use fully qualified collection names for `ansible` filters.](../examples/playbooks/use_fqcn_filters.yml)
 - [Use the following order of `ansible` playbook keywords in a task.](../examples/playbooks/use_keywords_order_tasks.yml)
-- [Use yaml lists for the `notify`, and `when` playbook keywords only when there is more than one element.](../examples/playbooks/use_keywords_order_tasks.yml)
 - [Use the following order of `ansible` playbook keywords in a play.](../examples/playbooks/use_keywords_order_plays.yml)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)
-- [Set the `checksum` parameter in ansible.builtin.get_url tasks.](../examples/playbooks/set_checksum_get_url.yml)
-- [Use the following approach for ansible.builtin.shell and ansible.builtin.command tasks when ansible-lint throws a no-changed-when violation.](https://github.com/cavcrosby/homelab-cm/commit/d627eea3e3a83a53b49a9a9ffd19a94ecb48a4ce#diff-efab1825780e85320dbe39224b50a732d7eb301dfcc935d85816b8e77b7e2e36)
-- [In general, do not use quotes in the `ansible` yaml.](https://stackoverflow.com/questions/19109912/yaml-do-i-need-quotes-for-strings-in-yaml#answer-22235064)
-- Append a file extension of '.yml' to all `ansible` yaml files.
-- Do not use dashes in `ansible` yaml's file names, instead use underscores.
-- Do not use underscores in Jinja template's file names, instead use dashes.
-  - The `pam_access.conf.j2` template is an exception.
-- Append playbook plays with at least one tag.
-- Follow the indentation used through the codebase for all `ansible` yaml.
 - Add brief comments on roles' defaults variables that are not self-explanatory.
 - Do not use task parameter aliases (e.g.
   [ansible.builtin.apt's pkg parameter](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#ansible-collections-ansible-builtin-apt-module-parameter-pkg)).
 - Set the `state` parameter to a task module if such parameter exists.
-- Do not include variables as part of a task's name.
-  - `ansible-lint` (see
-    [name[template]](https://ansible.readthedocs.io/projects/lint/rules/name/))
-    only discourages the use of variables in task names but I'm outright
-    avoiding such usage.
 - Append a environment prefix of `dev`, `staging`, or `prod` to Jinja templates
   that are meant for a particular environment.
   - `staging-dnsmasq-dhcp.conf.j2`
