@@ -1,5 +1,7 @@
 ---
 rules:
+  brackets:
+    forbid: non-empty
   quoted-strings:
     required: only-when-needed
     quote-type: double
