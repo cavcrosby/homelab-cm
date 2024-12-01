@@ -52,7 +52,7 @@
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
   tasks:
-    - name: Update apt's package index
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
       become: true
@@ -76,7 +76,7 @@
         - "'No configuration found' not in k8s_cluster_info.msg"
       become: true
       register: k8s_cluster_info
-      when: "inventory_hostname in groups['k8s_controllers']"
+      when: inventory_hostname in groups["k8s_controllers"]
 
     - name: Get a list of all the Kubernetes controller nodes
       kubernetes.core.k8s_info:
@@ -146,7 +146,7 @@
 
         - name: Get process IDs of apt.systemd.daily
           community.general.pids:
-            pattern: '/usr/lib/apt/apt\.systemd\.daily'
+            pattern: /usr/lib/apt/apt\.systemd\.daily
           register: apt_systemd_daily_pids
 
         - name: Send SIGTERM to apt.systemd.daily processes
@@ -164,7 +164,7 @@
 
         - name: Get process IDs of unattended-upgrade
           community.general.pids:
-            pattern: '/usr/bin/unattended-upgrade$'
+            pattern: /usr/bin/unattended-upgrade$
           register: unattended_upgrade_pids
 
         - name: Send SIGTERM to unattended-upgrade processes
@@ -209,7 +209,7 @@
           changed_when: k8s_cluster_info.version.server.kubernetes.gitVersion != k8s_server_version.stdout
           become: true
           register: k8s_server_version
-          when: "inventory_hostname in groups['k8s_first_controllers']"
+          when: inventory_hostname in groups["k8s_first_controllers"]
 
         - name: Apply the new Kubernetes version to the Kubernetes node (k8s_ha_controller)
           ansible.builtin.shell:
@@ -224,7 +224,7 @@
           changed_when: k8s_cluster_info.version.server.kubernetes.gitVersion != k8s_server_version.stdout
           become: true
           register: k8s_server_version
-          when: "inventory_hostname in groups['k8s_ha_controllers']"
+          when: inventory_hostname in groups["k8s_ha_controllers"]
 
         - name: Register the local kubelet configuration file inode
           ansible.builtin.stat:
@@ -242,12 +242,12 @@
           changed_when: current_kubelet_config.stat.checksum != kubelet_config_checksum.stdout
           become: true
           register: kubelet_config_checksum
-          when: "inventory_hostname in groups['k8s_workers']"
+          when: inventory_hostname in groups["k8s_workers"]
 
         - name: Upgrade the Calico CNI
           vars:
             operator_crds_manifest_path: /tmp/operator-crds.yaml
-          when: "inventory_hostname in groups['k8s_first_controllers']"
+          when: inventory_hostname in groups["k8s_first_controllers"]
           block:
             - name: Download operator-crds manifest
               ansible.builtin.get_url:
@@ -371,7 +371,7 @@
             mode: "600"
             remote_src: true
           become: true
-          when: "inventory_hostname in groups['k8s_controllers']"
+          when: inventory_hostname in groups["k8s_controllers"]
 
         - name: Copy over the kubeconfig file (k8s_worker)
           ansible.builtin.copy:
@@ -380,7 +380,7 @@
             mode: "600"
             remote_src: true
           become: true
-          when: "inventory_hostname in groups['k8s_workers']"
+          when: inventory_hostname in groups["k8s_workers"]
 
   handlers:
     - name: Issue daemon-reload, then restart the kubelet service

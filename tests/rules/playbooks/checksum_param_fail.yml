@@ -1,0 +1,11 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Download the foo.conf
+      ansible.builtin.get_url:
+        url: http://example.com/path/foo.conf
+        dest: /etc/foo.conf
+        mode: "644"

@@ -108,14 +108,6 @@ executables := \
 	${CURL}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
-src_yml := $(shell find \
-	. \
-	\( -type f \) \
-	-and \( -name '*.yml' \) \
-	-and ! \( -path './vendor/*' \) \
-	-and ! \( -path './node_modules/*' \) \
-	-and ! \( -path './ansible/*' \) \
-)
 
 # provider VM identifiers
 VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
@@ -261,7 +253,7 @@ ${STAGING_MAINTENANCE}:
 
 .PHONY: ${LINT}
 ${LINT}:
->	@for fil in ${src_yml} ${PROJECT_VAGRANT_CONFIGURATION_FILE} "./examples/${PROJECT_VAGRANT_CONFIGURATION_FILE}"; do \
+>	@for fil in ${PROJECT_VAGRANT_CONFIGURATION_FILE} "./examples/${PROJECT_VAGRANT_CONFIGURATION_FILE}"; do \
 		if echo "$${fil}" | grep --quiet "-"; then \
 			echo "make: $${fil} should not contain a dash in the filename"; \
 		fi \

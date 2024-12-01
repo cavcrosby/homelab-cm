@@ -1,0 +1,9 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Print foo
+      ansible.builtin.debug:
+        msg: foo

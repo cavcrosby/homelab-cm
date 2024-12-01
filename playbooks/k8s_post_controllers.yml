@@ -83,7 +83,7 @@
         sign_kubelet_csrs_target_script: sign-kubelet-csrs
         sign_kubelet_csrs_script_path: /usr/local/bin/{{ sign_kubelet_csrs_target_script }}
       block:
-        - name: Update apt's package index
+        - name: Update apt's package index (debian-like)
           ansible.builtin.apt:
             update_cache: true
           become: true

@@ -1,10 +1,9 @@
 ---
-- name: Run convention tasks
+- name: Run the play
   hosts: all
-  tags: do_convention_tasks
+  tags: run_play
 
   tasks:
-    # without 'system user' verbiage
     - name: Create the foo group
       ansible.builtin.group:
         name: foo
@@ -12,7 +11,7 @@
       become: true
       register: foo_group
 
-    - name: Create the foo user
+    - name: Create the foo system user
       ansible.builtin.user:
         name: foo
         group: "{{ foo_group.name }}"
@@ -31,14 +30,13 @@
         mode: "700"
       become: true
 
-    # with 'system user' verbiage
     - name: Create the bar group
       ansible.builtin.group:
         name: bar
         state: present
       become: true
 
-    - name: Create the bar system user
+    - name: Create the bar user
       ansible.builtin.user:
         name: bar
         group: bar

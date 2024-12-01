@@ -1,0 +1,5 @@
+---
+rules:
+  quoted-strings:
+    required: only-when-needed
+    quote-type: double

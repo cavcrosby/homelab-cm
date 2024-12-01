@@ -1,0 +1,22 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Create the foo group
+      ansible.builtin.group:
+        name: foo
+        state: present
+      become: true
+      register: foo_group
+
+    - name: Create the user
+      ansible.builtin.user:
+        name: foo
+        group: "{{ foo_group.name }}"
+        state: present
+        home: /home/foo
+        shell: /bin/bash
+      become: true
+      register: foo_user

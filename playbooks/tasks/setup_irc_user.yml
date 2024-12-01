@@ -5,7 +5,7 @@
     state: present
   become: true
 
-- name: Create the IRC user
+- name: Create the IRC user  # noqa task-values[hardcode-users-name] # user's name is the var name
   ansible.builtin.user:
     name: "{{ irc_user }}"
     group: "{{ irc_user }}"

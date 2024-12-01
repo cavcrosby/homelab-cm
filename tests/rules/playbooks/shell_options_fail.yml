@@ -1,0 +1,20 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Echo foo
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          echo foo
+      changed_when: false
+
+    - name: Echo bar
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          echo bar
+          set -eo pipefail
+      changed_when: false

@@ -1,5 +1,5 @@
 ---
-- name: Update apt's package index
+- name: Update apt's package index (debian-like)
   ansible.builtin.apt:
     update_cache: true
   become: true
