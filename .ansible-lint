@@ -1,3 +1,16 @@
 ---
+use_default_rules: true
 exclude_paths:
+  - tests
   - playbooks/packer
+  - .ansible-lint
+  - .markdownlint.yaml
+  - .pre-commit-config.yaml
+  - .prettierrc.yaml
+  - .yamllint.yaml
+
+rulesdir:
+  - rules
+
+skip_list:
+  - no-changed-when

@@ -40,7 +40,7 @@
     containerd_deb: containerd_{{ containerd_version }}_amd64.deb
 
   pre_tasks:
-    - name: Update apt's package index
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
       become: true
@@ -83,7 +83,7 @@
       register: containerd_config_checksum
       notify: Restart containerd
 
-    - name: Prevent containerd from being upgraded
+    - name: Prevent containerd from being upgraded (debian-like)
       ansible.builtin.dpkg_selections:
         name: containerd
         selection: hold
@@ -129,7 +129,7 @@
         etcd_download_path: /tmp/{{ etcd_tarball }}
         # regexp was inspired by:
         # https://stackoverflow.com/questions/61930563/extract-file-names-without-extension-ansible#answer-61931335
-        strip_exts_regexp: '^(.*v\d+\.\d+\.\d+[^\.]*).*'
+        strip_exts_regexp: ^(.*v\d+\.\d+\.\d+[^\.]*).*
       block:
         - name: Download the etcd tarball
           ansible.builtin.get_url:

@@ -1,0 +1,9 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Update grub.cfg (debian-like)
+      ansible.builtin.command: grub-mkconfig --output "/boot/grub/grub.cfg"
+      become: true

@@ -28,4 +28,4 @@ systemd_networkd_files:
     Match:
       Name: "{{ ansible_default_ipv4.interface }}"
     Network:
-      DHCP: "ipv4"
+      DHCP: ipv4
