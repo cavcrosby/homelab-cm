@@ -41,7 +41,7 @@
   vars:
     # regexp derives from https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string
     k8s_version_regexp: ^v(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$  # noqa yaml[line-length]
-    apt_repo_url: "{{ k8s_kubeadm_kubernetes_version | regex_replace(k8s_version_regexp, 'https://pkgs.k8s.io/core:/stable:/v\\1.\\2/deb') }}"
+    apt_repo_url: "{{ k8s_kubeadm_kubernetes_version | ansible.builtin.regex_replace(k8s_version_regexp, 'https://pkgs.k8s.io/core:/stable:/v\\1.\\2/deb') }}"
   block:
     - name: Grab Kubernetes's official GPG key
       ansible.builtin.get_url:
