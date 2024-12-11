@@ -11,9 +11,6 @@
 - name: Verify the single_quote_patterns playbook execution
   ansible.builtin.import_playbook: ../../../../examples/playbooks/single_quote_patterns.yml
 
-- name: Verify the use_fqcn_filters playbook execution
-  ansible.builtin.import_playbook: ../../../../examples/playbooks/use_fqcn_filters.yml
-
 - name: Verify the use_keywords_order_plays playbook execution
   ansible.builtin.import_playbook: ../../../../examples/playbooks/use_keywords_order_plays.yml
 
