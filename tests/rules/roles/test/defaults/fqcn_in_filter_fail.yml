@@ -1,0 +1,9 @@
+---
+test_foo_file: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
+
+test_foo_path: "{{ ('/etc/foo.conf.j2' | basename | splitext)[:-1] | join('.') }}"
+
+test_foo_object:
+  path:
+    etc:
+      conf: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"

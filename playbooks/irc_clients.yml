@@ -57,7 +57,7 @@
 
     - name: Add the WeeChat certificates
       ansible.builtin.copy:
-        dest: "{{ weechat_certs_directory }}/{{ item | basename }}"
+        dest: "{{ weechat_certs_directory }}/{{ item | ansible.builtin.basename }}"
         src: "{{ item }}"
         owner: "{{ irc_user }}"
         group: "{{ irc_user }}"
