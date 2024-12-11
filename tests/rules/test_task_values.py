@@ -87,6 +87,26 @@ def test_pkg_names_order_fail(rule_runner: RunFromText) -> None:
     (TaskValuesRule,),
     indirect=["rule_runner"],
 )
+def test_fqcn_in_filter_fail(rule_runner: RunFromText) -> None:
+    """Test that task-values[fqcn-in-filter] finds errors in playbooks."""
+    errors = rule_runner.run(Path("./tests/rules/playbooks/fqcn_in_filter_fail.yml"))
+    assert len(errors) == 2
+    for error in errors:
+        assert error.tag == "task-values[fqcn-in-filter]"
+
+    errors = rule_runner.run(
+        Path("./tests/rules/roles/test/defaults/fqcn_in_filter_fail.yml")
+    )
+    assert len(errors) == 4
+    for error in errors:
+        assert error.tag == "task-values[fqcn-in-filter]"
+
+
+@pytest.mark.parametrize(
+    "rule_runner",
+    (TaskValuesRule,),
+    indirect=["rule_runner"],
+)
 def test_yaml_sequences_fail(rule_runner: RunFromText) -> None:
     """Test that task-values[yaml-sequences] finds errors."""
     errors = rule_runner.run(Path("./tests/rules/playbooks/yaml_sequences_fail.yml"))
