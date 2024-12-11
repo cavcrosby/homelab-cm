@@ -15,7 +15,7 @@
         release_namespace: tigera-operator
         create_namespace: true
         release_state: present
-        values: "{{ lookup('ansible.builtin.template', calico_helm_values_file_template) | from_yaml }}"
+        values: "{{ lookup('ansible.builtin.template', calico_helm_values_file_template) | ansible.builtin.from_yaml }}"
       become: true
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf

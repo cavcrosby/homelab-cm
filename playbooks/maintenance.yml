@@ -81,7 +81,11 @@
     - name: Get a list of all the Kubernetes controller nodes
       kubernetes.core.k8s_info:
         kind: Node
-        kubeconfig: "{{ inventory_hostname in groups['k8s_controllers'] | ternary('/etc/kubernetes/admin.conf', '/etc/kubernetes/kubelet.conf', omit) }}"
+        kubeconfig: >-
+          {{
+            inventory_hostname in groups['k8s_controllers']
+            | ansible.builtin.ternary('/etc/kubernetes/admin.conf', '/etc/kubernetes/kubelet.conf', omit)
+          }}
         label_selectors:
           - node-role.kubernetes.io/control-plane
       become: true

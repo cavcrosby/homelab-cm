@@ -14,5 +14,5 @@ k8s_control_plane_join_patch_templates: []
 # file that is used to save the current iptables rules
 k8s_control_plane_iptables_rules_path: /etc/iptables/rules.v4
 
-_k8s_control_plane_init_config_path: /tmp/{{ (k8s_control_plane_init_config_template | basename | splitext)[:-1] | join('.') }}
-_k8s_control_plane_join_config_path: /tmp/{{ (k8s_control_plane_join_config_template | basename | splitext)[:-1] | join('.') }}
+_k8s_control_plane_init_config_path: /tmp/{{ (k8s_control_plane_init_config_template | ansible.builtin.basename | ansible.builtin.splitext)[:-1] | join('.') }}
+_k8s_control_plane_join_config_path: /tmp/{{ (k8s_control_plane_join_config_template | ansible.builtin.basename | ansible.builtin.splitext)[:-1] | join('.') }}

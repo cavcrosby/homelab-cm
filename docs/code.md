@@ -78,7 +78,6 @@
 - [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Prefix all `ansible` tags with a verb.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Append the ansible_managed macro in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
-- [Use fully qualified collection names for `ansible` filters.](../examples/playbooks/use_fqcn_filters.yml)
 - [Use the following order of `ansible` playbook keywords in a task.](../examples/playbooks/use_keywords_order_tasks.yml)
 - [Use the following order of `ansible` playbook keywords in a play.](../examples/playbooks/use_keywords_order_plays.yml)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)

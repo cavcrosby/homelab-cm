@@ -12,6 +12,6 @@ dnsmasq_dhcp_upper_bound: 192.168.1.255
 dnsmasq_dhcp_config_file_template: dhcp.conf.j2
 
 # evaluated jinja template filename on the target system
-dnsmasq_dhcp_config_target_file: "{{ (dnsmasq_dhcp_config_file_template | basename | splitext)[:-1] | join('.') }}"
+dnsmasq_dhcp_config_target_file: "{{ (dnsmasq_dhcp_config_file_template | ansible.builtin.basename | ansible.builtin.splitext)[:-1] | join('.') }}"
 
 _dnsmasq_dhcp_config_file_path: /etc/dnsmasq.d/{{ dnsmasq_dhcp_config_target_file }}

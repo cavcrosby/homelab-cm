@@ -91,7 +91,7 @@
     - name: Create the kubeadm (init) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ k8s_control_plane_kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
+        dest: "{{ k8s_control_plane_kubeadm_patches_dir_path }}/{{ (item | ansible.builtin.basename | ansible.builtin.splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
       loop: "{{ k8s_control_plane_init_patch_templates }}"
@@ -126,7 +126,7 @@
     - name: Create the kubeadm (join) patches
       ansible.builtin.template:
         src: "{{ item }}"
-        dest: "{{ k8s_control_plane_kubeadm_patches_dir_path }}/{{ (item | basename | splitext)[:-1] | join('.') }}"
+        dest: "{{ k8s_control_plane_kubeadm_patches_dir_path }}/{{ (item | ansible.builtin.basename | ansible.builtin.splitext)[:-1] | join('.') }}"
         mode: "600"
       become: true
       loop: "{{ k8s_control_plane_join_patch_templates }}"

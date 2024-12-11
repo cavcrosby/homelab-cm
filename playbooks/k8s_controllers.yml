@@ -141,13 +141,13 @@
         - name: Extract the etcd tarball into the desired directory
           ansible.builtin.unarchive:
             src: "{{ etcd_download_path }}"
-            dest: "{{ etcd_download_path | dirname }}"
+            dest: "{{ etcd_download_path | ansible.builtin.dirname }}"
             remote_src: true
 
         - name: Install etcdctl into a accessible directory in the PATH
           ansible.builtin.copy:
             dest: /usr/local/bin/etcdctl
-            src: "{{ etcd_download_path | regex_replace(strip_exts_regexp, '\\1') }}/etcdctl"
+            src: "{{ etcd_download_path | ansible.builtin.regex_replace(strip_exts_regexp, '\\1') }}/etcdctl"
             mode: "755"
             remote_src: true
           become: true

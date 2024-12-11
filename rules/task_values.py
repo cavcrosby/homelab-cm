@@ -8,12 +8,29 @@ from ansiblelint.constants import (
     LINE_NUMBER_KEY,
 )
 from ansiblelint.rules import AnsibleLintRule
-from ansiblelint.text import has_jinja
+from ansiblelint.text import has_jinja, is_fqcn
+from ansiblelint.yaml_utils import nested_items_path
+from jinja2 import Environment
+from jinja2.nodes import Filter
+
+from ansible.parsing.yaml.objects import (  # type: ignore # ansible.parsing.yaml.objects stubs don't exist
+    AnsibleUnicode,
+)
+from ansible.plugins.loader import (  # type: ignore # ansible.plugins.loader stubs don't exist
+    filter_loader,
+    init_plugin_loader,
+)
 
 if TYPE_CHECKING:
+    from typing import Any, TypeAlias
+
     from ansiblelint.errors import MatchError
     from ansiblelint.file_utils import Lintable
     from ansiblelint.utils import Task
+    from jinja2.nodes import Node
+
+AnsibleUnicodeItems: TypeAlias = dict[int, AnsibleUnicode]
+init_plugin_loader()  # required before using loaders
 
 
 class TaskValuesRule(AnsibleLintRule):
@@ -28,9 +45,62 @@ class TaskValuesRule(AnsibleLintRule):
         "task-values[hardcode-users-name]": "Hardcode the operating system user's name in the task name.",  # noqa E501
         "task-values[append-distro]": "Append distribution specificness to tasks where appropriate.",  # noqa E501
         "task-values[pkg-names-order]": "List package names to task parameters in alphabetical order.",  # noqa E501
+        "task-values[fqcn-in-filter]": "Use fully qualified collection names for ansible filters ({filter}).",  # noqa E501
         "task-values[yaml-sequences]": "Use yaml sequences for the notify, and when playbook keywords only when there is more than one element.",  # noqa E501
         "task-values[no-var-name]": "Do not include variables as part of a task's name",
     }
+
+    def _get_leaf_items(self, node: list[Any] | dict[Any, Any]) -> AnsibleUnicodeItems:
+        """Get leaf/terminal AnsibleUnicode items of a tree and their indexes."""
+        items: AnsibleUnicodeItems = {}
+        previous_item: tuple[Any, Any, list[str | int]] | tuple[()] = ()
+        for key, value, parent in nested_items_path(node):
+            if (
+                previous_item
+                and (
+                    not parent
+                    # first item in list
+                    or parent == previous_item[0]
+                    # 1+n item in list (n > 0)
+                    or parent == previous_item[2]
+                )
+                and isinstance(previous_item[1], AnsibleUnicode)
+            ):
+                items[previous_item[1].ansible_pos[1]] = previous_item[1]
+            previous_item = (key, value, parent)
+
+        # add the last previous item
+        if previous_item and isinstance(previous_item[1], AnsibleUnicode):
+            items[previous_item[1].ansible_pos[1]] = previous_item[1]
+
+        return items
+
+    def _get_filter_matcherrors(
+        self, id_: str, lintable: Lintable | None, items: AnsibleUnicodeItems
+    ) -> list[MatchError]:
+        """Get match errors where Ansible filters do not use the FQCN format."""
+
+        def extract_filters(node: Node) -> list[str]:
+            return ([node.name] if isinstance(node, Filter) else []) + [
+                filter_
+                for child in node.iter_child_nodes()
+                for filter_ in extract_filters(child)
+            ]
+
+        errors: list[MatchError] = []
+        for item in items:
+            for filter_ in extract_filters(Environment().parse(items[item])):
+                if filter_loader.get(filter_) and not is_fqcn(filter_):
+                    errors.append(
+                        self.create_matcherror(
+                            message=self._ids[id_].format(filter=filter_),
+                            filename=lintable,
+                            lineno=item,
+                            tag=id_,
+                        ),
+                    )
+
+        return errors
 
     def matchtask(
         self,
@@ -122,6 +192,14 @@ class TaskValuesRule(AnsibleLintRule):
                     )
                 )
 
+        errors.extend(
+            self._get_filter_matcherrors(
+                f"{self.id}[fqcn-in-filter]",
+                file,
+                {key: value for key, value in self._get_leaf_items(task).items()},
+            ),
+        )
+
         if (
             isinstance(task.get("notify"), list)
             and len(task.get("notify", 0)) == 1
@@ -149,4 +227,17 @@ class TaskValuesRule(AnsibleLintRule):
                 )
             )
 
+        return errors
+
+    def matchyaml(self, file: Lintable) -> list[MatchError]:
+        """YAML matching method."""
+        errors: list[MatchError] = []
+        if str(file.kind) == "vars":
+            errors.extend(
+                self._get_filter_matcherrors(
+                    f"{self.id}[fqcn-in-filter]",
+                    file,
+                    self._get_leaf_items(file.data),
+                ),
+            )
         return errors
