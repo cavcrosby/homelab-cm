@@ -1,11 +1,10 @@
 ---
-- name: Run convention tasks
+- name: Run the play
   hosts: all
-  tags: do_convention_tasks
+  tags: run_play
 
   tasks:
     - name: Print localhost
-      delegate_to: localhost
       ansible.builtin.debug:
         msg: localhost
       check_mode: true
@@ -21,27 +20,14 @@
       loop:
         - foo
       when: true
-
-    - name: Print localhost again
-      ansible.builtin.debug:
-        msg: localhost
-      notify:
-        - Foo
-        - Bar
-      when:
-        - true
-        - true
+      delegate_to: localhost
 
   handlers:
     - name: Foo
       ansible.builtin.debug:
         msg: bar
-      become: true
       register: bar
+      become: true
       listen: Bar
       vars:
         foo: bar
-
-    - name: Bar
-      ansible.builtin.debug:
-        msg: baz
