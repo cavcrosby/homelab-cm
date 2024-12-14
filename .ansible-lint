@@ -14,3 +14,4 @@ rulesdir:
 
 skip_list:
   - no-changed-when
+  - key-order

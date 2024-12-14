@@ -1,0 +1,27 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+  vars_files:
+    - ./vars/foo.yml
+  serial: 1
+  vars:
+    foo: bar
+
+  tasks:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar
+
+  pre_tasks:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar
+
+  roles:
+    - foo
+
+  handlers:
+    - name: Foo
+      ansible.builtin.debug:
+        msg: bar
