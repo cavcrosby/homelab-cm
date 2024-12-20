@@ -31,6 +31,21 @@ def test_shell_options_fail(rule_runner: RunFromText) -> None:
     (TaskValuesRule,),
     indirect=["rule_runner"],
 )
+def test_name_word_misspelled_fail(rule_runner: RunFromText) -> None:
+    """Test that task-values[name-word-misspelled] finds errors."""
+    errors = rule_runner.run(
+        Path("./tests/rules/playbooks/name_word_misspelled_fail.yml")
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert error.tag == "task-values[name-word-misspelled]"
+
+
+@pytest.mark.parametrize(
+    "rule_runner",
+    (TaskValuesRule,),
+    indirect=["rule_runner"],
+)
 def test_system_user_verbiage_fail(rule_runner: RunFromText) -> None:
     """Test that task-values[system-user-verbiage] finds errors."""
     errors = rule_runner.run(

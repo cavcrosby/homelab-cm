@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 from ansiblelint.constants import (
@@ -12,6 +13,7 @@ from ansiblelint.text import has_jinja, is_fqcn
 from ansiblelint.yaml_utils import nested_items_path
 from jinja2 import Environment
 from jinja2.nodes import Filter
+from spellchecker import SpellChecker  # type: ignore # spellchecker stubs don't exist
 
 from ansible.parsing.yaml.objects import (  # type: ignore # ansible.parsing.yaml.objects stubs don't exist
     AnsibleUnicode,
@@ -30,7 +32,9 @@ if TYPE_CHECKING:
     from jinja2.nodes import Node
 
 AnsibleUnicodeItems: TypeAlias = dict[int, AnsibleUnicode]
+spell_checker = SpellChecker()
 init_plugin_loader()  # required before using loaders
+spell_checker.word_frequency.load_text_file(Path("./docs/dictionary.txt"))
 
 
 class TaskValuesRule(AnsibleLintRule):
@@ -41,6 +45,7 @@ class TaskValuesRule(AnsibleLintRule):
     tags = ["homelab-cm"]
     _ids = {
         "task-values[shell-options]": "Start ansible.builtin.shell task with setting errexit and pipefail options (bash).",  # noqa E501
+        "task-values[name-word-misspelled]": "Correct any misspelled words in task name ({word}).",  # noqa E501
         "task-values[system-user-verbiage]": "Use 'system user' verbiage only for operating system system-level user accounts.",  # noqa E501
         "task-values[hardcode-users-name]": "Hardcode the operating system user's name in the task name.",  # noqa E501
         "task-values[append-distro]": "Append distribution specificness to tasks where appropriate.",  # noqa E501
@@ -121,6 +126,20 @@ class TaskValuesRule(AnsibleLintRule):
                     tag=_id,
                 )
             )
+
+        if task.name:
+            _id = f"{self.id}[name-word-misspelled]"
+            for unknown_word in spell_checker.unknown(
+                [word for word in spell_checker.split_words(task.name)]
+            ):
+                errors.append(
+                    self.create_matcherror(
+                        message=self._ids[_id].format(word=unknown_word),
+                        filename=file,
+                        lineno=task[LINE_NUMBER_KEY],
+                        tag=_id,
+                    )
+                )
 
         if task.action == "ansible.builtin.user" and task.name:
             if (
