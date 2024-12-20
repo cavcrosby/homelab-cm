@@ -1,0 +1,9 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Print the abbreviated word config
+      ansible.builtin.debug:
+        msg: config
