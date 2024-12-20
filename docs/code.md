@@ -72,8 +72,6 @@
 
 ## Conventions
 
-- [Do not use abbreviations in task names.](../examples/playbooks/single_quote_patterns.yml)
-  - Notice how distribution was used instead of distro.
 - [Group package installations based on the need.](../examples/playbooks/append_distro_specificness.yml)
 - [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Prefix all `ansible` tags with a verb.](../examples/playbooks/utilize_tpl_searching_controller.yml)
