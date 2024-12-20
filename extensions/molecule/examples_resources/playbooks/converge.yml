@@ -2,9 +2,6 @@
 - name: Verify the append_distro_specificness playbook execution  # noqa tag-plays
   ansible.builtin.import_playbook: ../../../../examples/playbooks/append_distro_specificness.yml
 
-- name: Verify the single_quote_patterns playbook execution  # noqa tag-plays
-  ansible.builtin.import_playbook: ../../../../examples/playbooks/single_quote_patterns.yml
-
 - name: Verify the use_keywords_order_plays playbook execution  # noqa tag-plays
   ansible.builtin.import_playbook: ../../../../examples/playbooks/use_keywords_order_plays.yml
 
