@@ -14,6 +14,7 @@ repos:
         additional_dependencies:
           - ansible-core ==2.17.0
           - jmespath ==1.0.1
+          - pyspellchecker ==0.8.1
 
   - repo: https://github.com/adrienverge/yamllint.git
     rev: v1.35.1
@@ -54,7 +55,16 @@ repos:
           - python
         additional_dependencies:
           - ansible-lint ==24.9.0
+          - pyspellchecker ==0.8.1
           - pytest ==8.3.4
+
+      - id: gendict.py
+        name: gendict.py
+        entry: ./scripts/gendict.py
+        language: python
+        additional_dependencies:
+          - ansible-lint ==24.9.0
+          - pyspellchecker ==0.8.1
 
   - repo: https://github.com/gitleaks/gitleaks.git
     rev: v8.18.3
