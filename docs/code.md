@@ -74,7 +74,6 @@
 
 - [Group package installations based on the need.](../examples/playbooks/append_distro_specificness.yml)
 - [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_tpl_searching_controller.yml)
-- [Prefix all `ansible` tags with a verb.](../examples/playbooks/utilize_tpl_searching_controller.yml)
 - [Append the ansible_managed macro in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)
 - Add brief comments on roles' defaults variables that are not self-explanatory.
