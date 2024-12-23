@@ -28,7 +28,7 @@ class TaskValuesRule(AnsibleLintRule):
         "task-values[hardcode-users-name]": "Hardcode the operating system user's name in the task name.",  # noqa E501
         "task-values[append-distro]": "Append distribution specificness to tasks where appropriate.",  # noqa E501
         "task-values[pkg-names-order]": "List package names to task parameters in alphabetical order.",  # noqa E501
-        "task-values[yaml-lists]": "Use yaml lists for the notify, and when playbook keywords only when there is more than one element.",  # noqa E501
+        "task-values[yaml-sequences]": "Use yaml sequences for the notify, and when playbook keywords only when there is more than one element.",  # noqa E501
         "task-values[no-var-name]": "Do not include variables as part of a task's name",
     }
 
@@ -128,7 +128,7 @@ class TaskValuesRule(AnsibleLintRule):
             or isinstance(task.get("when"), list)
             and len(task.get("when", 0)) == 1
         ):
-            _id = f"{self.id}[yaml-lists]"
+            _id = f"{self.id}[yaml-sequences]"
             errors.append(
                 self.create_matcherror(
                     message=self._ids[_id],

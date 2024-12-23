@@ -87,12 +87,12 @@ def test_pkg_names_order_fail(rule_runner: RunFromText) -> None:
     (TaskValuesRule,),
     indirect=["rule_runner"],
 )
-def test_yaml_lists_fail(rule_runner: RunFromText) -> None:
-    """Test that task-values[yaml-lists] finds errors."""
-    errors = rule_runner.run(Path("./tests/rules/playbooks/yaml_lists_fail.yml"))
+def test_yaml_sequences_fail(rule_runner: RunFromText) -> None:
+    """Test that task-values[yaml-sequences] finds errors."""
+    errors = rule_runner.run(Path("./tests/rules/playbooks/yaml_sequences_fail.yml"))
     assert len(errors) == 1
     for error in errors:
-        assert error.tag == "task-values[yaml-lists]"
+        assert error.tag == "task-values[yaml-sequences]"
 
 
 @pytest.mark.parametrize(
