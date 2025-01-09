@@ -1,0 +1,12 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Enable and start the foo service
+      ansible.builtin.systemd_service:
+        name: foo
+        enabled: true
+        state: started
+      become: true

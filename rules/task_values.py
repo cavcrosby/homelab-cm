@@ -53,6 +53,7 @@ class TaskValuesRule(AnsibleLintRule):
         "task-values[fqcn-in-filter]": "Use fully qualified collection names for ansible filters ({filter}).",  # noqa E501
         "task-values[yaml-sequences]": "Use yaml sequences for the notify, and when playbook keywords only when there is more than one element.",  # noqa E501
         "task-values[no-var-name]": "Do not include variables as part of a task's name",
+        "task-values[append-systemd-unit]": "Append the systemd.unit(5) type suffix to the systemd unit.",  # noqa E501
     }
 
     def _get_leaf_items(self, node: list[Any] | dict[Any, Any]) -> AnsibleUnicodeItems:
@@ -237,6 +238,38 @@ class TaskValuesRule(AnsibleLintRule):
 
         if has_jinja(task.name):
             _id = f"{self.id}[no-var-name]"
+            errors.append(
+                self.create_matcherror(
+                    message=self._ids[_id],
+                    filename=file,
+                    lineno=task[LINE_NUMBER_KEY],
+                    tag=_id,
+                )
+            )
+
+        unit_name = task.args.get("name")
+        if (
+            task.action == "ansible.builtin.systemd_service"
+            and unit_name
+            and not any(
+                # unit suffixes from systemd.unit(5)
+                suffix in unit_name
+                for suffix in (
+                    ".service",
+                    ".socket",
+                    ".device",
+                    ".mount",
+                    ".automount",
+                    ".swap",
+                    ".target",
+                    ".path",
+                    ".timer",
+                    ".slice",
+                    ".scope",
+                )
+            )
+        ):
+            _id = f"{self.id}[append-systemd-unit]"
             errors.append(
                 self.create_matcherror(
                     message=self._ids[_id],

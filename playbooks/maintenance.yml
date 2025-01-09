@@ -94,14 +94,14 @@
     - name: Upgrade the Kubernetes node
       block:
         - name: Stop and disable the apt-daily timer
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily.timer
             enabled: false
             state: stopped
           become: true
 
         - name: Stop and disable the apt-daily service
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily.service
             enabled: false
             state: stopped
@@ -135,14 +135,14 @@
           when: apt_daily_upgrade_pid.stdout | length != 0
 
         - name: Stop and disable the apt-daily-upgrade timer
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily-upgrade.timer
             enabled: false
             state: stopped
           become: true
 
         - name: Stop and disable the apt-daily-upgrade service
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily-upgrade.service
             enabled: false
             state: stopped
@@ -318,28 +318,28 @@
           when: ansible_os_family | lower == "debian"
 
         - name: Stop and enable the apt-daily timer
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily.timer
             enabled: true
             state: stopped
           become: true
 
         - name: Stop and enable the apt-daily service
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily.service
             enabled: true
             state: stopped
           become: true
 
         - name: Stop and enable the apt-daily-upgrade timer
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily-upgrade.timer
             enabled: true
             state: stopped
           become: true
 
         - name: Stop and enable the apt-daily-upgrade service
-          ansible.builtin.systemd:
+          ansible.builtin.systemd_service:
             name: apt-daily-upgrade.service
             enabled: true
             state: stopped
@@ -388,8 +388,8 @@
 
   handlers:
     - name: Issue daemon-reload, then restart the kubelet service
-      ansible.builtin.systemd:
-        name: kubelet
+      ansible.builtin.systemd_service:
+        name: kubelet.service
         state: restarted
         daemon_reload: true
       become: true

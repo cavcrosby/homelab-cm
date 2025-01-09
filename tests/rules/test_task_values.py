@@ -141,3 +141,18 @@ def test_no_var_name_fail(rule_runner: RunFromText) -> None:
     assert len(errors) == 1
     for error in errors:
         assert error.tag == "task-values[no-var-name]"
+
+
+@pytest.mark.parametrize(
+    "rule_runner",
+    (TaskValuesRule,),
+    indirect=["rule_runner"],
+)
+def test_append_systemd_unit_fail(rule_runner: RunFromText) -> None:
+    """Test that task-values[append-systemd-unit] finds errors."""
+    errors = rule_runner.run(
+        Path("./tests/rules/playbooks/append_systemd_unit_fail.yml")
+    )
+    assert len(errors) == 1
+    for error in errors:
+        assert error.tag == "task-values[append-systemd-unit]"
