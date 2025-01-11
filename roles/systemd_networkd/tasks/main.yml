@@ -53,7 +53,7 @@
     force: false
   become: true
   notify:
-    - Start and enable systemd-networkd service
+    - Enable and start the systemd-networkd service
     - Remove the networking service's interfaces file (debian-like)
     - Stop and disable the networking service (debian-like)
     - Restart systemd-networkd service
