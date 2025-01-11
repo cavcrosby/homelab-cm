@@ -1,12 +1,12 @@
 ---
 - name: Stop the haproxy service
-  ansible.builtin.service:
-    name: haproxy
+  ansible.builtin.systemd_service:
+    name: haproxy.service
     state: stopped
   become: true
 
-- name: Restart haproxy
-  ansible.builtin.service:
-    name: haproxy
+- name: Restart the haproxy service
+  ansible.builtin.systemd_service:
+    name: haproxy.service
     state: restarted
   become: true

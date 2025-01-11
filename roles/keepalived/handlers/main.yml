@@ -1,7 +1,7 @@
 ---
-- name: Restart keepalived
-  ansible.builtin.service:
-    name: keepalived
+- name: Restart the keepalived service
+  ansible.builtin.systemd_service:
+    name: keepalived.service
     state: restarted
   become: true
 

@@ -28,7 +28,7 @@
     dest: "{{ _keepalived_config_file_path }}"
     mode: "644"
   become: true
-  notify: Restart keepalived
+  notify: Restart the keepalived service
 
 - name: Alter the keepalived configuration to use a non-default configuration path
   ansible.builtin.blockinfile:
@@ -39,11 +39,11 @@
     block: |
       DAEMON_ARGS="--use-file={{ _keepalived_config_file_path }}"
   become: true
-  notify: Restart keepalived
+  notify: Restart the keepalived service
 
 - name: Enable the keepalived service
-  ansible.builtin.service:
-    name: keepalived
+  ansible.builtin.systemd_service:
+    name: keepalived.service
     enabled: true
     state: started
   become: true

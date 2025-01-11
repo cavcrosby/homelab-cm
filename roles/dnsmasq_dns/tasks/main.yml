@@ -20,11 +20,11 @@
     mode: "644"
     validate: dnsmasq --test --conf-file=%s
   become: true
-  notify: Restart dnsmasq
+  notify: Restart the dnsmasq service
 
 - name: Enable the dnsmasq service
-  ansible.builtin.service:
-    name: dnsmasq
+  ansible.builtin.systemd_service:
+    name: dnsmasq.service
     enabled: true
     state: started
   become: true

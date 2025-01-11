@@ -79,7 +79,7 @@
       changed_when: current_containerd_config_inode.stat.checksum != containerd_config_checksum.stdout
       become: true
       register: containerd_config_checksum
-      notify: Restart containerd
+      notify: Restart the containerd service
 
     - name: Prevent containerd from being upgraded (debian-like)
       ansible.builtin.dpkg_selections:
@@ -102,9 +102,9 @@
         state: saved
       become: true
 
-    - name: Restart containerd
-      ansible.builtin.service:
-        name: containerd
+    - name: Restart the containerd service
+      ansible.builtin.systemd_service:
+        name: containerd.service
         state: restarted
       become: true
 
