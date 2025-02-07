@@ -60,7 +60,7 @@ source "qemu" "poseidon_k8s_controller" {
 
   http_content = {
     "/preseed.cfg"           = file(local.preseed_file)
-    "/authorized_keys"       = file("${path.root}/authorized_keys"),
+    "/authorized_keys"       = file("${path.root}/playbooks/files/authorized_keys"),
     "/scripts/late-commands" = file("${path.root}/scripts/late-commands")
   }
   qemuargs = [
@@ -86,7 +86,7 @@ source "qemu" "poseidon_k8s_worker" {
 
   http_content = {
     "/preseed.cfg"           = file(local.preseed_file)
-    "/authorized_keys"       = file("${path.root}/authorized_keys"),
+    "/authorized_keys"       = file("${path.root}/playbooks/files/authorized_keys")
     "/scripts/late-commands" = file("${path.root}/scripts/late-commands")
   }
   qemuargs = [

@@ -12,11 +12,6 @@ ANSIBLE_SECRETS_DIR_PATH = ./playbooks/vars
 ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
-BITWARDEN_SSH_KEYS_DIR_PATH = ./playbooks/ssh_keys
-BITWARDEN_SSH_KEYS_ITEMID = 9493f9e9-82e0-458f-b609-ae20004f8227
-BITWARDEN_SSH_KEYS = \
-	id_rsa_ron.pub\
-	id_rsa_roxanne.pub
 
 BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/rsa_keys
 BITWARDEN_RSA_KEYS_ITEMID = 0a2e75a3-7f1d-4720-ad05-aec2016c4ba9
@@ -303,18 +298,6 @@ else
 		--output "${ANSIBLE_SECRETS_DIR_PATH}/"
 
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
-
->	@for ssh_key in ${BITWARDEN_SSH_KEYS}; do \
-		echo ${NPX} ${BW} get attachment \
-			"$${ssh_key}" \
-			--itemid \"${BITWARDEN_SSH_KEYS_ITEMID}\" \
-			--output \"${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}\"; \
-		\
-		${NPX} ${BW} get attachment \
-			"$${ssh_key}" \
-			--itemid "${BITWARDEN_SSH_KEYS_ITEMID}" \
-			--output "${BITWARDEN_SSH_KEYS_DIR_PATH}/$${ssh_key}"; \
-	done
 
 >	@for rsa_key in ${BITWARDEN_RSA_KEYS}; do \
 		echo ${NPX} ${BW} get attachment \
