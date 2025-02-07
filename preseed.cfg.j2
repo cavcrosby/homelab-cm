@@ -104,5 +104,5 @@ d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/
 {% endif %}
 d-i preseed/late_command string \
     preseed_fetch /scripts/late-commands /target/tmp/late-commands; \
-    preseed_fetch /authorized_keys /target/tmp/authorized_keys; \
+    preseed_fetch /playbooks/files/authorized_keys /target/tmp/authorized_keys; \
     in-target /bin/sh /tmp/late-commands;

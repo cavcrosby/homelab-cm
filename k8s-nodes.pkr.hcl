@@ -59,9 +59,9 @@ source "qemu" "poseidon_k8s_controller" {
   ssh_pty              = true
 
   http_content = {
-    "/preseed.cfg"           = file(local.preseed_file)
-    "/authorized_keys"       = file("${path.root}/authorized_keys"),
-    "/scripts/late-commands" = file("${path.root}/scripts/late-commands")
+    "/preseed.cfg"                     = file(local.preseed_file)
+    "/playbooks/files/authorized_keys" = file("${path.root}/playbooks/files/authorized_keys"),
+    "/scripts/late-commands"           = file("${path.root}/scripts/late-commands")
   }
   qemuargs = [
     [
@@ -85,9 +85,9 @@ source "qemu" "poseidon_k8s_worker" {
   ssh_pty              = true
 
   http_content = {
-    "/preseed.cfg"           = file(local.preseed_file)
-    "/authorized_keys"       = file("${path.root}/authorized_keys"),
-    "/scripts/late-commands" = file("${path.root}/scripts/late-commands")
+    "/preseed.cfg"                     = file(local.preseed_file)
+    "/playbooks/files/authorized_keys" = file("${path.root}/playbooks/files/authorized_keys")
+    "/scripts/late-commands"           = file("${path.root}/scripts/late-commands")
   }
   qemuargs = [
     [

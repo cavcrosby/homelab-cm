@@ -68,12 +68,10 @@
         - name: Create the authorized_keys file to enable SSH access as the libvirt-ro user
           ansible.builtin.copy:
             dest: /home/libvirt-ro/.ssh/authorized_keys
+            src: authorized_keys
             owner: libvirt-ro
             group: libvirt-ro
             mode: "600"
-            content: |
-              {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_ron.pub') }}
-              {{ lookup('ansible.builtin.file', './ssh_keys/id_rsa_roxanne.pub') }}
           become: true
 
     - name: Install libvirt-python dependencies (debian-like)
