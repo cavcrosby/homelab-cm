@@ -23,7 +23,7 @@
     mode: "700"
   become: true
 
-- name: Create the authorized_keys file to enable SSH access as the IRC user
+- name: Create the authorized_keys file
   ansible.builtin.copy:
     dest: "{{ irc_user_home }}/.ssh/authorized_keys"
     src: authorized_keys
