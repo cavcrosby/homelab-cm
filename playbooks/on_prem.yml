@@ -41,7 +41,7 @@
         dest: "{{ systemd_logind_configs_dir_path }}/homelab-logind.conf"
         mode: "644"
       become: true
-      notify: Restart systemd-logind service
+      notify: Restart the systemd-logind service
 
     - name: Enable the pam_access module for the login program (debian-like)
       ansible.builtin.replace:
@@ -67,7 +67,7 @@
       become: true
 
   handlers:
-    - name: Restart systemd-logind service
+    - name: Restart the systemd-logind service
       ansible.builtin.systemd_service:
         name: systemd-logind.service
         state: restarted
