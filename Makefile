@@ -353,6 +353,7 @@ ${K8S_NODE_IMAGES}:
 .PHONY: ${CONTAINERD_DEB}
 ${CONTAINERD_DEB}:
 >	${CURL} \
+		--location \
 		--output "./playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb" \
 		"https://snapshot.debian.org/archive/debian/20230409T151531Z/pool/main/c/containerd/containerd_1.6.20~ds1-1%2Bb1_amd64.deb"
 
