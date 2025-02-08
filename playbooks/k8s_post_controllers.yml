@@ -79,9 +79,6 @@
             KUBECONFIG: /etc/kubernetes/admin.conf
 
     - name: Setup the Metrics Server
-      vars:
-        sign_kubelet_csrs_target_script: sign-kubelet-csrs
-        sign_kubelet_csrs_script_path: /usr/local/bin/{{ sign_kubelet_csrs_target_script }}
       block:
         - name: Update apt's package index (debian-like)
           ansible.builtin.apt:
@@ -97,15 +94,16 @@
           become: true
           when: ansible_os_family | lower == "debian"
 
-        - name: Copy the sign-kubelet-csrs utility to the controller
-          ansible.builtin.copy:
-            dest: "{{ sign_kubelet_csrs_script_path }}"
-            src: ./scripts/{{ sign_kubelet_csrs_target_script }}
+        - name: Create the sign-kubelet-csrs utility
+          ansible.builtin.template:
+            src: sign-kubelet-csrs.j2
+            dest: /usr/local/bin/sign-kubelet-csrs
             mode: "744"
           become: true
+          register: sign_kubelet_csrs_util
 
         - name: Approves CSRs that are pending from nodes' kubelets
-          ansible.builtin.command: "{{ sign_kubelet_csrs_script_path }}"
+          ansible.builtin.command: "{{ sign_kubelet_csrs_util.dest }}"
           changed_when: approve_csrs_script.stdout | length != 0
           become: true
           register: approve_csrs_script
