@@ -1,5 +1,5 @@
 ---
-- name: Restart systemd-modules-load service
+- name: Restart the systemd-modules-load service
   ansible.builtin.systemd_service:
     name: systemd-modules-load.service
     state: restarted
