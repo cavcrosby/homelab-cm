@@ -86,7 +86,7 @@
           become: true
           when: ansible_os_family | lower == "debian"
 
-        - name: Install packages required to run the sign-kubelet-csrs utility (debian-like)
+        - name: Install packages required to run the sign-kubelet-csrs script (debian-like)
           ansible.builtin.apt:
             name:
               - jq
@@ -94,16 +94,16 @@
           become: true
           when: ansible_os_family | lower == "debian"
 
-        - name: Create the sign-kubelet-csrs utility
+        - name: Create the sign-kubelet-csrs script
           ansible.builtin.template:
             src: sign-kubelet-csrs.j2
             dest: /usr/local/bin/sign-kubelet-csrs
             mode: "744"
           become: true
-          register: sign_kubelet_csrs_util
+          register: sign_kubelet_csrs_script
 
         - name: Approves CSRs that are pending from nodes' kubelets
-          ansible.builtin.command: "{{ sign_kubelet_csrs_util.dest }}"
+          ansible.builtin.command: "{{ sign_kubelet_csrs_script.dest }}"
           changed_when: approve_csrs_script.stdout | length != 0
           become: true
           register: approve_csrs_script
