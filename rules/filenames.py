@@ -30,22 +30,22 @@ class FileNamesRule(AnsibleLintRule):
         filename = Path(file.path).name
         if file.kind and file.base_kind == "text/yaml":
             if ".yml" not in filename:
-                _id = f"{self.id}[append-yml-ext]"
+                id_ = f"{self.id}[append-yml-ext]"
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id].format(filename=filename),
+                        message=self._ids[id_].format(filename=filename),
                         filename=file,
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
             if "-" in filename:
-                _id = f"{self.id}[no-dashes]"
+                id_ = f"{self.id}[no-dashes]"
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id].format(filename=filename),
+                        message=self._ids[id_].format(filename=filename),
                         filename=file,
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
@@ -60,12 +60,12 @@ class FileNamesRule(AnsibleLintRule):
                 "roles/k8s_node/templates/br_netfilter.conf.j2",
             )
         ):
-            _id = f"{self.id}[no-underscores-jinja]"
+            id_ = f"{self.id}[no-underscores-jinja]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id].format(filename=filename),
+                    message=self._ids[id_].format(filename=filename),
                     filename=file,
-                    tag=_id,
+                    tag=id_,
                 )
             )
 

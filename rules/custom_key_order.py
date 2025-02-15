@@ -63,13 +63,13 @@ class CustomKeyOrderRule(KeyOrderRule):
             sorted_keys = sorted(keys, key=functools.cmp_to_key(task_property_sorter))
 
         if keys != sorted_keys:
-            _id = f"{self.id}[play]"
+            id_ = f"{self.id}[play]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id].format(keys={", ".join(sorted_keys)}),
+                    message=self._ids[id_].format(keys={", ".join(sorted_keys)}),
                     filename=file,
                     lineno=data[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                     transform_meta=KeyOrderTMeta(fixed=tuple(sorted_keys)),
                 ),
             )
@@ -107,13 +107,13 @@ class CustomKeyOrderRule(KeyOrderRule):
             sorted_keys = sorted(keys, key=functools.cmp_to_key(task_property_sorter))
 
         if keys != sorted_keys:
-            _id = f"{self.id}[task]"
+            id_ = f"{self.id}[task]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id].format(keys={", ".join(sorted_keys)}),
+                    message=self._ids[id_].format(keys={", ".join(sorted_keys)}),
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                     transform_meta=KeyOrderTMeta(fixed=tuple(sorted_keys)),
                 ),
             )

@@ -118,27 +118,27 @@ class TaskValuesRule(AnsibleLintRule):
         if task.action == "ansible.builtin.shell" and not task.args["cmd"].startswith(
             "set -eo pipefail"
         ):
-            _id = f"{self.id}[shell-options]"
+            id_ = f"{self.id}[shell-options]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 
         if task.name:
-            _id = f"{self.id}[name-word-misspelled]"
+            id_ = f"{self.id}[name-word-misspelled]"
             for unknown_word in spell_checker.unknown(
                 [word for word in spell_checker.split_words(task.name)]
             ):
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id].format(word=unknown_word),
+                        message=self._ids[id_].format(word=unknown_word),
                         filename=file,
                         lineno=task[LINE_NUMBER_KEY],
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
@@ -149,13 +149,13 @@ class TaskValuesRule(AnsibleLintRule):
                 or "system user" not in task.name
                 and task.args.get("system")
             ):
-                _id = f"{self.id}[system-user-verbiage]"
+                id_ = f"{self.id}[system-user-verbiage]"
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id],
+                        message=self._ids[id_],
                         filename=file,
                         lineno=task[LINE_NUMBER_KEY],
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
@@ -168,13 +168,13 @@ class TaskValuesRule(AnsibleLintRule):
                 )
                 and "ansible_user" not in task.name
             ):
-                _id = f"{self.id}[hardcode-users-name]"
+                id_ = f"{self.id}[hardcode-users-name]"
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id],
+                        message=self._ids[id_],
                         filename=file,
                         lineno=task[LINE_NUMBER_KEY],
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
@@ -188,13 +188,13 @@ class TaskValuesRule(AnsibleLintRule):
             and task.name
             and "(debian-like)" not in task.name
         ):
-            _id = f"{self.id}[append-distro]"
+            id_ = f"{self.id}[append-distro]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 
@@ -202,13 +202,13 @@ class TaskValuesRule(AnsibleLintRule):
         if task.action == "ansible.builtin.apt" and pkg_list:
             sorted_pkg_list = sorted(pkg_list)
             if sorted_pkg_list != pkg_list:
-                _id = f"{self.id}[pkg-names-order]"
+                id_ = f"{self.id}[pkg-names-order]"
                 errors.append(
                     self.create_matcherror(
-                        message=self._ids[_id],
+                        message=self._ids[id_],
                         filename=file,
                         lineno=task[LINE_NUMBER_KEY],
-                        tag=_id,
+                        tag=id_,
                     )
                 )
 
@@ -226,24 +226,24 @@ class TaskValuesRule(AnsibleLintRule):
             or isinstance(task.get("when"), list)
             and len(task.get("when", 0)) == 1
         ):
-            _id = f"{self.id}[yaml-sequences]"
+            id_ = f"{self.id}[yaml-sequences]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 
         if has_jinja(task.name):
-            _id = f"{self.id}[no-var-name]"
+            id_ = f"{self.id}[no-var-name]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 
@@ -269,13 +269,13 @@ class TaskValuesRule(AnsibleLintRule):
                 )
             )
         ):
-            _id = f"{self.id}[append-systemd-unit]"
+            id_ = f"{self.id}[append-systemd-unit]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 

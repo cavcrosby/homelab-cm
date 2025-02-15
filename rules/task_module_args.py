@@ -33,13 +33,13 @@ class TaskModuleAliasesRule(AnsibleLintRule):
         """Task matching method."""
         errors: list[MatchError] = []
         if task.action == "ansible.builtin.get_url" and not task.args.get("checksum"):
-            _id = f"{self.id}[checksum-param]"
+            id_ = f"{self.id}[checksum-param]"
             errors.append(
                 self.create_matcherror(
-                    message=self._ids[_id],
+                    message=self._ids[id_],
                     filename=file,
                     lineno=task[LINE_NUMBER_KEY],
-                    tag=_id,
+                    tag=id_,
                 )
             )
 
