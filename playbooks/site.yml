@@ -14,6 +14,12 @@
 - name: Configure the load balancers  # noqa tag-plays
   ansible.builtin.import_playbook: load_balancers.yml
 
+- name: Configure the NFS servers  # noqa tag-plays
+  ansible.builtin.import_playbook: nfs_servers.yml
+
+- name: Configure the NFS clients  # noqa tag-plays
+  ansible.builtin.import_playbook: nfs_clients.yml
+
 - name: Configure the virtual machine monitors  # noqa tag-plays
   ansible.builtin.import_playbook: vmms.yml
 

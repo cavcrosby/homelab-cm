@@ -32,6 +32,10 @@
   on this can be found
   [here](https://trello.com/c/uUa3Totk/127-create-the-kvm-playbook-to-provision-a-machine-to-run-kvm-and-libvirt).
 
+- There will be a NFS server that will satisfy my shared storage needs. Notes on
+  this can be found
+  [here](https://trello.com/c/EtZw0Kh4/252-integrate-a-nfs-server-into-the-project).
+
 - The Kubernetes cluster (Poseidon) has reasons for each part of the
   configuration set.
 

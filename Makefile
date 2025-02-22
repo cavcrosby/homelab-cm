@@ -383,8 +383,8 @@ ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	done
 
 >	-@for domain in ${LIBVIRT_DOMAINS}; do \
-		echo ${VIRSH} undefine --domain "$${domain}"; \
-		${VIRSH} undefine --domain "$${domain}"; \
+		echo ${VIRSH} undefine --remove-all-storage --domain "$${domain}"; \
+		${VIRSH} undefine --remove-all-storage --domain "$${domain}"; \
 	done
 >	${VAGRANT} destroy --force
 
