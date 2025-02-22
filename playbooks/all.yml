@@ -55,3 +55,44 @@
         state: present
       become: true
       when: ansible_os_family | lower == "debian"
+
+    - name: Configure LVM for disk management
+      when: lvm_disks_config is defined
+      block:
+        - name: Update apt's package index (debian-like)
+          ansible.builtin.apt:
+            update_cache: true
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Install LVM dependencies (debian-like)
+          ansible.builtin.apt:
+            name:
+              - lvm2
+            state: present
+          become: true
+          when: ansible_os_family | lower == "debian"
+
+        - name: Create the LVM volume groups
+          community.general.lvg:
+            vg: "{{ item.name }}"
+            pvs: "{{ item.pvs.disks }}"
+            state: active
+          become: true
+          loop: "{{ lvm_disks_config.vgs }}"
+
+        - name: Create the LVM logical volumes
+          community.general.lvol:
+            lv: "{{ item.name }}"
+            size: "{{ item.size }}"
+            vg: "{{ item.vg_name }}"
+            state: present
+          become: true
+          loop: "{{ lvm_disks_config.lvs }}"
+
+        - name: Create filesystems on the LVM logical volumes
+          community.general.filesystem:
+            fstype: "{{ item.fstype }}"
+            dev: /dev/{{ item.vg_name }}/{{ item.name }}
+          become: true
+          loop: "{{ lvm_disks_config.lvs }}"

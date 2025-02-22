@@ -1,7 +1,6 @@
 <!-- Virtual network configs for the homelab network. -->
 <network ipv6='yes'>
   <name>homelab-cm</name>
-  <forward mode='bridge'>
-    <interface dev='{{ homelab_network_interface_name }}'/>
-  </forward>
+  <bridge name='{{ homelab_network_bridge_interface_name }}'/>
+  <forward mode='bridge'/>
 </network>

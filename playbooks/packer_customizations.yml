@@ -35,3 +35,18 @@
         dest: /etc/dhcp/dhclient-enter-hooks.d/disable-make-resolv-conf
         mode: "644"
       become: true
+
+    - name: Truncate the etcetera local machine ID configuration file
+      community.general.filesize:
+        path: /etc/machine-id
+        size: 0B
+      become: true
+      register: local_machine_id_file
+
+    - name: Make the variables local machine ID configuration file a symbolic link
+      ansible.builtin.file:
+        state: link
+        path: /var/lib/dbus/machine-id
+        src: "{{ local_machine_id_file.path }}"
+        force: true
+      become: true
