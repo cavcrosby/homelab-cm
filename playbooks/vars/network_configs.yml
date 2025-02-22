@@ -14,7 +14,7 @@ gerald_homelab_ipv4_addr: 192.168.0.3
 kronk_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
 kronk_idrac_homelab_ipv4_addr: 192.168.0.4
 
-kronk_homelab_network_interface_name: en0
+kronk_homelab_network_bridge_interface_name: virbr0
 kronk_homelab_mac_addr: 18:66:DA:6B:8D:0B
 kronk_homelab_ipv4_addr: 192.168.0.5
 

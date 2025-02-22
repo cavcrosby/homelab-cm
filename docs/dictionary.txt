@@ -29,7 +29,10 @@ ebtables
 en_us
 etcd
 etcdctl
+etcetera
 fail2ban
+filesystem
+filesystems
 foo
 glibc's
 gpg
@@ -66,8 +69,10 @@ localhost
 lockdown
 locpath
 logind
+lvm
 namespace
 networkd
+nfs
 nginx
 nodeport
 pam_access

@@ -1,0 +1,102 @@
+---
+- name: Setup NFS server
+  hosts: nfs_servers
+  tags: setup_nfs_servers
+
+  tasks:
+    - name: Update apt's package index (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Install the kernel space NFS server (debian-like)
+      ansible.builtin.apt:
+        name:
+          - nfs-kernel-server
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Create the nfs.conf configuration file
+      ansible.builtin.template:
+        src: nfs.conf.j2
+        dest: /etc/nfs.conf.d/homelab-nfs.conf
+        mode: "644"
+      become: true
+      notify: Restart the nfs-server service
+
+    - name: Create the NFS exports directory
+      ansible.builtin.file:
+        path: /srv/nfs
+        state: directory
+        mode: "755"
+      become: true
+      register: nfs_exports_dir
+
+    - name: Create each NFS export directory
+      ansible.builtin.file:
+        path: "{{ nfs_exports_dir.path }}/{{ item.name | ansible.builtin.regex_replace('^lv(.+)', '\\1') }}"
+        owner: nobody
+        group: nogroup
+        state: directory
+        mode: "755"
+      become: true
+      loop: "{{ lvm_disks_config.lvs }}"
+      when: item.vg_name == "vgnfs"
+
+    - name: Mount each NFS export's filesystem
+      ansible.posix.mount:
+        path: "{{ nfs_exports_dir.path }}/{{ item.name | ansible.builtin.regex_replace('^lv(.+)', '\\1') }}"
+        src: /dev/{{ item.vg_name }}/{{ item.name }}
+        fstype: "{{ item.fstype }}"
+        opts: defaults
+        state: mounted
+      become: true
+      notify: Issue a systemd daemon reload
+      loop: "{{ lvm_disks_config.lvs }}"
+      when: item.vg_name == "vgnfs"
+
+    - name: Set the owner and group for all files in each NFS export directory
+      ansible.builtin.file:
+        path: "{{ nfs_exports_dir.path }}/{{ item.name | ansible.builtin.regex_replace('^lv(.+)', '\\1') }}"
+        owner: nobody
+        group: nogroup
+        recurse: true
+        state: directory
+      become: true
+      loop: "{{ lvm_disks_config.lvs }}"
+      when: item.vg_name == "vgnfs"
+
+    - name: Create the exports(5) extra export tables directory
+      ansible.builtin.file:
+        path: /etc/exports.d
+        state: directory
+        mode: "755"
+      become: true
+      register: exports_extra_tables_dir
+
+    - name: Create the homelab.exports configuration file
+      ansible.builtin.template:
+        src: nfs-homelab.exports.j2
+        dest: "{{ exports_extra_tables_dir.path }}/homelab.exports"
+        mode: "644"
+      become: true
+      notify: Reexport all the directories
+
+  handlers:
+    - name: Restart the nfs-server service
+      ansible.builtin.systemd_service:
+        name: nfs-server.service
+        state: restarted
+      become: true
+
+    - name: Issue a systemd daemon reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      become: true
+
+    - name: Reexport all the directories
+      ansible.builtin.command: exportfs -r
+      changed_when: true
+      become: true

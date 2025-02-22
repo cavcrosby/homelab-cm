@@ -248,6 +248,12 @@ all:
                 DHCP: true
               DHCPv4:
                 UseHostname: false
+      vars:
+        nfs_exports_config:
+          - host: kronk
+            device: /srv/nfs/zims
+            mountpoint: /nfs/kronk/zims
+            options: defaults
     irc_clients:
       children:
         lightsail_instances:
@@ -294,7 +300,7 @@ all:
         kronk:
           ansible_host: {{ kronk_homelab_ipv4_addr }}
           ansible_user: ansible
-          homelab_network_interface_name: {{ kronk_homelab_network_interface_name }}
+          homelab_network_bridge_interface_name: {{ kronk_homelab_network_bridge_interface_name }}
           libvirt_poseidon_k8s_network_config_file_template: poseidon/libvirt-network.xml.j2
           libvirt_poseidon_k8s_node_domain_autostart: true
           libvirt_poseidon_k8s_node_domain_state: running
@@ -326,23 +332,63 @@ all:
               homelab_mac_addr: {{ poseidon_k8s_worker3_homelab_mac_addr }}
               poseidon_k8s_ipv4_addr: {{ poseidon_k8s_worker3_poseidon_k8s_ipv4_addr }}
               poseidon_k8s_mac_addr: {{ poseidon_k8s_worker3_poseidon_k8s_mac_addr }}
+          lvm_disks_config:
+            vgs:
+              - name: vgnfs
+                pvs:
+                  disks:
+                    - /dev/disk/by-id/ata-PNY_CS900_2TB_SSD_PNY225122122301002CE
+            lvs:
+              - name: lvzims
+                size: 500G
+                fstype: ext4
+                vg_name: vgnfs
+          nfs_exports_config:
+            - device: /srv/nfs/zims
+              hosts:
+                - poseidon-k8s-worker1(rw,all_squash)
+                - poseidon-k8s-worker2(rw,all_squash)
+                - poseidon-k8s-worker3(rw,all_squash)
           systemd_networkd_files:
+            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.netdev
+              NetDev:
+                Name: {{ kronk_homelab_network_bridge_interface_name }}
+                Kind: bridge
+                MACAddress: none
+            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.link
+              Match:
+                OriginalName: {{ kronk_homelab_network_bridge_interface_name }}
+              Link:
+                MACAddressPolicy: none
+            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.network
+              Match:
+                Name: {{ kronk_homelab_network_bridge_interface_name }}
+              Link:
+                RequiredForOnline: routable
+              Network:
+                DHCP: yes
             - filename: 00-en0.link
               Match:
                 MACAddress: {{ kronk_homelab_mac_addr }}
               Link:
                 Name: en0
-            - filename: 00-en0.network
+            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}-en0.network
               Match:
                 Name: en0
               Network:
-                DHCP: true
-              DHCPv4:
-                UseHostname: false
+                Bridge: {{ kronk_homelab_network_bridge_interface_name }}
       vars:
         poseidon_k8s_network_mac_addr: 52:54:00:78:a2:4f
         poseidon_k8s_network_gateway_ipv4_addr: 192.168.1.1
         poseidon_k8s_network_subnet_mask: 255.255.255.0
+    nfs_servers:
+      hosts:
+        kronk:
+    nfs_clients:
+      hosts:
+        poseidon-k8s-worker1:
+        poseidon-k8s-worker2:
+        poseidon-k8s-worker3:
     bare_metal:
       hosts:
         gerald:

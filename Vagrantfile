@@ -235,6 +235,7 @@ _EOF_
       # according to libvirt. For reference: https://libvirt.org/goals.html
       #
       # VM provider configuration
+      disks_config = machine_attrs["lvm_disks_config"]
       machine.vm.provider "libvirt" do |domain|
         domain.cpus = machine_attrs["vagrant_vm_cpus"]
         domain.memory = machine_attrs["vagrant_vm_memory"]
@@ -250,6 +251,17 @@ _EOF_
           dhcp = @libvirt_management_network_xml.at_css("dhcp")
           dhcp << host_entry
         end
+
+        if !disks_config.nil?
+          # aggregate pv disks arrays to create a unique list of pv disks
+          Set.new(disks_config["vgs"].map{|vg| vg["pvs"]["disks"]}.flatten).each do |pv_disk|
+            domain.storage :file, device: File.basename(pv_disk)
+          end
+        end
+      end
+
+      if !disks_config.nil?
+        machine_attrs["lvm_disks_config"] = "'#{disks_config.to_json}'"
       end
 
       counter += 1
@@ -279,6 +291,9 @@ _EOF_
         ansible_groups["on_prem:vars"] = {
           "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]
         }
+
+        ansible_host_vars["vmm1"]["nfs_exports_config"] = "'#{ansible_host_vars["vmm1"]["nfs_exports_config"].to_json}'"
+        ansible_groups["poseidon_k8s_workers:vars"]["nfs_exports_config"] = "'#{ansible_groups["poseidon_k8s_workers:vars"]["nfs_exports_config"].to_json}'"
 
         if TRUTHY_VALUES.include? ENV["USE_MAINTENANCE_PLAYBOOK"]
           machine.vm.provision "ansible" do |ansible|

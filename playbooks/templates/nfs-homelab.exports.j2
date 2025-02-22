@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+#
+# The access control list for filesystems which may be exported to NFS clients.
+# See exports(5).
+
+{% for nfs_export in nfs_exports_config %}{{ nfs_export.device }}{% for host in nfs_export.hosts %} {{ host }}{% endfor %}
+{# extra newline required to have one appended in tpl #}
+{% endfor %}

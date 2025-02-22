@@ -947,6 +947,7 @@
             "vagrant_vm_box": "debian/bookworm64",
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
+            "homelab_network_bridge_interface_name": "virbr0",
             "libvirt_poseidon_k8s_network_config_file_template": "poseidon/libvirt-network.xml.j2",
             "libvirt_poseidon_k8s_node_domain_autostart": false,
             "libvirt_poseidon_k8s_node_domain_state": "shutdown",
@@ -954,6 +955,53 @@
             "libvirt_poseidon_k8s_worker_domain_template": "poseidon/staging-libvirt-k8s-worker.xml.j2",
             "vagrant_config_refs": {
                 "systemd_networkd_files": [
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "homelab_network_bridge_interface_name",
+                                ".netdev"
+                            ]
+                        },
+                        "NetDev": {
+                            "Name": "homelab_network_bridge_interface_name",
+                            "Kind": "bridge",
+                            "MACAddress": "none"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "homelab_network_bridge_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "OriginalName": "homelab_network_bridge_interface_name"
+                        },
+                        "Link": {
+                            "MACAddressPolicy": "none"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "homelab_network_bridge_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "homelab_network_bridge_interface_name"
+                        },
+                        "Link": {
+                            "RequiredForOnline": "routable"
+                        },
+                        "Network": {
+                            "DHCP": "yes"
+                        }
+                    },
                     {
                         "filename": {
                             "join": [
@@ -973,6 +1021,8 @@
                         "filename": {
                             "join": [
                                 "00-",
+                                "homelab_network_bridge_interface_name",
+                                "-",
                                 "homelab_network_interface_name",
                                 ".network"
                             ]
@@ -981,13 +1031,13 @@
                             "Name": "homelab_network_interface_name"
                         },
                         "Network": {
-                            "DHCP": "true"
+                            "Bridge": "homelab_network_bridge_interface_name"
                         }
                     },
                     {
                         "filename": {
                             "join": [
-                                "00-",
+                                "01-",
                                 "mgmt_network_interface_name",
                                 ".link"
                             ]
@@ -1002,7 +1052,7 @@
                     {
                         "filename": {
                             "join": [
-                                "00-",
+                                "01-",
                                 "mgmt_network_interface_name",
                                 ".network"
                             ]
@@ -1057,6 +1107,36 @@
                     "homelab_mac_addr": "52:54:00:4f:23:3f",
                     "poseidon_k8s_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                     "poseidon_k8s_mac_addr": "52:54:00:ce:fd:19"
+                }
+            ],
+            "lvm_disks_config": {
+                "vgs": [
+                    {
+                        "name": "vgnfs",
+                        "pvs": {
+                            "disks": [
+                                "/dev/vdb"
+                            ]
+                        }
+                    }
+                ],
+                "lvs": [
+                    {
+                        "name": "lvzims",
+                        "size": "5G",
+                        "fstype": "ext4",
+                        "vg_name": "vgnfs"
+                    }
+                ]
+            },
+            "nfs_exports_config": [
+                {
+                    "device": "/srv/nfs/zims",
+                    "hosts": [
+                        "poseidon-k8s-worker1(rw,all_squash)",
+                        "poseidon-k8s-worker2(rw,all_squash)",
+                        "poseidon-k8s-worker3(rw,all_squash)"
+                    ]
                 }
             ]
         },
@@ -1124,6 +1204,14 @@
         "vmms": [
             "vmm1"
         ],
+        "nfs_servers": [
+            "vmm1"
+        ],
+        "nfs_clients": [
+            "poseidon-k8s-worker1",
+            "poseidon-k8s-worker2",
+            "poseidon-k8s-worker3"
+        ],
         "bare_metal": [
             "staging-node1",
             "vmm1"
@@ -1142,6 +1230,16 @@
         },
         "poseidon:vars": {
             "k8s_software_versions_file": "poseidon_k8s_software_versions.yml"
+        },
+        "poseidon_k8s_workers:vars": {
+            "nfs_exports_config": [
+                {
+                    "host": "vmm1",
+                    "device": "/srv/nfs/zims",
+                    "mountpoint": "/nfs/vmm1/zims",
+                    "options": "defaults"
+                }
+            ]
         },
         "vmms:vars": {
             "poseidon_k8s_network_mac_addr": "52:54:00:78:a2:4f",

@@ -26,7 +26,7 @@ d-i partman-auto/disk string /dev/vda
 d-i partman-auto/method string {{ 'crypto' if encrypt_disks else 'regular' }}
 {% if encrypt_disks %}
 d-i partman-auto-lvm/guided_size string max
-d-i partman-auto-lvm/new_vg_name string vg1
+d-i partman-auto-lvm/new_vg_name string vgos
 d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-lvm/confirm boolean true
 d-i partman-lvm/confirm_nooverwrite boolean true
@@ -46,13 +46,13 @@ crypto :: \
     . \
     2048 2048 2048 linux-swap \
         $lvmok{ } lv_name{ swap } \
-        in_vg { vg1 } method{ swap } \
+        in_vg { vgos } method{ swap } \
         format{ } \
     . \
 {# -1 indicates unlimited partition size #}
     10240 10240 -1 ext4 \
         $lvmok{ } lv_name{ root } \
-        in_vg { vg1 } method{ format } \
+        in_vg { vgos } method{ format } \
         format{ } use_filesystem{ } \
         filesystem{ ext4 } mountpoint{ / } \
     .
