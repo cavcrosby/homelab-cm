@@ -276,14 +276,14 @@ all:
           poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
           poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
           systemd_networkd_files:
-            - filename: 00-en0.link
+            - filename: 00-{{ gerald_homelab_network_interface_name }}.link
               Match:
                 MACAddress: {{ gerald_homelab_mac_addr }}
               Link:
-                Name: en0
-            - filename: 00-en0.network
+                Name: {{ gerald_homelab_network_interface_name }}
+            - filename: 00-{{ gerald_homelab_network_interface_name }}.network
               Match:
-                Name: en0
+                Name: {{ gerald_homelab_network_interface_name }}
               Network:
                 Address: {{ gerald_homelab_ipv4_addr }}/24
                 Gateway: {{ homelab_network_gateway_ipv4_addr }}
@@ -367,14 +367,14 @@ all:
                 RequiredForOnline: routable
               Network:
                 DHCP: yes
-            - filename: 00-en0.link
+            - filename: 00-{{ kronk_homelab_network_interface_name }}.link
               Match:
                 MACAddress: {{ kronk_homelab_mac_addr }}
               Link:
-                Name: en0
-            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}-en0.network
+                Name: {{ kronk_homelab_network_interface_name }}
+            - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}-{{ kronk_homelab_network_interface_name }}.network
               Match:
-                Name: en0
+                Name: {{ kronk_homelab_network_interface_name }}
               Network:
                 Bridge: {{ kronk_homelab_network_bridge_interface_name }}
       vars:

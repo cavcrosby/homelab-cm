@@ -8,12 +8,14 @@ homelab_network_subnet_mask: 255.255.255.0
 homelab_network_lower_bound: 192.168.0.50
 homelab_network_upper_bound: 192.168.0.254
 
+gerald_homelab_network_interface_name: en0
 gerald_homelab_mac_addr: 3C:D9:2B:56:A5:4B
 gerald_homelab_ipv4_addr: 192.168.0.3
 
 kronk_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
 kronk_idrac_homelab_ipv4_addr: 192.168.0.4
 
+kronk_homelab_network_interface_name: en0
 kronk_homelab_network_bridge_interface_name: virbr0
 kronk_homelab_mac_addr: 18:66:DA:6B:8D:0B
 kronk_homelab_ipv4_addr: 192.168.0.5
