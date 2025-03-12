@@ -3,9 +3,12 @@
   hosts: k8s_first_controllers:&poseidon
   tags: install_poseidon_k8s_app_manifests
   vars_files:
+    - "{{ network_configs_path }}"
+    - ./vars/{{ k8s_software_versions_file }}
     - ./vars/ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+    nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
 
   tasks:
     - name: Create the CronJobs namespace in the Kubernetes cluster
@@ -25,6 +28,37 @@
       become: true
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+
+    - name: Create the kiwix-serve namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: kiwix-serve
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      register: namespace_creation
+
+    - name: Apply the kiwix-serve manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: poseidon/k8s-kiwix-serve.yml.j2
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      vars:
+        namespace: "{{ namespace_creation.result.metadata.name }}"
+
+    - name: Apply the Kiwix zim Jobs manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: poseidon/k8s-kiwix-zim-jobs.yml.j2
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      vars:
+        namespace: "{{ namespace_creation.result.metadata.name }}"
 
 - name: Install Helm charts (poseidon)
   hosts: k8s_first_controllers:&poseidon
