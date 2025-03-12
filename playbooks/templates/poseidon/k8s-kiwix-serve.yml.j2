@@ -1,0 +1,81 @@
+---
+{#
+  Manifest that deploys kiwix-serve onto Kubernetes.
+#}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kiwix-serve
+  namespace: {{ namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kiwix-serve
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kiwix-serve
+    spec:
+      containers:
+        - name: kiwix-serve
+          image: ghcr.io/kiwix/kiwix-serve@{{ kiwix_serve_image_digest }}
+          args:
+            - /mnt/*.zim
+          env:
+            - name: PORT
+              value: "80"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+          resources:
+            requests:
+              cpu: 5m
+              memory: 10Mi
+          volumeMounts:
+            - name: zims
+              mountPath: /mnt
+      volumes:
+      - name: zims
+        nfs:
+          server: {{ nfs_export.host }}
+          path: {{ nfs_export.device }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kiwix-serve
+  namespace: {{ namespace }}
+spec:
+  selector:
+    app.kubernetes.io/name: kiwix-serve
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kiwix-serve
+  namespace: {{ namespace }}
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: kiwix.{{ homelab_network_domain }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kiwix-serve
+            port:
+              number: 80

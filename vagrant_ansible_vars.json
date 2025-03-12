@@ -551,7 +551,17 @@
                 "poseidon-k8s-controller3": {
                     "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
                 }
-            }
+            },
+            "zim_jobs_manifest_configs": [
+                {
+                    "name": "import-wikipedia-zim",
+                    "url": "https://download.kiwix.org/zim/wikipedia/wikipedia_en_simple_all_mini_2024-06.zim"
+                },
+                {
+                    "name": "import-computergraphics-stackexchange-com-zim",
+                    "url": "https://download.kiwix.org/zim/stack_exchange/computergraphics.stackexchange.com_en_all_2024-11.zim"
+                }
+            ]
         },
         "poseidon-k8s-controller2": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.6",
@@ -1229,14 +1239,13 @@
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
         },
         "poseidon:vars": {
-            "k8s_software_versions_file": "poseidon_k8s_software_versions.yml"
-        },
-        "poseidon_k8s_workers:vars": {
+            "k8s_software_versions_file": "poseidon_k8s_software_versions.yml",
             "nfs_exports_config": [
                 {
                     "host": "vmm1",
                     "device": "/srv/nfs/zims",
                     "mountpoint": "/nfs/vmm1/zims",
+                    "usage": "zims",
                     "options": "defaults"
                 }
             ]
