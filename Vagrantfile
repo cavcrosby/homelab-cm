@@ -293,7 +293,8 @@ _EOF_
         }
 
         ansible_host_vars["vmm1"]["nfs_exports_config"] = "'#{ansible_host_vars["vmm1"]["nfs_exports_config"].to_json}'"
-        ansible_groups["poseidon_k8s_workers:vars"]["nfs_exports_config"] = "'#{ansible_groups["poseidon_k8s_workers:vars"]["nfs_exports_config"].to_json}'"
+        ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"] = "'#{ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"].to_json}'"
+        ansible_groups["poseidon:vars"]["nfs_exports_config"] = "'#{ansible_groups["poseidon:vars"]["nfs_exports_config"].to_json}'"
 
         if TRUTHY_VALUES.include? ENV["USE_MAINTENANCE_PLAYBOOK"]
           machine.vm.provision "ansible" do |ansible|

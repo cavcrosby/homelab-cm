@@ -10,6 +10,9 @@ defaults
 
 frontend http
   bind {{ load_balancer_listen_ipv4_addr }}:80
+  acl is_kiwix req.hdr(host) kiwix.{{ homelab_network_domain }}
+
+  use_backend poseidon_k8s_http_ingresses if is_kiwix
 
 backend poseidon_k8s_http_ingresses
   balance roundrobin

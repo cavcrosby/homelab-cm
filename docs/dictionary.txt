@@ -52,6 +52,7 @@ k8s_first_controller
 k8s_ha_controller
 k8s_worker
 keepalived
+kiwix
 kube
 kube_apiservers
 kubeadm
@@ -100,3 +101,4 @@ weechat
 weechat's
 whoami
 x86_64
+zim
