@@ -20,6 +20,7 @@
       become: true
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+      register: namespace_creation
 
     - name: Apply the CronJobs manifest to the Kubernetes cluster
       kubernetes.core.k8s:
@@ -28,6 +29,8 @@
       become: true
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
+      vars:
+        namespace: "{{ namespace_creation.result.metadata.name }}"
 
     - name: Create the kiwix-serve namespace in the Kubernetes cluster
       kubernetes.core.k8s:
@@ -92,6 +95,8 @@
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+          vars:
+            namespace: "{{ ingress_nginx_namespace }}"
 
         - name: Add the Ingress NGINX Helm repository
           kubernetes.core.helm_repository:
