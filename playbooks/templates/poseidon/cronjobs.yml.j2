@@ -6,7 +6,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: cronjobs-secrets
-  namespace: cronjobs
+  namespace: {{ namespace }}
 stringData:
   github_access_token: {{ github_access_token }}
 
@@ -15,7 +15,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: update-github-forks
-  namespace: cronjobs
+  namespace: {{ namespace }}
 spec:
   schedule: "0 4 * * *"
   jobTemplate:
