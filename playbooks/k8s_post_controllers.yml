@@ -75,18 +75,18 @@
   tasks:
     - name: Install the Ingress NGINX controller
       vars:
-        ingress_nginx_namespace: ingress-nginx
         dockerhub_creds_secret_name: dockerhub-creds
       block:
         - name: Create the Ingress NGINX namespace in the Kubernetes cluster
           kubernetes.core.k8s:
             api_version: v1
             kind: Namespace
-            name: "{{ ingress_nginx_namespace }}"
+            name: ingress-nginx
             state: present
           become: true
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
+          register: namespace_creation
 
         - name: Apply the Ingress NGINX manifest to the Kubernetes cluster
           kubernetes.core.k8s:
@@ -96,7 +96,7 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           vars:
-            namespace: "{{ ingress_nginx_namespace }}"
+            namespace: "{{ namespace_creation.result.metadata.name }}"
 
         - name: Add the Ingress NGINX Helm repository
           kubernetes.core.helm_repository:
@@ -109,7 +109,7 @@
             release_name: ingress-nginx
             chart_ref: ingress-nginx/ingress-nginx
             chart_version: "{{ ingress_nginx_chart_version }}"
-            release_namespace: "{{ ingress_nginx_namespace }}"
+            release_namespace: "{{ namespace_creation.result.metadata.name }}"
             create_namespace: true
             release_state: present
             values: "{{ lookup('ansible.builtin.template', ingress_nginx_helm_values_file_template) | ansible.builtin.from_yaml }}"
