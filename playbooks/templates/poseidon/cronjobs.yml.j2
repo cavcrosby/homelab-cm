@@ -35,3 +35,7 @@ spec:
                     secretKeyRef:
                       name: cronjobs-secrets
                       key: github_access_token
+              resources:
+                requests:
+                  cpu: 55m
+                  memory: 35Mi
