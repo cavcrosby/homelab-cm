@@ -73,7 +73,8 @@
 ## Conventions
 
 - [Group package installations based on the need.](../examples/playbooks/append_distro_specificness.yml)
-- [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_tpl_searching_controller.yml)
+- [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_relative_path_searching.yml)
+- [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.copy tasks.](../examples/playbooks/utilize_relative_path_searching.yml)
 - [Append the ansible_managed variable in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)
 - Add brief comments on roles' defaults variables that are not self-explanatory.
@@ -136,8 +137,9 @@
 
     - The following can also be used to generate the signing key and certificate
       respectively
-      `openssl genrsa -out "./playbooks/rsa_keys/poseidon_k8s_ca.key" 2048` and
-      `openssl req -x509 -new -nodes -key "./playbooks/rsa_keys/poseidon_k8s_ca.key" -subj "/CN=Conner Crosby (homelab-cm)" -days 10000 -out "./playbooks/certs/poseidon_k8s_ca.crt"`.
+      `openssl genrsa -out "./playbooks/files/rsa_keys/poseidon_k8s_ca.key" 2048`
+      and
+      `openssl req -x509 -new -nodes -key "./playbooks/files/rsa_keys/poseidon_k8s_ca.key" -subj "/CN=Conner Crosby (homelab-cm)" -days 10000 -out "./playbooks/files/certs/poseidon_k8s_ca.crt"`.
 
   - Follow these instructions for the client TLS certificates related to IRC
     server identification.
@@ -146,7 +148,7 @@
 
       1. [Replace a IRC server's TLS certificate by creating a new one.](https://libera.chat/guides/certfp#creating-a-self-signed-certificate)
          The following can also be used
-         `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/certs/liberachat.pem" -keyout "./playbooks/certs/liberachat.pem"`.
+         `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/files/certs/liberachat.pem" -keyout "./playbooks/files/certs/liberachat.pem"`.
       2. Create/change calendar reminder for when the TLS certificate expires.
       3. Remove the fingerprint of the previous certificate stored by `NickServ`
          using `/msg NickServ CERT DELETE <fingerprint>`.
@@ -154,7 +156,7 @@
          playbook.
       5. [Get the fingerprint of the new TLS certificate.](https://libera.chat/guides/certfp#inspecting-your-certificate)
          The following can also be used
-         `openssl x509 -noout -fingerprint -sha512 -in "./playbooks/certs/liberachat.pem" | awk -F "=" '{ gsub(":", ""); print tolower ($2) }'`.
+         `openssl x509 -noout -fingerprint -sha512 -in "./playbooks/files/certs/liberachat.pem" | awk -F "=" '{ gsub(":", ""); print tolower ($2) }'`.
       6. Add the fingerprint of the new certificate to `NickServ` using
          `/msg NickServ CERT ADD <fingerprint>`.
       7. Upload the new certificate to Bitwarden.
@@ -163,7 +165,7 @@
 
       1. [Replace a IRC server's TLS certificate by creating a new one.](https://libera.chat/guides/certfp#creating-a-self-signed-certificate)
          The following can also be used
-         `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/certs/oftc.pem" -keyout "./playbooks/certs/oftc.pem"`.
+         `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/files/certs/oftc.pem" -keyout "./playbooks/files/certs/oftc.pem"`.
       2. Create/change calendar reminder for when the TLS certificate expires.
       3. Remove the fingerprint of the previous certificate stored by `NickServ`
          using `/msg NickServ CERT DEL <fingerprint>`.

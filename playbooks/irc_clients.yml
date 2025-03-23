@@ -64,8 +64,8 @@
         mode: "600"
       become: true
       loop:
-        - ./certs/liberachat.pem
-        - ./certs/oftc.pem
+        - certs/liberachat.pem
+        - certs/oftc.pem
 
 - name: Perform lightsail customizations
   hosts: lightsail_instances

@@ -33,7 +33,7 @@ locals {
   iso_checksum         = "sha256:23ab444503069d9ef681e3028016250289a33cc7bab079259b73100daee0af66"
   ssh_username         = "ansible"
   ssh_private_key_file = "~/.ssh/id_ed25519"
-  preseed_file         = "${path.root}/playbooks/packer/preseed.cfg"
+  preseed_file         = "${path.root}/playbooks/files/packer/preseed.cfg"
   boot_command = [
     "<esc><wait>",
     "/install.amd/vmlinuz ",
@@ -48,7 +48,7 @@ locals {
 source "qemu" "poseidon_k8s_controller" {
   iso_url              = local.iso_url
   iso_checksum         = local.iso_checksum
-  output_directory     = "./playbooks/packer/qemu-poseidon_k8s_controller"
+  output_directory     = "./playbooks/files/packer/qemu-poseidon_k8s_controller"
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
@@ -74,7 +74,7 @@ source "qemu" "poseidon_k8s_controller" {
 source "qemu" "poseidon_k8s_worker" {
   iso_url              = local.iso_url
   iso_checksum         = local.iso_checksum
-  output_directory     = "./playbooks/packer/qemu-poseidon_k8s_worker"
+  output_directory     = "./playbooks/files/packer/qemu-poseidon_k8s_worker"
   format               = "qcow2"
   ssh_username         = local.ssh_username
   ssh_private_key_file = local.ssh_private_key_file
@@ -136,7 +136,7 @@ build {
 
   post-processor "shell-local" {
     inline = [
-      "mv --verbose \"./playbooks/packer/${source.type}-${source.name}/packer-${source.name}\" \"./playbooks/packer/${source.type}-${source.name}/${source.name}.qcow2\""
+      "mv --verbose \"./playbooks/files/packer/${source.type}-${source.name}/packer-${source.name}\" \"./playbooks/files/packer/${source.type}-${source.name}/${source.name}.qcow2\""
     ]
   }
 }
