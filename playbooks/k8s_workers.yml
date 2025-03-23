@@ -47,7 +47,7 @@
     - name: Copy over the local containerd package (debian-like)
       ansible.builtin.copy:
         dest: /tmp/{{ containerd_deb }}
-        src: ./files/{{ containerd_deb }}
+        src: "{{ containerd_deb }}"
         mode: "755"
       when: ansible_os_family | lower == "debian"
 

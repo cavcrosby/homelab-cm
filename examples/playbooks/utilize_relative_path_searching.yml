@@ -14,3 +14,9 @@
         src: foo.conf.j2
         dest: "{{ temp_file.path }}"
         mode: "644"
+
+    - name: Copy over the bar file
+      ansible.builtin.copy:
+        dest: /tmp/bar
+        src: bar
+        mode: "755"

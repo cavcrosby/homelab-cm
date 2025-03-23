@@ -8,5 +8,5 @@ __pycache__/
 /vendor/
 /ansible/
 /playbooks/vars/ansible_secrets.yml
-/playbooks/rsa_keys/
-/playbooks/certs/
+/playbooks/files/rsa_keys/
+/playbooks/files/certs/
