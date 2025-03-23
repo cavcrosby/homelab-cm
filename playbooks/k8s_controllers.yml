@@ -49,7 +49,7 @@
     - name: Copy over the local containerd package (debian-like)
       ansible.builtin.copy:
         dest: /tmp/{{ containerd_deb }}
-        src: ./files/{{ containerd_deb }}
+        src: "{{ containerd_deb }}"
         mode: "755"
       when: ansible_os_family | lower == "debian"
 
@@ -100,14 +100,14 @@
     - name: Copy the self-signed CA key into the Kubernetes certificate directory
       ansible.builtin.copy:
         dest: "{{ k8s_cert_dir_path }}/ca.key"
-        src: ./rsa_keys/{{ ca_key }}
+        src: rsa_keys/{{ ca_key }}
         mode: "600"
       become: true
 
     - name: Copy the self-signed CA certificate into the Kubernetes certificate directory
       ansible.builtin.copy:
         dest: "{{ k8s_root_cacert_path }}"
-        src: ./certs/{{ ca_cert }}
+        src: certs/{{ ca_cert }}
         mode: "644"
       become: true
 

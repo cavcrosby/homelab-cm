@@ -13,12 +13,12 @@ ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 
-BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/rsa_keys
+BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/files/rsa_keys
 BITWARDEN_RSA_KEYS_ITEMID = 0a2e75a3-7f1d-4720-ad05-aec2016c4ba9
 BITWARDEN_RSA_KEYS = \
 	poseidon_k8s_ca.key
 
-BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/certs
+BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/files/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
 	liberachat.pem\
@@ -340,7 +340,7 @@ ${K8S_NODE_IMAGES}:
 	# expansion.
 >	ANSIBLE_VERBOSITY=0 ${ANSIBLE} \
 		--module-name "ansible.builtin.template" \
-		--args 'src=./preseed.cfg.j2 dest=./playbooks/packer/preseed.cfg mode="644"' \
+		--args 'src=./preseed.cfg.j2 dest=./playbooks/files/packer/preseed.cfg mode="644"' \
 		--extra-vars '{"encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":false,"for_vms":true}' \
 		"localhost"
 
@@ -369,8 +369,8 @@ ${CLEAN}:
 >	rm \
 		--recursive \
 		--force \
-		"./playbooks/packer/qemu-poseidon_k8s_controller" \
-		"./playbooks/packer/qemu-poseidon_k8s_worker"
+		"./playbooks/files/packer/qemu-poseidon_k8s_controller" \
+		"./playbooks/files/packer/qemu-poseidon_k8s_worker"
 
 >	rm --force "./playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb"
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})

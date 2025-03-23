@@ -153,14 +153,14 @@
     - name: Copy over the poseidon Kubernetes controller node QEMU backing image
       ansible.builtin.copy:
         dest: "{{ libvirt_pool_dir_path }}"
-        src: ./packer/qemu-poseidon_k8s_controller/poseidon_k8s_controller.qcow2
+        src: packer/qemu-poseidon_k8s_controller/poseidon_k8s_controller.qcow2
         mode: "600"
       become: true
 
     - name: Copy over the poseidon Kubernetes worker node QEMU backing image
       ansible.builtin.copy:
         dest: "{{ libvirt_pool_dir_path }}"
-        src: ./packer/qemu-poseidon_k8s_worker/poseidon_k8s_worker.qcow2
+        src: packer/qemu-poseidon_k8s_worker/poseidon_k8s_worker.qcow2
         mode: "600"
       become: true
 
