@@ -73,8 +73,8 @@
 ## Conventions
 
 - [Group package installations based on the need.](../examples/playbooks/append_distro_specificness.yml)
-- [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.template tasks.](../examples/playbooks/utilize_relative_path_searching.yml)
-- [Utilize the local relative path searching when specifying the src parameter to ansible.builtin.copy tasks.](../examples/playbooks/utilize_relative_path_searching.yml)
+- [Put templates for use with ansible.builtin.template tasks within the 'templates' directory.](../examples/playbooks/utilize_relative_path_searching.yml)
+- [Put files for use with ansible.builtin.copy tasks within the 'files' directory.](../examples/playbooks/utilize_relative_path_searching.yml)
 - [Append the ansible_managed variable in files that are long-lived on a system.](../examples/playbooks/templates/foo.conf.j2)
 - [Use `./` in file paths.](../examples/playbooks/use_keywords_order_plays.yml)
 - Add brief comments on roles' defaults variables that are not self-explanatory.
