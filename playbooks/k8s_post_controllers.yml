@@ -4,8 +4,8 @@
   tags: install_poseidon_k8s_app_manifests
   vars_files:
     - "{{ network_configs_path }}"
-    - ./vars/{{ k8s_software_versions_file }}
-    - ./vars/ansible_secrets.yml
+    - "{{ k8s_software_versions_file }}"
+    - ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
     nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
@@ -67,8 +67,8 @@
   hosts: k8s_first_controllers:&poseidon
   tags: install_poseidon_k8s_helm_charts
   vars_files:
-    - ./vars/{{ k8s_software_versions_file }}
-    - ./vars/ansible_secrets.yml
+    - "{{ k8s_software_versions_file }}"
+    - ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 

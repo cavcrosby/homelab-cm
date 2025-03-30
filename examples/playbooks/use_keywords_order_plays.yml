@@ -4,7 +4,7 @@
   tags: do_convention_tasks
   serial: 1
   vars_files:
-    - ./vars/foo.yml
+    - foo.yml
   vars:
     foo: bar
 

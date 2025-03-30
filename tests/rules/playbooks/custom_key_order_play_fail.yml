@@ -3,7 +3,7 @@
   hosts: all
   tags: run_play
   vars_files:
-    - ./vars/foo.yml
+    - foo.yml
   serial: 1
   vars:
     foo: bar

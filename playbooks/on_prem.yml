@@ -77,7 +77,7 @@
   hosts: bare_metal
   tags: create_bare_metal_admin_account
   vars_files:
-    - ./vars/ansible_secrets.yml
+    - ansible_secrets.yml
 
   tasks:
     - name: Create the admin group

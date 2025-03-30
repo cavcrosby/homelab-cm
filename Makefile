@@ -213,7 +213,7 @@ ${PRODUCTION}: export ANSIBLE_LOG_PATH = \
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 				--inventory "production"\
 				--tags "${ANSIBLE_TAGS}"\
-				--extra-vars "network_configs_path=./vars/network_configs.yml"
+				--extra-vars "network_configs_path=network_configs.yml"
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_EXTRA_VARS},--extra-vars ${ANSIBLE_EXTRA_VARS},)
 ${PRODUCTION}:
