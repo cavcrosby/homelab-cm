@@ -46,8 +46,8 @@
   tags: upgrade_poseidon_k8s_cluster
   serial: 1
   vars_files:
-    - ./vars/{{ k8s_software_versions_file }}
-    - ./vars/ansible_secrets.yml
+    - "{{ k8s_software_versions_file }}"
+    - ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
 
