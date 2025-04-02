@@ -8,5 +8,6 @@ __pycache__/
 /vendor/
 /ansible/
 /playbooks/vars/ansible_secrets.yml
+/playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb
 /playbooks/files/rsa_keys/
 /playbooks/files/certs/
