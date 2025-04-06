@@ -53,3 +53,6 @@ ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | 
 
 host-record=kiwix.{{ homelab_network_domain }},{{ staging_node1_homelab_ipv4_addr }}
 ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,kiwix.{{ homelab_network_domain }}
+
+host-record=proxy.{{ homelab_network_domain }},{{ staging_node1_homelab_ipv4_addr }}
+ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,proxy.{{ homelab_network_domain }}
