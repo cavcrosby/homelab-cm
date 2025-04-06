@@ -1,9 +1,9 @@
+.python-version
 .vagrant/
 node_modules/
 __pycache__/
 /production
 /preseed.cfg
-/.python-version
 /.ruby-version
 /vendor/
 /ansible/
