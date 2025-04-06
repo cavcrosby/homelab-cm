@@ -1,0 +1,79 @@
+---
+- name: Setup mitmproxy
+  hosts: proxy_servers
+  tags: setup_mitmproxy
+  vars_files:
+    - "{{ network_configs_path }}"
+  vars:
+    python_virtualenv_name: mitmproxy
+    python_virtualenv_path: /opt
+
+  roles:
+    - role: python_virtualenv
+      become: true
+      vars:
+        python_virtualenv_pkgs:
+          - mitmproxy ==11.0.2
+          - requests ==2.32.3
+
+  tasks:
+    - name: Link the mitmproxy executables
+      ansible.builtin.file:
+        state: link
+        path: /usr/local/bin/{{ item }}
+        src: "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}/bin/{{ item }}"
+      become: true
+      loop:
+        - mitmproxy
+        - mitmweb
+        - mitmdump
+
+    - name: Create the mitmproxy configurations directory
+      ansible.builtin.file:
+        path: /etc/mitmproxy
+        state: directory
+        mode: "755"
+      become: true
+      register: mitmproxy_config_dir
+
+    - name: Create the addons configuration file
+      ansible.builtin.template:
+        src: addons.toml.j2
+        dest: "{{ mitmproxy_config_dir.path }}/addons.toml"
+        mode: "644"
+      become: true
+      register: addons_config_file
+      notify: Enable and restart the mitmdump service
+
+    - name: Create the se_kiwix_redirect.py addon script
+      ansible.builtin.template:
+        src: se_kiwix_redirect.py.j2
+        dest: "{{ mitmproxy_config_dir.path }}/se_kiwix_redirect.py"
+        mode: "644"
+      become: true
+      notify: Enable and restart the mitmdump service
+
+    - name: Create the mitmdump configuration file
+      ansible.builtin.template:
+        src: mitmdump.yaml.j2
+        dest: "{{ mitmproxy_config_dir.path }}/config.yaml"
+        mode: "644"
+      become: true
+      notify: Enable and restart the mitmdump service
+
+    - name: Create the mitmdump service unit file
+      ansible.builtin.template:
+        src: mitmdump.service.j2
+        dest: /etc/systemd/system/mitmdump.service
+        mode: "644"
+      become: true
+      notify: Enable and restart the mitmdump service
+
+  handlers:
+    - name: Enable and restart the mitmdump service
+      ansible.builtin.systemd_service:
+        name: mitmdump.service
+        enabled: true
+        state: restarted
+        daemon_reload: true
+      become: true

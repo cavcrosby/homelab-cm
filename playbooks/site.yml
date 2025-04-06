@@ -34,3 +34,6 @@
 
 - name: Configure the IRC clients  # noqa tag-plays
   ansible.builtin.import_playbook: irc_clients.yml
+
+- name: Configure the proxy servers  # noqa tag-plays
+  ansible.builtin.import_playbook: proxy_servers.yml

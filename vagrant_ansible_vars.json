@@ -944,7 +944,10 @@
                 "poseidon-k8s-controller3": {
                     "poseidon_k8s_controller3_cluster_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr"
                 }
-            }
+            },
+            "se_domains": [
+                "computergraphics.stackexchange.com"
+            ]
         },
         "vmm1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.9",
@@ -1221,6 +1224,9 @@
             "poseidon-k8s-worker1",
             "poseidon-k8s-worker2",
             "poseidon-k8s-worker3"
+        ],
+        "proxy_servers": [
+            "staging-node1"
         ],
         "bare_metal": [
             "staging-node1",

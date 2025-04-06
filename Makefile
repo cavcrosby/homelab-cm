@@ -168,6 +168,22 @@ ${HELP}:
 
 .PHONY: ${SETUP}
 ${SETUP}:
+>	@[ -n "${MITMPROXY_PYTHON_PATH}" ] \
+		|| { echo "make: MITMPROXY_PYTHON_PATH was not passed into make"; exit 1; }
+
+>	ln \
+		--symbolic \
+		--force \
+		"${MITMPROXY_PYTHON_PATH}" \
+		"./mitmproxy/bin/python"
+
+>	ln \
+		--symbolic \
+		--force \
+		--no-dereference \
+		"${CURDIR}" \
+		"$${HOME}/.local/src/homelab-cm"
+
 >	./scripts/chk-vagrant-pkg
 >	${BUNDLE} install
 >	${VAGRANT} plugin install "$$(find ./vendor -name 'vagrant-libvirt-*.gem')"
@@ -373,6 +389,7 @@ ${CLEAN}:
 		"./playbooks/files/packer/qemu-poseidon_k8s_worker"
 
 >	rm --force "./playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb"
+>	rm --force "./mitmproxy/bin/python"
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls

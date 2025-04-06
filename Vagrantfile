@@ -292,6 +292,7 @@ _EOF_
           "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]
         }
 
+        ansible_host_vars["staging-node1"]["se_domains"] = "'#{ansible_host_vars["staging-node1"]["se_domains"].to_json}'"
         ansible_host_vars["vmm1"]["nfs_exports_config"] = "'#{ansible_host_vars["vmm1"]["nfs_exports_config"].to_json}'"
         ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"] = "'#{ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"].to_json}'"
         ansible_groups["poseidon:vars"]["nfs_exports_config"] = "'#{ansible_groups["poseidon:vars"]["nfs_exports_config"].to_json}'"

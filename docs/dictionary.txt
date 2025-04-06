@@ -1,3 +1,5 @@
+addon
+addons
 admin
 ansible_hostname
 ansible_user
@@ -30,6 +32,7 @@ en_us
 etcd
 etcdctl
 etcetera
+executables
 fail2ban
 filesystem
 filesystems
@@ -71,6 +74,8 @@ lockdown
 locpath
 logind
 lvm
+mitmdump
+mitmproxy
 namespace
 networkd
 nfs
@@ -80,12 +85,14 @@ pam_access
 permitrootlogin
 poseidon
 poseidon_ingress_nginx_node_http_port
+py
 python3
 qemu
 readyz
 resolv
 ro
 schedulable
+se_kiwix_redirect
 sigterm
 sshd
 systemd

@@ -290,6 +290,13 @@ all:
           poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
           poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
           poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
+          se_domains:
+            - askubuntu.com
+            - security.stackexchange.com
+            - serverfault.com
+            - stackoverflow.com
+            - superuser.com
+            - unix.stackexchange.com
           systemd_networkd_files:
             - filename: 00-{{ gerald_homelab_network_interface_name }}.link
               Match:
@@ -404,6 +411,9 @@ all:
         poseidon-k8s-worker1:
         poseidon-k8s-worker2:
         poseidon-k8s-worker3:
+    proxy_servers:
+      hosts:
+        gerald:
     bare_metal:
       hosts:
         gerald:

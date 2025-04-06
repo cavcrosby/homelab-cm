@@ -88,6 +88,19 @@ repos:
           - ansible-lint ==24.9.0
           - pytest ==8.3.4
 
+      - id: mypy
+        name: mypy (mitmproxy)
+        language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
+        files: ^mitmproxy/templates/[a-z_]+\.py\.j2
+        types_or:
+          - jinja
+        args:
+          - --strict
+        additional_dependencies:
+          - mitmproxy ==11.0.2
+          - requests ==2.32.3
+          - types-requests ==2.32.0.20250328
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.8.0
     hooks:
@@ -98,3 +111,17 @@ repos:
       - id: ruff-format
         args:
           - ./rules
+
+      - id: ruff
+        name: ruff (mitmproxy)
+        language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
+        files: ^mitmproxy/templates/[a-z_]+\.py\.j2
+        types_or:
+          - jinja
+
+      - id: ruff-format
+        name: ruff-format (mitmproxy)
+        language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
+        files: ^mitmproxy/templates/[a-z_]+\.py\.j2
+        types_or:
+          - jinja
