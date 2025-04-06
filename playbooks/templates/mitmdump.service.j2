@@ -1,0 +1,12 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Command-line companion to mitmproxy
+After=network.target
+
+[Service]
+Type=exec
+ExecStart=/usr/local/bin/mitmdump --set "confdir={{ mitmproxy_config_dir.path }}"
+
+[Install]
+WantedBy=multi-user.target

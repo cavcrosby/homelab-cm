@@ -28,6 +28,10 @@
   `haproxy`. Notes on this can be found
   [here](https://trello.com/c/1irPAunK/41-integrate-haproxy-into-my-kubernetes-cluster-homelab-subnet).
 
+- The primary homelab network's HTTPS MITM proxy needs should be satisfied by
+  `mitmproxy`. Notes on this can be found
+  [here](https://trello.com/c/VDJYXYzf/251-integrate-a-self-hosted-kiwix-into-the-project).
+
 - There will be a single QEMU/KVM host that will host my virtual machines. Notes
   on this can be found
   [here](https://trello.com/c/uUa3Totk/127-create-the-kvm-playbook-to-provision-a-machine-to-run-kvm-and-libvirt).
