@@ -96,6 +96,7 @@ repos:
           - jinja
         args:
           - --strict
+          - --scripts-are-modules
         additional_dependencies:
           - mitmproxy ==11.0.2
           - requests ==2.32.3

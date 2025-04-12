@@ -59,6 +59,7 @@ class FileNamesRule(AnsibleLintRule):
                 "playbooks/templates/pam_access.conf.j2",
                 "roles/k8s_node/templates/br_netfilter.conf.j2",
                 "mitmproxy/templates/se_kiwix_redirect.py.j2",
+                "mitmproxy/templates/wikipedia_kiwix_redirect.py.j2",
             )
         ):
             id_ = f"{self.id}[no-underscores-jinja]"

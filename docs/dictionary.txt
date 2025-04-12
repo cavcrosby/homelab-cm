@@ -107,5 +107,6 @@ vrrp
 weechat
 weechat's
 whoami
+wikipedia_kiwix_redirect
 x86_64
 zim

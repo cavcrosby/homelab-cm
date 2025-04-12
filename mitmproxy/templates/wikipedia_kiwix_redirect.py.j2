@@ -1,0 +1,59 @@
+# {{ ansible_managed }}
+"""An addon that redirects Wikipedia requests to kiwix-serve."""
+
+from __future__ import annotations
+
+import logging
+import re
+from http import HTTPMethod, HTTPStatus
+from pathlib import Path
+from typing import TYPE_CHECKING
+from xml.etree import ElementTree
+
+import requests
+import tomllib
+
+from mitmproxy.http import Response
+
+if TYPE_CHECKING:
+    from mitmproxy.http import HTTPFlow
+
+logger = logging.getLogger(__name__)
+
+
+def request(flow: HTTPFlow) -> None:
+    """Intercept the client's HTTP request."""
+    with open(Path(f"{Path(__file__).parent}/addons.toml"), "rb") as file:
+        configs = tomllib.load(file)
+
+    logger.info(f"flow.request.host_header: {flow.request.host_header}")
+    regexp = re.compile(r"^/wiki(/.+$)")
+    if (
+        flow.request.host_header == "en.wikipedia.org"
+        and regexp.search(flow.request.path)
+        and flow.request.method == HTTPMethod.GET
+    ):
+        NAMESPACES = {"": "http://www.w3.org/2005/Atom"}
+        res = requests.get(
+            f"{configs.get('http_kiwix_host')}/catalog/v2/entries",
+            params={"name": configs.get("wikipedia_zim_name")},
+        ).text
+
+        host = re.sub(r"^https?://", "", configs.get("http_kiwix_host", ""))
+        logger.info(f"{host} entries response: {res}")
+        entry = ElementTree.fromstring(res).find("entry", NAMESPACES)
+        if entry:
+            for link in entry.iterfind("link", NAMESPACES):
+                if link.get("type") == "text/html":
+                    url = "{http_kiwix_host}{zim}{article}".format(
+                        http_kiwix_host=configs.get("http_kiwix_host"),
+                        zim=link.get("href"),
+                        article=regexp.sub(r"/A\1", flow.request.path),
+                    )
+                    logger.info(f"{host} article url: {url}")
+
+                    if requests.get(url).ok:
+                        flow.response = Response.make(
+                            HTTPStatus.TEMPORARY_REDIRECT,
+                            headers={"Location": url},
+                        )

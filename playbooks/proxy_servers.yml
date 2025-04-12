@@ -53,6 +53,14 @@
       become: true
       notify: Enable and restart the mitmdump service
 
+    - name: Create the wikipedia_kiwix_redirect.py addon script
+      ansible.builtin.template:
+        src: wikipedia_kiwix_redirect.py.j2
+        dest: "{{ mitmproxy_config_dir.path }}/wikipedia_kiwix_redirect.py"
+        mode: "644"
+      become: true
+      notify: Enable and restart the mitmdump service
+
     - name: Create the mitmdump configuration file
       ansible.builtin.template:
         src: mitmdump.yaml.j2
