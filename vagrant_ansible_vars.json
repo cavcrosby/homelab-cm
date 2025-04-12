@@ -855,6 +855,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "haproxy_config_file_template": "haproxy.cfg.j2",
+            "wikipedia_zim_name": "wikipedia_en_simple_all",
             "vagrant_config_refs": {
                 "dnsmasq_dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "dnsmasq_dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
