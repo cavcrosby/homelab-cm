@@ -11,27 +11,6 @@
     nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
 
   tasks:
-    - name: Create the CronJobs namespace in the Kubernetes cluster
-      kubernetes.core.k8s:
-        api_version: v1
-        kind: Namespace
-        name: cronjobs
-        state: present
-      become: true
-      environment:
-        KUBECONFIG: /etc/kubernetes/admin.conf
-      register: namespace_creation
-
-    - name: Apply the CronJobs manifest to the Kubernetes cluster
-      kubernetes.core.k8s:
-        template: poseidon/cronjobs.yml.j2
-        state: present
-      become: true
-      environment:
-        KUBECONFIG: /etc/kubernetes/admin.conf
-      vars:
-        namespace: "{{ namespace_creation.result.metadata.name }}"
-
     - name: Create the kiwix-serve namespace in the Kubernetes cluster
       kubernetes.core.k8s:
         api_version: v1

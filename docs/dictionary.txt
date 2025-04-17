@@ -20,7 +20,6 @@ conf
 containerd
 crds
 cri
-cronjobs
 csrs
 debian
 dhcp
