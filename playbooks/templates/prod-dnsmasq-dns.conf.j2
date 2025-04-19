@@ -47,12 +47,8 @@ domain={{ homelab_network_domain }},{{ homelab_network_subnet }},local
 # with associated IPv4 (A) and IPv6 (AAAA) records.
 host-record={{ ansible_hostname }}.{{ homelab_network_domain }},{{ gerald_homelab_ipv4_addr }}
 ptr-record={{ gerald_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ ansible_hostname }}.{{ homelab_network_domain }}
+cname=kiwix.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
+cname=proxy.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 
 host-record={{ homelab_poseidon_k8s_network_domain }},{{ poseidon_k8s_controller1_cluster_ipv4_addr }}
 ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_poseidon_k8s_network_domain }}
-
-host-record=kiwix.{{ homelab_network_domain }},{{ gerald_homelab_ipv4_addr }}
-ptr-record={{ gerald_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,kiwix.{{ homelab_network_domain }}
-
-host-record=proxy.{{ homelab_network_domain }},{{ gerald_homelab_ipv4_addr }}
-ptr-record={{ gerald_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,proxy.{{ homelab_network_domain }}
