@@ -1,7 +1,7 @@
 [project]
 name = "homelab-cm"
 version = "1.0.0"
-description = "My homelab as IaC (Infrastructure as Code)."
+description = "My approach to configuration management (cm) for my homelab."
 requires-python = ">=3.10,<3.11"
 
 [[authors]]
