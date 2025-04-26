@@ -1,6 +1,6 @@
 # homelab-cm
 
-My homelab as IaC (Infrastructure as Code).
+My approach to configuration management (cm) for my homelab.
 
 ## License
 
