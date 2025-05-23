@@ -31,6 +31,11 @@ all:
             mountpoint: /nfs/kronk/zims
             usage: zims
             options: defaults
+          - host: kronk
+            device: /srv/nfs/cache
+            mountpoint: /nfs/kronk/cache
+            usage: cache
+            options: defaults
     poseidon_k8s_controllers:
       children:
         poseidon_k8s_first_controllers:
@@ -366,8 +371,16 @@ all:
                 size: 500G
                 fstype: ext4
                 vg_name: vgnfs
+              - name: lvcache
+                fstype: ext4
+                vg_name: vgnfs
           nfs_exports_config:
             - device: /srv/nfs/zims
+              hosts:
+                - poseidon-k8s-worker1(rw,all_squash)
+                - poseidon-k8s-worker2(rw,all_squash)
+                - poseidon-k8s-worker3(rw,all_squash)
+            - device: /srv/nfs/cache
               hosts:
                 - poseidon-k8s-worker1(rw,all_squash)
                 - poseidon-k8s-worker2(rw,all_squash)
