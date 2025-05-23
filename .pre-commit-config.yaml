@@ -86,6 +86,7 @@ repos:
           - --strict
         additional_dependencies:
           - ansible-lint ==24.9.0
+          - boto3-stubs[s3] ==1.38.13
           - pytest ==8.3.4
 
       - id: mypy
@@ -126,3 +127,9 @@ repos:
         files: ^mitmproxy/templates/[a-z_]+\.py\.j2
         types_or:
           - jinja
+
+  - repo: https://github.com/tofuutils/pre-commit-opentofu.git
+    rev: v2.2.0
+    hooks:
+      - id: tofu_fmt
+      - id: tofu_validate
