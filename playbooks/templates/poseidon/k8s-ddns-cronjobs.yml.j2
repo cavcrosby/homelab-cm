@@ -1,0 +1,178 @@
+---
+{#
+  Manifest for Kubernetes Dynamic DNS (DDNS) Job objects.
+#}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: record-sets-blob-filter
+  namespace: {{ namespace }}
+data:
+  record-sets-blob-filter.yq: |
+    {
+        "Changes": [
+            {
+                "Action": "UPSERT",
+                "ResourceRecordSet": {
+                    "Name": "vpn.{{ homelab_network_domain }}",
+                    "Type": "A",
+                    "TTL": 300,
+                    "ResourceRecords": [
+                        {
+                            "Value": .
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: dockerhub-creds
+  namespace: {{ namespace }}
+data:
+  .dockerconfigjson: {{ encoded_dockerhub_config }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aws-creds
+  namespace: {{ namespace }}
+stringData:
+  aws_access_key_id: {{ aws_access_key_id_main_ddns }}
+  aws_secret_access_key: {{ aws_secret_access_key_main_ddns }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: get-public-ip-addr
+  namespace: {{ namespace }}
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600 # ten minutes
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: curl
+              image: curlimages/curl
+              args:
+                - --ipv4
+                - --location
+                - --output-dir
+                - /mnt
+                - --output
+                - public-ip-addr.txt
+                - https://icanhazip.com/
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 10Mi
+              volumeMounts:
+                - name: cache
+                  mountPath: /mnt
+          volumes:
+            - name: cache
+              nfs:
+                server: {{ nfs_export.host }}
+                path: {{ nfs_export.device }}
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: create-record-sets-blob
+  namespace: {{ namespace }}
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: yq
+              image: mikefarah/yq
+              args:
+                - --from-file
+                - /configmaps/filter/record-sets-blob-filter.yq
+                - --split-exp
+                - '"/mnt/change-resource-record-sets.json"'
+                - --output-format
+                - json
+                - /mnt/public-ip-addr.txt
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 10Mi
+              volumeMounts:
+                - name: cache
+                  mountPath: /mnt
+                - name: filter
+                  mountPath: /configmaps/filter
+          volumes:
+            - name: cache
+              nfs:
+                server: {{ nfs_export.host }}
+                path: {{ nfs_export.device }}
+            - name: filter
+              configMap:
+                name: record-sets-blob-filter
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: change-record-sets
+  namespace: {{ namespace }}
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 600
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: aws-cli
+              image: amazon/aws-cli
+              args:
+                - route53
+                - change-resource-record-sets
+                - --hosted-zone-id
+                - Z03980712EXBZNTXH5AD2
+                - --change-batch
+                - file:///mnt/change-resource-record-sets.json
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-creds
+                      key: aws_access_key_id
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: aws-creds
+                      key: aws_secret_access_key
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 10Mi
+              volumeMounts:
+                - name: cache
+                  mountPath: /mnt
+          volumes:
+            - name: cache
+              nfs:
+                server: {{ nfs_export.host }}
+                path: {{ nfs_export.device }}

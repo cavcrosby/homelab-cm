@@ -81,13 +81,29 @@
           become: true
           loop: "{{ lvm_disks_config.vgs }}"
 
+        - name: Get all LVM volume groups' physical extents
+          ansible.builtin.command: >
+            lvm vgs \
+              --reportformat json \
+              --options vg_name,vg_extent_size
+          changed_when: false
+          become: true
+          register: vgs_physical_extents
+
         - name: Create the LVM logical volumes
           community.general.lvol:
             lv: "{{ item.name }}"
-            size: "{{ item.size }}"
+            size:
+              "{{ item.size is defined | ansible.builtin.ternary(item.size,
+              vg_extent_size) }}"
             vg: "{{ item.vg_name }}"
             state: present
           become: true
+          vars:
+            vg_extent_size:
+              "{{ (vgs_physical_extents.stdout | ansible.builtin.from_json |
+              community.general.json_query('report[0].vg[?vg_name==`' +
+              item.vg_name + '`]'))[0].vg_extent_size }}"
           loop: "{{ lvm_disks_config.lvs }}"
 
         - name: Create filesystems on the LVM logical volumes
