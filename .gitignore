@@ -2,6 +2,7 @@
 .vagrant/
 node_modules/
 __pycache__/
+.terraform/
 /production
 /preseed.cfg
 /.ruby-version

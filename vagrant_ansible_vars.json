@@ -1140,12 +1140,25 @@
                         "size": "5G",
                         "fstype": "ext4",
                         "vg_name": "vgnfs"
+                    },
+                    {
+                        "name": "lvcache",
+                        "fstype": "ext4",
+                        "vg_name": "vgnfs"
                     }
                 ]
             },
             "nfs_exports_config": [
                 {
                     "device": "/srv/nfs/zims",
+                    "hosts": [
+                        "poseidon-k8s-worker1(rw,all_squash)",
+                        "poseidon-k8s-worker2(rw,all_squash)",
+                        "poseidon-k8s-worker3(rw,all_squash)"
+                    ]
+                },
+                {
+                    "device": "/srv/nfs/cache",
                     "hosts": [
                         "poseidon-k8s-worker1(rw,all_squash)",
                         "poseidon-k8s-worker2(rw,all_squash)",
@@ -1253,6 +1266,13 @@
                     "device": "/srv/nfs/zims",
                     "mountpoint": "/nfs/vmm1/zims",
                     "usage": "zims",
+                    "options": "defaults"
+                },
+                {
+                    "host": "vmm1",
+                    "device": "/srv/nfs/cache",
+                    "mountpoint": "/nfs/vmm1/cache",
+                    "usage": "cache",
                     "options": "defaults"
                 }
             ]

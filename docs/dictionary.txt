@@ -20,7 +20,9 @@ conf
 containerd
 crds
 cri
+cronjobs
 csrs
+ddns
 debian
 dhcp
 dns
