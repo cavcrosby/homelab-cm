@@ -133,3 +133,9 @@ repos:
     hooks:
       - id: tofu_fmt
       - id: tofu_validate
+
+  - repo: https://github.com/tombi-toml/tombi-pre-commit.git
+    rev: v0.3.55
+    hooks:
+      - id: tombi-lint
+      - id: tombi-format
