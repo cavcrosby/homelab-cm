@@ -73,6 +73,24 @@ repos:
           - ansible-lint ==24.9.0
           - pyspellchecker ==0.8.1
 
+      - id: tombi
+        name: tombi
+        entry: tombi lint
+        language: python
+        types:
+          - toml
+        additional_dependencies:
+          - tombi ==0.3.52
+
+      - id: tombi-format
+        name: tombi-format
+        entry: tombi format
+        language: python
+        types:
+          - toml
+        additional_dependencies:
+          - tombi ==0.3.52
+
   - repo: https://github.com/gitleaks/gitleaks.git
     rev: v8.18.3
     hooks:
