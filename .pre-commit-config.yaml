@@ -78,7 +78,7 @@ repos:
     hooks:
       - id: gitleaks
 
-  - repo: https://github.com/pre-commit/mirrors-mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy.git
     rev: v1.13.0
     hooks:
       - id: mypy
@@ -103,7 +103,7 @@ repos:
           - requests ==2.32.3
           - types-requests ==2.32.0.20250328
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit.git
     rev: v0.8.0
     hooks:
       - id: ruff
