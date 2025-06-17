@@ -4,6 +4,9 @@
 
 set -eo pipefail
 
+# Files existence is system dependent and not guaranteed for sourcing
+# (SC1091).
+# shellcheck source=/dev/null
 if [ -r "/etc/os-release" ]; then
     . "/etc/os-release"
 elif [ -r "/usr/lib/os-release" ]; then
