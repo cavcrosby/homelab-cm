@@ -1,0 +1,21 @@
+# {{ ansible_managed }}
+#
+# systemd.syntax(7) file used by systemd(1) and related programs.
+
+{% for section, keypairs in item.items() if section not in ['filename'] %}
+    {# creates a deep copy of a iterator var #}
+    {% set _keypairs = keypairs | ansible.builtin.to_yaml | ansible.builtin.from_yaml %}
+    {% if _keypairs is mapping %}
+        {% set _keypairs = [_keypairs] %}
+    {% endif %}
+    {% set section_loop = loop %}
+    {% for keypair in _keypairs -%}
+        [{{ section }}]
+        {% for key, value in keypair.items() -%}
+            {{ key }}={{ value }}
+        {% endfor %}
+        {% if not section_loop.last or not loop.last %}
+
+        {% endif %}
+    {% endfor %}
+{% endfor %}

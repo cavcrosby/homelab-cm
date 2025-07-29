@@ -9,6 +9,12 @@
   <features>
     <acpi/>
   </features>
+  <cpu mode='host-passthrough'>
+    <feature policy='require' name='x2apic'/>
+    <feature policy='require' name='hypervisor'/>
+    <feature policy='require' name='lahf_lm'/>
+    <feature policy='disable' name='svm'/>
+  </cpu>
   <clock sync='utc'/>
   <devices>
     <emulator>/usr/bin/qemu-system-x86_64</emulator>
