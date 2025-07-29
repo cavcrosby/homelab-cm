@@ -1,0 +1,228 @@
+---
+- name: Setup WireGuard server
+  hosts: vpn_servers
+  tags: setup_wireguard_servers
+
+  tasks:
+    - name: Update apt's package index (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Configure required kernel parameters
+      ansible.posix.sysctl:
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        reload: true
+      become: true
+      loop:
+        - name: net.ipv4.ip_forward
+          value: 1
+        - name: net.ipv4.conf.all.proxy_arp
+          value: 1
+
+    - name:
+        Install the WireGuard kernel module and user space tooling (debian-like)
+      ansible.builtin.apt:
+        name:
+          - wireguard
+        state: present
+      become: true
+      notify:
+        - Restart the systemd-networkd service
+        - Restart the WireGuard network interface
+      when: ansible_os_family | lower == "debian"
+
+    - name: Copy over the WireGuard network interface's private key
+      ansible.builtin.copy:
+        dest: /etc/systemd/network/{{ wireguard_network_interface_name }}.key
+        src: "{{ ansible_hostname }}.{{ wireguard_network_interface_name }}.key"
+        owner: root
+        group: systemd-network
+        mode: "640"
+      become: true
+      notify: Restart the WireGuard network interface
+
+    - name: Create a down-vpn-interface service unit file
+      ansible.builtin.template:
+        src: down-vpn-interface.service.j2
+        dest: /etc/systemd/system/down-vpn-interface.service
+        mode: "644"
+      become: true
+      notify: Issue a systemd daemon reload
+
+    - name: Create a down-vpn-interface timer unit file
+      ansible.builtin.template:
+        src: down-vpn-interface.timer.j2
+        dest: /etc/systemd/system/down-vpn-interface.timer
+        mode: "644"
+      become: true
+      notify:
+        - Issue a systemd daemon reload
+        - Restart the down-vpn-interface timer
+
+    - name: Enable and start the down-vpn-interface timer
+      ansible.builtin.systemd_service:
+        name: down-vpn-interface.timer
+        enabled: true
+        state: started
+      become: true
+
+    - name: Create a up-vpn-interface service unit file
+      ansible.builtin.template:
+        src: up-vpn-interface.service.j2
+        dest: /etc/systemd/system/up-vpn-interface.service
+        mode: "644"
+      become: true
+      notify: Issue a systemd daemon reload
+
+    - name: Create a up-vpn-interface timer unit file
+      ansible.builtin.template:
+        src: up-vpn-interface.timer.j2
+        dest: /etc/systemd/system/up-vpn-interface.timer
+        mode: "644"
+      become: true
+      notify:
+        - Issue a systemd daemon reload
+        - Restart the up-vpn-interface timer
+
+    - name: Enable and start the up-vpn-interface timer
+      ansible.builtin.systemd_service:
+        name: up-vpn-interface.timer
+        enabled: true
+        state: started
+      become: true
+
+    - name: Setup legacy iptables
+      ansible.builtin.import_tasks: ./tasks/setup_legacy_iptables.yml
+
+    - name:
+        Configure iptables rules to accept new traffic from private IPv4
+        addresses
+      ansible.builtin.iptables:
+        action: insert
+        chain: INPUT
+        source: "{{ item.source }}"
+        ctstate: NEW
+        jump: ACCEPT
+        rule_num: "{{ item.rule_num }}"
+      become: true
+      notify: Save the current iptables rules
+      loop:
+        - source: 192.168.0.0/16
+          rule_num: 1
+        - source: 172.16.0.0/12
+          rule_num: 2
+        - source: 10.0.0.0/8
+          rule_num: 3
+
+    - name:
+        Configure iptables rules to accept new traffic from Link-local addresses
+      ansible.builtin.iptables:
+        action: insert
+        chain: INPUT
+        source: "{{ item.source }}"
+        ctstate: NEW
+        jump: ACCEPT
+        rule_num: "{{ item.rule_num }}"
+      become: true
+      notify: Save the current iptables rules
+      loop:
+        - source: 127.0.0.0/8
+          rule_num: 4
+        - source: 0.0.0.0/8
+          rule_num: 5
+
+    - name: Install ipset (debian-like)
+      ansible.builtin.apt:
+        name:
+          - ipset
+          - ipset-persistent
+        state: present
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Grab the US's regional internet registry IP blocks # noqa task-module-args[checksum-param]
+      ansible.builtin.get_url:
+        url: https://www.ipdeny.com/ipblocks/data/aggregated/us-aggregated.zone
+        dest: /tmp/usa-aggregated.txt
+        mode: "644"
+      register: usa_ip_blocks_file
+
+    - name: Register the current ipsets file inode
+      ansible.builtin.stat:
+        path: /etc/iptables/ipsets
+        checksum_algorithm: sha256
+      become: true
+      register: current_ipsets_inode
+
+    - name: Add the US's IP blocks to the usa set
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -eo pipefail
+          ipset create -exist "usa" "hash:net"
+          ipset flush "usa"
+          while read -r network; do
+            ipset add -exist "usa" "${network}"
+          done < "{{ usa_ip_blocks_file.dest }}"
+
+          ipset save > "/etc/iptables/ipsets"
+          sha256sum "/etc/iptables/ipsets" | awk -F " " '{ print $1 }'
+      changed_when: current_ipsets_inode.stat.checksum != ipsets_checksum.stdout
+      become: true
+      register: ipsets_checksum
+
+    - name: Configure iptables rules to drop new traffic not from the usa set
+      ansible.builtin.iptables:
+        action: insert
+        chain: INPUT
+        match: set
+        match_set: "!usa"
+        match_set_flags: src
+        ctstate: NEW
+        jump: DROP
+        rule_num: 6
+      become: true
+      notify: Save the current iptables rules
+
+  handlers:
+    - name: Restart the systemd-networkd service
+      ansible.builtin.systemd_service:
+        name: systemd-networkd.service
+        state: restarted
+      become: true
+
+    - name: Restart the WireGuard network interface
+      ansible.builtin.shell:
+        executable: /bin/bash
+        cmd: |
+          set -eo pipefail
+          networkctl down "{{ wireguard_network_interface_name }}"
+          networkctl up "{{ wireguard_network_interface_name }}"
+      changed_when: false
+      become: true
+
+    - name: Issue a systemd daemon reload
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      become: true
+
+    - name: Restart the down-vpn-interface timer
+      ansible.builtin.systemd_service:
+        name: down-vpn-interface.timer
+        state: restarted
+      become: true
+
+    - name: Restart the up-vpn-interface timer
+      ansible.builtin.systemd_service:
+        name: up-vpn-interface.timer
+        state: restarted
+      become: true
+
+    - name: Save the current iptables rules
+      community.general.iptables_state:
+        path: /etc/iptables/rules.v4
+        state: saved
+      become: true

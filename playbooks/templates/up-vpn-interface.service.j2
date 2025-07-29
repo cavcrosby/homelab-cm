@@ -1,0 +1,8 @@
+# {{ ansible_managed }}
+
+[Unit]
+Description=Up the VPN network interface device
+
+[Service]
+Type=oneshot
+ExecStart=networkctl up {{ wireguard_network_interface_name }}
