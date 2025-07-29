@@ -26,12 +26,31 @@ vagrant_homelab_network_configs = {
   "homelab_network_gateway_ipv4_addr" => "192.168.1.1",
   "homelab_network_subnet_mask" => "255.255.255.0",
   "homelab_network_lower_bound" => "192.168.1.50",
-  "homelab_network_upper_bound" => "192.168.1.254"
+  "homelab_network_upper_bound" => "192.168.1.254",
+  "vpn_network_subnet" => "192.168.4.0/24",
+  "vpn_network_clients" => [
+    {
+      "pubkey" => "M22Z/H+1Fg4EOfn8xrjM7g2K6qchJa+d+SyszP7yGzI=",
+      "address" => "192.168.4.45/24"
+    },
+    {
+      "pubkey" => "jKADq3XliV2+u9pKqBaOYVc+FK3U0EKkJ2xwrkJ6dC0=",
+      "address" => "192.168.4.46/24"
+    },
+    {
+      "pubkey" => "mR1PkypwAOR8QPs49O2D2yecpJTYxn9WmyKO7//R+mk=",
+      "address" => "192.168.4.47/24"
+    }
+  ]
 }
 
 # exported constants
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"]
 VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR = "192.168.2.1"
+VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR = "192.168.4.1"
+VAGRANT_VPN_CLIENT_1_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][0]["pubkey"]
+VAGRANT_VPN_CLIENT_2_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][1]["pubkey"]
+VAGRANT_VPN_CLIENT_3_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][2]["pubkey"]
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
@@ -110,6 +129,11 @@ ansible_host_vars.each do |machine_name, machine_attrs|
   if machine_attrs.key?("vagrant_vm_poseidon_k8s_mac_addr")
     vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_mac_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"]
     vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_ipv4_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"]
+  end
+
+  if machine_attrs.key?("vagrant_vm_vpn_mac_addr")
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_mac_addr"] = machine_attrs["vagrant_vm_vpn_mac_addr"]
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_mac_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"]
   end
 
   if (defined? VMS_INCLUDE) && !VMS_INCLUDE.include?(machine_name)
@@ -231,6 +255,16 @@ _EOF_
           libvirt__dhcp_enabled: false
       end
 
+      if machine_attrs.key?("vagrant_vm_vpn_mac_addr")
+        machine.vm.network "private_network",
+          mac: machine_attrs["vagrant_vm_vpn_mac_addr"],
+          ip: machine_attrs["vagrant_vm_vpn_ipv4_addr"],
+          libvirt__network_name: "vpn-homelab-cm",
+          libvirt__host_ip: VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR,
+          libvirt__dhcp_enabled: false,
+          libvirt__forward_mode: "veryisolated"
+      end
+
       # A domain is an instance of an operating system running on a VM. At least
       # according to libvirt. For reference: https://libvirt.org/goals.html
       #
@@ -306,6 +340,41 @@ _EOF_
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
+          end
+        elsif TRUTHY_VALUES.include? ENV["USE_LOCALHOST_PLAYBOOK"]
+          LOCALHOST_INVENTORY_PATH = "./.vagrant/localhost"
+          File.write(
+            LOCALHOST_INVENTORY_PATH,
+            {
+              "all" => {
+                "hosts" => {
+                  "localhost" => {
+                    "ansible_host" => "127.0.0.1",
+                    "ansible_connection" => "local",
+                    "homelab_preferred_nameserver" => ansible_host_vars["staging-node1"]["homelab_dnsmasq_dns_listen_ipv4_addr"],
+                    "vpn_preferred_nameserver" => ansible_host_vars["staging-node1"]["vpn_dnsmasq_dns_listen_ipv4_addr"],
+                    "wireguard_endpoint" => "vpn.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}:#{ansible_host_vars['staging-node1']['wireguard_server_port']}"
+                  }
+                }
+              }
+            }.to_yaml
+          )
+
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/localhost.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
+            ansible.ask_become_pass = true
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.inventory_path = LOCALHOST_INVENTORY_PATH
+            ansible.extra_vars = {
+              wireguard_privkey_path: ENV["WIREGUARD_PRIVKEY_PATH"],
+              wireguard_network_interface_name: ENV["WIREGUARD_NETWORK_INTERFACE_NAME"],
+              associated_network_interface_name: ENV["ASSOCIATED_NETWORK_INTERFACE_NAME"],
+              wireguard_server_pubkey: ENV["WIREGUARD_SERVER_PUBKEY"],
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
+              enable_dhcp: false
+            }.merge(ansible_extra_vars)
           end
         else
           machine.vm.provision "ansible" do |ansible|

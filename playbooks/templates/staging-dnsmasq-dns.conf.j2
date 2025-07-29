@@ -4,7 +4,7 @@
 
 # Or which to listen on by address (remember to include 127.0.0.1 if
 # you use this.)
-listen-address=::1,127.0.0.1,{{ dnsmasq_dns_listen_ipv4_addr }}
+listen-address=::1,127.0.0.1,{{ homelab_dnsmasq_dns_listen_ipv4_addr }},{{ vpn_dnsmasq_dns_listen_ipv4_addr }}
 
 # Never forward plain names (without a dot or domain part)
 domain-needed
@@ -49,6 +49,7 @@ host-record={{ ansible_hostname }}.{{ homelab_network_domain }},{{ staging_node1
 ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ ansible_hostname }}.{{ homelab_network_domain }}
 cname=kiwix.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 cname=proxy.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
+cname=vpn.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 
 host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
 ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}

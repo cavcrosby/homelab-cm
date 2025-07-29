@@ -288,9 +288,10 @@ all:
           ansible_user: ansible
           dnsmasq_dhcp_config_file_template: prod-dnsmasq-dhcp.conf.j2
           dnsmasq_dns_config_file_template: prod-dnsmasq-dns.conf.j2
+          wireguard_network_interface_name: {{ gerald_wireguard_network_interface_name }}
           haproxy_config_file_template: haproxy.cfg.j2
           dnsmasq_dhcp_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
-          dnsmasq_dns_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
+          homelab_dnsmasq_dns_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
           load_balancer_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
           poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
           poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
@@ -317,6 +318,40 @@ all:
                 Gateway: {{ homelab_network_gateway_ipv4_addr }}
               DHCPv4:
                 UseHostname: false
+            - filename: 00-{{ gerald_wireguard_network_interface_name }}.netdev
+              NetDev:
+                Name: {{ gerald_wireguard_network_interface_name }}
+                Kind: wireguard
+              WireGuard:
+                PrivateKeyFile: /etc/systemd/network/{{ gerald_wireguard_network_interface_name }}.key
+                ListenPort: {{ gerald_wireguard_server_port }}
+              WireGuardPeer:
+                - PublicKey: {{ vpn_network_clients[0].pubkey }}
+                  AllowedIPs: 192.168.0.45/32
+                - PublicKey: {{ vpn_network_clients[1].pubkey }}
+                  AllowedIPs: 192.168.0.46/32
+                - PublicKey: {{ vpn_network_clients[2].pubkey }}
+                  AllowedIPs: 192.168.0.47/32
+                - PublicKey: {{ vpn_network_clients[3].pubkey }}
+                  AllowedIPs: 192.168.0.48/32
+            - filename: 00-{{ gerald_wireguard_network_interface_name }}.network
+              Match:
+                Name: {{ gerald_wireguard_network_interface_name }}
+              Network:
+                Address: {{ gerald_homelab_wireguard_ipv4_addr }}/32
+              Route:
+                - Scope: link
+                  Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                  Destination: 192.168.0.45/32
+                - Scope: link
+                  Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                  Destination: 192.168.0.46/32
+                - Scope: link
+                  Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                  Destination: 192.168.0.47/32
+                - Scope: link
+                  Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                  Destination: 192.168.0.48/32
     dns_servers:
       hosts:
         gerald:
@@ -426,6 +461,9 @@ all:
         poseidon-k8s-worker2:
         poseidon-k8s-worker3:
     proxy_servers:
+      hosts:
+        gerald:
+    vpn_servers:
       hosts:
         gerald:
     bare_metal:

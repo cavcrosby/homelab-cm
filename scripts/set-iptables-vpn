@@ -1,0 +1,65 @@
+#!/bin/bash
+#
+# Sets iptables rules required for routing packets from the host to the VPN
+# servers.
+
+set -eo pipefail
+
+# constants
+PROGNAME="$(basename "$0")"
+readonly PROGNAME
+readonly ROOT_UID=0
+
+if [ "$(id --user)" != "${ROOT_UID}" ]; then
+    printf "%s: %s\n" "${PROGNAME}" "you must run this as root" >&2
+    exit 1
+fi
+
+wireguard_server_ipv4_addr="$(\
+    jq \
+        --raw-output \
+        '.["ansible_host_vars"]["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]' \
+        < "./vagrant_ansible_vars.json"
+)"
+
+wireguard_server_port="$(\
+    jq \
+        --raw-output \
+        '.["ansible_host_vars"]["staging-node1"]["wireguard_server_port"]' \
+        < "./vagrant_ansible_vars.json"
+)"
+if ! iptables \
+        --table "nat" \
+        --check "PREROUTING" \
+        --protocol "udp" \
+        --destination-port "${wireguard_server_port}" \
+        --jump "DNAT" \
+        --to-destination "${wireguard_server_ipv4_addr}:${wireguard_server_port}" \
+        > "/dev/null" \
+        2>&1;
+    then
+        iptables \
+            --table "nat" \
+            --insert "PREROUTING" \
+            --protocol "udp" \
+            --destination-port "${wireguard_server_port}" \
+            --jump "DNAT" \
+            --to-destination "${wireguard_server_ipv4_addr}:${wireguard_server_port}"
+fi
+
+if ! iptables \
+        --check "FORWARD" \
+        --destination "${wireguard_server_ipv4_addr}" \
+        --protocol "udp" \
+        --destination-port "${wireguard_server_port}" \
+        --jump "ACCEPT" \
+        > "/dev/null" \
+        2>&1;
+    then
+        iptables \
+            --insert "FORWARD" \
+            --destination "${wireguard_server_ipv4_addr}" \
+            --protocol "udp" \
+            --destination-port "${wireguard_server_port}" \
+            --jump "ACCEPT"
+fi

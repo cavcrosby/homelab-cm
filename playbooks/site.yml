@@ -37,3 +37,6 @@
 
 - name: Configure the proxy servers  # noqa tag-plays
   ansible.builtin.import_playbook: proxy_servers.yml
+
+- name: Configure the VPN servers  # noqa tag-plays
+  ansible.builtin.import_playbook: vpn_servers.yml
