@@ -10,6 +10,7 @@
   - `192.168.1.x/24` -> staging homelab network
   - `192.168.2.x/24` -> staging Kubernetes cluster (Poseidon) network
   - `192.168.3.x/24` -> staging management (mgmt) network
+  - `192.168.4.x/24` -> staging VPN network
 
 - The Linux distributions of choice should be community lead distributions. The
   preference on this comes from
@@ -39,6 +40,10 @@
 - There will be a NFS server that will satisfy my shared storage needs. Notes on
   this can be found
   [here](https://trello.com/c/EtZw0Kh4/252-integrate-a-nfs-server-into-the-project).
+
+- Securely accessing my primary homelab network wherever I might should be
+  satisfied by `WireGuard`. Notes on this can be found
+  [here](https://trello.com/c/6OfwfuPT/260-integrate-a-vpn-server-into-the-project).
 
 - The Kubernetes cluster (Poseidon) has reasons for each part of the
   configuration set.
