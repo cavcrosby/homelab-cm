@@ -25,18 +25,26 @@ BITWARDEN_TLS_CERTS = \
 	oftc.pem\
 	poseidon_k8s_ca.crt
 
+BITWARDEN_WIREGUARD_KEYS_DIR_PATH = ./playbooks/files
+BITWARDEN_WIREGUARD_KEYS_ITEMID = e566965b-5509-4241-ab05-b30801168db3
+BITWARDEN_WIREGUARD_KEYS = \
+	gerald.wg0.key\
+	staging-node1.wg0.key
+
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg
 
 # targets
 HELP = help
 SETUP = setup
-INVENTORY = inventory
+INVENTORIES = inventories
 PRESEED_CFG = preseed.cfg
 PRODUCTION = production
 STAGING = staging
 PRODUCTION_MAINTENANCE = production-maintenance
+PRODUCTION_LOCALHOST = production-localhost
 STAGING_MAINTENANCE = staging-maintenance
+STAGING_LOCALHOST = staging-localhost
 ANSIBLE_SECRETS = ansible-secrets
 K8S_NODE_IMAGES = k8s-node-images
 CONTAINERD_DEB = containerd-deb
@@ -138,7 +146,7 @@ ${HELP}:
 >	@echo 'Common make targets:'
 >	@echo '  ${SETUP}                - installs the distro-independent dependencies for this'
 >	@echo '                         project'
->	@echo '  ${INVENTORY}            - creates the production inventory file'
+>	@echo '  ${INVENTORIES}          - creates the production inventory files'
 >	@echo '  ${PRESEED_CFG}          - creates the production preseed.cfg file'
 >	@echo '  ${PRODUCTION}           - runs the main playbook for my homelab'
 >	@echo '  ${STAGING}              - runs the main playbook for my homelab, but in a'
@@ -199,11 +207,17 @@ ${SETUP}:
 
 >	${PRE_COMMIT} install
 
-.PHONY: ${INVENTORY}
-${INVENTORY}:
+.PHONY: ${INVENTORIES}
+${INVENTORIES}:
 >	${ANSIBLE} \
 		--module-name "ansible.builtin.template" \
 		--args 'src=./production.j2 dest=./production mode="644"' \
+		--extra-vars "@./playbooks/vars/network_configs.yml" \
+		"localhost"
+
+>	${ANSIBLE} \
+		--module-name "ansible.builtin.template" \
+		--args 'src=./localhost.j2 dest=./localhost mode="644"' \
 		--extra-vars "@./playbooks/vars/network_configs.yml" \
 		"localhost"
 
@@ -247,6 +261,7 @@ ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
 endif
+>	sudo ./scripts/set-iptables-vpn
 
 .PHONY: ${PRODUCTION_MAINTENANCE}
 ${PRODUCTION_MAINTENANCE}: export ANSIBLE_LOG_PATH = \
@@ -258,9 +273,47 @@ ${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--l
 ${PRODUCTION_MAINTENANCE}:
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/maintenance.yml"
 
+.PHONY: ${PRODUCTION_LOCALHOST}
+${PRODUCTION_LOCALHOST}: export ANSIBLE_LOG_PATH = \
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+${PRODUCTION_LOCALHOST}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
+							--inventory "localhost"\
+							--tags "${ANSIBLE_TAGS}"\
+							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"./network_configs.yml","enable_dhcp":true}'
+${PRODUCTION_LOCALHOST}:
+>	@[ -n "${WIREGUARD_PRIVKEY_PATH}" ] \
+		|| { echo "make: WIREGUARD_PRIVKEY_PATH was not passed into make"; exit 1; }
+
+>	@[ -n "${WIREGUARD_NETWORK_INTERFACE_NAME}" ] \
+		|| { echo "make: WIREGUARD_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_NAME}" ] \
+		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${WIREGUARD_SERVER_PUBKEY}" ] \
+		|| { echo "make: WIREGUARD_SERVER_PUBKEY was not passed into make"; exit 1; }
+
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/localhost.yml"
+
 .PHONY: ${STAGING_MAINTENANCE}
 ${STAGING_MAINTENANCE}:
 >	${MAKE} USE_MAINTENANCE_PLAYBOOK="true" "${STAGING}"
+
+.PHONY: ${STAGING_LOCALHOST}
+${STAGING_LOCALHOST}:
+>	@[ -n "${WIREGUARD_PRIVKEY_PATH}" ] \
+		|| { echo "make: WIREGUARD_PRIVKEY_PATH was not passed into make"; exit 1; }
+
+>	@[ -n "${WIREGUARD_NETWORK_INTERFACE_NAME}" ] \
+		|| { echo "make: WIREGUARD_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_NAME}" ] \
+		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${WIREGUARD_SERVER_PUBKEY}" ] \
+		|| { echo "make: WIREGUARD_SERVER_PUBKEY was not passed into make"; exit 1; }
+
+>	${MAKE} USE_LOCALHOST_PLAYBOOK="true" "${STAGING}"
 
 .PHONY: ${LINT}
 ${LINT}:
@@ -338,6 +391,18 @@ else
 			--itemid "${BITWARDEN_TLS_CERTS_ITEMID}" \
 			--output "${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
 	done
+
+>	@for wireguard_key in ${BITWARDEN_WIREGUARD_KEYS}; do \
+		echo ${NPX} ${BW} get attachment \
+			"$${wireguard_key}" \
+			--itemid \"${BITWARDEN_WIREGUARD_KEYS_ITEMID}\" \
+			--output \"${BITWARDEN_WIREGUARD_KEYS_DIR_PATH}/$${wireguard_key}\"; \
+		\
+		${NPX} ${BW} get attachment \
+			"$${wireguard_key}" \
+			--itemid "${BITWARDEN_WIREGUARD_KEYS_ITEMID}" \
+			--output "${BITWARDEN_WIREGUARD_KEYS_DIR_PATH}/$${wireguard_key}"; \
+	done
 endif
 
 .PHONY: ${K8S_NODE_IMAGES}
@@ -382,6 +447,7 @@ ${EXAMPLES_TEST}:
 ${CLEAN}:
 >	rm --force ./logs/ansible.log.*
 >	rm --force "./production"
+>	rm --force "./localhost"
 >	rm \
 		--recursive \
 		--force \
