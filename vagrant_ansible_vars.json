@@ -4,9 +4,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.3",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.2",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.2",
             "vagrant_vm_homelab_mac_addr": "52:54:00:3a:17:49",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:c5:84:76",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:78:41:a2",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:f4:53:be",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -14,6 +16,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "systemd_networkd_files": [
@@ -120,6 +123,49 @@
                         },
                         "DHCPv4": {
                             "UseHostname": "false"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
                         }
                     }
                 ]
@@ -140,9 +186,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.3",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.4",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.3",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.3",
             "vagrant_vm_homelab_mac_addr": "52:54:00:c8:03:13",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:1a:20:8b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:3f:42:6f",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:ca:1b:44",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -150,6 +198,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "systemd_networkd_files": [
@@ -256,6 +305,49 @@
                         },
                         "DHCPv4": {
                             "UseHostname": "false"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
                         }
                     }
                 ]
@@ -276,9 +368,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.4",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.5",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.4",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.4",
             "vagrant_vm_homelab_mac_addr": "52:54:00:dc:5f:41",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:52:38:c9",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:cd:f4:ab",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:5e:10:53",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -286,6 +380,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "systemd_networkd_files": [
@@ -393,6 +488,49 @@
                         "DHCPv4": {
                             "UseHostname": "false"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
+                        }
                     }
                 ]
             },
@@ -412,9 +550,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.5",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.6",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.5",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.5",
             "vagrant_vm_homelab_mac_addr": "52:54:00:ed:e3:60",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:b6:ab:90",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:19:8f:bc",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:b8:8c:c6",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -432,6 +572,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
@@ -541,6 +682,49 @@
                         "DHCPv4": {
                             "UseHostname": "false"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
+                        }
                     }
                 ]
             },
@@ -567,9 +751,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.6",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.7",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.6",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.6",
             "vagrant_vm_homelab_mac_addr": "52:54:00:22:0d:54",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:01:17:e0",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fc:89:0c",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:19:c0:9b",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -581,6 +767,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
@@ -690,6 +877,49 @@
                         "DHCPv4": {
                             "UseHostname": "false"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
+                        }
                     }
                 ]
             },
@@ -706,9 +936,11 @@
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.7",
             "vagrant_vm_poseidon_k8s_ipv4_addr": "192.168.2.8",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.7",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.7",
             "vagrant_vm_homelab_mac_addr": "52:54:00:0d:7c:41",
             "vagrant_vm_poseidon_k8s_mac_addr": "52:54:00:de:17:21",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:fe:bd:16",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:bc:f3:12",
             "vagrant_vm_cpus": 2,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 25,
@@ -720,6 +952,7 @@
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
             "poseidon_k8s_network_interface_name": "en2",
+            "vpn_network_interface_name": "en3",
             "vagrant_config_refs": {
                 "k8s_api_server_endpoint": "vagrant_vm_poseidon_k8s_ipv4_addr",
                 "kubelet_listen_ipv4_addr": "vagrant_vm_poseidon_k8s_ipv4_addr",
@@ -829,6 +1062,49 @@
                         "DHCPv4": {
                             "UseHostname": "false"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
+                        }
                     }
                 ]
             },
@@ -844,8 +1120,11 @@
         "staging-node1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.8",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.8",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.8",
+            "vagrant_vm_vpn_wireguard_ipv4_addr": "192.168.4.9",
             "vagrant_vm_homelab_mac_addr": "52:54:00:6d:59:5b",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:8d:44:65",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:14:f4:59",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 512,
             "vagrant_vm_libvirt_disk_size": 10,
@@ -854,11 +1133,15 @@
             "dnsmasq_dns_config_file_template": "staging-dnsmasq-dns.conf.j2",
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
+            "vpn_network_interface_name": "en2",
+            "wireguard_network_interface_name": "wg0",
             "haproxy_config_file_template": "haproxy.cfg.j2",
             "wikipedia_zim_name": "wikipedia_en_simple_all",
+            "wireguard_server_port": 30324,
             "vagrant_config_refs": {
                 "dnsmasq_dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
-                "dnsmasq_dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
+                "homelab_dnsmasq_dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
+                "vpn_dnsmasq_dns_listen_ipv4_addr": "vagrant_vm_vpn_ipv4_addr",
                 "load_balancer_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "systemd_networkd_files": [
                     {
@@ -932,6 +1215,138 @@
                         "DHCPv4": {
                             "UseHostname": "false"
                         }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "wireguard_network_interface_name",
+                                ".netdev"
+                            ]
+                        },
+                        "NetDev": {
+                            "Name": "wireguard_network_interface_name",
+                            "Kind": "wireguard"
+                        },
+                        "WireGuard": {
+                            "PrivateKeyFile": {
+                                "join": [
+                                    "/etc/systemd/network/",
+                                    "wireguard_network_interface_name",
+                                    ".key"
+                                ]
+                            },
+                            "ListenPort": "wireguard_server_port"
+                        },
+                        "WireGuardPeer": [
+                            {
+                                "PublicKey": "${VAGRANT_VPN_CLIENT_1_PUBKEY}",
+                                "AllowedIPs": "192.168.4.45/32"
+                            },
+                            {
+                                "PublicKey": "${VAGRANT_VPN_CLIENT_2_PUBKEY}",
+                                "AllowedIPs": "192.168.4.46/32"
+                            },
+                            {
+                                "PublicKey": "${VAGRANT_VPN_CLIENT_3_PUBKEY}",
+                                "AllowedIPs": "192.168.4.47/32"
+                            }
+                        ]
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "wireguard_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "wireguard_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_wireguard_ipv4_addr",
+                                    "/32"
+                                ]
+                            }
+                        },
+                        "Route": [
+                            {
+                                "Scope": "link",
+                                "Source": {
+                                    "join": [
+                                        "vagrant_vm_vpn_wireguard_ipv4_addr",
+                                        "/24"
+                                    ]
+                                },
+                                "Destination": "192.168.4.45/32"
+                            },
+                            {
+                                "Scope": "link",
+                                "Source": {
+                                    "join": [
+                                        "vagrant_vm_vpn_wireguard_ipv4_addr",
+                                        "/24"
+                                    ]
+                                },
+                                "Destination": "192.168.4.46/32"
+                            },
+                            {
+                                "Scope": "link",
+                                "Source": {
+                                    "join": [
+                                        "vagrant_vm_vpn_wireguard_ipv4_addr",
+                                        "/24"
+                                    ]
+                                },
+                                "Destination": "192.168.4.47/32"
+                            }
+                        ]
                     }
                 ]
             },
@@ -953,14 +1368,17 @@
         "vmm1": {
             "vagrant_vm_homelab_ipv4_addr": "192.168.1.9",
             "vagrant_vm_mgmt_ipv4_addr": "192.168.3.9",
+            "vagrant_vm_vpn_ipv4_addr": "192.168.4.10",
             "vagrant_vm_homelab_mac_addr": "52:54:00:d5:af:7d",
             "vagrant_vm_mgmt_mac_addr": "52:54:00:1b:28:b2",
+            "vagrant_vm_vpn_mac_addr": "52:54:00:ad:c7:98",
             "vagrant_vm_cpus": 1,
             "vagrant_vm_memory": 2048,
             "vagrant_vm_libvirt_disk_size": 10,
             "vagrant_vm_box": "debian/bookworm64",
             "mgmt_network_interface_name": "en0",
             "homelab_network_interface_name": "en1",
+            "vpn_network_interface_name": "en2",
             "homelab_network_bridge_interface_name": "virbr0",
             "libvirt_poseidon_k8s_network_config_file_template": "poseidon/libvirt-network.xml.j2",
             "libvirt_poseidon_k8s_node_domain_autostart": false,
@@ -1079,6 +1497,49 @@
                         },
                         "DHCPv4": {
                             "UseHostname": "false"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".link"
+                            ]
+                        },
+                        "Match": {
+                            "MACAddress": "vagrant_vm_vpn_mac_addr"
+                        },
+                        "Link": {
+                            "Name": "vpn_network_interface_name"
+                        }
+                    },
+                    {
+                        "filename": {
+                            "join": [
+                                "00-",
+                                "vpn_network_interface_name",
+                                ".network"
+                            ]
+                        },
+                        "Match": {
+                            "Name": "vpn_network_interface_name"
+                        },
+                        "Network": {
+                            "Address": {
+                                "join": [
+                                    "vagrant_vm_vpn_ipv4_addr",
+                                    "/24"
+                                ]
+                            }
+                        },
+                        "DHCPv4": {
+                            "UseHostname": "false"
+                        },
+                        "Route": {
+                            "Gateway": "${VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR}",
+                            "Destination": "0.0.0.0/0",
+                            "Metric": "4294967295"
                         }
                     }
                 ]
@@ -1240,6 +1701,9 @@
             "poseidon-k8s-worker3"
         ],
         "proxy_servers": [
+            "staging-node1"
+        ],
+        "vpn_servers": [
             "staging-node1"
         ],
         "bare_metal": [
