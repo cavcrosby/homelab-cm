@@ -2,19 +2,26 @@
 # Manual edits may be lost in future updates.
 
 provider "registry.opentofu.org/hashicorp/aws" {
-  version     = "5.98.0"
+  version     = "6.8.0"
   constraints = ">= 5.97.0"
   hashes = [
-    "h1:WQ3rRWzDt0FA9Oi7gVo6xkMgS07ZmyPpPd0O0uB5xsY=",
-    "zh:1c8e4073151bc3f4e201a89ea5934733b7fe8a88399cf476bb53417e52e5a2d6",
-    "zh:433b575d313742cfffc808907cfdabf6f16ad4b2b4b722b33624c2c45ab28003",
-    "zh:4f10af33ac39df606a4ff2c685940349745b00f88f72717c6a35bf3aad8400a2",
-    "zh:63d442570d5fc8bef9139ef6e242b903b728282a4949721cfe6071ed5c05532a",
-    "zh:722e840d59c1126d2ed85cba09ff3d2d3597d6c3fa3d9a6f7d01c6d78772882e",
-    "zh:8270018389d9d095c20fe270b89e9be2ec444a5b447e1153436ff018b9e84710",
-    "zh:8cebf189600873a041c829cabb92096a5f8c9cd8ebec6997abcfb1a4981209a4",
-    "zh:a878695fc563f758fb29399ed10a44a3e96563062917fa8534766cd76f1b490e",
-    "zh:b9ea7fb2418462586642d1831775ea1872c3eda4180391459918de2f734d98c2",
-    "zh:ecc4ea0f659dab585e8328698d0bb343b80721e093b95af13769a4616c082fab",
+    "h1:0y+/OUUQJJ6kgz5a2PpYMgu9x8fYSInppNd2lGR8xqA=",
+    "h1:K8MJ5zTIPs80jxYv/ht8TPYxeeycqq/JUfkQHt2W5hs=",
+    "h1:KyJSwSUWwH8q8Wd9nB6u4PrXmS/2CfrJUj4NgbqWfus=",
+    "h1:M4em3NUSVl9oXRjH3BQAxpRWlQ+VEmJWcsp2DfLpm9A=",
+    "h1:SDFGwOc+RBlm0LXuM4MCoZ/nNsVdiW8jNgpWylNNh1E=",
+    "h1:auBk0eguO8TR/KqN3rDicgEmUq9elFpGicnZwn4NNiU=",
+    "h1:hHaz0BlNhi/sFs3HFnxxm6sWCpTKcC8E8vznbvmgr04=",
+    "h1:iofPG7x1y5FQVYaKdZOs6KDz53rjRXzNV2Ym2cEEnUs=",
+    "h1:xSkXxNazF4zuEqdKPaMyHSbZ4CKSigA0ZzLONl21FJ8=",
+    "zh:07fa4cf26b0e3899f8ecce29804653bda1d6cb691e2203a3edc9ebec72b53828",
+    "zh:1f40c1a2266d5d5a4fb6f61acd509a03bb33e13c1879b39d3bb1f57797d322cc",
+    "zh:3a00203345c3928248c50ff8b3942c943593681b94013cbfadff3123f6e6e721",
+    "zh:58572f37fb7062a4bdcaffdb0be868e6a2e7faa05fce3e62159301b617991183",
+    "zh:819bee89482e8c64ae296dde10c0eb8bee3306724f8e2c53d3bb9d121bfd6201",
+    "zh:82f0e218666a208d96eedbf9ac202826478d01c47d7e078900d6b3bb6464b329",
+    "zh:8da69ef1235251c7c52d1737589c1fe86dac171a422fc0f444d2033ffa727b1c",
+    "zh:99efd059592c78bdfd5753ba33afe1cc71cd49ed11be3b1b3cd5b29b810e2b66",
+    "zh:aa163e1eb0374b4388f4e67ad6acc248562959cd753a45d66e177cf9b5e4a5f6",
   ]
 }
