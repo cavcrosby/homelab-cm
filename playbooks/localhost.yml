@@ -17,72 +17,47 @@
       changed_when: false
       register: wireguard_pubkey
 
-    - name: Set the systemd_networkd_files variable
-      ansible.builtin.set_fact:
-        systemd_networkd_files:
-          - filename: 00-{{ wireguard_network_interface_name }}.netdev
-            NetDev:
-              Name: "{{ wireguard_network_interface_name }}"
-              Kind: wireguard
-            WireGuard:
-              PrivateKeyFile:
-                /etc/systemd/network/{{ wireguard_network_interface_name }}.key
-            WireGuardPeer:
-              PublicKey: "{{ wireguard_server_pubkey }}"
-              Endpoint: "{{ wireguard_endpoint }}"
-              AllowedIPs: "{{ vpn_network_subnet }}"
-          - filename: 00-{{ wireguard_network_interface_name }}.network
-            Match:
-              Name: "{{ wireguard_network_interface_name }}"
-            Link:
-              ActivationPolicy: manual
-            Network:
-              DNS: "{{ vpn_preferred_nameserver }}"
-              Domains: "{{ homelab_network_domain }}"
-              Address:
-                "{{ (vpn_network_clients |
-                community.general.json_query('[?pubkey==`' +
-                wireguard_pubkey.stdout + '`]') | list)[0].address }}"
-
-    - name: Add the systemd-networkd service files
+    - name: Add the WireGuard connection profile files
       ansible.builtin.template:
-        src: systemd.syntax.j2
-        dest: /etc/systemd/network/{{ item.filename }}
+        src: nm-settings-keyfile.j2
+        dest: /etc/NetworkManager/system-connections/{{ item.filename }}
         trim_blocks: true
         lstrip_blocks: true
         owner: root
         group: root
-        mode: "644"
+        mode: "600"
       become: true
-      notify: Restart the systemd-networkd service
-      loop: "{{ systemd_networkd_files }}"
-
-    - name: Copy over the WireGuard network interface's private key
-      ansible.builtin.copy:
-        dest: /etc/systemd/network/{{ wireguard_network_interface_name }}.key
-        src: "{{ wireguard_privkey_path }}"
-        owner: root
-        group: systemd-network
-        mode: "640"
-        remote_src: true
-      become: true
-      notify: Restart the WireGuard network interface
+      notify: Reload the NetworkManager connection profile files
+      loop:
+        - filename: "{{ wireguard_network_interface_name }}.nmconnection"
+          connection:
+            id: "{{ wireguard_network_interface_name }}"
+            type: wireguard
+            interface-name: "{{ wireguard_network_interface_name }}"
+            autoconnect: "false"
+          wireguard:
+            private-key:
+              "{{ lookup('ansible.builtin.file', wireguard_privkey_path) }}"
+            peer-routes: "false"
+          wireguard-peer:
+            public-key: "{{ wireguard_server_pubkey }}"
+            endpoint: "{{ wireguard_endpoint }}"
+            allowed-ips: "{{ vpn_network_subnet }}"
+          ipv4:
+            method: manual
+            address1:
+              "{{ (vpn_network_clients |
+              community.general.json_query('[?pubkey==`' +
+              wireguard_pubkey.stdout + '`]') | list)[0].address }}"
+            dns:
+              - "{{ vpn_preferred_nameserver }}"
+            dns-search:
+              - "{{ homelab_network_domain }}"
 
   handlers:
-    - name: Restart the systemd-networkd service
-      ansible.builtin.systemd_service:
-        name: systemd-networkd.service
-        state: restarted
-      become: true
-
-    - name: Restart the WireGuard network interface
-      ansible.builtin.shell:
-        executable: /bin/bash
-        cmd: |
-          set -eo pipefail
-          networkctl down "{{ wireguard_network_interface_name }}"
-          networkctl up "{{ wireguard_network_interface_name }}"
-      changed_when: false
+    - name: Reload the NetworkManager connection profile files
+      ansible.builtin.command: nmcli connection reload
+      changed_when: true
       become: true
 
 - name: Create the associated network interface device's configuration files
@@ -94,16 +69,7 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   tasks:
-    - name: Set the systemd_networkd_files variable
-      ansible.builtin.set_fact:
-        systemd_networkd_files:
-          - filename: 00-{{ associated_network_interface_name }}.network
-            Match:
-              Name: "{{ associated_network_interface_name }}"
-            Network:
-              DHCP: "{{ enable_dhcp }}"
-
-    - name: Append information about the libvirt homelab network
+    - name: Create the device with information about the libvirt homelab network
       when: not enable_dhcp
       block:
         - name: Get the XML data of the homelab network
@@ -119,33 +85,46 @@
             content: attribute
           register: ip_element
 
-        - name: Append the homelab network bridge's IP address
-          ansible.builtin.set_fact:
-            systemd_networkd_files:
-              - "{{ systemd_networkd_files[0] |
-                ansible.builtin.combine({'Network': {'DNS':
-                homelab_preferred_nameserver, 'Domains': homelab_network_domain,
-                'Address': (ip_element.matches[0].ip.address + '/' +
-                ip_element.matches[0].ip.netmask) |
-                ansible.utils.ipaddr('host/prefix')}}, list_merge='append',
-                recursive=true) }}"
-
-    - name: Add the systemd-networkd service files
-      ansible.builtin.template:
-        src: systemd.syntax.j2
-        dest: /etc/systemd/network/{{ item.filename }}
-        trim_blocks: true
-        lstrip_blocks: true
-        owner: root
-        group: root
-        mode: "644"
-      become: true
-      notify: Restart the systemd-networkd service
-      loop: "{{ systemd_networkd_files }}"
+        - name: Add the NetworkManager connection profile files
+          ansible.builtin.template:
+            src: nm-settings-keyfile.j2
+            dest: /etc/NetworkManager/system-connections/{{ item.filename }}
+            trim_blocks: true
+            lstrip_blocks: true
+            owner: root
+            group: root
+            mode: "600"
+          become: true
+          notify:
+            - Reload the NetworkManager connection profile files
+            - Reapply the NetworkManager devices
+          loop:
+            - filename: "{{ associated_network_interface_name }}.nmconnection"
+              connection:
+                id: "{{ associated_network_interface_name }}"
+                type: "{{ associated_network_interface_type }}"
+                interface-name: "{{ associated_network_interface_name }}"
+                autoconnect: "false"
+              ipv4:
+                method: manual
+                address1:
+                  "{{ (ip_element.matches[0].ip.address + '/' +
+                  ip_element.matches[0].ip.netmask) |
+                  ansible.utils.ipaddr('host/prefix') }}"
+                dns:
+                  - "{{ homelab_preferred_nameserver }}"
+                dns-search:
+                  - "{{ homelab_network_domain }}"
 
   handlers:
-    - name: Restart the systemd-networkd service
-      ansible.builtin.systemd_service:
-        name: systemd-networkd.service
-        state: restarted
+    - name: Reload the NetworkManager connection profile files
+      ansible.builtin.command: nmcli connection reload
+      changed_when: true
       become: true
+
+    - name: Reapply the NetworkManager devices
+      ansible.builtin.command: nmcli device reapply "{{ item }}"
+      changed_when: true
+      become: true
+      loop:
+        - "{{ associated_network_interface_name }}"

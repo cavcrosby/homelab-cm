@@ -83,6 +83,7 @@ mitmdump
 mitmproxy
 namespace
 networkd
+networkmanager
 nfs
 nginx
 nodeport
@@ -101,7 +102,6 @@ se_kiwix_redirect
 sigterm
 sshd
 systemd
-systemd_networkd_files
 tarball
 tigera
 tmux

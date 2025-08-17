@@ -370,6 +370,7 @@ _EOF_
             ansible.extra_vars = {
               wireguard_privkey_path: ENV["WIREGUARD_PRIVKEY_PATH"],
               wireguard_network_interface_name: ENV["WIREGUARD_NETWORK_INTERFACE_NAME"],
+              associated_network_interface_type: ENV["ASSOCIATED_NETWORK_INTERFACE_TYPE"],
               associated_network_interface_name: ENV["ASSOCIATED_NETWORK_INTERFACE_NAME"],
               wireguard_server_pubkey: ENV["WIREGUARD_SERVER_PUBKEY"],
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),

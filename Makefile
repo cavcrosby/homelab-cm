@@ -279,13 +279,16 @@ ${PRODUCTION_LOCALHOST}: export ANSIBLE_LOG_PATH = \
 ${PRODUCTION_LOCALHOST}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 							--inventory "localhost"\
 							--tags "${ANSIBLE_TAGS}"\
-							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"./network_configs.yml","enable_dhcp":true}'
+							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_type":"${ASSOCIATED_NETWORK_INTERFACE_TYPE}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"./network_configs.yml","enable_dhcp":true}'
 ${PRODUCTION_LOCALHOST}:
 >	@[ -n "${WIREGUARD_PRIVKEY_PATH}" ] \
 		|| { echo "make: WIREGUARD_PRIVKEY_PATH was not passed into make"; exit 1; }
 
 >	@[ -n "${WIREGUARD_NETWORK_INTERFACE_NAME}" ] \
 		|| { echo "make: WIREGUARD_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_TYPE}" ] \
+		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_TYPE was not passed into make"; exit 1; }
 
 >	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_NAME}" ] \
 		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
@@ -306,6 +309,9 @@ ${STAGING_LOCALHOST}:
 
 >	@[ -n "${WIREGUARD_NETWORK_INTERFACE_NAME}" ] \
 		|| { echo "make: WIREGUARD_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
+
+>	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_TYPE}" ] \
+		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_TYPE was not passed into make"; exit 1; }
 
 >	@[ -n "${ASSOCIATED_NETWORK_INTERFACE_NAME}" ] \
 		|| { echo "make: ASSOCIATED_NETWORK_INTERFACE_NAME was not passed into make"; exit 1; }
