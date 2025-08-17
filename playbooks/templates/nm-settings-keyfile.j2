@@ -1,0 +1,24 @@
+# {{ ansible_managed }}
+#
+# nm-settings-keyfile(5) file to support all the connection types and
+# capabilities that NetworkManager has.
+
+{% for section, keypairs in item.items() if section not in ['filename'] %}
+    {% set section_loop = loop %}
+    {% if section == 'wireguard-peer' -%}
+        [{{ section + '.' + keypairs['public-key'] }}]
+        {% set _ = keypairs.pop('public-key') %}
+    {% else -%}
+        [{{ section }}]
+    {% endif %}
+    {% for key, value in keypairs.items() %}
+        {% if value.__class__.__name__ == 'list' -%}
+            {{ key }}={{ value | join(';') + ';' }}
+        {% else -%}
+            {{ key }}={{ value }}
+        {% endif %}
+    {% endfor %}
+    {% if not section_loop.last or not loop.last %}
+
+    {% endif %}
+{% endfor %}
