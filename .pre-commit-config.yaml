@@ -59,7 +59,7 @@ repos:
         types:
           - python
         additional_dependencies:
-          - ansible-lint ==24.9.0
+          - ansible-lint ==24.12.2
           - pyspellchecker ==0.8.1
           - pytest ==8.3.4
 
@@ -70,7 +70,7 @@ repos:
         stages:
           - pre-push
         additional_dependencies:
-          - ansible-lint ==24.9.0
+          - ansible-lint ==24.12.2
           - pyspellchecker ==0.8.1
 
   - repo: https://github.com/gitleaks/gitleaks.git
