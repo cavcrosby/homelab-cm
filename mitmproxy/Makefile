@@ -22,7 +22,7 @@ _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${ex
 .PHONY: ${HELP}
 ${HELP}:
 >	@echo 'Common make targets:'
->	@echo '  ${SETUP}                  - installs the distro-independent dependencies for this'
+>	@echo '  ${SETUP}                  - install the distro-independent dependencies for this'
 >	@echo '                           project'
 
 .PHONY: ${SETUP}
