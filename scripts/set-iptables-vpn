@@ -16,15 +16,13 @@ if [ "$(id --user)" != "${ROOT_UID}" ]; then
 fi
 
 wireguard_server_ipv4_addr="$(\
-    jq \
-        --raw-output \
+    yq \
         '.["ansible_host_vars"]["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]' \
         < "./vagrant_ansible_vars.json"
 )"
 
 wireguard_server_port="$(\
-    jq \
-        --raw-output \
+    yq \
         '.["ansible_host_vars"]["staging-node1"]["wireguard_server_port"]' \
         < "./vagrant_ansible_vars.json"
 )"

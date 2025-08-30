@@ -80,7 +80,7 @@ PACKER = packer
 BUNDLE = bundle
 GEM = gem
 PKILL = pkill
-JQ = jq
+YQ = yq
 BW = bw
 PYTHON = python
 PIP = pip
@@ -97,7 +97,7 @@ executables := \
 	${VIRSH}\
 	${VAGRANT}\
 	${PKILL}\
-	${JQ}\
+	${YQ}\
 	${ANSIBLE_PLAYBOOK}\
 	${ANSIBLE_GALAXY}\
 	${ANSIBLE_LINT}\
@@ -113,13 +113,12 @@ executables := \
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 
 # provider VM identifiers
-VM_NAMES := $(shell ${JQ} < ${PROJECT_VAGRANT_CONFIGURATION_FILE} --raw-output '.ansible_host_vars | keys[]')
+VM_NAMES := $(shell ${YQ} '.ansible_host_vars | keys[]' < "${PROJECT_VAGRANT_CONFIGURATION_FILE}")
 # include all VMs by default
 VMS_INCLUDE := $(shell \
-	${JQ} \
-		--raw-output \
-		< ${PROJECT_VAGRANT_CONFIGURATION_FILE} \
+	${YQ} \
 		'.vms_include[]? // (.ansible_host_vars | keys[])' \
+		< "${PROJECT_VAGRANT_CONFIGURATION_FILE}" \
 )
 
 LIBVIRT_DOMAINS := $(shell \
@@ -353,7 +352,7 @@ ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${NPX} ${BW} delete attachment \
 		"$$(${NPX} ${BW} list items \
-			| ${JQ} --raw-output '.[] | select(.attachments?).attachments[] | select(.fileName=="${ANSIBLE_SECRETS_FILE}").id' \
+			| ${YQ} '.[] | select(.attachments?).attachments[] | select(.fileName=="${ANSIBLE_SECRETS_FILE}").id' \
 		)" \
 		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
 
