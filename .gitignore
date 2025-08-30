@@ -6,7 +6,6 @@ __pycache__/
 /production
 /preseed.cfg
 /.ruby-version
-/localhost
 /vendor/
 /ansible/
 /playbooks/vars/ansible_secrets.yml

@@ -1,9 +1,0 @@
-all:
-  hosts:
-    localhost:
-      ansible_host: 127.0.0.1
-      ansible_connection: local
-      vpn_network_subnet: {{ homelab_network_subnet }}
-      homelab_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-      vpn_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-      wireguard_endpoint: vpn.{{ homelab_network_domain }}:{{ gerald_wireguard_server_port }}

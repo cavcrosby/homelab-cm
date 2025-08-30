@@ -1,6 +1,6 @@
 ---
-- name: Configure all nodes  # noqa tag-plays
-  ansible.builtin.import_playbook: all.yml
+- name: Configure the managed nodes  # noqa tag-plays
+  ansible.builtin.import_playbook: managed.yml
 
 - name: Configure the on-premises nodes  # noqa tag-plays
   ansible.builtin.import_playbook: on_prem.yml

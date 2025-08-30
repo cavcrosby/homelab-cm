@@ -70,7 +70,7 @@
       become: true
 
 - name: Set system locale to C.UTF-8
-  hosts: all
+  hosts: managed
   tags: set_c_locale
 
   tasks:

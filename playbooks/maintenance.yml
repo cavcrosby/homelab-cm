@@ -1,6 +1,6 @@
 ---
 - name: Upgrade all machines' packages
-  hosts: all
+  hosts: managed
   tags: upgrade_all_machines_packages
 
   tasks:

@@ -37,7 +37,7 @@ export ANSIBLE_CONFIG = ./ansible.cfg
 # targets
 HELP = help
 SETUP = setup
-INVENTORIES = inventories
+INVENTORY = inventory
 PRESEED_CFG = preseed.cfg
 PRODUCTION = production
 STAGING = staging
@@ -146,7 +146,7 @@ ${HELP}:
 >	@echo 'Common make targets:'
 >	@echo '  ${SETUP}                - install the distro-independent dependencies for this'
 >	@echo '                         project'
->	@echo '  ${INVENTORIES}          - create the production inventory files'
+>	@echo '  ${INVENTORY}            - create the production inventory file'
 >	@echo '  ${PRESEED_CFG}          - create the production preseed.cfg file'
 >	@echo '  ${PRODUCTION}           - run the main playbook for my homelab'
 >	@echo '  ${STAGING}              - run the main playbook for my homelab, but in a'
@@ -207,17 +207,11 @@ ${SETUP}:
 
 >	${PRE_COMMIT} install
 
-.PHONY: ${INVENTORIES}
-${INVENTORIES}:
+.PHONY: ${INVENTORY}
+${INVENTORY}:
 >	${ANSIBLE} \
 		--module-name "ansible.builtin.template" \
 		--args 'src=./production.j2 dest=./production mode="644"' \
-		--extra-vars "@./playbooks/vars/network_configs.yml" \
-		"localhost"
-
->	${ANSIBLE} \
-		--module-name "ansible.builtin.template" \
-		--args 'src=./localhost.j2 dest=./localhost mode="644"' \
 		--extra-vars "@./playbooks/vars/network_configs.yml" \
 		"localhost"
 
@@ -277,7 +271,7 @@ ${PRODUCTION_MAINTENANCE}:
 ${PRODUCTION_LOCALHOST}: export ANSIBLE_LOG_PATH = \
 							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
 ${PRODUCTION_LOCALHOST}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
-							--inventory "localhost"\
+							--inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
 							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_type":"${ASSOCIATED_NETWORK_INTERFACE_TYPE}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"./network_configs.yml","enable_dhcp":true}'
 ${PRODUCTION_LOCALHOST}:
@@ -453,7 +447,6 @@ ${EXAMPLES_TEST}:
 ${CLEAN}:
 >	rm --force ./logs/ansible.log.*
 >	rm --force "./production"
->	rm --force "./localhost"
 >	rm \
 		--recursive \
 		--force \

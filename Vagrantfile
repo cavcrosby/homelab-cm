@@ -3,6 +3,7 @@
 require 'json'
 require 'nokogiri'
 require 'tempfile'
+require 'fileutils'
 
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
@@ -14,6 +15,13 @@ VAGRANT_CONFIG_JSON = JSON.parse(
 
 ansible_host_vars = VAGRANT_CONFIG_JSON["ansible_host_vars"]
 ansible_groups = VAGRANT_CONFIG_JSON["ansible_groups"]
+ansible_groups["managed:children"] = []
+ansible_groups.keys().each do |name|
+  if !name.match?(/:children|:vars/)
+    ansible_groups["managed:children"] << name
+  end
+end
+
 if VAGRANT_CONFIG_JSON.key?("vms_include")
   VMS_INCLUDE = VAGRANT_CONFIG_JSON["vms_include"]
 end
@@ -342,9 +350,9 @@ _EOF_
             ansible.groups = ansible_groups
           end
         elsif TRUTHY_VALUES.include? ENV["USE_LOCALHOST_PLAYBOOK"]
-          LOCALHOST_INVENTORY_PATH = "./.vagrant/localhost"
+          FileUtils::mkdir_p("./.vagrant/provisioners/ansible/inventory")
           File.write(
-            LOCALHOST_INVENTORY_PATH,
+            "./.vagrant/provisioners/ansible/inventory/localhost",
             {
               "all" => {
                 "hosts" => {
@@ -366,7 +374,8 @@ _EOF_
             ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.ask_become_pass = true
             ansible.tags = ENV["ANSIBLE_TAGS"]
-            ansible.inventory_path = LOCALHOST_INVENTORY_PATH
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ansible_groups
             ansible.extra_vars = {
               wireguard_privkey_path: ENV["WIREGUARD_PRIVKEY_PATH"],
               wireguard_network_interface_name: ENV["WIREGUARD_NETWORK_INTERFACE_NAME"],

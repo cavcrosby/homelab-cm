@@ -1,7 +1,7 @@
 ---
-- name: Perform setup for node
-  hosts: all
-  tags: do_node_setup
+- name: Perform setup for managed node
+  hosts: managed
+  tags: do_managed_node_setup
 
   tasks:
     - name: Install a custom en_US locale
