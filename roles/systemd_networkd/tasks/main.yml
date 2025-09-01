@@ -15,7 +15,7 @@
 
 - name: Create the administrator managed libexec directory
   ansible.builtin.file:
-    path: /usr/local/libexec
+    path: /usr/local/libexec/systemd
     state: directory
     mode: "775"
   become: true
