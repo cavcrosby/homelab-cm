@@ -1,4 +1,4 @@
-ansible-lint ==24.9.0
+ansible-lint ==24.12.2
 boto3-stubs[s3] ==1.38.13
 molecule ==24.6.0
 molecule-plugins[docker] ==23.5.3
