@@ -28,7 +28,7 @@
 
 - name: Grab Helm's official GPG key
   ansible.builtin.get_url:
-    url: https://baltocdn.com/helm/signing.asc
+    url: https://packages.buildkite.com/helm-linux/helm-debian/gpgkey
     dest: "{{ _helm_keyring_download_path }}"
     checksum: sha256:{{ helm_gpg_sha256_checksum }}
     mode: "644"
@@ -41,7 +41,7 @@
   ansible.builtin.apt_repository:
     repo: >
       deb [arch=amd64 signed-by={{ _helm_keyring_install_path }}]
-      https://baltocdn.com/helm/stable/debian/ all main
+      https://packages.buildkite.com/helm-linux/helm-debian/any any main
     state: present
   become: true
   when:
