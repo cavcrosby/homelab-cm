@@ -74,7 +74,7 @@ repos:
           - pyspellchecker ==0.8.1
 
   - repo: https://github.com/gitleaks/gitleaks.git
-    rev: v8.18.3
+    rev: v8.28.0
     hooks:
       - id: gitleaks
 
