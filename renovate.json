@@ -1,5 +1,6 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "separateMajorMinor": false,
     "extends": [
         "config:recommended"
     ],
@@ -8,5 +9,91 @@
     },
     "lockFileMaintenance": {
         "enabled": true
-    }
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "scripts/chk-vagrant-pkg"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\nreadonly VAGRANT_UPSTREAM_VERSION=\"(?<currentValue>\\S+)\""
+            ]
+        },
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "k8s-nodes.pkr.hcl"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*version\\s+=\\s+\"(?<currentValue>.+)\""
+            ]
+        }
+    ],
+    "packageRules": [
+        {
+            "groupName": "dependencies",
+            "matchFileNames": [
+                "requirements.txt"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchManagers": [
+                "ansible-galaxy"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchDatasources": [
+                "python-version"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "registryUrls": [
+                "https://registry.opentofu.org"
+            ],
+            "matchDatasources": [
+                "terraform-provider",
+                "terraform-module"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchPackageNames": [
+                "hashicorp/packer",
+                "hashicorp/packer-plugin-qemu",
+                "hashicorp/packer-plugin-ansible"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchFileNames": [
+                "requirements-dev.txt",
+                "mitmproxy/requirements-dev.txt"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchManagers": [
+                "bundler",
+                "npm",
+                "pre-commit"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchDatasources": [
+                "node-version"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchPackageNames": [
+                "hashicorp/vagrant"
+            ]
+        }
+    ]
 }
