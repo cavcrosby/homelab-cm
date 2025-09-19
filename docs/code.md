@@ -114,19 +114,12 @@
 
 - Update dependencies accordingly using Renovate.
 
-- Update `VAGRANT_UPSTREAM_VERSION` periodically to newer versions of `vagrant`
-  as they come out.
-
 - Update language runtime versions periodically.
 
   - Ruby is updated indirectly by upgrading the `vagrant` package from
     HashiCorp's package repositories.
 
-  - Node will have assistance from Renovate when updating. Whereas Python does
-    not.
-
-- Update `required_version` of `packer` and `required_plugins` for `packer`
-  periodically.
+  - Node and Python will have assistance from Renovate when updating.
 
 - [Use the following procedure when updating public GPG key checksums.](https://trello.com/c/8IaHDWO7/151-create-a-process-to-verify-public-gpg-keys-upon-updating-related-ansible-tasks-checksum)
 
