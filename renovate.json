@@ -1,12 +1,116 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "separateMajorMinor": false,
     "extends": [
         "config:recommended"
     ],
     "pre-commit": {
-        "enabled": true
+        "enabled": true,
+        "groupName": "lock file maintenance"
     },
     "lockFileMaintenance": {
         "enabled": true
-    }
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "scripts/chk-vagrant-pkg"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\nreadonly VAGRANT_UPSTREAM_VERSION=\"(?<currentValue>\\S+)\""
+            ]
+        },
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "k8s-nodes.pkr.hcl"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*version\\s+=\\s+\"(?<currentValue>.+)\""
+            ]
+        }
+    ],
+    "packageRules": [
+        {
+            "groupName": "development dependencies",
+            "matchManagers": [
+                "pre-commit"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchPackageNames": [
+                "ansible-core",
+                "boto3",
+                "jmespath",
+                "libvirt-python",
+                "lxml",
+                "netaddr"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchManagers": [
+                "ansible-galaxy",
+                "terraform"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchPackageNames": [
+                "hashicorp/packer",
+                "hashicorp/packer-plugin-qemu",
+                "hashicorp/packer-plugin-ansible"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchPackageNames": [
+                "ansible-lint",
+                "boto3-stubs",
+                "molecule",
+                "molecule-plugins",
+                "mypy",
+                "pre-commit",
+                "pyspellchecker",
+                "pytest",
+                "ruff",
+                "tombi"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchManagers": [
+                "bundler",
+                "npm"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchDatasources": [
+                "node-version",
+                "python-version"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "matchPackageNames": [
+                "hashicorp/vagrant"
+            ]
+        },
+        {
+            "groupName": "lock file maintenance",
+            "matchUpdateTypes": [
+                "lockFileMaintenance"
+            ]
+        },
+        {
+            "enabled": false,
+            "matchFileNames": [
+                "mitmproxy/requirements-dev.txt"
+            ]
+        }
+    ]
 }
