@@ -8,5 +8,92 @@
     },
     "lockFileMaintenance": {
         "enabled": true
-    }
+    },
+    "customManagers": [
+        {
+            "customType": "regex",
+            "managerFilePatterns": [
+                "scripts/chk-vagrant-pkg"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\nreadonly VAGRANT_UPSTREAM_VERSION=\"(?<currentValue>\\S+)\""
+            ]
+        },
+        {
+            "customType": "regex",
+            "packageNameTemplate": "{{#if (equals packageName 'hashicorp/packer')}}{{{packageName}}}{{else}}{{{replace 'hashicorp/' 'hashicorp/packer-plugin-' packageName}}}{{/if}}",
+            "managerFilePatterns": [
+                "k8s-nodes.pkr.hcl"
+            ],
+            "matchStrings": [
+                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
+                "# renovate: datasource=(?<datasource>\\S+) versioning=(?<versioning>\\S+)\\n\\s*version\\s+=\\s+\"(?<currentValue>.+)\"\\n\\s*source\\s+=\\s+\"github.com\/(?<packageName>.+)\""
+            ]
+        }
+    ],
+    "packageRules": [
+        {
+            "groupName": "dependencies",
+            "separateMajorMinor": false,
+            "matchFileNames": [
+                "requirements.txt"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "separateMajorMinor": false,
+            "matchManagers": [
+                "ansible-galaxy"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "separateMajorMinor": false,
+            "matchDatasources": [
+                "python-version"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "separateMajorMinor": false,
+            "matchPackageNames": [
+                "hashicorp/terraform",
+                "hashicorp/aws",
+                "hashicorp/packer",
+                "hashicorp/packer-plugin-qemu",
+                "hashicorp/packer-plugin-ansible"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "separateMajorMinor": false,
+            "matchFileNames": [
+                "requirements-dev.txt",
+                "mitmproxy/requirements-dev.txt"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "separateMajorMinor": false,
+            "matchManagers": [
+                "bundler",
+                "npm",
+                "pre-commit"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "separateMajorMinor": false,
+            "matchDatasources": [
+                "node-version"
+            ]
+        },
+        {
+            "groupName": "development dependencies",
+            "separateMajorMinor": false,
+            "matchPackageNames": [
+                "hashicorp/vagrant"
+            ]
+        }
+    ]
 }

@@ -1,15 +1,18 @@
 packer {
   required_plugins {
     qemu = {
+      # renovate: datasource=github-releases versioning=hashicorp
       version = "= 1.0.9"
       source  = "github.com/hashicorp/qemu"
     }
     ansible = {
+      # renovate: datasource=github-releases versioning=hashicorp
       version = "= 1.1.0"
       source  = "github.com/hashicorp/ansible"
     }
   }
 
+  # renovate: datasource=github-releases packageName=hashicorp/packer versioning=hashicorp
   required_version = "~> 1.10.0"
 }
 
