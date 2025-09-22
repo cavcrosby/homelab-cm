@@ -13,7 +13,7 @@ from ansiblelint.text import has_jinja, is_fqcn
 from ansiblelint.yaml_utils import nested_items_path
 from jinja2 import Environment
 from jinja2.nodes import Filter
-from spellchecker import SpellChecker  # type: ignore # spellchecker stubs don't exist
+from spellchecker import SpellChecker
 
 from ansible.parsing.yaml.objects import (  # type: ignore # ansible.parsing.yaml.objects stubs don't exist
     AnsibleUnicode,
