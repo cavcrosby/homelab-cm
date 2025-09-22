@@ -8,7 +8,7 @@ from ansiblelint.config import Options
 from ansiblelint.rules import RulesCollection
 from ansiblelint.runner import Runner
 from ansiblelint.utils import get_lintables, task_in_list
-from spellchecker import SpellChecker  # type: ignore # spellchecker stubs don't exist
+from spellchecker import SpellChecker
 
 spell_checker, unknown_words = SpellChecker(), set()
 for lintable in Runner(
