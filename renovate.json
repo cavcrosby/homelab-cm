@@ -24,7 +24,8 @@
         {
             "customType": "regex",
             "managerFilePatterns": [
-                "k8s-nodes.pkr.hcl"
+                "k8s-nodes.pkr.hcl",
+                "public-dns/main.tofu"
             ],
             "matchStrings": [
                 "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
@@ -53,8 +54,7 @@
         {
             "groupName": "dependencies",
             "matchManagers": [
-                "ansible-galaxy",
-                "terraform"
+                "ansible-galaxy"
             ]
         },
         {
@@ -63,6 +63,29 @@
                 "hashicorp/packer",
                 "hashicorp/packer-plugin-qemu",
                 "hashicorp/packer-plugin-ansible"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "matchPackageNames": [
+                "opentofu/opentofu"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "enabled": false,
+            "matchPackageNames": [
+                "hashicorp/terraform"
+            ]
+        },
+        {
+            "groupName": "dependencies",
+            "registryUrls": [
+                "https://registry.opentofu.org"
+            ],
+            "matchDatasources": [
+                "terraform-provider",
+                "terraform-module"
             ]
         },
         {
