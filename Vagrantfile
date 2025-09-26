@@ -6,7 +6,7 @@ require 'tempfile'
 require 'fileutils'
 
 VAGRANTFILE_API_VERSION = 2
-SHELL_VARIABLE_REGEX = /\$([a-zA-Z_]\w*)$|\$\{{1}(\w+)\}{1}/
+SHELL_VARIABLE_REGEXP = /\$([a-zA-Z_]\w*)|\$\{{1}(\w+)\}{1}/
 VAGRANT_NETWORK_CONFIGS_PATH = "./.vagrant/network_configs.yml"
 VAGRANT_LIBVIRT_HOMELAB_DOMAIN = "homelab.staging.cavcrosby.net"
 VAGRANT_CONFIG_JSON = JSON.parse(
@@ -76,8 +76,8 @@ def eval_config_ref(machine_attrs, config)
         # eval each JSON's key value
         if machine_attrs.key?(config_ref)
           config[config_name] = machine_attrs[config_ref]
-        elsif SHELL_VARIABLE_REGEX.match?(config_ref)
-          match = SHELL_VARIABLE_REGEX.match(config_ref)
+        elsif SHELL_VARIABLE_REGEXP.match?(config_ref)
+          match = SHELL_VARIABLE_REGEXP.match(config_ref)
           config[config_name] = eval(match[1].nil? ? match[2] : match[1])
         end
       elsif config_ref.kind_of?(Hash) && config_ref.key?("join")
