@@ -31,7 +31,8 @@ if TYPE_CHECKING:
     from ansiblelint.utils import Task
     from jinja2.nodes import Node
 
-AnsibleUnicodeItems: TypeAlias = dict[int, AnsibleUnicode]
+    AnsibleUnicodeItems: TypeAlias = dict[int, AnsibleUnicode]
+
 spell_checker = SpellChecker()
 init_plugin_loader()  # required before using loaders
 spell_checker.word_frequency.load_text_file(Path("./docs/dictionary.txt"))
