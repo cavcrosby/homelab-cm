@@ -14,6 +14,7 @@ repos:
     rev: v24.9.0
     hooks:
       - id: ansible-lint
+        language: python
         stages:
           - pre-push
         additional_dependencies:
@@ -82,6 +83,7 @@ repos:
     rev: v1.13.0
     hooks:
       - id: mypy
+        language: python
         args:
           - --strict
         additional_dependencies:
@@ -91,6 +93,7 @@ repos:
 
       - id: mypy
         name: mypy (mitmproxy)
+        language: python
         language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
         files: ^mitmproxy/templates/[a-z_]+\.py\.j2
         types_or:
@@ -116,6 +119,7 @@ repos:
 
       - id: ruff
         name: ruff (mitmproxy)
+        language: python
         language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
         files: ^mitmproxy/templates/[a-z_]+\.py\.j2
         types_or:
@@ -123,6 +127,7 @@ repos:
 
       - id: ruff-format
         name: ruff-format (mitmproxy)
+        language: python
         language_version: ~/.local/src/homelab-cm/mitmproxy/bin/python
         files: ^mitmproxy/templates/[a-z_]+\.py\.j2
         types_or:
