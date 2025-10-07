@@ -91,6 +91,11 @@ repos:
           - boto3-stubs[s3] ==1.38.13
           - pytest ==8.3.4
 
+  - repo: https://github.com/pre-commit/mirrors-mypy.git
+    # Do not update unless package versions are supported by the system Python version
+    # used by the proxy_servers hosts (556b70d).
+    rev: v1.13.0
+    hooks:
       - id: mypy
         name: mypy (mitmproxy)
         language: python
@@ -117,6 +122,11 @@ repos:
         args:
           - ./rules
 
+  - repo: https://github.com/astral-sh/ruff-pre-commit.git
+    # Do not update unless package versions are supported by the system Python version
+    # used by the proxy_servers hosts (556b70d).
+    rev: v0.8.0
+    hooks:
       - id: ruff
         name: ruff (mitmproxy)
         language: python
