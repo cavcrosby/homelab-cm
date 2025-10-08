@@ -60,6 +60,7 @@ repos:
         types:
           - python
         additional_dependencies:
+          - ansible-core ==2.17.0
           - ansible-lint ==24.9.0
           - pyspellchecker ==0.8.1
           - pytest ==8.3.4
@@ -71,6 +72,7 @@ repos:
         stages:
           - pre-push
         additional_dependencies:
+          - ansible-core ==2.17.0
           - ansible-lint ==24.9.0
           - pyspellchecker ==0.8.1
 
@@ -87,6 +89,7 @@ repos:
         args:
           - --strict
         additional_dependencies:
+          - ansible-core ==2.17.0
           - ansible-lint ==24.9.0
           - boto3-stubs[s3] ==1.38.13
           - pytest ==8.3.4
