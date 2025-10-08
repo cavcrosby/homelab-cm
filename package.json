@@ -1,10 +1,10 @@
 {
   "engines": {
-    "node": ">=20 <21"
+    "node": ">=22 <23"
   },
   "devDependencies": {
-    "@bitwarden/cli": "^2024.0.0",
-    "markdownlint-cli2": "^0.13.0",
+    "@bitwarden/cli": "^2025.0.0",
+    "markdownlint-cli2": "^0.18.0",
     "prettier": "^3.1.1"
   }
 }

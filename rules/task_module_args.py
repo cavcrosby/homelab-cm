@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ansiblelint.constants import (
-    LINE_NUMBER_KEY,
-)
 from ansiblelint.rules import AnsibleLintRule
 
 if TYPE_CHECKING:
@@ -21,6 +18,7 @@ class TaskModuleAliasesRule(AnsibleLintRule):
     id = "task-module-args"
     description = "Task module's arguments must follow the set conventions."
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
     _ids = {
         "task-module-args[checksum-param]": "Set the checksum parameter in ansible.builtin.get_url tasks.",  # noqa E501
     }
@@ -38,7 +36,7 @@ class TaskModuleAliasesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )

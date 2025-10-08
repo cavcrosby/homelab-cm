@@ -19,15 +19,15 @@
     state: directory
     mode: "775"
   become: true
-  register: admin_managed_libexec_dir
+  register: systemd_networkd_admin_managed_libexec_dir
 
 - name: Create the reload-udev-offline script
   ansible.builtin.template:
     src: reload-udev-offline.j2
-    dest: "{{ admin_managed_libexec_dir.path }}/reload-udev-offline"
+    dest: "{{ systemd_networkd_admin_managed_libexec_dir.path }}/reload-udev-offline"
     mode: "744"
   become: true
-  register: reload_udev_offline_script
+  register: systemd_networkd_reload_udev_offline_script
 
 - name: Create a reload-udev-offline service unit file
   ansible.builtin.template:

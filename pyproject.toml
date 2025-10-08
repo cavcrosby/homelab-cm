@@ -2,7 +2,7 @@
 name = "homelab-cm"
 version = "1.0.0"
 description = "My approach to configuration management (cm) for my homelab."
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.14,<3.15"
 license-files = ["LICENSE"]
 authors = [{ name = "Conner Crosby", email = "cavcrosby@gmail.com" }]
 

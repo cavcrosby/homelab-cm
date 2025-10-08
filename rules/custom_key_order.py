@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from unittest import mock
 
 import ansiblelint.rules.key_order
-from ansiblelint.constants import ANNOTATION_KEYS, LINE_NUMBER_KEY, RULE_DOC_URL
+from ansiblelint.constants import ANNOTATION_KEYS, RULE_DOC_URL
 from ansiblelint.errors import MatchError
 from ansiblelint.rules.key_order import (
     KeyOrderRule,
@@ -25,6 +25,7 @@ class CustomKeyOrderRule(KeyOrderRule):
 
     id = "custom-key-order"
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
     _ids = {
         "custom-key-order[play]": "You can improve the play key order to: {keys}",
         "custom-key-order[task]": "You can improve the task key order to: {keys}",
@@ -68,9 +69,9 @@ class CustomKeyOrderRule(KeyOrderRule):
                 self.create_matcherror(
                     message=self._ids[id_].format(keys={", ".join(sorted_keys)}),
                     filename=file,
-                    lineno=data[LINE_NUMBER_KEY],
                     tag=id_,
                     transform_meta=KeyOrderTMeta(fixed=tuple(sorted_keys)),
+                    data=data,
                 ),
             )
 
@@ -112,7 +113,7 @@ class CustomKeyOrderRule(KeyOrderRule):
                 self.create_matcherror(
                     message=self._ids[id_].format(keys={", ".join(sorted_keys)}),
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                     transform_meta=KeyOrderTMeta(fixed=tuple(sorted_keys)),
                 ),

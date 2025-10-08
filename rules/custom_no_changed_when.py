@@ -20,6 +20,7 @@ class CustomNoChangedWhenRule(CommandHasChangesCheckRule):
 
     id = "custom-no-changed-when"
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
 
     @property
     def url(self) -> str:

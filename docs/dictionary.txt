@@ -10,9 +10,9 @@ apt_pkg
 aptsources
 arptables
 authorized_keys
+baz
 bgp
 br_netfilter
-ca
 calicoctl
 cfg
 cni
@@ -23,7 +23,6 @@ cri
 cronjobs
 csrs
 ddns
-debian
 dhcp
 dns
 dnsmasq
@@ -89,7 +88,6 @@ nginx
 nodeport
 pam_access
 permitrootlogin
-poseidon
 poseidon_ingress_nginx_node_http_port
 py
 python3
@@ -107,7 +105,6 @@ tigera
 tmux
 udev
 uri
-us's
 usa
 userland
 utf

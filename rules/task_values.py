@@ -2,18 +2,9 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING
-
-from ansiblelint.constants import (
-    LINE_NUMBER_KEY,
-)
-from ansiblelint.rules import AnsibleLintRule
-from ansiblelint.text import has_jinja, is_fqcn
-from ansiblelint.yaml_utils import nested_items_path
-from jinja2 import Environment
-from jinja2.nodes import Filter
-from spellchecker import SpellChecker
 
 from ansible.parsing.yaml.objects import (  # type: ignore # ansible.parsing.yaml.objects stubs don't exist
     AnsibleUnicode,
@@ -22,16 +13,22 @@ from ansible.plugins.loader import (  # type: ignore # ansible.plugins.loader st
     filter_loader,
     init_plugin_loader,
 )
+from ansiblelint.rules import AnsibleLintRule
+from ansiblelint.text import has_jinja, is_fqcn
+from ansiblelint.yaml_utils import nested_items_path
+from jinja2 import Environment
+from jinja2.nodes import Filter
+from spellchecker import SpellChecker
 
 if TYPE_CHECKING:
-    from typing import Any, TypeAlias
+    from typing import Any
 
     from ansiblelint.errors import MatchError
     from ansiblelint.file_utils import Lintable
     from ansiblelint.utils import Task
     from jinja2.nodes import Node
 
-    AnsibleUnicodeItems: TypeAlias = dict[int, AnsibleUnicode]
+    type AnsibleUnicodeItems = dict[int, AnsibleUnicode]
 
 spell_checker = SpellChecker()
 init_plugin_loader()  # required before using loaders
@@ -44,6 +41,7 @@ class TaskValuesRule(AnsibleLintRule):
     id = "task-values"
     description = "Task values must follow the set conventions."
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
     _ids = {
         "task-values[shell-options]": "Start ansible.builtin.shell task with setting errexit and pipefail options (bash).",  # noqa E501
         "task-values[name-word-misspelled]": "Correct any misspelled words in task name ({word}).",  # noqa E501
@@ -57,7 +55,9 @@ class TaskValuesRule(AnsibleLintRule):
         "task-values[append-systemd-unit]": "Append the systemd.unit(5) type suffix to the systemd unit.",  # noqa E501
     }
 
-    def _get_leaf_items(self, node: list[Any] | dict[Any, Any]) -> AnsibleUnicodeItems:
+    def _get_leaf_items(
+        self, node: list[Any] | Mapping[Any, Any]
+    ) -> AnsibleUnicodeItems:
         """Get leaf/terminal AnsibleUnicode items of a tree and their indexes."""
         items: AnsibleUnicodeItems = {}
         previous_item: tuple[Any, Any, list[str | int]] | tuple[()] = ()
@@ -124,7 +124,7 @@ class TaskValuesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )
@@ -138,7 +138,7 @@ class TaskValuesRule(AnsibleLintRule):
                     self.create_matcherror(
                         message=self._ids[id_].format(word=unknown_word),
                         filename=file,
-                        lineno=task[LINE_NUMBER_KEY],
+                        lineno=task.line,
                         tag=id_,
                     )
                 )
@@ -155,7 +155,7 @@ class TaskValuesRule(AnsibleLintRule):
                     self.create_matcherror(
                         message=self._ids[id_],
                         filename=file,
-                        lineno=task[LINE_NUMBER_KEY],
+                        lineno=task.line,
                         tag=id_,
                     )
                 )
@@ -174,7 +174,7 @@ class TaskValuesRule(AnsibleLintRule):
                     self.create_matcherror(
                         message=self._ids[id_],
                         filename=file,
-                        lineno=task[LINE_NUMBER_KEY],
+                        lineno=task.line,
                         tag=id_,
                     )
                 )
@@ -194,7 +194,7 @@ class TaskValuesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )
@@ -208,7 +208,7 @@ class TaskValuesRule(AnsibleLintRule):
                     self.create_matcherror(
                         message=self._ids[id_],
                         filename=file,
-                        lineno=task[LINE_NUMBER_KEY],
+                        lineno=task.line,
                         tag=id_,
                     )
                 )
@@ -232,7 +232,7 @@ class TaskValuesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )
@@ -243,7 +243,7 @@ class TaskValuesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )
@@ -275,7 +275,7 @@ class TaskValuesRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self._ids[id_],
                     filename=file,
-                    lineno=task[LINE_NUMBER_KEY],
+                    lineno=task.line,
                     tag=id_,
                 )
             )

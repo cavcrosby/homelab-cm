@@ -4,7 +4,7 @@
     path: "{{ qemu_img_disk_dest_dir_path }}/{{ qemu_img_disk_prefix }}.qcow2"
     checksum_algorithm: sha256
   become: true
-  register: current_disk_inode
+  register: qemu_img_current_disk_inode
 
 - name: Create the disk image
   ansible.builtin.shell:
@@ -20,7 +20,7 @@
 
       chmod 600 "{{ qemu_img_disk_dest_dir_path }}/{{ qemu_img_disk_prefix }}.qcow2"
       sha256sum "{{ qemu_img_disk_dest_dir_path }}/{{ qemu_img_disk_prefix }}.qcow2" | awk -F " " '{ print $1 }'
-  changed_when: not current_disk_inode.stat.exists
-                or current_disk_inode.stat.checksum != disk_inode_checksum.stdout
+  changed_when: not qemu_img_current_disk_inode.stat.exists
+                or qemu_img_current_disk_inode.stat.checksum != qemu_img_disk_inode_checksum.stdout
   become: true
-  register: disk_inode_checksum
+  register: qemu_img_disk_inode_checksum
