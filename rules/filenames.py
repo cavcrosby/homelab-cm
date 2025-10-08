@@ -18,6 +18,7 @@ class FileNamesRule(AnsibleLintRule):
     id = "filenames"
     description = "Ansible yaml file names must follow the set conventions."
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
     _ids = {
         "filenames[append-yml-ext]": "Append a file extension of '.yml' to all Ansible yaml files ({filename}).",  # noqa E501
         "filenames[no-dashes]": "Do not use dashes in Ansible yaml's file names, instead use underscores ({filename}).",  # noqa E501

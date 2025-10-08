@@ -4,14 +4,14 @@ default_install_hook_types:
   - pre-push
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks.git
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: end-of-file-fixer
       - id: check-added-large-files
       - id: trailing-whitespace
 
   - repo: https://github.com/ansible-community/ansible-lint.git
-    rev: v24.9.0
+    rev: v25.9.2
     hooks:
       - id: ansible-lint
         language: python
@@ -20,10 +20,10 @@ repos:
         additional_dependencies:
           - ansible-core ==2.17.0
           - jmespath ==1.0.1
-          - pyspellchecker ==0.8.1
+          - pyspellchecker ==0.8.3
 
   - repo: https://github.com/adrienverge/yamllint.git
-    rev: v1.35.1
+    rev: v1.37.1
     hooks:
       - id: yamllint
         args:
@@ -35,7 +35,7 @@ repos:
           - ./roles
 
   - repo: https://github.com/DavidAnson/markdownlint-cli2.git
-    rev: v0.13.0
+    rev: v0.18.1
     hooks:
       - id: markdownlint-cli2
 
@@ -50,7 +50,7 @@ repos:
         types:
           - markdown
         additional_dependencies:
-          - prettier@3.3.2
+          - prettier@3.6.2
 
       - id: pytest
         name: pytest
@@ -61,9 +61,9 @@ repos:
           - python
         additional_dependencies:
           - ansible-core ==2.17.0
-          - ansible-lint ==24.9.0
-          - pyspellchecker ==0.8.1
-          - pytest ==8.3.4
+          - ansible-lint ==25.9.2
+          - pyspellchecker ==0.8.3
+          - pytest ==8.4.2
 
       - id: gendict.py
         name: gendict.py
@@ -73,16 +73,16 @@ repos:
           - pre-push
         additional_dependencies:
           - ansible-core ==2.17.0
-          - ansible-lint ==24.9.0
-          - pyspellchecker ==0.8.1
+          - ansible-lint ==25.9.2
+          - pyspellchecker ==0.8.3
 
   - repo: https://github.com/gitleaks/gitleaks.git
-    rev: v8.18.3
+    rev: v8.28.0
     hooks:
       - id: gitleaks
 
   - repo: https://github.com/pre-commit/mirrors-mypy.git
-    rev: v1.13.0
+    rev: v1.18.2
     hooks:
       - id: mypy
         language: python
@@ -90,15 +90,15 @@ repos:
           - --strict
         additional_dependencies:
           - ansible-core ==2.17.0
-          - ansible-lint ==24.9.0
-          - boto3-stubs[s3] ==1.38.13
-          - pyspellchecker ==0.8.1
-          - pytest ==8.3.4
+          - ansible-lint ==25.9.2
+          - boto3-stubs[s3] ==1.40.48
+          - pyspellchecker ==0.8.3
+          - pytest ==8.4.2
 
   - repo: https://github.com/pre-commit/mirrors-mypy.git
     # Do not update unless package versions are supported by the system Python version
     # used by the proxy_servers hosts (556b70d).
-    rev: v1.13.0
+    rev: v1.18.2
     hooks:
       - id: mypy
         name: mypy (mitmproxy)
@@ -116,9 +116,9 @@ repos:
           - types-requests ==2.32.0.20250328
 
   - repo: https://github.com/astral-sh/ruff-pre-commit.git
-    rev: v0.8.0
+    rev: v0.14.0
     hooks:
-      - id: ruff
+      - id: ruff-check
         args:
           - ./rules
 
@@ -129,7 +129,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit.git
     # Do not update unless package versions are supported by the system Python version
     # used by the proxy_servers hosts (556b70d).
-    rev: v0.8.0
+    rev: v0.14.0
     hooks:
       - id: ruff
         name: ruff (mitmproxy)
@@ -148,18 +148,18 @@ repos:
           - jinja
 
   - repo: https://github.com/tofuutils/pre-commit-opentofu.git
-    rev: v2.2.0
+    rev: v2.2.1
     hooks:
       - id: tofu_fmt
       - id: tofu_validate
 
   - repo: https://github.com/tombi-toml/tombi-pre-commit.git
-    rev: v0.3.55
+    rev: v0.6.25
     hooks:
       - id: tombi-lint
       - id: tombi-format
 
   - repo: https://github.com/koalaman/shellcheck-precommit.git
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: shellcheck

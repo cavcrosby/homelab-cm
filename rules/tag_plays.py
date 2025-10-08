@@ -4,9 +4,6 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ansiblelint.constants import (
-    LINE_NUMBER_KEY,
-)
 from ansiblelint.rules import AnsibleLintRule
 
 if TYPE_CHECKING:
@@ -22,6 +19,7 @@ class TagPlaysRule(AnsibleLintRule):
     id = "tag-plays"
     description = "Append playbook plays with at least one tag."
     tags = ["homelab-cm"]
+    version_changed = "1.0.0"
 
     def matchplay(self, file: Lintable, data: dict[str, Any]) -> list[MatchError]:
         """Play matching method."""
@@ -34,8 +32,8 @@ class TagPlaysRule(AnsibleLintRule):
                 self.create_matcherror(
                     message=self.description,
                     filename=file,
-                    lineno=data[LINE_NUMBER_KEY],
                     tag=self.id,
+                    data=data,
                 )
             )
 

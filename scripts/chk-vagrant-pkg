@@ -22,7 +22,7 @@ readonly PROGNAME
 readonly FALSE=0
 readonly TRUE=1
 # renovate: datasource=github-releases packageName=hashicorp/vagrant versioning=loose
-readonly VAGRANT_UPSTREAM_VERSION="2.4.1"
+readonly VAGRANT_UPSTREAM_VERSION="2.4.9"
 readonly VAGRANT_APT_REPO="apt.releases.hashicorp.com"
 
 if echo "${ID_LIKE}" | grep --quiet "debian"; then

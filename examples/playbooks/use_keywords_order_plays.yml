@@ -17,11 +17,11 @@
     - foo
 
   tasks:
-    - name: Foo
+    - name: Bar
       ansible.builtin.debug:
         msg: bar
 
   handlers:
-    - name: Foo
+    - name: Baz
       ansible.builtin.debug:
         msg: bar

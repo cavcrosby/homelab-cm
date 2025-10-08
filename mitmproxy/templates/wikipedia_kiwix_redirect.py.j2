@@ -5,14 +5,13 @@ from __future__ import annotations
 
 import logging
 import re
+import tomllib
 from http import HTTPMethod, HTTPStatus
 from pathlib import Path
 from typing import TYPE_CHECKING
 from xml.etree import ElementTree
 
 import requests
-import tomllib
-
 from mitmproxy.http import Response
 
 if TYPE_CHECKING:

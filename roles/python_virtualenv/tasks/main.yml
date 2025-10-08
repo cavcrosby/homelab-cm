@@ -37,41 +37,41 @@
         file_type: directory
         patterns: python*
         depth: 1
-      failed_when: site_packages_find.files | length != 1
-      register: site_packages_find
+      failed_when: python_virtualenv_site_packages_find.files | length != 1
+      register: python_virtualenv_site_packages_find
 
     - name: Link python3-apt's apt
       ansible.builtin.file:
         state: link
-        path: "{{ site_packages_find.files[0].path }}/site-packages/apt"
+        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt"
         src: /usr/lib/python3/dist-packages/apt
 
     - name: Link python3-apt's aptsources
       ansible.builtin.file:
         state: link
-        path: "{{ site_packages_find.files[0].path }}/site-packages/aptsources"
+        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/aptsources"
         src: /usr/lib/python3/dist-packages/aptsources
 
     - name: Find python3-apt's apt_pkg shared object path
       ansible.builtin.find:
         paths: /usr/lib/python3/dist-packages
         patterns: apt_pkg*.so
-      register: apt_pkg_find
+      register: python_virtualenv_apt_pkg_find
 
     - name: Link python3-apt's apt_pkg
       ansible.builtin.file:
         state: link
-        path: "{{ site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
-        src: "{{ apt_pkg_find.files[0].path }}"
+        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
+        src: "{{ python_virtualenv_apt_pkg_find.files[0].path }}"
 
     - name: Find python3-apt's apt_inst shared object path
       ansible.builtin.find:
         paths: /usr/lib/python3/dist-packages
         patterns: apt_inst*.so
-      register: apt_inst_find
+      register: python_virtualenv_apt_inst_find
 
     - name: Link python3-apt's apt_inst
       ansible.builtin.file:
         state: link
-        path: "{{ site_packages_find.files[0].path }}/site-packages/apt_inst.so"
-        src: "{{ apt_inst_find.files[0].path }}"
+        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt_inst.so"
+        src: "{{ python_virtualenv_apt_inst_find.files[0].path }}"

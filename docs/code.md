@@ -8,7 +8,6 @@
 - The `site.yml` playbook serves as the main playbook that defines my homelab
   infrastructure. Below are a few additional playbooks that are worth
   mentioning.
-
   - The `on_prem.yml` playbook aggregates common configurations for my on
     premises hosts.
 
@@ -18,7 +17,6 @@
 
 - The `ansible` groups have been defined based mostly on their associated
   function. The rest are defined (loosely) based on geography.
-
   - This decision was originally based on
     <https://docs.ansible.com/ansible/2.8/user_guide/playbooks_best_practices.html#how-to-differentiate-staging-vs-production>
     but such documentation has superseded by
@@ -30,8 +28,7 @@
 - The Kubernetes (`k8s`) playbooks are structured to run a generic play first
   then a named configuration play second. The notes on these decisions can be
   found
-  [here](https://trello.com/c/QcvcMHUW/59-refactor-k8s-related-playbooks-ansible-units-in-assuming-there-only-exist-one-cluster).
-
+  [in its associated Trello card](https://trello.com/c/QcvcMHUW/59-refactor-k8s-related-playbooks-ansible-units-in-assuming-there-only-exist-one-cluster).
   - For example, the `Setup Kubernetes control planes (first control-planes)`
     play runs before the
     `Setup Kubernetes control planes (first control-planes) (poseidon)` play.
@@ -60,9 +57,9 @@
   QEMU/KVM along with the `vagrant-libvirt` plugin.
 
 - The top level `vagrant_ansible_vars.json` was written to aggregate `ansible`
-  host variables and `ansible` groups. A scaled back version of this file can be
-  found [here](../examples/vagrant_ansible_vars.json). Below will be a brief
-  outline of some elements that are not self-explanatory.
+  host variables and `ansible` groups. A scaled back version of this
+  [file exists within the project](../examples/vagrant_ansible_vars.json). Below
+  will be a brief outline of some elements that are not self-explanatory.
   - `vagrant_config_refs` represent host variables whose value is defined by
     other host variables within the same host.
   - `vagrant_external_config_refs` represent host variables whose value is
@@ -87,8 +84,7 @@
   - `staging-dnsmasq-dhcp.conf.j2`
 - Consider the following hierarchy (in decreasing granularity) when creating new
   variables to use. This hierarchy is derived from
-  [here](https://trello.com/c/PYAlPypV/37-check-the-consistency-of-variable-values-being-passed-into-ansible-roles).
-
+  [an associated Trello card](https://trello.com/c/PYAlPypV/37-check-the-consistency-of-variable-values-being-passed-into-ansible-roles).
   1. Host variables in the inventory file.
   2. Group variables in the inventory file.
   3. Group variables file within the project.
@@ -97,8 +93,7 @@
 
 - Follow this precedence when naming playbooks (an exception to this would be
   those under `./examples/playbooks`). This precedence is derived from
-  [here](https://trello.com/c/zfi9zgsR/83-integrate-installing-haproxy-and-keepalived-from-poseidonk8scontrollers-into-loadbalancersyml).
-
+  [an associated Trello card](https://trello.com/c/zfi9zgsR/83-integrate-installing-haproxy-and-keepalived-from-poseidonk8scontrollers-into-loadbalancersyml).
   1. A playbook directly maps to a host's higher purpose via machine hostname
      (e.g. `k8s_controllers.yml` -> `poseidon-k8s-controller1`).
   2. A playbook indirectly maps to a host's higher purpose via `ansible` groups
@@ -110,12 +105,11 @@
 
 - Update software versions in `poseidon_k8s_software_versions.yml` when
   Kubernetes infrastructure patching occurs, as mentioned
-  [here](./infrastructure.md).
+  [the Infrastructure Design Documentation](./infrastructure.md).
 
 - Update dependencies accordingly using Renovate.
 
 - Update language runtime versions periodically.
-
   - Ruby is updated indirectly by upgrading the `vagrant` package from
     HashiCorp's package repositories.
 
@@ -124,9 +118,7 @@
 - [Use the following procedure when updating public GPG key checksums.](https://trello.com/c/8IaHDWO7/151-create-a-process-to-verify-public-gpg-keys-upon-updating-related-ansible-tasks-checksum)
 
 - Create new TLS certificates as those expire.
-
   - [Follow these instructions to create a certificate for the root CA.](https://kubernetes.io/docs/tasks/administer-cluster/certificates/#openssl)
-
     - The Common Name (CN) should be set to 'Conner Crosby (homelab-cm)'.
 
     - The following can also be used to generate the signing key and certificate
@@ -137,9 +129,7 @@
 
   - Follow these instructions for the client TLS certificates related to IRC
     server identification.
-
     - For Libra.Chat:
-
       1. [Replace a IRC server's TLS certificate by creating a new one.](https://libera.chat/guides/certfp#creating-a-self-signed-certificate)
          The following can also be used
          `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/files/certs/liberachat.pem" -keyout "./playbooks/files/certs/liberachat.pem"`.
@@ -156,7 +146,6 @@
       7. Upload the new certificate to Bitwarden.
 
     - For OFTC:
-
       1. [Replace a IRC server's TLS certificate by creating a new one.](https://libera.chat/guides/certfp#creating-a-self-signed-certificate)
          The following can also be used
          `openssl req -x509 -new -nodes -sha256 -newkey "ed25519" -days 1096 -out "./playbooks/files/certs/oftc.pem" -keyout "./playbooks/files/certs/oftc.pem"`.

@@ -1,5 +1,5 @@
 mitmproxy ==11.0.2
-mypy ==1.13.0
+mypy ==1.18.2
 requests ==2.32.3
-ruff ==0.8.0
+ruff ==0.13.3
 types-requests ==2.32.0.20250328

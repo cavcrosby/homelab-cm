@@ -6,7 +6,7 @@
       set -eo pipefail
       gpg --batch --yes --output "{{ _k8s_kubeadm_kubernetes_keyring_install_path }}" --dearmor "{{ _k8s_kubeadm_kubernetes_keyring_download_path }}"
       sha256sum "{{ _k8s_kubeadm_kubernetes_keyring_install_path }}" | awk -F " " '{ print $1 }'
-  changed_when: not current_installed_gpg_key_inode.stat.exists
-                or current_installed_gpg_key_inode.stat.checksum != installed_gpg_key_inode.stdout
+  changed_when: not k8s_kubeadm_current_installed_gpg_key_inode.stat.exists
+                or k8s_kubeadm_current_installed_gpg_key_inode.stat.checksum != k8s_kubeadm_installed_gpg_key_inode.stdout
   become: true
-  register: installed_gpg_key_inode
+  register: k8s_kubeadm_installed_gpg_key_inode
