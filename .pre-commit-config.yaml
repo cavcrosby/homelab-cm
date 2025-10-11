@@ -91,7 +91,7 @@ repos:
         additional_dependencies:
           - ansible-core ==2.17.0
           - ansible-lint ==25.9.2
-          - boto3-stubs[s3] ==1.40.48
+          - boto3-stubs[s3] ==1.40.50
           - pyspellchecker ==0.8.3
           - pytest ==8.4.2
 
@@ -111,9 +111,9 @@ repos:
           - --strict
           - --scripts-are-modules
         additional_dependencies:
-          - mitmproxy ==11.0.2
-          - requests ==2.32.3
-          - types-requests ==2.32.0.20250328
+          - mitmproxy ==12.1.2
+          - requests ==2.32.5
+          - types-requests ==2.32.4.20250913
 
   - repo: https://github.com/astral-sh/ruff-pre-commit.git
     rev: v0.14.0
@@ -154,7 +154,7 @@ repos:
       - id: tofu_validate
 
   - repo: https://github.com/tombi-toml/tombi-pre-commit.git
-    rev: v0.6.25
+    rev: v0.6.27
     hooks:
       - id: tombi-lint
       - id: tombi-format
