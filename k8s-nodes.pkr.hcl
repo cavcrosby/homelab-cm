@@ -2,18 +2,18 @@ packer {
   required_plugins {
     qemu = {
       # renovate: datasource=github-releases packageName=hashicorp/packer-plugin-qemu versioning=hashicorp
-      version = "= 1.0.9"
+      version = "1.1.4"
       source  = "github.com/hashicorp/qemu"
     }
     ansible = {
       # renovate: datasource=github-releases packageName=hashicorp/packer-plugin-ansible versioning=hashicorp
-      version = "= 1.1.0"
+      version = "1.1.4"
       source  = "github.com/hashicorp/ansible"
     }
   }
 
   # renovate: datasource=github-releases packageName=hashicorp/packer versioning=hashicorp
-  required_version = "~> 1.10.0"
+  required_version = "~> 1.14.0"
 }
 
 variable "preferred_nameserver" {

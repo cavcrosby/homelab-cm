@@ -232,11 +232,9 @@
     - name: Check the modification time of the self-signed CA certificate
       ansible.builtin.stat:
         path: "{{ k8s_root_cacert_path }}"
-      # Without casting the current inode's modification time to a str, it would have
-      # always returned a status of changed.
       changed_when:
         - initial_k8s_root_cacert_mtime is defined
-        - initial_k8s_root_cacert_mtime != (k8s_root_cacert_inode.stat.mtime | string)
+        - initial_k8s_root_cacert_mtime != k8s_root_cacert_inode.stat.mtime
       register: k8s_root_cacert_inode
       notify: Restart the haproxy service
 

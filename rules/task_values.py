@@ -6,16 +6,14 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from ansible.parsing.yaml.objects import (  # type: ignore # ansible.parsing.yaml.objects stubs don't exist
-    AnsibleUnicode,
-)
 from ansible.plugins.loader import (  # type: ignore # ansible.plugins.loader stubs don't exist
     filter_loader,
     init_plugin_loader,
 )
+from ansiblelint.constants import ANNOTATION_KEYS
 from ansiblelint.rules import AnsibleLintRule
 from ansiblelint.text import has_jinja, is_fqcn
-from ansiblelint.yaml_utils import nested_items_path
+from ansiblelint.yaml_utils import get_line_column, nested_items_path
 from jinja2 import Environment
 from jinja2.nodes import Filter
 from spellchecker import SpellChecker
@@ -27,8 +25,6 @@ if TYPE_CHECKING:
     from ansiblelint.file_utils import Lintable
     from ansiblelint.utils import Task
     from jinja2.nodes import Node
-
-    type AnsibleUnicodeItems = dict[int, AnsibleUnicode]
 
 spell_checker = SpellChecker()
 init_plugin_loader()  # required before using loaders
@@ -55,35 +51,19 @@ class TaskValuesRule(AnsibleLintRule):
         "task-values[append-systemd-unit]": "Append the systemd.unit(5) type suffix to the systemd unit.",  # noqa E501
     }
 
-    def _get_leaf_items(
-        self, node: list[Any] | Mapping[Any, Any]
-    ) -> AnsibleUnicodeItems:
-        """Get leaf/terminal AnsibleUnicode items of a tree and their indexes."""
-        items: AnsibleUnicodeItems = {}
-        previous_item: tuple[Any, Any, list[str | int]] | tuple[()] = ()
-        for key, value, parent in nested_items_path(node):
-            if (
-                previous_item
-                and (
-                    not parent
-                    # first item in list
-                    or parent == previous_item[0]
-                    # 1+n item in list (n > 0)
-                    or parent == previous_item[2]
-                )
-                and isinstance(previous_item[1], AnsibleUnicode)
-            ):
-                items[previous_item[1].ansible_pos[1]] = previous_item[1]
-            previous_item = (key, value, parent)
-
-        # add the last previous item
-        if previous_item and isinstance(previous_item[1], AnsibleUnicode):
-            items[previous_item[1].ansible_pos[1]] = previous_item[1]
+    def _get_leaf_items(self, node: list[Any] | Mapping[Any, Any]) -> dict[int, str]:
+        """Get leaf/terminal items of a tree and their line numbers."""
+        items: dict[int, str] = {}
+        for key, value, _ in nested_items_path(node):
+            if key not in (
+                ANNOTATION_KEYS + ["__ansible_action_type__"]
+            ) and isinstance(value, str):
+                items[get_line_column(value)[0]] = value
 
         return items
 
     def _get_filter_matcherrors(
-        self, id_: str, lintable: Lintable | None, items: AnsibleUnicodeItems
+        self, id_: str, lintable: Lintable | None, items: dict[int, str]
     ) -> list[MatchError]:
         """Get match errors where Ansible filters do not use the FQCN format."""
 

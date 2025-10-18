@@ -18,7 +18,7 @@ repos:
         stages:
           - pre-push
         additional_dependencies:
-          - ansible-core ==2.17.0
+          - ansible-core ==2.19.3
           - jmespath ==1.0.1
           - pyspellchecker ==0.8.3
 
@@ -60,7 +60,7 @@ repos:
         types:
           - python
         additional_dependencies:
-          - ansible-core ==2.17.0
+          - ansible-core ==2.19.3
           - ansible-lint ==25.9.2
           - pyspellchecker ==0.8.3
           - pytest ==8.4.2
@@ -72,7 +72,7 @@ repos:
         stages:
           - pre-push
         additional_dependencies:
-          - ansible-core ==2.17.0
+          - ansible-core ==2.19.3
           - ansible-lint ==25.9.2
           - pyspellchecker ==0.8.3
 
@@ -89,7 +89,7 @@ repos:
         args:
           - --strict
         additional_dependencies:
-          - ansible-core ==2.17.0
+          - ansible-core ==2.19.3
           - ansible-lint ==25.9.2
           - boto3-stubs[s3] ==1.40.48
           - pyspellchecker ==0.8.3
