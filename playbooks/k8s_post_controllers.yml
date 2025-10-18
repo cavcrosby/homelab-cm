@@ -29,7 +29,7 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       vars:
-        namespace: "{{ namespace_creation.result.metadata.name }}"
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
 
     - name: Apply the Kiwix zim Jobs manifest to the Kubernetes cluster
@@ -40,7 +40,7 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       vars:
-        namespace: "{{ namespace_creation.result.metadata.name }}"
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
 
     - name: Create the ddns namespace in the Kubernetes cluster
@@ -62,7 +62,7 @@
       environment:
         KUBECONFIG: /etc/kubernetes/admin.conf
       vars:
-        namespace: "{{ namespace_creation.result.metadata.name }}"
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`cache`]'))[0] }}"
 
 - name: Install Helm charts (poseidon)
@@ -98,7 +98,7 @@
           environment:
             KUBECONFIG: /etc/kubernetes/admin.conf
           vars:
-            namespace: "{{ namespace_creation.result.metadata.name }}"
+            namespace_: "{{ namespace_creation.result.metadata.name }}"
 
         - name: Add the Ingress NGINX Helm repository
           kubernetes.core.helm_repository:

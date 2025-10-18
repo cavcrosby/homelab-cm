@@ -1723,7 +1723,6 @@
             "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
         },
         "poseidon:vars": {
-            "k8s_software_versions_file": "poseidon_k8s_software_versions.yml",
             "nfs_exports_config": [
                 {
                     "host": "vmm1",

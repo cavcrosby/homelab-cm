@@ -7,6 +7,6 @@ kind: Secret
 type: kubernetes.io/dockerconfigjson
 metadata:
   name: {{ dockerhub_creds_secret_name }}
-  namespace: {{ namespace }}
+  namespace: {{ namespace_ }}
 data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}

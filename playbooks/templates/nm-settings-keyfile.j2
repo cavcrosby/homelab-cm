@@ -12,7 +12,7 @@
         [{{ section }}]
     {% endif %}
     {% for key, value in keypairs.items() %}
-        {% if value.__class__.__name__ == 'list' -%}
+        {% if value is not string and value is not mapping and value is sequence -%}
             {{ key }}={{ value | join(';') + ';' }}
         {% else -%}
             {{ key }}={{ value }}
