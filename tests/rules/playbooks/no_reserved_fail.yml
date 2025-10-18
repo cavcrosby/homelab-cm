@@ -1,0 +1,18 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+  vars:
+    connection: foo
+
+  tasks:
+    - name: Apply the kiwix-serve manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s-kiwix-serve.yml.j2
+        state: present
+      become: true
+      environment:
+        KUBECONFIG: /etc/kubernetes/admin.conf
+      vars:
+        namespace: "{{ namespace_creation.result.metadata.name }}"
+        nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"

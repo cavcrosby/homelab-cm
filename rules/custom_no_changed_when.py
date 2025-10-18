@@ -32,6 +32,7 @@ class CustomNoChangedWhenRule(CommandHasChangesCheckRule):
         errors: list[MatchError] = []
         errors += super().matchtask(task, file)
         for error in errors:
+            error.tag = self.id
             error.message = (
                 "Use the following approach to determine change in command-like tasks,"
                 " https://github.com/cavcrosby/homelab-cm/commit/d627eea."
