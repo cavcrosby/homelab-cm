@@ -8,6 +8,10 @@
       ansible.builtin.debug:
         msg: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
 
+    - name: Print the file using the ansible.builtin.command module
+      ansible.builtin.command: cat "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
+      changed_when: false
+
     - name: Print the object file
       ansible.builtin.debug:
         var: "{{ foo_object.path.etc.conf }}"
@@ -16,3 +20,14 @@
           path:
             etc:
               conf: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
+
+    - name: Print the object file with an etc sequence
+      ansible.builtin.debug:
+        var: "{{ foo_object.path.etc.conf }}"
+      vars:
+        foo_object:
+          path:
+            etc:
+              - conf: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
+              - conf: "{{ ('bar.conf.j2' | splitext)[:-1] | join('.') }}"
+              - conf: "{{ ('baz.conf.j2' | splitext)[:-1] | join('.') }}"

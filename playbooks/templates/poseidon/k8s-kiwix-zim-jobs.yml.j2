@@ -7,7 +7,7 @@ kind: Secret
 type: kubernetes.io/dockerconfigjson
 metadata:
   name: dockerhub-creds
-  namespace: {{ namespace }}
+  namespace: {{ namespace_ }}
 data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}
 
@@ -18,7 +18,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   generateName: {{ zims_jobs_manifest_config.name }}-
-  namespace: {{ namespace }}
+  namespace: {{ namespace_ }}
 spec:
   ttlSecondsAfterFinished: 86400 # one day
   template:

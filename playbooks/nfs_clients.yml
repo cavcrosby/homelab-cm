@@ -24,7 +24,7 @@
         state: directory
         mode: "755"
       become: true
-      loop: "{{ nfs_exports_config }}"
+      loop: "{{ nfs_exports_config | ansible.builtin.string | ansible.builtin.from_yaml }}"
 
     - name: Mount the NFS exports
       ansible.posix.mount:
@@ -34,4 +34,4 @@
         opts: "{{ item.options }}"
         state: mounted
       become: true
-      loop: "{{ nfs_exports_config }}"
+      loop: "{{ nfs_exports_config | ansible.builtin.string | ansible.builtin.from_yaml }}"

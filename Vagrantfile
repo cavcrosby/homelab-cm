@@ -348,6 +348,9 @@ _EOF_
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
+            ansible.extra_vars = {
+              k8s_software_versions_file: "poseidon_k8s_software_versions.yml",
+            }
           end
         elsif TRUTHY_VALUES.include? ENV["USE_LOCALHOST_PLAYBOOK"]
           FileUtils::mkdir_p("./.vagrant/provisioners/ansible/inventory")
@@ -406,7 +409,8 @@ _EOF_
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
             ansible.extra_vars = {
-              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length])
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
+              k8s_software_versions_file: "poseidon_k8s_software_versions.yml"
             }.merge(ansible_extra_vars)
           end
         end
