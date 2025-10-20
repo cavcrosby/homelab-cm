@@ -103,7 +103,7 @@ def test_pkg_names_order_fail(rule_runner: RunFromText) -> None:
     indirect=["rule_runner"],
 )
 def test_fqcn_in_filter_fail(rule_runner: RunFromText) -> None:
-    """Test that task-values[fqcn-in-filter] finds errors in playbooks."""
+    """Test that task-values[fqcn-in-filter] finds errors."""
     errors = rule_runner.run(Path("./tests/rules/playbooks/fqcn_in_filter_fail.yml"))
     assert len(errors) == 6
     for error in errors:
