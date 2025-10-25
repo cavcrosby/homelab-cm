@@ -1,10 +1,10 @@
 ansible-lint ==25.9.2
-boto3-stubs[s3] ==1.40.48
+boto3-stubs[s3] ==1.40.59
 molecule ==25.9.0
 molecule-plugins[docker] ==25.8.12
 mypy ==1.18.2
 pre-commit ==4.3.0
 pyspellchecker ==0.8.3
 pytest ==8.4.2
-ruff ==0.14.0
-tombi ==0.6.25
+ruff ==0.14.2
+tombi ==0.6.39
