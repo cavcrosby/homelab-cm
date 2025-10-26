@@ -141,7 +141,7 @@ ansible_host_vars.each do |machine_name, machine_attrs|
 
   if machine_attrs.key?("vagrant_vm_vpn_mac_addr")
     vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_mac_addr"] = machine_attrs["vagrant_vm_vpn_mac_addr"]
-    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_mac_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"]
+    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_ipv4_addr"] = machine_attrs["vagrant_vm_vpn_ipv4_addr"]
   end
 
   if (defined? VMS_INCLUDE) && !VMS_INCLUDE.include?(machine_name)
