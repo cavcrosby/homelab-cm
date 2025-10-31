@@ -22,7 +22,7 @@ GEM
     fog-xml (0.1.5)
       fog-core
       nokogiri (>= 1.5.11, < 2.0.0)
-    formatador (1.2.1)
+    formatador (1.2.2)
       reline
     io-console (0.8.1)
     json (2.15.2)
