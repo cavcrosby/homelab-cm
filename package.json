@@ -1,6 +1,6 @@
 {
   "engines": {
-    "node": ">=22 <23"
+    "node": ">=22 <25"
   },
   "devDependencies": {
     "@bitwarden/cli": "^2025.0.0",
