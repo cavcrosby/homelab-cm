@@ -91,7 +91,7 @@ repos:
         additional_dependencies:
           - ansible-core ==2.19.3
           - ansible-lint ==25.9.2
-          - boto3-stubs[s3] ==1.40.48
+          - boto3-stubs[s3] ==1.40.64
           - pyspellchecker ==0.8.3
           - pytest ==8.4.2
 
@@ -111,12 +111,12 @@ repos:
           - --strict
           - --scripts-are-modules
         additional_dependencies:
-          - mitmproxy ==11.0.2
-          - requests ==2.32.3
-          - types-requests ==2.32.0.20250328
+          - mitmproxy ==12.2.0
+          - requests ==2.32.5
+          - types-requests ==2.32.4.20250913
 
   - repo: https://github.com/astral-sh/ruff-pre-commit.git
-    rev: v0.14.0
+    rev: v0.14.3
     hooks:
       - id: ruff-check
         args:
@@ -129,7 +129,7 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit.git
     # Do not update unless package versions are supported by the system Python version
     # used by the proxy_servers hosts (556b70d).
-    rev: v0.14.0
+    rev: v0.14.3
     hooks:
       - id: ruff
         name: ruff (mitmproxy)
@@ -148,13 +148,13 @@ repos:
           - jinja
 
   - repo: https://github.com/tofuutils/pre-commit-opentofu.git
-    rev: v2.2.1
+    rev: v2.2.2
     hooks:
       - id: tofu_fmt
       - id: tofu_validate
 
   - repo: https://github.com/tombi-toml/tombi-pre-commit.git
-    rev: v0.6.25
+    rev: v0.6.39
     hooks:
       - id: tombi-lint
       - id: tombi-format
