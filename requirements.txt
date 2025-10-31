@@ -1,5 +1,5 @@
 ansible-core ==2.19.3
-boto3[crt] ==1.40.51
+boto3[crt] ==1.40.64
 jmespath ==1.0.1
 libvirt-python ==11.8.0
 lxml ==6.0.2
