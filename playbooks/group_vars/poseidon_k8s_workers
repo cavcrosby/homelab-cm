@@ -1,7 +1,0 @@
----
-cri_socket_path: unix:///var/run/containerd/containerd.sock
-k8s_worker_node_kubeadm_patches_dir_path: /tmp/ansible
-k8s_worker_node_iptables_rules_path: /etc/iptables/rules.v4
-k8s_worker_node_join_config_template: poseidon/k8s-worker.yml.j2
-k8s_worker_node_join_patch_templates:
-  - poseidon/kubeletconfiguration.yaml.j2

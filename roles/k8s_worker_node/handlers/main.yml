@@ -1,6 +1,0 @@
----
-- name: Save the current iptables rules
-  community.general.iptables_state:
-    path: "{{ k8s_worker_node_iptables_rules_path }}"
-    state: saved
-  become: true

@@ -25,17 +25,6 @@
   - The `ansible` groups are listed in order of most generic to specific within
     the inventory files, this includes when defining group variables.
 
-- The Kubernetes (`k8s`) playbooks are structured to run a generic play first
-  then a named configuration play second. The notes on these decisions can be
-  found
-  [in its associated Trello card](https://trello.com/c/QcvcMHUW/59-refactor-k8s-related-playbooks-ansible-units-in-assuming-there-only-exist-one-cluster).
-  - For example, the `Setup Kubernetes control planes (first control-planes)`
-    play runs before the
-    `Setup Kubernetes control planes (first control-planes) (poseidon)` play.
-
-  - Each Kubernetes named configuration set (e.g. `poseidon`) will have its
-    templates stored in a subdirectory under `./playbooks/templates`.
-
 - Local `ansible` roles are not intended to invoke each other. Also, instead of
   relying on roles dependency's mechanism, `requirements.yml` is used at the top
   level to define dependencies required by the local roles.
@@ -62,8 +51,6 @@
   will be a brief outline of some elements that are not self-explanatory.
   - `vagrant_config_refs` represent host variables whose value is defined by
     other host variables within the same host.
-  - `vagrant_external_config_refs` represent host variables whose value is
-    defined by other host variables within a different host.
   - `vms_include` represent hosts that will be targeted when running `vagrant`
     commands.
 
@@ -95,7 +82,7 @@
   those under `./examples/playbooks`). This precedence is derived from
   [an associated Trello card](https://trello.com/c/zfi9zgsR/83-integrate-installing-haproxy-and-keepalived-from-poseidonk8scontrollers-into-loadbalancersyml).
   1. A playbook directly maps to a host's higher purpose via machine hostname
-     (e.g. `k8s_controllers.yml` -> `poseidon-k8s-controller1`).
+     (e.g. `vmms.yml` -> `vmm1`).
   2. A playbook indirectly maps to a host's higher purpose via `ansible` groups
      (e.g. `load_balancers.yml` -> `staging-node1`).
   3. A playbook does not map to a host's higher purpose (e.g.
@@ -103,8 +90,8 @@
 
 ## Maintenance
 
-- Update software versions in `poseidon_k8s_software_versions.yml` when
-  Kubernetes infrastructure patching occurs, as mentioned
+- Update software versions in `k8s_apps_versions.yml` when Kubernetes
+  infrastructure patching occurs, as mentioned
   [the Infrastructure Design Documentation](./infrastructure.md).
 
 - Update dependencies accordingly using Renovate.
@@ -118,15 +105,6 @@
 - [Use the following procedure when updating public GPG key checksums.](https://trello.com/c/8IaHDWO7/151-create-a-process-to-verify-public-gpg-keys-upon-updating-related-ansible-tasks-checksum)
 
 - Create new TLS certificates as those expire.
-  - [Follow these instructions to create a certificate for the root CA.](https://kubernetes.io/docs/tasks/administer-cluster/certificates/#openssl)
-    - The Common Name (CN) should be set to 'Conner Crosby (homelab-cm)'.
-
-    - The following can also be used to generate the signing key and certificate
-      respectively
-      `openssl genrsa -out "./playbooks/files/rsa_keys/poseidon_k8s_ca.key" 2048`
-      and
-      `openssl req -x509 -new -nodes -key "./playbooks/files/rsa_keys/poseidon_k8s_ca.key" -subj "/CN=Conner Crosby (homelab-cm)" -days 10000 -out "./playbooks/files/certs/poseidon_k8s_ca.crt"`.
-
   - Follow these instructions for the client TLS certificates related to IRC
     server identification.
     - For Libra.Chat:

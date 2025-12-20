@@ -1,0 +1,111 @@
+---
+- name: Install application manifests
+  hosts: localhost
+  tags: install_k8s_app_manifests
+  vars_files:
+    - "{{ network_configs_path }}"
+    - k8s_apps_versions.yml
+    - ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  tasks:
+    - name: Create the kiwix-serve namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: kiwix-serve
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: namespace_creation
+
+    - name: Apply the kiwix-serve manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/kiwix-serve.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+        nfs_export: "{{ (nfs_exports_config | community.general.json_query('[?usage==`zims`]'))[0] }}"
+
+    - name: Apply the Kiwix zim Jobs manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/kiwix-zim-jobs.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+        nfs_export: "{{ (nfs_exports_config | community.general.json_query('[?usage==`zims`]'))[0] }}"
+
+    - name: Create the ddns namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: ddns
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: namespace_creation
+
+    - name: Apply the DDNS CronJobs manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/ddns-cronjobs.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+        nfs_export: "{{ (nfs_exports_config | community.general.json_query('[?usage==`cache`]'))[0] }}"
+
+- name: Install Helm charts
+  hosts: localhost
+  tags: install_k8s_helm_charts
+  vars_files:
+    - k8s_apps_versions.yml
+    - ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  tasks:
+    - name: Install the Ingress NGINX controller
+      vars:
+        dockerhub_creds_secret_name: dockerhub-creds
+      block:
+        - name: Create the Ingress NGINX namespace in the Kubernetes cluster
+          kubernetes.core.k8s:
+            api_version: v1
+            kind: Namespace
+            name: ingress-nginx
+            state: present
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"
+          register: namespace_creation
+
+        - name: Apply the Ingress NGINX manifest to the Kubernetes cluster
+          kubernetes.core.k8s:
+            template: k8s/ingress-nginx.yml.j2
+            state: present
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"
+          vars:
+            namespace_: "{{ namespace_creation.result.metadata.name }}"
+
+        - name: Add the Ingress NGINX Helm repository
+          kubernetes.core.helm_repository:
+            repo_name: ingress-nginx
+            repo_url: https://kubernetes.github.io/ingress-nginx
+
+        - name: Deploy the Ingress NGINX Helm chart inside the ingress-nginx namespace
+          kubernetes.core.helm:
+            release_name: ingress-nginx
+            chart_ref: ingress-nginx/ingress-nginx
+            chart_version: "{{ ingress_nginx_chart_version }}"
+            release_namespace: "{{ namespace_creation.result.metadata.name }}"
+            create_namespace: true
+            release_state: present
+            values: "{{ lookup('ansible.builtin.template', 'k8s/ingress-nginx-helm-values.yml.j2') | ansible.builtin.from_yaml }}"
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"

@@ -2,7 +2,6 @@
 use_default_rules: true
 exclude_paths:
   - tests
-  - playbooks/files/packer
   - .ansible-lint
   - .markdownlint.yaml
   - .pre-commit-config.yaml

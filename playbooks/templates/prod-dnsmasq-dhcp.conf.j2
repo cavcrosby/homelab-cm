@@ -29,12 +29,6 @@ dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{
 # IP address <ip_addr> and an infinite lease.
 dhcp-host={{ kronk_idrac_homelab_mac_addr }},{{ kronk_idrac_homelab_ipv4_addr }},infinite
 dhcp-host={{ kronk_homelab_mac_addr }},{{ kronk_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_worker1_homelab_mac_addr }},{{ poseidon_k8s_worker1_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_worker2_homelab_mac_addr }},{{ poseidon_k8s_worker2_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_worker3_homelab_mac_addr }},{{ poseidon_k8s_worker3_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller1_homelab_mac_addr }},{{ poseidon_k8s_controller1_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller2_homelab_mac_addr }},{{ poseidon_k8s_controller2_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller3_homelab_mac_addr }},{{ poseidon_k8s_controller3_homelab_ipv4_addr }},infinite
 
 # Override the default route supplied by dnsmasq, which assumes the
 # router is the same machine as the one running dnsmasq.
