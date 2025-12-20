@@ -54,5 +54,5 @@ cname=vpn.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network
 host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
 ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}
 
-host-record={{ homelab_poseidon_k8s_network_domain }},{{ poseidon_k8s_controller1_cluster_ipv4_addr }}
-ptr-record={{ poseidon_k8s_controller1_cluster_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,{{ homelab_poseidon_k8s_network_domain }}
+host-record=kube-api-c8d70.{{ homelab_network_domain }},{{ homelab_network_k8s_endpoint_vip }}
+ptr-record={{ homelab_network_k8s_endpoint_vip.split('.') | reverse | join('.') }}.in-addr.arpa,kube-api.{{ homelab_network_domain }}

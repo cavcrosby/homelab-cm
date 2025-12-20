@@ -5,276 +5,8 @@ all:
         on_prem:
           children:
             bare_metal:
-            virtual_machines:
           vars:
             preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-        k8s_controllers:
-          children:
-            k8s_first_controllers:
-            k8s_ha_controllers:
-        k8s_first_controllers:
-          children:
-            poseidon_k8s_first_controllers:
-        k8s_ha_controllers:
-          children:
-            poseidon_k8s_ha_controllers:
-        k8s_workers:
-          children:
-            poseidon_k8s_workers:
-        poseidon:
-          children:
-            poseidon_k8s_controllers:
-            poseidon_k8s_workers:
-          vars:
-            nfs_exports_config:
-              - host: kronk
-                device: /srv/nfs/zims
-                mountpoint: /nfs/kronk/zims
-                usage: zims
-                options: defaults
-              - host: kronk
-                device: /srv/nfs/cache
-                mountpoint: /nfs/kronk/cache
-                usage: cache
-                options: defaults
-        poseidon_k8s_controllers:
-          children:
-            poseidon_k8s_first_controllers:
-            poseidon_k8s_ha_controllers:
-        poseidon_k8s_first_controllers:
-          hosts:
-            poseidon-k8s-controller1:
-              ansible_host: {{ poseidon_k8s_controller1_homelab_ipv4_addr }}
-              ansible_user: ansible
-              haproxy_config_file_template: poseidon/k8s-haproxy.cfg.j2
-              k8s_service_subnet: 172.17.0.0/23
-              k8s_pod_subnet: 172.16.0.0/16
-              k8s_calico_ippool_subnet: 172.16.0.0/18
-              calico_helm_values_file_template: poseidon/k8s-calico-helm-values.yml.j2
-              ingress_nginx_manifest_template: poseidon/k8s-ingress-nginx.yml.j2
-              ingress_nginx_helm_values_file_template: poseidon/k8s-ingress-nginx-helm-values.yml.j2
-              keepalived_vrrp_state: MASTER
-              keepalived_vrrp_interface: {{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}
-              keepalived_vrrp_priority: 150
-              k8s_api_server_endpoint: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              zim_jobs_manifest_configs:
-                - name: import-wikipedia-zim
-                  url: https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_maxi_2025-08.zim
-                - name: import-askubuntu-com-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/askubuntu.com_en_all_2025-08.zim
-                - name: import-security-stackexchange-com-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/security.stackexchange.com_en_all_2025-08.zim
-                - name: import-serverfault-com-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/serverfault.com_en_all_2025-08.zim
-                - name: import-stackoverflow-com-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/stackoverflow.com_en_all_2023-11.zim
-                - name: import-superuser-com-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/superuser.com_en_all_2025-08.zim
-                - name: import-unix-stackexchange-zim
-                  url: https://download.kiwix.org/zim/stack_exchange/unix.stackexchange.com_en_all_2025-08.zim
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_controller1_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller1_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller1_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller1_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller1_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller1_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller1_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-        poseidon_k8s_ha_controllers:
-          hosts:
-            poseidon-k8s-controller2:
-              ansible_host: {{ poseidon_k8s_controller2_homelab_ipv4_addr }}
-              ansible_user: ansible
-              haproxy_config_file_template: poseidon/k8s-haproxy.cfg.j2
-              keepalived_vrrp_state: BACKUP
-              keepalived_vrrp_interface: {{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}
-              keepalived_vrrp_priority: 100
-              k8s_api_server_endpoint: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_controller2_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller2_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller2_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller2_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller2_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller2_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller2_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-            poseidon-k8s-controller3:
-              ansible_host: {{ poseidon_k8s_controller3_homelab_ipv4_addr }}
-              ansible_user: ansible
-              haproxy_config_file_template: poseidon/k8s-haproxy.cfg.j2
-              keepalived_vrrp_state: BACKUP
-              keepalived_vrrp_interface: {{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}
-              keepalived_vrrp_priority: 100
-              k8s_api_server_endpoint: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_controller3_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller3_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller3_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller3_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller3_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_controller3_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_controller3_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-        poseidon_k8s_workers:
-          hosts:
-            poseidon-k8s-worker1:
-              ansible_host: {{ poseidon_k8s_worker1_homelab_ipv4_addr }}
-              ansible_user: ansible
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_worker1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_worker1_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker1_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker1_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker1_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker1_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker1_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker1_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-            poseidon-k8s-worker2:
-              ansible_host: {{ poseidon_k8s_worker2_homelab_ipv4_addr }}
-              ansible_user: ansible
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_worker2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_worker2_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker2_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker2_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker2_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker2_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker2_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker2_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-            poseidon-k8s-worker3:
-              ansible_host: {{ poseidon_k8s_worker3_homelab_ipv4_addr }}
-              ansible_user: ansible
-              kubelet_listen_ipv4_addr: {{ poseidon_k8s_worker3_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-              systemd_networkd_files:
-                - filename: 00-{{ poseidon_k8s_worker3_homelab_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker3_homelab_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker3_homelab_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker3_homelab_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker3_homelab_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
-                - filename: 00-{{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}.link
-                  Match:
-                    MACAddress: {{ poseidon_k8s_worker3_poseidon_k8s_mac_addr }}
-                  Link:
-                    Name: {{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}
-                - filename: 00-{{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}.network
-                  Match:
-                    Name: {{ poseidon_k8s_worker3_poseidon_k8s_network_interface_name }}
-                  Network:
-                    DHCP: true
-                  DHCPv4:
-                    UseHostname: false
         irc_clients:
           children:
             lightsail_instances:
@@ -294,9 +26,6 @@ all:
               dnsmasq_dhcp_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
               homelab_dnsmasq_dns_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
               load_balancer_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
-              poseidon_k8s_controller1_cluster_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller2_cluster_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-              poseidon_k8s_controller3_cluster_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
               wikipedia_zim_name: wikipedia_en_all
               se_domains:
                 - askubuntu.com
@@ -365,37 +94,6 @@ all:
               ansible_host: {{ kronk_homelab_ipv4_addr }}
               ansible_user: ansible
               homelab_network_bridge_interface_name: {{ kronk_homelab_network_bridge_interface_name }}
-              libvirt_poseidon_k8s_network_config_file_template: poseidon/libvirt-network.xml.j2
-              libvirt_poseidon_k8s_node_domain_autostart: true
-              libvirt_poseidon_k8s_node_domain_state: running
-              libvirt_poseidon_k8s_controller_domain_template: poseidon/prod-libvirt-k8s-controller.xml.j2
-              libvirt_poseidon_k8s_worker_domain_template: poseidon/prod-libvirt-k8s-worker.xml.j2
-              libvirt_poseidon_k8s_controller_domain_configs:
-                - name: poseidon-k8s-controller1
-                  homelab_mac_addr: {{ poseidon_k8s_controller1_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_controller1_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_controller1_poseidon_k8s_mac_addr }}
-                - name: poseidon-k8s-controller2
-                  homelab_mac_addr: {{ poseidon_k8s_controller2_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_controller2_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_controller2_poseidon_k8s_mac_addr }}
-                - name: poseidon-k8s-controller3
-                  homelab_mac_addr: {{ poseidon_k8s_controller3_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_controller3_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_controller3_poseidon_k8s_mac_addr }}
-              libvirt_poseidon_k8s_worker_domain_configs:
-                - name: poseidon-k8s-worker1
-                  homelab_mac_addr: {{ poseidon_k8s_worker1_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_worker1_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_worker1_poseidon_k8s_mac_addr }}
-                - name: poseidon-k8s-worker2
-                  homelab_mac_addr: {{ poseidon_k8s_worker2_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_worker2_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_worker2_poseidon_k8s_mac_addr }}
-                - name: poseidon-k8s-worker3
-                  homelab_mac_addr: {{ poseidon_k8s_worker3_homelab_mac_addr }}
-                  poseidon_k8s_ipv4_addr: {{ poseidon_k8s_worker3_poseidon_k8s_ipv4_addr }}
-                  poseidon_k8s_mac_addr: {{ poseidon_k8s_worker3_poseidon_k8s_mac_addr }}
               lvm_disks_config:
                 vgs:
                   - name: vgnfs
@@ -413,14 +111,10 @@ all:
               nfs_exports_config:
                 - device: /srv/nfs/zims
                   hosts:
-                    - poseidon-k8s-worker1(rw,all_squash)
-                    - poseidon-k8s-worker2(rw,all_squash)
-                    - poseidon-k8s-worker3(rw,all_squash)
+                    - talos-*(rw,all_squash)
                 - device: /srv/nfs/cache
                   hosts:
-                    - poseidon-k8s-worker1(rw,all_squash)
-                    - poseidon-k8s-worker2(rw,all_squash)
-                    - poseidon-k8s-worker3(rw,all_squash)
+                    - talos-*(rw,all_squash)
               systemd_networkd_files:
                 - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.netdev
                   NetDev:
@@ -449,18 +143,9 @@ all:
                     Name: {{ kronk_homelab_network_interface_name }}
                   Network:
                     Bridge: {{ kronk_homelab_network_bridge_interface_name }}
-          vars:
-            poseidon_k8s_network_mac_addr: 52:54:00:78:a2:4f
-            poseidon_k8s_network_gateway_ipv4_addr: 192.168.1.1
-            poseidon_k8s_network_subnet_mask: 255.255.255.0
         nfs_servers:
           hosts:
             kronk:
-        nfs_clients:
-          hosts:
-            poseidon-k8s-worker1:
-            poseidon-k8s-worker2:
-            poseidon-k8s-worker3:
         proxy_servers:
           hosts:
             gerald:
@@ -471,14 +156,6 @@ all:
           hosts:
             gerald:
             kronk:
-        virtual_machines:
-          hosts:
-            poseidon-k8s-controller1:
-            poseidon-k8s-controller2:
-            poseidon-k8s-controller3:
-            poseidon-k8s-worker1:
-            poseidon-k8s-worker2:
-            poseidon-k8s-worker3:
   hosts:
     localhost:
       ansible_host: 127.0.0.1
@@ -487,3 +164,25 @@ all:
       homelab_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
       vpn_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
       wireguard_endpoint: vpn.{{ homelab_network_domain }}:{{ gerald_wireguard_server_port }}
+      nfs_exports_config:
+        - host: kronk
+          device: /srv/nfs/zims
+          usage: zims
+        - host: kronk
+          device: /srv/nfs/cache
+          usage: cache
+      zim_jobs_manifest_configs:
+        - name: import-wikipedia-zim
+          url: https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_maxi_2025-08.zim
+        - name: import-askubuntu-com-zim
+          url: https://download.kiwix.org/zim/stack_exchange/askubuntu.com_en_all_2025-08.zim
+        - name: import-security-stackexchange-com-zim
+          url: https://download.kiwix.org/zim/stack_exchange/security.stackexchange.com_en_all_2025-08.zim
+        - name: import-serverfault-com-zim
+          url: https://download.kiwix.org/zim/stack_exchange/serverfault.com_en_all_2025-08.zim
+        - name: import-stackoverflow-com-zim
+          url: https://download.kiwix.org/zim/stack_exchange/stackoverflow.com_en_all_2023-11.zim
+        - name: import-superuser-com-zim
+          url: https://download.kiwix.org/zim/stack_exchange/superuser.com_en_all_2025-08.zim
+        - name: import-unix-stackexchange-zim
+          url: https://download.kiwix.org/zim/stack_exchange/unix.stackexchange.com_en_all_2025-08.zim

@@ -4,6 +4,7 @@
   tags: install_haproxy_load_balancer
   vars_files:
     - "{{ network_configs_path }}"
+    - "{{ k8s_configs_path }}"
 
   roles:
     - role: haproxy
