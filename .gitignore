@@ -1,4 +1,6 @@
 .python-version
+terraform.tfstate
+terraform.tfstate.backup
 .vagrant/
 node_modules/
 __pycache__/
@@ -9,8 +11,12 @@ __pycache__/
 /vendor/
 /ansible/
 /playbooks/vars/ansible_secrets.yml
-/playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb
+/playbooks/vars/k8s_configs.yml
 /playbooks/files/gerald.wg0.key
 /playbooks/files/staging-node1.wg0.key
-/playbooks/files/rsa_keys/
+/playbooks/files/metal-amd64.iso
 /playbooks/files/certs/
+/localhost-k8s-cluster/kubeconfig
+/localhost-k8s-cluster/talosconfig
+/prod-k8s-cluster/kubeconfig
+/prod-k8s-cluster/talosconfig

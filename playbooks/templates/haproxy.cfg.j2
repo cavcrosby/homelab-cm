@@ -12,10 +12,10 @@ frontend http
   bind {{ load_balancer_listen_ipv4_addr }}:80
   acl is_kiwix req.hdr(host) kiwix.{{ homelab_network_domain }}
 
-  use_backend poseidon_k8s_http_ingresses if is_kiwix
+  use_backend k8s_http_ingresses if is_kiwix
 
-backend poseidon_k8s_http_ingresses
+backend k8s_http_ingresses
   balance roundrobin
-  server poseidon-k8s-worker1 {{ poseidon_k8s_worker1_homelab_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
-  server poseidon-k8s-worker2 {{ poseidon_k8s_worker2_homelab_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
-  server poseidon-k8s-worker3 {{ poseidon_k8s_worker3_homelab_ipv4_addr }}:{{ poseidon_ingress_nginx_node_http_port }} check
+{% for k8s_http_ingress in k8s_http_ingresses %}
+  server {{ k8s_http_ingress }} {{ k8s_http_ingress }}:{{ ingress_nginx_node_http_port }} check
+{% endfor %}

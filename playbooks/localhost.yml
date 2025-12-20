@@ -128,3 +128,25 @@
       become: true
       loop:
         - "{{ associated_network_interface_name }}"
+
+- name: Create the associated libvirt configuration files
+  hosts: localhost
+  tags: create_libvirt_config_files
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  tasks:
+    - name: Set a local AppArmour profile for newly created libvirt domains
+      ansible.builtin.template:
+        src: libvirt-qemu.j2
+        dest: /etc/apparmor.d/local/abstractions/libvirt-qemu
+        mode: "644"
+      become: true
+      notify: Restart the apparmor service
+
+  handlers:
+    - name: Restart the apparmor service
+      ansible.builtin.systemd_service:
+        name: apparmor.service
+        state: restarted
+      become: true
