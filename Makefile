@@ -4,6 +4,9 @@
 
 # recursively expanded variables
 SHELL = /usr/bin/sh
+DO_FILES_CLEAN = true
+DO_K8S_CLEAN = true
+DO_VAGRANT_CLEAN = true
 TRUTHY_VALUES = \
     true\
     1
@@ -13,17 +16,11 @@ ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 
-BITWARDEN_RSA_KEYS_DIR_PATH = ./playbooks/files/rsa_keys
-BITWARDEN_RSA_KEYS_ITEMID = 0a2e75a3-7f1d-4720-ad05-aec2016c4ba9
-BITWARDEN_RSA_KEYS = \
-	poseidon_k8s_ca.key
-
 BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/files/certs
 BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
 BITWARDEN_TLS_CERTS = \
 	liberachat.pem\
-	oftc.pem\
-	poseidon_k8s_ca.crt
+	oftc.pem
 
 BITWARDEN_WIREGUARD_KEYS_DIR_PATH = ./playbooks/files
 BITWARDEN_WIREGUARD_KEYS_ITEMID = e566965b-5509-4241-ab05-b30801168db3
@@ -43,15 +40,16 @@ PRODUCTION = production
 STAGING = staging
 PRODUCTION_MAINTENANCE = production-maintenance
 PRODUCTION_LOCALHOST = production-localhost
+PRODUCTION_K8S_APPS = production-k8s-apps
 STAGING_MAINTENANCE = staging-maintenance
 STAGING_LOCALHOST = staging-localhost
+STAGING_K8S_APPS = staging-k8s-apps
 ANSIBLE_SECRETS = ansible-secrets
-K8S_NODE_IMAGES = k8s-node-images
-CONTAINERD_DEB = containerd-deb
 EXAMPLES_TEST = examples-test
 LINT = lint
 FORMAT = format
 DEVELOPMENT_SHELL = development-shell
+TALOS_ISO = talos-iso
 CLEAN = clean
 
 # ansible-secrets actions
@@ -60,6 +58,7 @@ PUT = put
 # libvirt provider configurations
 LIBVIRT = libvirt
 export LIBVIRT_PREFIX = $(shell basename ${CURDIR})_
+export TF_VAR_libvirt_prefix = ${LIBVIRT_PREFIX}
 
 # to be (or can be) passed in at make runtime
 VAGRANT_PROVIDER = ${LIBVIRT}
@@ -76,7 +75,6 @@ ANSIBLE_VAULT = ansible-vault
 BASH = bash
 VIRSH = virsh
 VAGRANT = vagrant
-PACKER = packer
 BUNDLE = bundle
 GEM = gem
 PKILL = pkill
@@ -91,6 +89,7 @@ CURL = curl
 MOLECULE = molecule
 MARKDOWNLINT_CLI2 = markdownlint-cli2
 PRETTIER = prettier
+TOFU = tofu
 
 # simply expanded variables
 executables := \
@@ -107,8 +106,8 @@ executables := \
 	${BASH}\
 	${PYTHON}\
 	${NPM}\
-	${PACKER}\
-	${CURL}
+	${CURL}\
+	${TOFU}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 
@@ -193,7 +192,10 @@ ${SETUP}:
 
 >	./scripts/chk-vagrant-pkg
 >	${BUNDLE} install
->	${VAGRANT} plugin install "$$(find ./vendor -name 'vagrant-libvirt-*.gem')"
+>	${VAGRANT} plugin install \
+		"$$(find ./vendor -name 'vagrant-libvirt-*.gem')" \
+		"$$(find ./vendor -name 'ipaddress-*.gem')"
+
 >	${NPM} install
 >	${PYTHON} -m ${PIP} install --upgrade "${PIP}"
 >	${PYTHON} -m ${PIP} install \
@@ -236,11 +238,18 @@ ${PRODUCTION}: export ANSIBLE_LOG_PATH = \
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 				--inventory "production"\
 				--tags "${ANSIBLE_TAGS}"\
-				--extra-vars "network_configs_path=network_configs.yml k8s_software_versions_file=poseidon_k8s_software_versions.yml"
+				--extra-vars "network_configs_path=network_configs.yml k8s_configs_path=k8s_configs.yml"
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_LIMIT},--limit ${ANSIBLE_LIMIT},)
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS += $(if ${ANSIBLE_EXTRA_VARS},--extra-vars ${ANSIBLE_EXTRA_VARS},)
 ${PRODUCTION}:
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/site.yml"
+>	${TOFU} -chdir="./prod-k8s-cluster" init
+>	${TOFU} -chdir="./prod-k8s-cluster" apply \
+		-auto-approve \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.controlplanes" \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.workers"
+
+>	${TOFU} -chdir="./prod-k8s-cluster" apply -auto-approve
 
 .PHONY: ${STAGING}
 ${STAGING}: export ANSIBLE_LOG_PATH = \
@@ -255,6 +264,15 @@ else
 >	${VAGRANT} up --no-destroy-on-error --provider "${VAGRANT_PROVIDER}"
 endif
 >	sudo ./scripts/set-iptables-vpn
+>	${TOFU} -chdir="./staging-k8s-cluster" init
+>	${TOFU} -chdir="./staging-k8s-cluster" apply -auto-approve
+>	${TOFU} -chdir="./localhost-k8s-cluster" init
+>	${TOFU} -chdir="./localhost-k8s-cluster" apply \
+		-auto-approve \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.controlplanes" \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.workers"
+
+>	${TOFU} -chdir="./localhost-k8s-cluster" apply -auto-approve
 
 .PHONY: ${PRODUCTION_MAINTENANCE}
 ${PRODUCTION_MAINTENANCE}: export ANSIBLE_LOG_PATH = \
@@ -291,6 +309,15 @@ ${PRODUCTION_LOCALHOST}:
 
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/localhost.yml"
 
+.PHONY: ${PRODUCTION_K8S_APPS}
+${PRODUCTION_K8S_APPS}: export ANSIBLE_LOG_PATH = \
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+${PRODUCTION_K8S_APPS}: ANSIBLE_PLAYBOOK_OPTIONS := --inventory "production"\
+							--tags "${ANSIBLE_TAGS}"\
+							--extra-vars '{"network_configs_path":"./network_configs.yml","kubeconfig_path":../prod-k8s-cluster/kubeconfig}'
+${PRODUCTION_K8S_APPS}:
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/k8s_apps.yml"
+
 .PHONY: ${STAGING_MAINTENANCE}
 ${STAGING_MAINTENANCE}:
 >	${MAKE} USE_MAINTENANCE_PLAYBOOK="true" "${STAGING}"
@@ -313,6 +340,10 @@ ${STAGING_LOCALHOST}:
 		|| { echo "make: WIREGUARD_SERVER_PUBKEY was not passed into make"; exit 1; }
 
 >	${MAKE} USE_LOCALHOST_PLAYBOOK="true" "${STAGING}"
+
+.PHONY: ${STAGING_K8S_APPS}
+${STAGING_K8S_APPS}:
+>	${MAKE} USE_K8S_APPS_PLAYBOOK="true" "${STAGING}"
 
 .PHONY: ${LINT}
 ${LINT}:
@@ -367,18 +398,6 @@ else
 
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 
->	@for rsa_key in ${BITWARDEN_RSA_KEYS}; do \
-		echo ${NPX} ${BW} get attachment \
-			"$${rsa_key}" \
-			--itemid \"${BITWARDEN_RSA_KEYS_ITEMID}\" \
-			--output \"${BITWARDEN_RSA_KEYS_DIR_PATH}/$${rsa_key}\"; \
-		\
-		${NPX} ${BW} get attachment \
-			"$${rsa_key}" \
-			--itemid "${BITWARDEN_RSA_KEYS_ITEMID}" \
-			--output "${BITWARDEN_RSA_KEYS_DIR_PATH}/$${rsa_key}"; \
-	done
-
 >	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
 		echo ${NPX} ${BW} get attachment \
 			"$${tls_cert}" \
@@ -404,56 +423,48 @@ else
 	done
 endif
 
-.PHONY: ${K8S_NODE_IMAGES}
-${K8S_NODE_IMAGES}:
->	@[ -n "${PREFERRED_NAMESERVER}" ] \
-		|| { echo "make: PREFERRED_NAMESERVER was not passed into make"; exit 1; }
-
->	@[ -n "${ANSIBLE_USER_PASSWORD}" ] \
-		|| { echo "make: ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
-
->	@[ -n "${ENCRYPTED_ANSIBLE_USER_PASSWORD}" ] \
-		|| { echo "make: ENCRYPTED_ANSIBLE_USER_PASSWORD was not passed into make"; exit 1; }
-
-	# Password and password hashes could contain the '$' char which make will try
-	# to perform variable expansion on, hence the value func is used to prevent said
-	# expansion.
->	ANSIBLE_VERBOSITY=0 ${ANSIBLE} \
-		--module-name "ansible.builtin.template" \
-		--args 'src=./preseed.cfg.j2 dest=./playbooks/files/packer/preseed.cfg mode="644"' \
-		--extra-vars '{"encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":false,"for_vms":true}' \
-		"localhost"
-
->	${PACKER} build \
-		-var ansible_user_password='$(value ANSIBLE_USER_PASSWORD)' \
-		-var preferred_nameserver="${PREFERRED_NAMESERVER}" \
-		-var timezone_offset="$(shell date '+%-:z' | awk -F ":" '{ print $$1"h" }')" \
-		"./k8s-nodes.pkr.hcl"
-
-.PHONY: ${CONTAINERD_DEB}
-${CONTAINERD_DEB}:
->	${CURL} \
-		--location \
-		--output "./playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb" \
-		"https://snapshot.debian.org/archive/debian/20230409T151531Z/pool/main/c/containerd/containerd_1.6.20~ds1-1%2Bb1_amd64.deb"
-
 .PHONY: ${EXAMPLES_TEST}
 ${EXAMPLES_TEST}:
 >	env --chdir "./extensions" ${MOLECULE} converge --scenario-name "examples_docker"
 >	env --chdir "./extensions" ${MOLECULE} destroy --scenario-name "examples_docker"
 
+.PHONY: ${TALOS_ISO}
+${TALOS_ISO}:
+>	sudo ${CURL} \
+		--location \
+		--remote-name \
+		--output-dir "/var/lib/libvirt/images" \
+		"https://factory.talos.dev/image/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515/v1.11.5/metal-amd64.iso"
+
+>	ln \
+		--symbolic \
+		--force \
+		"/var/lib/libvirt/images/metal-amd64.iso" \
+		"./playbooks/files/metal-amd64.iso"
+
 .PHONY: ${CLEAN}
 ${CLEAN}:
+ifneq ($(findstring ${DO_FILES_CLEAN},${TRUTHY_VALUES}),)
 >	rm --force ./logs/ansible.log.*
 >	rm --force "./production"
->	rm \
-		--recursive \
-		--force \
-		"./playbooks/files/packer/qemu-poseidon_k8s_controller" \
-		"./playbooks/files/packer/qemu-poseidon_k8s_worker"
-
->	rm --force "./playbooks/files/containerd_1.6.20~ds1-1+b1_amd64.deb"
 >	rm --force "./mitmproxy/bin/python"
+>	rm --force "./playbooks/files/metal-amd64.iso"
+endif
+ifneq ($(findstring ${DO_K8S_CLEAN},${TRUTHY_VALUES}),)
+>	${TOFU} -chdir="./staging-k8s-cluster" apply -destroy -auto-approve
+>	${TOFU} -chdir="./localhost-k8s-cluster" apply \
+		-destroy \
+		-auto-approve \
+		-target="module.talos_machine_bootstrap.data.talos_machine_configuration.controlplanes" \
+		-target="module.talos_machine_bootstrap.data.talos_machine_configuration.workers"
+
+>	${TOFU} -chdir="./localhost-k8s-cluster" apply \
+		-destroy \
+		-auto-approve \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.controlplanes" \
+		-exclude="module.talos_machine_bootstrap.data.talos_machine_configuration.workers"
+endif
+ifneq ($(findstring ${DO_VAGRANT_CLEAN},${TRUTHY_VALUES}),)
 ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 	# There are times where vagrant may get into defunct state and will be unable to
 	# remove a domain known to libvirt (through 'vagrant destroy'). Hence the calls
@@ -474,4 +485,5 @@ ifeq (${VAGRANT_PROVIDER}, ${LIBVIRT})
 >	${PKILL} ssh-agent
 else
 >	@echo make: unknown VAGRANT_PROVIDER \'${VAGRANT_PROVIDER}\' passed in
+endif
 endif

@@ -5,3 +5,5 @@ rules:
   quoted-strings:
     required: only-when-needed
     quote-type: double
+ignore:
+  - playbooks/vars/k8s_configs.yml

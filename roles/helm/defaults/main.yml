@@ -1,7 +1,0 @@
----
-helm_gpg_sha256_checksum: ""
-
-_helm_keyring_prefix: helm-keyring
-_helm_download_dir: "{{ ansible_env['HOME'] }}/Downloads"
-_helm_keyring_download_path: "{{ _helm_download_dir }}/{{ _helm_keyring_prefix }}.asc"
-_helm_keyring_install_path: /usr/share/keyrings/{{ _helm_keyring_prefix }}.gpg

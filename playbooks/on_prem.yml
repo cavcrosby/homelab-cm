@@ -97,35 +97,3 @@
         password: "{{ admin_system_user_password }}"
       become: true
       when: ansible_os_family | lower == "debian"
-
-- name: Setup hostname for virtual_machine
-  hosts: virtual_machines
-  tags: setup_virtual_machine_hostname
-
-  tasks:
-    - name: Replace the hostname file with one that contains the inventory_hostname
-      ansible.builtin.copy:
-        dest: /etc/hostname
-        mode: "644"
-        content: |
-          {{ inventory_hostname }}
-      become: true
-      notify: Reboot hosts
-
-    - name: Flush handlers
-      ansible.builtin.meta: flush_handlers
-
-    - name: Regather facts
-      ansible.builtin.setup:
-
-    - name: Create the customized hosts file
-      ansible.builtin.template:
-        src: hosts.j2
-        dest: /etc/hosts
-        mode: "644"
-      become: true
-
-  handlers:
-    - name: Reboot hosts
-      ansible.builtin.reboot:
-      become: true

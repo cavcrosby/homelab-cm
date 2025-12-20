@@ -4,6 +4,7 @@ require 'json'
 require 'nokogiri'
 require 'tempfile'
 require 'fileutils'
+require 'ipaddress'
 
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEXP = /\$([a-zA-Z_]\w*)|\$\{{1}(\w+)\}{1}/
@@ -27,9 +28,9 @@ if VAGRANT_CONFIG_JSON.key?("vms_include")
 end
 
 vagrant_homelab_network_configs = {
+  "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"],
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
-  "homelab_poseidon_k8s_network_domain" => "poseidon.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}",
-  "homelab_poseidon_vrrp_server_vip" => "192.168.2.2",
+  "homelab_network_k8s_endpoint_vip" => "192.168.1.10",
   "homelab_network_subnet" => "192.168.1.0/24",
   "homelab_network_gateway_ipv4_addr" => "192.168.1.1",
   "homelab_network_subnet_mask" => "255.255.255.0",
@@ -52,13 +53,16 @@ vagrant_homelab_network_configs = {
   ]
 }
 
+vpn_network_subnet = IPAddress.parse(vagrant_homelab_network_configs["vpn_network_subnet"])
+vagrant_homelab_network_configs["vpn_network_unallocated_ipv4_addrs"] = vpn_network_subnet.hosts.map{|host| host.address}
+
 # exported constants
 VAGRANT_LIBVIRT_HOMELAB_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"]
-VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR = "192.168.2.1"
-VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR = "192.168.4.1"
 VAGRANT_VPN_CLIENT_1_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][0]["pubkey"]
 VAGRANT_VPN_CLIENT_2_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][1]["pubkey"]
 VAGRANT_VPN_CLIENT_3_PUBKEY = vagrant_homelab_network_configs["vpn_network_clients"][2]["pubkey"]
+VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR = vagrant_homelab_network_configs["vpn_network_unallocated_ipv4_addrs"][0]
+vagrant_homelab_network_configs["vpn_network_unallocated_ipv4_addrs"].delete_at(0)
 
 def eval_config_ref(machine_attrs, config)
   # A config=>config_ref is a JSON key=>value pair whose value is a key in
@@ -134,11 +138,6 @@ ansible_host_vars.each do |machine_name, machine_attrs|
   vagrant_homelab_network_configs["#{machine_name_dash_replaced}_homelab_mac_addr"] = machine_attrs["vagrant_vm_homelab_mac_addr"]
   vagrant_homelab_network_configs["#{machine_name_dash_replaced}_homelab_ipv4_addr"] = machine_attrs["vagrant_vm_homelab_ipv4_addr"]
 
-  if machine_attrs.key?("vagrant_vm_poseidon_k8s_mac_addr")
-    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_mac_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"]
-    vagrant_homelab_network_configs["#{machine_name_dash_replaced}_poseidon_k8s_ipv4_addr"] = machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"]
-  end
-
   if machine_attrs.key?("vagrant_vm_vpn_mac_addr")
     vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_mac_addr"] = machine_attrs["vagrant_vm_vpn_mac_addr"]
     vagrant_homelab_network_configs["#{machine_name_dash_replaced}_vpn_ipv4_addr"] = machine_attrs["vagrant_vm_vpn_ipv4_addr"]
@@ -147,6 +146,10 @@ ansible_host_vars.each do |machine_name, machine_attrs|
   if (defined? VMS_INCLUDE) && !VMS_INCLUDE.include?(machine_name)
     ansible_host_vars.delete(machine_name)
     next
+  end
+
+  if machine_attrs.key?("vagrant_vm_vpn_ipv4_addr")
+    vagrant_homelab_network_configs["vpn_network_unallocated_ipv4_addrs"].delete(machine_attrs["vagrant_vm_vpn_ipv4_addr"])
   end
 
   # Takes each key value pair in vagrant_config_refs and inserts it into
@@ -170,44 +173,12 @@ ansible_host_vars.each do |machine_name, machine_attrs|
     # for now the config_refs json will be discarded.
     machine_attrs.delete("vagrant_config_refs")
   end
-
-  # Takes each key value pair in vagrant_external_config_refs and inserts it into
-  # machine_attrs but with the value eval'd based on
-  # ansible_host_vars[machine_name][value].
-  if machine_attrs.key?("vagrant_external_config_refs")
-    machine_attrs["vagrant_external_config_refs"].each do |machine_name, vagrant_external_config_refs|
-      if (!defined? VMS_INCLUDE) || VMS_INCLUDE.include?(machine_name)
-        traverse_configs(method(:eval_config_ref), ansible_host_vars[machine_name], vagrant_external_config_refs)
-        vagrant_external_config_refs.keys().each do |config_name|
-          machine_attrs[config_name] = vagrant_external_config_refs[config_name]
-        end
-      end
-    end
-
-    machine_attrs.delete("vagrant_external_config_refs")
-  end
-
-  # Evals each key value pair's value in domain_config based on
-  # ansible_host_vars[domain_config[name]].
-  if machine_attrs.key?("libvirt_poseidon_k8s_controller_domain_configs")
-    domain_configs = machine_attrs["libvirt_poseidon_k8s_controller_domain_configs"]
-    domain_configs.each do |domain_config|
-      traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
-    end
-    machine_attrs["libvirt_poseidon_k8s_controller_domain_configs"] = "'#{domain_configs.to_json}'"
-  end
-
-  if machine_attrs.key?("libvirt_poseidon_k8s_worker_domain_configs")
-    domain_configs = machine_attrs["libvirt_poseidon_k8s_worker_domain_configs"]
-    domain_configs.each do |domain_config|
-      traverse_configs(method(:eval_config_ref), ansible_host_vars[domain_config["name"]], domain_config)
-    end
-    machine_attrs["libvirt_poseidon_k8s_worker_domain_configs"] = "'#{domain_configs.to_json}'"
-  end
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "homelab-cm"
   VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm"
+  VAGRANT_LIBVIRT_VPN_NETWORK_NAME = "vpn-homelab-cm"
   TRUTHY_VALUES = [
     "1",
     "true"
@@ -223,6 +194,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     domains.management_network_address = "192.168.3.0/24"
   end
 
+  vagrant_homelab_network_configs["homelab_network_name"] = VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME
+  vagrant_homelab_network_configs["mgmt_network_name"] = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
+  vagrant_homelab_network_configs["vpn_network_name"] = VAGRANT_LIBVIRT_VPN_NETWORK_NAME
   @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
 <network ipv6='yes'>
   <name>#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}</name>
@@ -250,24 +224,15 @@ _EOF_
       machine.vm.box = machine_attrs["vagrant_vm_box"]
       machine.vm.network "private_network",
         mac: machine_attrs["vagrant_vm_homelab_mac_addr"],
-        libvirt__network_name: "homelab-cm",
+        libvirt__network_name: VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME,
         libvirt__host_ip: vagrant_homelab_network_configs["homelab_network_gateway_ipv4_addr"],
         libvirt__dhcp_enabled: false
-
-      if machine_attrs.key?("vagrant_vm_poseidon_k8s_mac_addr")
-        machine.vm.network "private_network",
-          mac: machine_attrs["vagrant_vm_poseidon_k8s_mac_addr"],
-          ip: machine_attrs["vagrant_vm_poseidon_k8s_ipv4_addr"],
-          libvirt__network_name: "poseidon-k8s-homelab-cm",
-          libvirt__host_ip: VAGRANT_LIBVIRT_POSEIDON_K8S_NETWORK_IPV4_ADDR,
-          libvirt__dhcp_enabled: false
-      end
 
       if machine_attrs.key?("vagrant_vm_vpn_mac_addr")
         machine.vm.network "private_network",
           mac: machine_attrs["vagrant_vm_vpn_mac_addr"],
           ip: machine_attrs["vagrant_vm_vpn_ipv4_addr"],
-          libvirt__network_name: "vpn-homelab-cm",
+          libvirt__network_name: VAGRANT_LIBVIRT_VPN_NETWORK_NAME,
           libvirt__host_ip: VAGRANT_LIBVIRT_VPN_NETWORK_IPV4_ADDR,
           libvirt__dhcp_enabled: false,
           libvirt__forward_mode: "veryisolated"
@@ -327,17 +292,12 @@ _EOF_
           end
         end
 
-        # write out the vagrant network configuration to be consumed by the playbooks
-        File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
-
-        ansible_groups["on_prem:vars"] = {
-          "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]
-        }
-
         ansible_host_vars["staging-node1"]["se_domains"] = "'#{ansible_host_vars["staging-node1"]["se_domains"].to_json}'"
         ansible_host_vars["vmm1"]["nfs_exports_config"] = "'#{ansible_host_vars["vmm1"]["nfs_exports_config"].to_json}'"
-        ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"] = "'#{ansible_host_vars["poseidon-k8s-controller1"]["zim_jobs_manifest_configs"].to_json}'"
-        ansible_groups["poseidon:vars"]["nfs_exports_config"] = "'#{ansible_groups["poseidon:vars"]["nfs_exports_config"].to_json}'"
+        vagrant_homelab_network_configs["vmm1_homelab_network_bridge_interface_name"] = ansible_host_vars["vmm1"]["homelab_network_bridge_interface_name"]
+
+        # write out the vagrant network configuration to be consumed by the playbooks
+        File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
 
         if TRUTHY_VALUES.include? ENV["USE_MAINTENANCE_PLAYBOOK"]
           machine.vm.provision "ansible" do |ansible|
@@ -348,9 +308,6 @@ _EOF_
             ansible.tags = ENV["ANSIBLE_TAGS"]
             ansible.host_vars = ansible_host_vars
             ansible.groups = ansible_groups
-            ansible.extra_vars = {
-              k8s_software_versions_file: "poseidon_k8s_software_versions.yml",
-            }
           end
         elsif TRUTHY_VALUES.include? ENV["USE_LOCALHOST_PLAYBOOK"]
           FileUtils::mkdir_p("./.vagrant/provisioners/ansible/inventory")
@@ -389,6 +346,56 @@ _EOF_
               enable_dhcp: false
             }.merge(ansible_extra_vars)
           end
+        elsif TRUTHY_VALUES.include? ENV["USE_K8S_APPS_PLAYBOOK"]
+          FileUtils::mkdir_p("./.vagrant/provisioners/ansible/inventory")
+          File.write(
+            "./.vagrant/provisioners/ansible/inventory/localhost",
+            {
+              "all" => {
+                "hosts" => {
+                  "localhost" => {
+                    "ansible_host" => "127.0.0.1",
+                    "ansible_connection" => "local",
+                    "nfs_exports_config" => [
+                      {
+                        "host" => "vmm1",
+                        "device" => "/srv/nfs/zims",
+                        "usage" => "zims",
+                      },
+                      {
+                        "host" => "vmm1",
+                        "device" => "/srv/nfs/cache",
+                        "usage" => "cache",
+                      }
+                    ],
+                    "zim_jobs_manifest_configs" => [
+                      {
+                        "name" => "import-wikipedia-zim",
+                        "url" => "https://download.kiwix.org/zim/wikipedia/wikipedia_en_simple_all_mini_2025-11.zim"
+                      },
+                      {
+                        "name" => "import-computergraphics-stackexchange-com-zim",
+                        "url" => "https://download.kiwix.org/zim/stack_exchange/computergraphics.stackexchange.com_en_all_2025-07.zim"
+                      }
+                    ]
+                  }
+                }
+              }
+            }.to_yaml
+          )
+
+          machine.vm.provision "ansible" do |ansible|
+            ansible.playbook = "./playbooks/k8s_apps.yml"
+            ansible.compatibility_mode = "2.0"
+            ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
+            ansible.tags = ENV["ANSIBLE_TAGS"]
+            ansible.host_vars = ansible_host_vars
+            ansible.groups = ansible_groups
+            ansible.extra_vars = {
+              network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
+              kubeconfig_path: "../localhost-k8s-cluster/kubeconfig"
+            }.merge(ansible_extra_vars)
+          end
         else
           machine.vm.provision "ansible" do |ansible|
             ansible.playbook = "./playbooks/vagrant_customizations.yml"
@@ -410,7 +417,7 @@ _EOF_
             ansible.groups = ansible_groups
             ansible.extra_vars = {
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
-              k8s_software_versions_file: "poseidon_k8s_software_versions.yml"
+              k8s_configs_path: "../.vagrant/k8s_configs.yml",
             }.merge(ansible_extra_vars)
           end
         end

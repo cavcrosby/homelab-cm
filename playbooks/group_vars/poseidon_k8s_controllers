@@ -1,9 +1,0 @@
----
-k8s_api_server_port: 6443
-cri_socket_path: unix:///var/run/containerd/containerd.sock
-k8s_cert_dir_path: /etc/kubernetes/pki
-k8s_root_cacert_path: "{{ k8s_cert_dir_path }}/ca.crt"
-ca_key: poseidon_k8s_ca.key
-ca_cert: poseidon_k8s_ca.crt
-k8s_control_plane_kubeadm_patches_dir_path: /tmp/ansible
-k8s_control_plane_iptables_rules_path: /etc/iptables/rules.v4  # used by the deb package 'iptables-persistent'

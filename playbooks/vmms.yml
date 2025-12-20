@@ -29,6 +29,14 @@
         mode: "644"
       become: true
 
+    - name: Set a local AppArmour profile for newly created libvirt domains
+      ansible.builtin.template:
+        src: libvirt-qemu.j2
+        dest: /etc/apparmor.d/local/abstractions/libvirt-qemu
+        mode: "644"
+      become: true
+      notify: Restart the apparmor service
+
     - name: Append the ansible_user to the libvirt group
       ansible.builtin.user:
         name: "{{ ansible_user }}"
@@ -39,38 +47,38 @@
         append: true
       become: true
 
-    - name: Setup the libvirt-ro user
+    - name: Setup the libvirt user
       block:
-        - name: Create the libvirt-ro group
+        - name: Create the libvirt group
           ansible.builtin.group:
-            name: libvirt-ro
+            name: libvirt
             state: present
           become: true
 
-        - name: Create the libvirt-ro user
+        - name: Create the libvirt user
           ansible.builtin.user:
-            name: libvirt-ro
-            group: libvirt-ro
+            name: libvirt
+            group: libvirt
             state: present
-            home: /home/libvirt-ro
+            home: /home/libvirt
             shell: /bin/bash
           become: true
 
-        - name: Create the libvirt-ro user's .ssh directory
+        - name: Create the libvirt user's .ssh directory
           ansible.builtin.file:
-            path: /home/libvirt-ro/.ssh
-            owner: libvirt-ro
-            group: libvirt-ro
+            path: /home/libvirt/.ssh
+            owner: libvirt
+            group: libvirt
             state: directory
             mode: "700"
           become: true
 
         - name: Create the authorized_keys file
           ansible.builtin.copy:
-            dest: /home/libvirt-ro/.ssh/authorized_keys
+            dest: /home/libvirt/.ssh/authorized_keys
             src: authorized_keys
-            owner: libvirt-ro
-            group: libvirt-ro
+            owner: libvirt
+            group: libvirt
             mode: "600"
           become: true
 
@@ -103,7 +111,15 @@
         block: |
           source "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/activate"
 
-    - name: Setup libvirt networking
+    - name: Copy over the metal-amd64.iso file
+      ansible.builtin.copy:
+        dest: "{{ libvirt_pool_dir_path }}"
+        src: metal-amd64.iso
+        mode: "644"
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Setup the libvirt environment
       vars:
         ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
       block:
@@ -123,99 +139,26 @@
             name: homelab-cm
             state: active
 
-        - name: Define the poseidon homelab network
-          community.libvirt.virt_net:
-            name: poseidon-k8s-homelab-cm
+        - name: Define the default pool
+          community.libvirt.virt_pool:
             command: define
-            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_network_config_file_template) }}"
+            name: default
+            xml: "{{ lookup('ansible.builtin.template', 'libvirt-pool-default.xml.j2') }}"
 
-        - name: Add a static entry into the poseidon homelab network
-          community.libvirt.virt_net:
-            name: poseidon-k8s-homelab-cm
-            command: modify
-            # <lease expiry='0'/> == infinite lease time
-            xml: |
-              <host mac='{{ item.poseidon_k8s_mac_addr }}' name='{{ item.name }}' ip='{{ item.poseidon_k8s_ipv4_addr }}'>
-                <lease expiry='0'/>
-              </host>
-          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs + libvirt_poseidon_k8s_worker_domain_configs }}"
-
-        - name: Have the poseidon homelab network start up on boot
-          community.libvirt.virt_net:
-            name: poseidon-k8s-homelab-cm
-            autostart: true
-
-        - name: Start the poseidon homelab network
-          community.libvirt.virt_net:
-            name: poseidon-k8s-homelab-cm
+        - name: Start the default pool
+          community.libvirt.virt_pool:
+            command: start
+            name: default
             state: active
 
-    - name: Copy over the poseidon Kubernetes controller node QEMU backing image
-      ansible.builtin.copy:
-        dest: "{{ libvirt_pool_dir_path }}"
-        src: packer/qemu-poseidon_k8s_controller/poseidon_k8s_controller.qcow2
-        mode: "600"
+        - name: Have the default pool start up on boot
+          community.libvirt.virt_pool:
+            name: default
+            autostart: true
+
+  handlers:
+    - name: Restart the apparmor service
+      ansible.builtin.systemd_service:
+        name: apparmor.service
+        state: restarted
       become: true
-
-    - name: Copy over the poseidon Kubernetes worker node QEMU backing image
-      ansible.builtin.copy:
-        dest: "{{ libvirt_pool_dir_path }}"
-        src: packer/qemu-poseidon_k8s_worker/poseidon_k8s_worker.qcow2
-        mode: "600"
-      become: true
-
-    - name: Setup libvirt domains
-      vars:
-        ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
-      block:
-        - name: Create the poseidon Kubernetes controller nodes' disk
-          ansible.builtin.include_role:
-            name: qemu_img
-          vars:
-            qemu_img_disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
-            qemu_img_backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_controller.qcow2"
-            qemu_img_disk_prefix: "{{ item.name }}"
-          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
-
-        - name: Define the poseidon Kubernetes controller nodes' domain
-          community.libvirt.virt:
-            command: define
-            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_controller_domain_template) }}"
-            autostart: "{{ libvirt_poseidon_k8s_node_domain_autostart }}"
-          vars:
-            domain_name: "{{ item.name }}"
-            domain_homelab_mac_addr: "{{ item.homelab_mac_addr }}"
-            domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
-          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
-
-        - name: Set the state of the poseidon Kubernetes controller nodes' domain
-          community.libvirt.virt:
-            name: "{{ item.name }}"
-            state: "{{ libvirt_poseidon_k8s_node_domain_state }}"
-          loop: "{{ libvirt_poseidon_k8s_controller_domain_configs }}"
-
-        - name: Create the poseidon Kubernetes worker nodes' disk
-          ansible.builtin.include_role:
-            name: qemu_img
-          vars:
-            qemu_img_disk_dest_dir_path: "{{ libvirt_pool_dir_path }}"
-            qemu_img_backing_file_path: "{{ libvirt_pool_dir_path }}/poseidon_k8s_worker.qcow2"
-            qemu_img_disk_prefix: "{{ item.name }}"
-          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"
-
-        - name: Define the poseidon Kubernetes worker nodes' domain
-          community.libvirt.virt:
-            command: define
-            xml: "{{ lookup('ansible.builtin.template', libvirt_poseidon_k8s_worker_domain_template) }}"
-            autostart: "{{ libvirt_poseidon_k8s_node_domain_autostart }}"
-          vars:
-            domain_name: "{{ item.name }}"
-            domain_homelab_mac_addr: "{{ item.homelab_mac_addr }}"
-            domain_poseidon_k8s_mac_addr: "{{ item.poseidon_k8s_mac_addr }}"
-          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"
-
-        - name: Set the state of the poseidon Kubernetes worker nodes' domain
-          community.libvirt.virt:
-            name: "{{ item.name }}"
-            state: "{{ libvirt_poseidon_k8s_node_domain_state }}"
-          loop: "{{ libvirt_poseidon_k8s_worker_domain_configs }}"

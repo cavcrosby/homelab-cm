@@ -24,7 +24,6 @@
         {
             "customType": "regex",
             "managerFilePatterns": [
-                "k8s-nodes.pkr.hcl",
                 "public-dns/main.tofu"
             ],
             "matchStrings": [
@@ -55,14 +54,6 @@
             "groupName": "dependencies",
             "matchManagers": [
                 "ansible-galaxy"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "matchPackageNames": [
-                "hashicorp/packer",
-                "hashicorp/packer-plugin-qemu",
-                "hashicorp/packer-plugin-ansible"
             ]
         },
         {

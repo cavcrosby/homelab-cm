@@ -4,11 +4,6 @@
             "host_var1": "foo",
             "vagrant_config_refs": {
                 "host_var2": "host_var1"
-            },
-            "vagrant_external_config_refs": {
-                "host2": {
-                    "host_var3": "host_var4"
-                }
             }
         },
         "host2": {

@@ -27,12 +27,6 @@ dhcp-range={{ homelab_network_lower_bound }},{{ homelab_network_upper_bound }},{
 
 # Always give the host with Ethernet address <mac_addr>, the name <name>, and
 # IP address <ip_addr> and an infinite lease.
-dhcp-host={{ poseidon_k8s_worker1_homelab_mac_addr }},{{ poseidon_k8s_worker1_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_worker2_homelab_mac_addr }},{{ poseidon_k8s_worker2_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_worker3_homelab_mac_addr }},{{ poseidon_k8s_worker3_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller1_homelab_mac_addr }},{{ poseidon_k8s_controller1_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller2_homelab_mac_addr }},{{ poseidon_k8s_controller2_homelab_ipv4_addr }},infinite
-dhcp-host={{ poseidon_k8s_controller3_homelab_mac_addr }},{{ poseidon_k8s_controller3_homelab_ipv4_addr }},infinite
 dhcp-host={{ vmm1_homelab_mac_addr }},{{ vmm1_homelab_ipv4_addr }},infinite
 
 # Override the default route supplied by dnsmasq, which assumes the

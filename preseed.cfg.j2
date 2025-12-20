@@ -3,9 +3,6 @@ d-i debian-installer/language string en
 d-i debian-installer/country string US
 d-i debian-installer/locale string C.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
-{% if for_vms %}
-d-i netcfg/choose_interface select auto
-{% endif %}
 d-i netcfg/get_hostname string unassigned-hostname
 d-i netcfg/get_domain string unassigned-domain
 d-i netcfg/wireless_wep string
@@ -20,11 +17,7 @@ d-i passwd/user-password-crypted password {{ encrypted_password }}
 d-i clock-setup/utc boolean true
 d-i time/zone string UTC
 d-i clock-setup/ntp boolean true
-{% if for_vms %}
-d-i partman-auto/disk string /dev/vda
-{% endif %}
-d-i partman-auto/method string {{ 'crypto' if encrypt_disks else 'regular' }}
-{% if encrypt_disks %}
+d-i partman-auto/method string crypto
 d-i partman-auto-lvm/guided_size string max
 d-i partman-auto-lvm/new_vg_name string vgos
 d-i partman-lvm/device_remove_lvm boolean true
@@ -57,21 +50,6 @@ crypto :: \
         filesystem{ ext4 } mountpoint{ / } \
     .
 
-{% else %}
-d-i partman-basicfilesystems/no_swap boolean false
-d-i partman-auto/expert_recipe string \
-regular :: \
-    1 1 1 free \
-        $iflabel{ gpt } $reusemethod{ } \
-        method{ biosgrub } \
-    . \
-    10240 10240 -1 ext4 \
-        method{ format } format{ } \
-        use_filesystem{ } filesystem{ ext4 } \
-        mountpoint{ / } \
-    .
-
-{% endif %}
 d-i partman-partitioning/choose_label select gpt
 d-i partman-partitioning/default_label string gpt
 d-i partman-md/confirm boolean true
@@ -90,18 +68,12 @@ d-i pkgsel/include string \
 popularity-contest popularity-contest/participate boolean true
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
-{% if for_vms %}
-d-i grub-installer/bootdev string default
-{% else %}
 d-i grub-installer/bootdev string /dev/disk/by-id/{{ disk_id | default('') }}
-{% endif %}
 d-i finish-install/reboot_in_progress note
 d-i preseed/early_command string \
     printf "%s\n" "$(debconf-get preseed/url)" > "/var/run/preseed.last_location";
 
-{% if not for_vms %}
 d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id | default('') }}")"
-{% endif %}
 d-i preseed/late_command string \
     preseed_fetch /scripts/late-commands /target/tmp/late-commands; \
     preseed_fetch /playbooks/files/authorized_keys /target/tmp/authorized_keys; \
