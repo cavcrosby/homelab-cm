@@ -6,7 +6,7 @@ requires-python = ">=3.14,<3.15"
 license-files = ["LICENSE"]
 authors = [{ name = "Conner Crosby", email = "cavcrosby@gmail.com" }]
 
-[tool.pytest.ini_options]
+[tool.pytest]
 testpaths = ["tests"]
 
 [tool.ruff.lint]
