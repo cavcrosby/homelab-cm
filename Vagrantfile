@@ -30,7 +30,7 @@ end
 vagrant_homelab_network_configs = {
   "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"],
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
-  "homelab_network_k8s_endpoint_vip" => "192.168.1.10",
+  "homelab_network_k8s_endpoint_vip" => "192.168.1.4",
   "homelab_network_subnet" => "192.168.1.0/24",
   "homelab_network_gateway_ipv4_addr" => "192.168.1.1",
   "homelab_network_subnet_mask" => "255.255.255.0",
