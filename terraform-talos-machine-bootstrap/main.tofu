@@ -28,20 +28,20 @@ terraform {
   }
 }
 
-resource "talos_machine_secrets" "main" {
+resource "talos_machine_secrets" "this" {
   talos_version = local.talos_version
 }
 
-data "talos_client_configuration" "main" {
+data "talos_client_configuration" "this" {
   cluster_name         = var.k8s_cluster_name
-  client_configuration = talos_machine_secrets.main.client_configuration
+  client_configuration = talos_machine_secrets.this.client_configuration
   endpoints            = local.endpoints_addrs
   nodes                = [for normalized_node in local.normalized_nodes : normalized_node.mgmt_ipv4_addr]
 }
 
 resource "local_file" "talosconfig" {
   filename = "${path.root}/talosconfig"
-  content  = data.talos_client_configuration.main.talos_config
+  content  = data.talos_client_configuration.this.talos_config
 }
 
 locals {
@@ -59,7 +59,7 @@ data "talos_machine_configuration" "controlplanes" {
   machine_type     = each.value.type
   cluster_name     = var.k8s_cluster_name
   cluster_endpoint = local.k8s_cluster_endpoint
-  machine_secrets  = talos_machine_secrets.main.machine_secrets
+  machine_secrets  = talos_machine_secrets.this.machine_secrets
   config_patches = concat(
     [
       yamlencode(
@@ -99,8 +99,8 @@ data "talos_machine_configuration" "controlplanes" {
             }
           }
           cluster = {
-            id          = talos_machine_secrets.main.machine_secrets.cluster.id
-            secret      = talos_machine_secrets.main.machine_secrets.cluster.secret
+            id          = talos_machine_secrets.this.machine_secrets.cluster.id
+            secret      = talos_machine_secrets.this.machine_secrets.cluster.secret
             clusterName = var.k8s_cluster_name
             network = {
               dnsDomain      = "k8s.${var.k8s_base_domain}"
@@ -155,7 +155,7 @@ data "talos_machine_configuration" "workers" {
   machine_type     = each.value.type
   cluster_name     = var.k8s_cluster_name
   cluster_endpoint = local.k8s_cluster_endpoint
-  machine_secrets  = talos_machine_secrets.main.machine_secrets
+  machine_secrets  = talos_machine_secrets.this.machine_secrets
   config_patches = concat(
     [
       yamlencode(
@@ -182,8 +182,8 @@ data "talos_machine_configuration" "workers" {
             }
           }
           cluster = {
-            id          = talos_machine_secrets.main.machine_secrets.cluster.id
-            secret      = talos_machine_secrets.main.machine_secrets.cluster.secret
+            id          = talos_machine_secrets.this.machine_secrets.cluster.id
+            secret      = talos_machine_secrets.this.machine_secrets.cluster.secret
             clusterName = var.k8s_cluster_name
             network = {
               dnsDomain      = "k8s.${var.k8s_base_domain}"
@@ -209,7 +209,7 @@ data "talos_machine_configuration" "workers" {
 
 resource "talos_machine_configuration_apply" "nodes" {
   for_each             = local.normalized_nodes
-  client_configuration = talos_machine_secrets.main.client_configuration
+  client_configuration = talos_machine_secrets.this.client_configuration
   machine_configuration_input = (
     each.value.type == "controlplane"
     ? data.talos_machine_configuration.controlplanes[each.key].machine_configuration
@@ -218,23 +218,23 @@ resource "talos_machine_configuration_apply" "nodes" {
   node = each.value.mgmt_ipv4_addr
 }
 
-resource "talos_machine_bootstrap" "main" {
+resource "talos_machine_bootstrap" "this" {
   depends_on = [
     talos_machine_configuration_apply.nodes
   ]
-  client_configuration = talos_machine_secrets.main.client_configuration
+  client_configuration = talos_machine_secrets.this.client_configuration
   node                 = local.endpoints_addrs[0]
 }
 
-resource "talos_cluster_kubeconfig" "main" {
+resource "talos_cluster_kubeconfig" "this" {
   depends_on = [
-    talos_machine_bootstrap.main
+    talos_machine_bootstrap.this
   ]
-  client_configuration = talos_machine_secrets.main.client_configuration
+  client_configuration = talos_machine_secrets.this.client_configuration
   node                 = local.endpoints_addrs[0]
 }
 
 resource "local_file" "kubeconfig" {
   filename = "${path.root}/kubeconfig"
-  content  = talos_cluster_kubeconfig.main.kubeconfig_raw
+  content  = talos_cluster_kubeconfig.this.kubeconfig_raw
 }

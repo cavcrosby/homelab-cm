@@ -12,7 +12,7 @@ resource "libvirt_volume" "domain" {
   size = var.size
 }
 
-resource "libvirt_domain" "main" {
+resource "libvirt_domain" "this" {
   name       = var.name
   vcpu       = var.vcpu
   memory     = var.memory

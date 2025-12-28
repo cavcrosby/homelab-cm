@@ -1,6 +1,6 @@
 output "network_interfaces" {
   value = [
-    for network_interface in libvirt_domain.main.network_interface :
+    for network_interface in libvirt_domain.this.network_interface :
     network_interface.bridge == "" || network_interface.bridge == null ? network_interface : merge(
       network_interface,
       {
