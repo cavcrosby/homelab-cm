@@ -1,7 +1,7 @@
 ---
 homelab_network_name: homelab-cm
 homelab_network_domain: homelab.cavcrosby.net
-homelab_network_k8s_endpoint_vip: 192.168.0.7
+homelab_network_k8s_endpoint_vip: 192.168.0.6
 homelab_network_subnet: 192.168.0.0/24
 homelab_network_gateway_ipv4_addr: 192.168.0.1
 homelab_network_subnet_mask: 255.255.255.0
@@ -21,13 +21,13 @@ gerald_homelab_network_interface_name: en0
 gerald_wireguard_network_interface_name: wg0
 gerald_wireguard_server_port: 9490
 gerald_homelab_mac_addr: 3C:D9:2B:56:A5:4B
-gerald_homelab_ipv4_addr: 192.168.0.3
-gerald_homelab_wireguard_ipv4_addr: 192.168.0.4
+gerald_homelab_ipv4_addr: 192.168.0.2
+gerald_homelab_wireguard_ipv4_addr: 192.168.0.3
 
 kronk_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
-kronk_idrac_homelab_ipv4_addr: 192.168.0.5
+kronk_idrac_homelab_ipv4_addr: 192.168.0.4
 
 kronk_homelab_network_interface_name: en0
 kronk_homelab_network_bridge_interface_name: virbr0
 kronk_homelab_mac_addr: 18:66:DA:6B:8D:0B
-kronk_homelab_ipv4_addr: 192.168.0.6
+kronk_homelab_ipv4_addr: 192.168.0.5
