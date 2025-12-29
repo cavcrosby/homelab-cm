@@ -176,9 +176,9 @@ ansible_host_vars.each do |machine_name, machine_attrs|
 end
 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
-  VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "homelab-cm"
-  VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "mgmt-homelab-cm"
-  VAGRANT_LIBVIRT_VPN_NETWORK_NAME = "vpn-homelab-cm"
+  VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "#{ENV['LIBVIRT_PREFIX']}homelab"
+  VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "#{ENV['LIBVIRT_PREFIX']}mgmt"
+  VAGRANT_LIBVIRT_VPN_NETWORK_NAME = "#{ENV['LIBVIRT_PREFIX']}vpn"
   TRUTHY_VALUES = [
     "1",
     "true"
@@ -194,9 +194,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     domains.management_network_address = "192.168.3.0/24"
   end
 
-  vagrant_homelab_network_configs["homelab_network_name"] = VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME
-  vagrant_homelab_network_configs["mgmt_network_name"] = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME
-  vagrant_homelab_network_configs["vpn_network_name"] = VAGRANT_LIBVIRT_VPN_NETWORK_NAME
+  vagrant_homelab_network_configs["homelab_network_name"] = VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME.gsub(ENV['LIBVIRT_PREFIX'], "")
+  vagrant_homelab_network_configs["mgmt_network_name"] = VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME.gsub(ENV['LIBVIRT_PREFIX'], "")
+  vagrant_homelab_network_configs["vpn_network_name"] = VAGRANT_LIBVIRT_VPN_NETWORK_NAME.gsub(ENV['LIBVIRT_PREFIX'], "")
   @libvirt_management_network_xml = Nokogiri::XML.parse(<<-_EOF_)
 <network ipv6='yes'>
   <name>#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}</name>
@@ -278,7 +278,7 @@ _EOF_
       if counter == ansible_host_vars.length
         if !management_network_defined
           # associates the vagrant management network xml with libvirt
-          xml = Tempfile.new("mgmt-homelab-libvirt.xml")
+          xml = Tempfile.new("libvirt-network-#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}.xml")
           xml.write(@libvirt_management_network_xml.to_xml)
           xml.close()
           system("virsh net-define #{xml.path}")
