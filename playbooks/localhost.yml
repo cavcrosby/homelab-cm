@@ -74,7 +74,7 @@
       block:
         - name: Get the XML data of the homelab network
           community.libvirt.virt_net:
-            name: homelab-cm
+            name: "{{ lookup('ansible.builtin.env', 'LIBVIRT_PREFIX') }}{{ homelab_network_name }}"
             command: get_xml
           register: homelab_network
 

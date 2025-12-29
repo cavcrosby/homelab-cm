@@ -125,18 +125,18 @@
       block:
         - name: Define the homelab network
           community.libvirt.virt_net:
-            name: homelab-cm
+            name: "{{ homelab_network_name }}"
             command: define
             xml: "{{ lookup('ansible.builtin.template', 'homelab-libvirt-network.xml.j2') }}"
 
         - name: Have the homelab network start up on boot
           community.libvirt.virt_net:
-            name: homelab-cm
+            name: "{{ homelab_network_name }}"
             autostart: true
 
         - name: Start the homelab network
           community.libvirt.virt_net:
-            name: homelab-cm
+            name: "{{ homelab_network_name }}"
             state: active
 
         - name: Define the default pool

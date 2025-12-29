@@ -25,7 +25,7 @@ locals {
   k8s_controlplane_count = 3
   k8s_worker_count       = 3
   networks = {
-    (local.network_configs.homelab_network_name) = {
+    "${var.libvirt_prefix}${local.network_configs.homelab_network_name}" = {
       is_managed_externally = true
       configs = {
         addresses = [local.network_configs.homelab_network_subnet]
@@ -37,7 +37,7 @@ locals {
         is_nodeport_network = true
       }
     }
-    localhost-k8s-cluster-homelab-cm = {
+    "${var.libvirt_prefix}localhost-k8s-cluster" = {
       is_managed_externally = false
       configs = {
         addresses = ["192.168.2.0/24"]
@@ -48,7 +48,7 @@ locals {
         is_nodeport_network = false
       }
     }
-    (local.network_configs.mgmt_network_name) = {
+    "${var.libvirt_prefix}${local.network_configs.mgmt_network_name}" = {
       is_managed_externally = true
       configs = {
         addresses = []
@@ -60,7 +60,7 @@ locals {
         is_nodeport_network = false
       }
     }
-    (local.network_configs.vpn_network_name) = {
+    "${var.libvirt_prefix}${local.network_configs.vpn_network_name}" = {
       is_managed_externally = true
       configs = {
         addresses = []
@@ -183,7 +183,7 @@ module "talos_machine_bootstrap" {
                       routeMetric = 2048
                     }
                   }
-                  if network_interface.network_name == local.network_configs.mgmt_network_name
+                  if network_interface.network_name == "${var.libvirt_prefix}${local.network_configs.mgmt_network_name}"
                 ],
                 [
                   for network_interface in node_attrs.network_interfaces :
@@ -198,7 +198,7 @@ module "talos_machine_bootstrap" {
                       ]
                     ]
                   }
-                  if network_interface.network_name == local.network_configs.vpn_network_name
+                  if network_interface.network_name == "${var.libvirt_prefix}${local.network_configs.vpn_network_name}"
                 ],
               )
             }

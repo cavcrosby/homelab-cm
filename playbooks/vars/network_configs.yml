@@ -1,5 +1,5 @@
 ---
-homelab_network_name: homelab-cm
+homelab_network_name: homelab
 homelab_network_domain: homelab.cavcrosby.net
 homelab_network_k8s_endpoint_vip: 192.168.0.6
 homelab_network_subnet: 192.168.0.0/24
