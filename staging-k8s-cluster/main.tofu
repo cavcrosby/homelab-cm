@@ -29,7 +29,7 @@ locals {
         bridge_interface_name = local.network_configs.vmm1_homelab_network_bridge_interface_name
       }
     }
-    staging-k8s-cluster-homelab-cm = {
+    staging-k8s-cluster = {
       is_managed_externally = false
       configs = {
         addresses = ["192.168.2.0/24"]
