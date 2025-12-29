@@ -37,7 +37,7 @@ locals {
         is_nodeport_network = true
       }
     }
-    localhost-k8s-cluster-homelab-cm = {
+    "${var.libvirt_prefix}localhost-k8s-cluster" = {
       is_managed_externally = false
       configs = {
         addresses = ["192.168.2.0/24"]

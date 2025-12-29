@@ -39,7 +39,7 @@ locals {
         is_nodeport_network   = true
       }
     }
-    prod-k8s-cluster-homelab-cm = {
+    prod-k8s-cluster = {
       is_managed_externally = false
       configs = {
         addresses = ["192.168.1.0/24"]
