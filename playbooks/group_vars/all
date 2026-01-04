@@ -2,4 +2,4 @@
 ansible_user_home: /home/{{ ansible_user }}
 ansible_user_python_virtualenv_name: ansible-client
 ansible_user_python_virtualenvs_path: "{{ ansible_user_home }}/python-venvs"
-ingress_nginx_node_http_port: 31470
+nginx_gateway_listener_http_port: 31470

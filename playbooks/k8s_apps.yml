@@ -1,15 +1,64 @@
 ---
-- name: Install application manifests
+- name: Install the Kubernetes applications
   hosts: localhost
-  tags: install_k8s_app_manifests
+  tags: install_k8s_apps
   vars_files:
     - "{{ network_configs_path }}"
     - k8s_apps_versions.yml
     - ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    gateway_name: nginx-gateway
+    gateway_namespace: nginx-gateway-fabric
 
   tasks:
+    - name: Install the NGINX Gateway Fabric controller
+      block:
+        - name: Create the NGINX Gateway Fabric namespace
+          kubernetes.core.k8s:
+            api_version: v1
+            kind: Namespace
+            name: "{{ gateway_namespace }}"
+            state: present
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"
+          register: namespace_creation
+
+        - name: Install the Gateway API resources
+          kubernetes.core.k8s:
+            definition:
+              "{{ lookup('kubernetes.core.kustomize',
+              dir='https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v'
+              + nginx_gateway_fabric_chart_version) }}"
+            state: present
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"
+          vars:
+            namespace_: "{{ namespace_creation.result.metadata.name }}"
+
+        - name: Deploy the NGINX Gateway Fabric Helm chart inside its namespace
+          kubernetes.core.helm:
+            release_name: ngf
+            chart_ref: oci://ghcr.io/nginx/charts/nginx-gateway-fabric
+            chart_version: "{{ nginx_gateway_fabric_chart_version }}"
+            release_namespace: "{{ namespace_creation.result.metadata.name }}"
+            release_state: present
+            values:
+              "{{ lookup('ansible.builtin.template',
+              'k8s/nginx-gateway-fabric-helm-values.yml.j2') |
+              ansible.builtin.from_yaml }}"
+          environment:
+            KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Apply the nginx-gateway manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/nginx-gateway.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+
     - name: Create the kiwix-serve namespace in the Kubernetes cluster
       kubernetes.core.k8s:
         api_version: v1
@@ -59,53 +108,3 @@
       vars:
         namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export: "{{ (nfs_exports_config | community.general.json_query('[?usage==`cache`]'))[0] }}"
-
-- name: Install Helm charts
-  hosts: localhost
-  tags: install_k8s_helm_charts
-  vars_files:
-    - k8s_apps_versions.yml
-    - ansible_secrets.yml
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-
-  tasks:
-    - name: Install the Ingress NGINX controller
-      vars:
-        dockerhub_creds_secret_name: dockerhub-creds
-      block:
-        - name: Create the Ingress NGINX namespace in the Kubernetes cluster
-          kubernetes.core.k8s:
-            api_version: v1
-            kind: Namespace
-            name: ingress-nginx
-            state: present
-          environment:
-            KUBECONFIG: "{{ kubeconfig_path }}"
-          register: namespace_creation
-
-        - name: Apply the Ingress NGINX manifest to the Kubernetes cluster
-          kubernetes.core.k8s:
-            template: k8s/ingress-nginx.yml.j2
-            state: present
-          environment:
-            KUBECONFIG: "{{ kubeconfig_path }}"
-          vars:
-            namespace_: "{{ namespace_creation.result.metadata.name }}"
-
-        - name: Add the Ingress NGINX Helm repository
-          kubernetes.core.helm_repository:
-            repo_name: ingress-nginx
-            repo_url: https://kubernetes.github.io/ingress-nginx
-
-        - name: Deploy the Ingress NGINX Helm chart inside the ingress-nginx namespace
-          kubernetes.core.helm:
-            release_name: ingress-nginx
-            chart_ref: ingress-nginx/ingress-nginx
-            chart_version: "{{ ingress_nginx_chart_version }}"
-            release_namespace: "{{ namespace_creation.result.metadata.name }}"
-            create_namespace: true
-            release_state: present
-            values: "{{ lookup('ansible.builtin.template', 'k8s/ingress-nginx-helm-values.yml.j2') | ansible.builtin.from_yaml }}"
-          environment:
-            KUBECONFIG: "{{ kubeconfig_path }}"

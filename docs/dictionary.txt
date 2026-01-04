@@ -5,6 +5,7 @@ amd64
 ansible
 ansible_hostname
 ansible_user
+api
 apparmor
 apparmour
 apt's
