@@ -1,0 +1,11 @@
+---
+{#
+  Configs to pass to the NGINX Gateway Fabric Helm Chart.
+#}
+nginx:
+  service:
+    type: NodePort
+    externalTrafficPolicy: Cluster
+    nodePorts:
+      - port: {{ nginx_gateway_listener_http_port }}
+        listenerPort: 80

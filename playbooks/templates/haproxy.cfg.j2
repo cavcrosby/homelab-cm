@@ -17,5 +17,5 @@ frontend http
 backend k8s_http_ingresses
   balance roundrobin
 {% for k8s_http_ingress in k8s_http_ingresses %}
-  server {{ k8s_http_ingress }} {{ k8s_http_ingress }}:{{ ingress_nginx_node_http_port }} check
+  server {{ k8s_http_ingress }} {{ k8s_http_ingress }}:{{ nginx_gateway_listener_http_port }} check
 {% endfor %}
