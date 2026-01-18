@@ -68,12 +68,12 @@ d-i pkgsel/include string \
 popularity-contest popularity-contest/participate boolean true
 d-i grub-installer/only_debian boolean true
 d-i grub-installer/with_other_os boolean true
-d-i grub-installer/bootdev string /dev/disk/by-id/{{ disk_id | default('') }}
+d-i grub-installer/bootdev string /dev/disk/by-id/{{ disk_id }}
 d-i finish-install/reboot_in_progress note
 d-i preseed/early_command string \
     printf "%s\n" "$(debconf-get preseed/url)" > "/var/run/preseed.last_location";
 
-d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id | default('') }}")"
+d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id }}")"
 d-i preseed/late_command string \
     preseed_fetch /scripts/late-commands /target/tmp/late-commands; \
     preseed_fetch /playbooks/files/authorized_keys /target/tmp/authorized_keys; \
