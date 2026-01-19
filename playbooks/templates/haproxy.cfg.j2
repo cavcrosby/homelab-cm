@@ -3,19 +3,16 @@
 # Config file for haproxy.
 
 defaults
-  mode http
-  timeout client 60s
-  timeout connect 5s
-  timeout server 60s
+  mode tcp
 
-frontend http
-  bind {{ load_balancer_listen_ipv4_addr }}:80
-  acl is_kiwix req.hdr(host) kiwix.{{ homelab_network_domain }}
-
-  use_backend k8s_http_ingresses if is_kiwix
+frontend https
+  bind {{ load_balancer_listen_ipv4_addr }}:443
+  tcp-request inspect-delay 5s
+  tcp-request content accept if { req.ssl_hello_type 1 }
+  use_backend k8s_http_ingresses if { req.ssl_sni kiwix.{{ homelab_network_domain }} }
 
 backend k8s_http_ingresses
   balance roundrobin
 {% for k8s_http_ingress in k8s_http_ingresses %}
-  server {{ k8s_http_ingress }} {{ k8s_http_ingress }}:{{ nginx_gateway_listener_http_port }} check
+  server {{ k8s_http_ingress }} {{ k8s_http_ingress }}:{{ nginx_gateway_listener_https_port }} check
 {% endfor %}

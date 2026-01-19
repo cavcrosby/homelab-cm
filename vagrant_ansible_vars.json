@@ -21,6 +21,7 @@
             "haproxy_config_file_template": "haproxy.cfg.j2",
             "wikipedia_zim_name": "wikipedia_en_simple_all",
             "wireguard_server_port": 30324,
+            "cacerts_bundle_path": "/etc/ssl/certs/ca-certificates.crt",
             "vagrant_config_refs": {
                 "dnsmasq_dhcp_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",
                 "homelab_dnsmasq_dns_listen_ipv4_addr": "vagrant_vm_homelab_ipv4_addr",

@@ -1,7 +1,8 @@
 # {{ ansible_managed }}
 
-http_kiwix_host = "http://kiwix.{{ homelab_network_domain }}"
+http_kiwix_host = "kiwix.{{ homelab_network_domain }}"
 wikipedia_zim_name = "{{ wikipedia_zim_name }}"
+cacerts_bundle_path = "{{ cacerts_bundle_path | default('') }}"
 se_domains = [
 {% for se_domain in se_domains %}   "{{ se_domain }}",
 {% endfor %}

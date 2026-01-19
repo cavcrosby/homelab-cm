@@ -1,3 +1,4 @@
 ---
 nginx_gateway_fabric_chart_version: 2.3.0  # chart version points to app version 2.3.0
+cert_manager_chart_version: v1.19.2  # chart version points to app version 1.19.2
 kiwix_serve_image_digest: sha256:ebf9b935eb1301661289ff0dc7a17c6406b0ef0602ff7ca1c9d9187dbae81abe  # digest points to app version 3.7.0

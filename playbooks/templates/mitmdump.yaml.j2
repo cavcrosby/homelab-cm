@@ -1,6 +1,7 @@
 # {{ ansible_managed }}
 
 listen_port: 39600
+ssl_verify_upstream_trusted_ca: {{ cacerts_bundle_path | default("") }}
 scripts:
     - se_kiwix_redirect.py
     - wikipedia_kiwix_redirect.py

@@ -164,6 +164,8 @@ all:
       homelab_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
       vpn_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
       wireguard_endpoint: vpn.{{ homelab_network_domain }}:{{ gerald_wireguard_server_port }}
+      cert_manager_secrets_manifest_template: k8s/prod-cert-manager-secrets.yml.j2
+      letsencrypt_server_url: https://acme-v02.api.letsencrypt.org/directory
       nfs_exports_config:
         - host: kronk
           device: /srv/nfs/zims

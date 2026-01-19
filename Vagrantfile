@@ -356,6 +356,8 @@ _EOF_
                   "localhost" => {
                     "ansible_host" => "127.0.0.1",
                     "ansible_connection" => "local",
+                    "cert_manager_secrets_manifest_template" => "k8s/staging-cert-manager-secrets.yml.j2",
+                    "letsencrypt_server_url" => "https://acme-staging-v02.api.letsencrypt.org/directory",
                     "nfs_exports_config" => [
                       {
                         "host" => "vmm1",

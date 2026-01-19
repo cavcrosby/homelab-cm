@@ -16,6 +16,7 @@ arptables
 authorized_keys
 baz
 builtin
+cert
 cfg
 conf
 containerd

@@ -85,3 +85,36 @@
       ansible.builtin.command: localectl set-locale "C.UTF-8"
       changed_when: "'C.UTF-8' != ansible_env['LANG']"
       become: true
+
+- name: Add the staging CA certificates for Let's Encrypt
+  hosts: on_prem
+  tags: add_staging_ca_certs_letsencrypt
+
+  tasks:
+    - name: Grab the root CA certificates (debian-like)
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest:
+          /usr/local/share/ca-certificates/{{ ((item.url |
+          ansible.builtin.urlsplit('path') | ansible.builtin.split('/'))[-1] |
+          ansible.builtin.splitext)[0] }}.crt
+        checksum: "{{ item.checksum }}"
+        mode: "644"
+      become: true
+      notify: Update the CA certificates' store (debian-like)
+      loop:
+        - url: https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x1.pem
+          checksum: sha256:3a5e1171e5f5c2d41522d438f225602e4236a68fb29c32399a95921a4ae80e73
+        - url: https://letsencrypt.org/certs/staging/letsencrypt-stg-root-x2.pem
+          checksum: sha256:497c36c1b50c0daff30870d5908c9b97af29223d5510c5e6c24957d0cc502fb8
+        - url: https://letsencrypt.org/certs/staging/gen-y/root-ye.pem
+          checksum: sha256:bf41a8c5f7fffc181e46d5df1a2b867f0efb6e169df6f0a45bd4064b1d023084
+        - url: https://letsencrypt.org/certs/staging/gen-y/root-yr.pem
+          checksum: sha256:73391ed55a3eb09f1284f8b548e540f5e265149c83ea0b79dd8ae97c016659d7
+      when: ansible_os_family | lower == "debian"
+
+  handlers:
+    - name: Update the CA certificates' store (debian-like)
+      ansible.builtin.command: update-ca-certificates
+      changed_when: true
+      become: true

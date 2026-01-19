@@ -59,6 +59,49 @@
       vars:
         namespace_: "{{ namespace_creation.result.metadata.name }}"
 
+    - name: Create the cert-manager namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: cert-manager
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: namespace_creation
+
+    - name: Apply the cert-manager Secrets manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: "{{ cert_manager_secrets_manifest_template }}"
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+
+    - name: Deploy the cert-manager Helm chart inside its namespace
+      kubernetes.core.helm:
+        release_name: cert-manager
+        chart_ref: oci://quay.io/jetstack/charts/cert-manager
+        chart_version: "{{ cert_manager_chart_version }}"
+        release_namespace: "{{ namespace_creation.result.metadata.name }}"
+        release_state: present
+        values:
+          "{{ lookup('ansible.builtin.template',
+          'k8s/cert-manager-helm-values.yml.j2') | ansible.builtin.from_yaml }}"
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+
+    - name: Apply the cert-manager Issuers manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/cert-manager-issuers.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+
     - name: Create the kiwix-serve namespace in the Kubernetes cluster
       kubernetes.core.k8s:
         api_version: v1

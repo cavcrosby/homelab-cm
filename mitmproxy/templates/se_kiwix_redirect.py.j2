@@ -33,25 +33,29 @@ def request(flow: HTTPFlow) -> None:
         and flow.request.method == HTTPMethod.GET
     ):
         NAMESPACES = {"": "http://www.w3.org/2005/Atom"}
+        host = configs.get("http_kiwix_host")
+        cacerts_bundle_path = configs.get("cacerts_bundle_path")
         res = requests.get(
-            f"{configs.get('http_kiwix_host')}/catalog/v2/entries",
+            f"https://{host}/catalog/v2/entries",
             params={"name": f"{flow.request.host_header}_en_all"},
+            verify=cacerts_bundle_path if cacerts_bundle_path else True,
         ).text
 
-        host = re.sub(r"^https?://", "", configs.get("http_kiwix_host", ""))
         logger.info(f"{host} entries response: {res}")
         entry = ElementTree.fromstring(res).find("entry", NAMESPACES)
         if entry:
             for link in entry.iterfind("link", NAMESPACES):
                 if link.get("type") == "text/html":
-                    url = "{http_kiwix_host}{zim}{question}".format(
-                        http_kiwix_host=configs.get("http_kiwix_host"),
+                    url = "https://{http_kiwix_host}{zim}{question}".format(
+                        http_kiwix_host=host,
                         zim=link.get("href"),
                         question=match.group(),
                     )
                     logger.info(f"{host} question url: {url}")
 
-                    if requests.get(url).ok:
+                    if requests.get(
+                        url, verify=cacerts_bundle_path if cacerts_bundle_path else True
+                    ).ok:
                         flow.response = Response.make(
                             HTTPStatus.TEMPORARY_REDIRECT,
                             headers={"Location": url},

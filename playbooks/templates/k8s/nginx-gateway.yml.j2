@@ -7,12 +7,18 @@ kind: Gateway
 metadata:
   name: nginx-gateway
   namespace: {{ namespace_ }}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
 spec:
   gatewayClassName: nginx
   listeners:
-    - name: http
-      port: 80
-      protocol: HTTP
+    - name: kiwix-{{ homelab_network_domain | ansible.builtin.split('.') | join('-') }}-https
+      hostname: kiwix.{{ homelab_network_domain }}
+      port: 443
+      protocol: HTTPS
       allowedRoutes:
         namespaces:
           from: All
+      tls:
+        certificateRefs:
+          - name: kiwix-{{ homelab_network_domain | ansible.builtin.split('.') | join('-') }}-crt

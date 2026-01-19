@@ -11,3 +11,12 @@ output "vpn_homelab_ddns_secret_key" {
   value     = aws_iam_access_key.vpn_homelab_ddns.secret
   sensitive = true
 }
+
+output "cert_manager_access_key" {
+  value = aws_iam_access_key.cert_manager.id
+}
+
+output "cert_manager_secret_key" {
+  value     = aws_iam_access_key.cert_manager.secret
+  sensitive = true
+}

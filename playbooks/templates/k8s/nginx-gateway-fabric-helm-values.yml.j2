@@ -7,5 +7,5 @@ nginx:
     type: NodePort
     externalTrafficPolicy: Cluster
     nodePorts:
-      - port: {{ nginx_gateway_listener_http_port }}
-        listenerPort: 80
+      - port: {{ nginx_gateway_listener_https_port }}
+        listenerPort: 443
