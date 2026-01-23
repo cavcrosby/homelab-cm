@@ -33,7 +33,7 @@ def request(flow: HTTPFlow) -> None:
         and flow.request.method == HTTPMethod.GET
     ):
         NAMESPACES = {"": "http://www.w3.org/2005/Atom"}
-        host = configs.get("http_kiwix_host")
+        host = configs.get("kiwix_host")
         cacerts_bundle_path = configs.get("cacerts_bundle_path")
         res = requests.get(
             f"https://{host}/catalog/v2/entries",
@@ -46,8 +46,8 @@ def request(flow: HTTPFlow) -> None:
         if entry:
             for link in entry.iterfind("link", NAMESPACES):
                 if link.get("type") == "text/html":
-                    url = "https://{http_kiwix_host}{zim}{question}".format(
-                        http_kiwix_host=host,
+                    url = "https://{kiwix_host}{zim}{question}".format(
+                        kiwix_host=host,
                         zim=link.get("href"),
                         question=match.group(),
                     )
