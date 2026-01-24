@@ -2,13 +2,13 @@ output "homelab_zone_id" {
   value = data.aws_route53_zone.homelab.zone_id
 }
 
-output "vpn_homelab_ddns_access_key" {
-  value = aws_iam_access_key.vpn_homelab_ddns.id
+output "ddns_access_key" {
+  value = aws_iam_access_key.ddns.id
 }
 
-# access using 'tofu output -raw vpn_homelab_ddns_secret_key'
-output "vpn_homelab_ddns_secret_key" {
-  value     = aws_iam_access_key.vpn_homelab_ddns.secret
+# access using 'tofu output -raw ddns_secret_key'
+output "ddns_secret_key" {
+  value     = aws_iam_access_key.ddns.secret
   sensitive = true
 }
 

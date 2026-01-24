@@ -53,3 +53,6 @@ cname=vpn.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network
 
 host-record=kube-api-7d9cb.{{ homelab_network_domain }},{{ homelab_network_k8s_endpoint_vip }}
 ptr-record={{ homelab_network_k8s_endpoint_vip.split('.') | reverse | join('.') }}.in-addr.arpa,kube-api.{{ homelab_network_domain }}
+
+host-record=gw.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
+ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,gw.{{ homelab_network_domain }}

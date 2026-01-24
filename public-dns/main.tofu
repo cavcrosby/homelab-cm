@@ -26,8 +26,8 @@ provider "aws" {
   profile = "main-opentofu"
 }
 
-resource "aws_iam_user" "vpn_homelab_ddns" {
-  name = "vpn-homelab-ddns"
+resource "aws_iam_user" "ddns" {
+  name = "ddns"
 }
 
 data "aws_route53_zone" "homelab" {
@@ -43,9 +43,9 @@ data "aws_route53_zone" "homelab" {
   )
 }
 
-resource "aws_iam_user_policy" "vpn_homelab_ddns" {
-  name = "IAMUserVpnHomelabDdns"
-  user = aws_iam_user.vpn_homelab_ddns.name
+resource "aws_iam_user_policy" "ddns" {
+  name = "IAMUserDdns"
+  user = aws_iam_user.ddns.name
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -59,8 +59,8 @@ resource "aws_iam_user_policy" "vpn_homelab_ddns" {
         Condition = {
           "ForAllValues:StringEquals" = {
             "route53:ChangeResourceRecordSetsNormalizedRecordNames" = [
-              "vpn.${local.prod_network_configs.homelab_network_domain}",
-              "vpn.${local.staging_network_configs.homelab_network_domain}",
+              "gw.${local.prod_network_configs.homelab_network_domain}",
+              "gw.${local.staging_network_configs.homelab_network_domain}",
             ]
           }
         }
@@ -69,8 +69,20 @@ resource "aws_iam_user_policy" "vpn_homelab_ddns" {
   })
 }
 
-resource "aws_iam_access_key" "vpn_homelab_ddns" {
-  user = aws_iam_user.vpn_homelab_ddns.name
+resource "aws_route53_record" "vpn" {
+  for_each = toset([
+    local.prod_network_configs.homelab_network_domain,
+    local.staging_network_configs.homelab_network_domain,
+  ])
+  zone_id = data.aws_route53_zone.homelab.arn
+  name    = "vpn.${each.value}"
+  type    = "CNAME"
+  ttl     = 300
+  records = ["gw.${each.value}"]
+}
+
+resource "aws_iam_access_key" "ddns" {
+  user = aws_iam_user.ddns.name
 }
 
 resource "aws_iam_user" "cert_manager" {
