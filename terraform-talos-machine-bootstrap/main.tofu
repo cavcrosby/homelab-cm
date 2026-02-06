@@ -110,6 +110,16 @@ data "talos_machine_configuration" "controlplanes" {
             apiServer = {
               image    = "registry.k8s.io/kube-apiserver:${local.k8s_version}"
               certSANs = [local.k8s_kube_apiserver_domain]
+              admissionControl = [
+                {
+                  name = "PodSecurity"
+                  configuration = {
+                    defaults = {
+                      enforce = "restricted"
+                    }
+                  }
+                }
+              ]
             }
             controlPlane = {
               endpoint = local.k8s_cluster_endpoint
