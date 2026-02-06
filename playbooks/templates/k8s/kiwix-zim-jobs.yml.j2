@@ -12,6 +12,34 @@ data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}
 
 
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ namespace_ }}-zims
+spec:
+  capacity:
+    storage: {{ nfs_export_size }}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: {{ nfs_export.host }}
+    path: {{ nfs_export.device }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zims
+  namespace: {{ namespace_ }}
+spec:
+  volumeName: {{ namespace_ }}-zims
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ nfs_export_size }}
+
 {% for zims_jobs_manifest_config in zim_jobs_manifest_configs %}
 ---
 apiVersion: batch/v1
@@ -35,6 +63,15 @@ spec:
             - --output-dir
             - /mnt
             - {{ zims_jobs_manifest_config.url }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 101
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
           resources:
             requests:
               cpu: 50m
@@ -44,7 +81,6 @@ spec:
               mountPath: /mnt
       volumes:
       - name: zims
-        nfs:
-          server: {{ nfs_export.host }}
-          path: {{ nfs_export.device }}
+        persistentVolumeClaim:
+          claimName: zims
 {% endfor %}

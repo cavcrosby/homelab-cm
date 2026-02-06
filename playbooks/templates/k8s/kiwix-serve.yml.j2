@@ -2,6 +2,34 @@
 {#
   Manifest that deploys kiwix-serve onto Kubernetes.
 #}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ namespace_ }}-zims-ro
+spec:
+  capacity:
+    storage: {{ nfs_export_size }}
+  accessModes:
+    - ReadOnlyMany
+  nfs:
+    server: {{ nfs_export.host }}
+    path: {{ nfs_export.device }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: zims-ro
+  namespace: {{ namespace_ }}
+spec:
+  volumeName: {{ namespace_ }}-zims-ro
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: {{ nfs_export_size }}
+
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,6 +61,15 @@ spec:
             httpGet:
               path: /
               port: 80
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
           resources:
             requests:
               cpu: 5m
@@ -42,9 +79,8 @@ spec:
               mountPath: /mnt
       volumes:
       - name: zims
-        nfs:
-          server: {{ nfs_export.host }}
-          path: {{ nfs_export.device }}
+        persistentVolumeClaim:
+          claimName: zims-ro
 
 ---
 apiVersion: v1

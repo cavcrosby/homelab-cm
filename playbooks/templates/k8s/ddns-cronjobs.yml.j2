@@ -48,6 +48,34 @@ stringData:
   aws_secret_access_key: {{ aws_secret_access_key_main_ddns }}
 
 ---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ namespace_ }}-cache
+spec:
+  capacity:
+    storage: {{ nfs_export_size }}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: {{ nfs_export.host }}
+    path: {{ nfs_export.device }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cache
+  namespace: {{ namespace_ }}
+spec:
+  volumeName: {{ namespace_ }}-cache
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ nfs_export_size }}
+
+---
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -72,6 +100,15 @@ spec:
                 - --output
                 - public-ip-addr.txt
                 - https://icanhazip.com/
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 101
+                seccompProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop:
+                    - ALL
               resources:
                 requests:
                   cpu: 50m
@@ -81,9 +118,8 @@ spec:
                   mountPath: /mnt
           volumes:
             - name: cache
-              nfs:
-                server: {{ nfs_export.host }}
-                path: {{ nfs_export.device }}
+              persistentVolumeClaim:
+                claimName: cache
 
 ---
 apiVersion: batch/v1
@@ -110,6 +146,15 @@ spec:
                 - --output-format
                 - json
                 - /mnt/public-ip-addr.txt
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop:
+                    - ALL
               resources:
                 requests:
                   cpu: 50m
@@ -121,9 +166,8 @@ spec:
                   mountPath: /configmaps/filter
           volumes:
             - name: cache
-              nfs:
-                server: {{ nfs_export.host }}
-                path: {{ nfs_export.device }}
+              persistentVolumeClaim:
+                claimName: cache
             - name: filter
               configMap:
                 name: record-sets-blob-filter
@@ -144,7 +188,7 @@ spec:
           restartPolicy: OnFailure
           containers:
             - name: aws-cli
-              image: amazon/aws-cli
+              image: cavcrosby/aws-cli
               args:
                 - route53
                 - change-resource-record-sets
@@ -163,6 +207,15 @@ spec:
                     secretKeyRef:
                       name: aws-creds
                       key: aws_secret_access_key
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                seccompProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop:
+                    - ALL
               resources:
                 requests:
                   cpu: 50m
@@ -172,6 +225,5 @@ spec:
                   mountPath: /mnt
           volumes:
             - name: cache
-              nfs:
-                server: {{ nfs_export.host }}
-                path: {{ nfs_export.device }}
+              persistentVolumeClaim:
+                claimName: cache
