@@ -3,7 +3,7 @@ GEM
   specs:
     builder (3.3.0)
     diffy (3.4.4)
-    excon (1.3.0)
+    excon (1.3.2)
       logger
     fog-core (2.6.0)
       builder
@@ -13,7 +13,7 @@ GEM
     fog-json (1.2.0)
       fog-core
       multi_json (~> 1.10)
-    fog-libvirt (0.13.2)
+    fog-libvirt (0.14.0)
       fog-core (>= 1.27.4)
       fog-json
       fog-xml (~> 0.1.1)
@@ -22,21 +22,21 @@ GEM
     fog-xml (0.1.5)
       fog-core
       nokogiri (>= 1.5.11, < 2.0.0)
-    formatador (1.2.1)
+    formatador (1.2.3)
       reline
-    io-console (0.8.1)
+    io-console (0.8.2)
     ipaddress (0.8.3)
-    json (2.15.2)
+    json (2.18.1)
     logger (1.7.0)
     mime-types (3.7.0)
       logger
       mime-types-data (~> 3.2025, >= 3.2025.0507)
-    mime-types-data (3.2025.0924)
-    multi_json (1.17.0)
-    nokogiri (1.18.10-x86_64-linux-gnu)
+    mime-types-data (3.2026.0203)
+    multi_json (1.19.1)
+    nokogiri (1.19.0-x86_64-linux-gnu)
       racc (~> 1.4)
     racc (1.8.1)
-    reline (0.6.2)
+    reline (0.6.3)
       io-console (~> 0.5)
     rexml (3.4.4)
     ruby-libvirt (0.8.4)
