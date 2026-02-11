@@ -27,7 +27,7 @@ readonly VAGRANT_APT_REPO="apt.releases.hashicorp.com"
 
 if echo "${ID_LIKE}" | grep --quiet "debian"; then
     if ! [ "$(apt-cache search --names-only '^vagrant$')" ]; then
-        printf "%s: %s\n" "${PROGNAME}" "no deb repositories configured that host the vagrant package" >&2
+        printf "%s: %s\n" "${PROGNAME}" "no APT repositories configured that host the vagrant package" >&2
         exit 1
     fi
 
