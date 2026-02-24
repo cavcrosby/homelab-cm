@@ -99,6 +99,7 @@ class CustomKeyOrderRule(KeyOrderRule):
                 "notify",
                 "vars",
                 "loop",
+                "loop_control",
                 "when",
                 "block",
                 "rescue",

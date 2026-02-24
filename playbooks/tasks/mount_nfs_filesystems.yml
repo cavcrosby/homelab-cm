@@ -1,0 +1,40 @@
+---
+- name: Create the NFS export's directory
+  ansible.builtin.file:
+    path: "{{ nfs_export_dir_path }}"
+    owner: nobody
+    group: nogroup
+    state: directory
+    mode: "755"
+  become: true
+
+- name: Mount the NFS export's filesystem
+  ansible.posix.mount:
+    path: "{{ nfs_export_dir_path }}"
+    src: /dev/{{ outer_item.vg_name }}/{{ outer_item.name }}
+    fstype: "{{ outer_item.fstype }}"
+    opts: defaults
+    state: mounted
+  become: true
+  notify: Issue a systemd daemon reload
+
+- name: Create the directory paths of the NFS export
+  ansible.builtin.file:
+    path: "{{ nfs_export_dir_path }}/{{ item }}"
+    owner: nobody
+    group: nogroup
+    recurse: true
+    state: directory
+  become: true
+  loop:
+    "{{ outer_item.dirpaths is defined |
+    ansible.builtin.ternary(outer_item.dirpaths, []) }}"
+
+- name: Set the owner and group for all files in the NFS export directory
+  ansible.builtin.file:
+    path: "{{ nfs_export_dir_path }}"
+    owner: nobody
+    group: nogroup
+    recurse: true
+    state: directory
+  become: true

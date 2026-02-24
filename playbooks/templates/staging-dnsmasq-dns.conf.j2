@@ -50,6 +50,7 @@ ptr-record={{ staging_node1_homelab_ipv4_addr.split('.') | reverse | join('.') }
 cname=kiwix.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 cname=proxy.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 cname=vpn.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
+cname=aptly-api.{{ homelab_network_domain }},{{ ansible_hostname }}.{{ homelab_network_domain }}
 
 host-record=vagrant.{{ homelab_network_domain }},{{ homelab_network_gateway_ipv4_addr }}
 ptr-record={{ homelab_network_gateway_ipv4_addr.split('.') | reverse | join('.') }}.in-addr.arpa,vagrant.{{ homelab_network_domain }}

@@ -434,6 +434,21 @@
                         "name": "lvcache",
                         "fstype": "ext4",
                         "vg_name": "vgnfs"
+                    },
+                    {
+                        "name": "lvaptly-api",
+                        "size": "1G",
+                        "fstype": "ext4",
+                        "vg_name": "vgnfs"
+                    },
+                    {
+                        "name": "lvpkgs",
+                        "size": "1G",
+                        "fstype": "ext4",
+                        "vg_name": "vgnfs",
+                        "dirpaths": [
+                            "deb"
+                        ]
                     }
                 ]
             },
@@ -446,6 +461,18 @@
                 },
                 {
                     "device": "/srv/nfs/cache",
+                    "hosts": [
+                        "talos-*(rw,all_squash)"
+                    ]
+                },
+                {
+                    "device": "/srv/nfs/aptly-api",
+                    "hosts": [
+                        "talos-*(rw,all_squash)"
+                    ]
+                },
+                {
+                    "device": "/srv/nfs/pkgs",
                     "hosts": [
                         "talos-*(rw,all_squash)"
                     ]
