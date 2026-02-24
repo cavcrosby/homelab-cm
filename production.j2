@@ -108,11 +108,27 @@ all:
                   - name: lvcache
                     fstype: ext4
                     vg_name: vgnfs
+                  - name: lvaptly-api
+                    size: 20G
+                    fstype: ext4
+                    vg_name: vgnfs
+                  - name: lvpkgs
+                    size: 20G
+                    fstype: ext4
+                    vg_name: vgnfs
+                    dirpaths:
+                      - deb
               nfs_exports_config:
                 - device: /srv/nfs/zims
                   hosts:
                     - talos-*(rw,all_squash)
                 - device: /srv/nfs/cache
+                  hosts:
+                    - talos-*(rw,all_squash)
+                - device: /srv/nfs/aptly-api
+                  hosts:
+                    - talos-*(rw,all_squash)
+                - device: /srv/nfs/pkgs
                   hosts:
                     - talos-*(rw,all_squash)
               systemd_networkd_files:
@@ -173,6 +189,12 @@ all:
         - host: kronk
           device: /srv/nfs/cache
           usage: cache
+        - host: kronk
+          device: /srv/nfs/aptly-api
+          usage: aptly-api
+        - host: kronk
+          device: /srv/nfs/pkgs
+          usage: packages
       zim_jobs_manifest_configs:
         - name: import-wikipedia-zim
           url: https://download.kiwix.org/zim/wikipedia/wikipedia_en_all_maxi_2025-08.zim

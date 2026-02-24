@@ -22,3 +22,13 @@ spec:
       tls:
         certificateRefs:
           - name: kiwix-{{ homelab_network_domain | ansible.builtin.split('.') | join('-') }}-crt
+    - name: aptly-api-{{ homelab_network_domain | ansible.builtin.split('.') | join('-') }}-https
+      hostname: aptly-api.{{ homelab_network_domain }}
+      port: 443
+      protocol: HTTPS
+      allowedRoutes:
+        namespaces:
+          from: All
+      tls:
+        certificateRefs:
+          - name: aptly-api-{{ homelab_network_domain | ansible.builtin.split('.') | join('-') }}-crt

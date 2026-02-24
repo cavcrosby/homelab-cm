@@ -168,3 +168,39 @@
           "{{ (hostvars[nfs_export.host]['ansible_facts']['mounts'] |
           community.general.json_query('[?mount==`' + nfs_export.device +
           '`]'))[0].size_total / one_mib }}Mi"
+
+    - name: Create the aptly-api namespace in the Kubernetes cluster
+      kubernetes.core.k8s:
+        api_version: v1
+        kind: Namespace
+        name: aptly-api
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      register: namespace_creation
+
+    - name: Apply the aptly-api manifest to the Kubernetes cluster
+      kubernetes.core.k8s:
+        template: k8s/aptly-api.yml.j2
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+      vars:
+        namespace_: "{{ namespace_creation.result.metadata.name }}"
+        nfs_export_aptly_api:
+          "{{ (nfs_exports_config |
+          community.general.json_query('[?usage==`aptly-api`]'))[0] }}"
+
+        nfs_export_size_aptly_api:
+          "{{ (hostvars[nfs_export_aptly_api.host]['ansible_facts']['mounts'] |
+          community.general.json_query('[?mount==`' +
+          nfs_export_aptly_api.device + '`]'))[0].size_total / one_mib }}Mi"
+
+        nfs_export_pkgs:
+          "{{ (nfs_exports_config |
+          community.general.json_query('[?usage==`packages`]'))[0] }}"
+
+        nfs_export_size_pkgs:
+          "{{ (hostvars[nfs_export_pkgs.host]['ansible_facts']['mounts'] |
+          community.general.json_query('[?mount==`' + nfs_export_pkgs.device +
+          '`]'))[0].size_total / one_mib }}Mi"

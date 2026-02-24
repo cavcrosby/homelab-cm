@@ -1,0 +1,201 @@
+---
+{#
+  Manifest that deploys the aptly-api onto Kubernetes.
+#}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aptly-conf
+  namespace: {{ namespace_ }}
+data:
+  aptly.conf: |
+    {
+      "rootDir": "/var/lib/aptly-api",
+      "FileSystemPublishEndpoints": {
+        "all": {
+          "rootDir": "/mnt/deb",
+          "linkMethod": "copy"
+        }
+      }
+    }
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpg-keys
+  namespace: {{ namespace_ }}
+data:
+  aptly-main.gpg: {{ encoded_aptly_gpg_key_main }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ namespace_ }}-aptly-api
+spec:
+  capacity:
+    storage: {{ nfs_export_size_aptly_api }}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: {{ nfs_export_aptly_api.host }}
+    path: {{ nfs_export_aptly_api.device }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aptly-api
+  namespace: {{ namespace_ }}
+spec:
+  volumeName: {{ namespace_ }}-aptly-api
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ nfs_export_size_aptly_api }}
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ namespace_ }}-pkgs
+spec:
+  capacity:
+    storage: {{ nfs_export_size_pkgs }}
+  accessModes:
+    - ReadWriteMany
+  nfs:
+    server: {{ nfs_export_pkgs.host }}
+    path: {{ nfs_export_pkgs.device }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pkgs
+  namespace: {{ namespace_ }}
+spec:
+  volumeName: {{ namespace_ }}-pkgs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ nfs_export_size_pkgs }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aptly-api
+  namespace: {{ namespace_ }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: aptly-api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: aptly-api
+    spec:
+      containers:
+        - name: aptly-api
+          image: cavcrosby/aptly-api:{{ aptly_api_image_version }}
+          env:
+            - name: PORT
+              value: "80"
+            - name: CONFIG_PATH
+              value: /etc/aptly.conf
+          readinessProbe:
+            httpGet:
+              path: /api/ready
+              port: 80
+          livenessProbe:
+            httpGet:
+              path: /api/healthy
+              port: 80
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 25m
+              memory: 50Mi
+          volumeMounts:
+            - name: aptly-api
+              mountPath: /var/lib/aptly-api
+            - name: pkgs
+              mountPath: /mnt
+            - name: conf
+              mountPath: /etc/aptly-api
+            - name: gpg-keys
+              mountPath: /etc/aptly-api/secrets/gpg
+      volumes:
+        - name: aptly-api
+          persistentVolumeClaim:
+            claimName: aptly-api
+        - name: pkgs
+          persistentVolumeClaim:
+            claimName: pkgs
+        - name: conf
+          configMap:
+            name: aptly-conf
+        - name: gpg-keys
+          secret:
+            secretName: gpg-keys
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aptly-api
+  namespace: {{ namespace_ }}
+spec:
+  selector:
+    app.kubernetes.io/name: aptly-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: aptly-api
+  namespace: {{ namespace_ }}
+spec:
+  parentRefs:
+    - name: {{ gateway_name }}
+      namespace: {{ gateway_namespace }}
+  hostnames:
+    - aptly-api.{{ homelab_network_domain }}
+  rules:
+    - matches:
+      - path:
+          type: PathPrefix
+          value: /
+      backendRefs:
+        - name: aptly-api
+          port: 80
+
+---
+apiVersion: gateway.nginx.org/v1alpha1
+kind: ClientSettingsPolicy
+metadata:
+  name: aptly-api
+  namespace: {{ namespace_ }}
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: aptly-api
+  body:
+    maxSize: "0" # disables checking size
