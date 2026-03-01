@@ -140,7 +140,7 @@ spec:
               image: mikefarah/yq
               args:
                 - --from-file
-                - /configmaps/filter/record-sets-blob-filter.yq
+                - /etc/yq/record-sets-blob-filter.yq
                 - --split-exp
                 - '"/mnt/change-resource-record-sets.json"'
                 - --output-format
@@ -163,7 +163,7 @@ spec:
                 - name: cache
                   mountPath: /mnt
                 - name: filter
-                  mountPath: /configmaps/filter
+                  mountPath: /etc/yq
           volumes:
             - name: cache
               persistentVolumeClaim:
