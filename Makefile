@@ -314,9 +314,9 @@ ${PRODUCTION_K8S_APPS}: export ANSIBLE_LOG_PATH = \
 							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
 ${PRODUCTION_K8S_APPS}: ANSIBLE_PLAYBOOK_OPTIONS := --inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
-							--extra-vars '{"network_configs_path":"./network_configs.yml","kubeconfig_path":"../prod-k8s-cluster/kubeconfig"}'
+							--extra-vars '{"network_configs_path":"./network_configs.yml","talosconfig_path":"../prod-k8s-cluster/talosconfig","kubeconfig_path":"../prod-k8s-cluster/kubeconfig"}'
 ${PRODUCTION_K8S_APPS}:
->	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/k8s_apps.yml"
+>	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/k8s.yml"
 
 .PHONY: ${STAGING_MAINTENANCE}
 ${STAGING_MAINTENANCE}:

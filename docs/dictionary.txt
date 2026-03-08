@@ -49,6 +49,7 @@ ipv4
 irc
 iso
 kiwix
+kubelet
 kubernetes
 kvm
 libexec
@@ -74,6 +75,7 @@ qemu
 se_kiwix_redirect
 sshd
 systemd
+tls
 tmux
 udev
 uri

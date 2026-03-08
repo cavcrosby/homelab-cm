@@ -397,7 +397,7 @@ _EOF_
           )
 
           machine.vm.provision "ansible" do |ansible|
-            ansible.playbook = "./playbooks/k8s_apps.yml"
+            ansible.playbook = "./playbooks/k8s.yml"
             ansible.compatibility_mode = "2.0"
             ansible.limit = ENV.fetch("ANSIBLE_LIMIT", "all")
             ansible.tags = ENV["ANSIBLE_TAGS"]
@@ -405,6 +405,7 @@ _EOF_
             ansible.groups = ansible_groups
             ansible.extra_vars = {
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
+              talosconfig_path: "../localhost-k8s-cluster/talosconfig",
               kubeconfig_path: "../localhost-k8s-cluster/kubeconfig"
             }.merge(ansible_extra_vars)
           end

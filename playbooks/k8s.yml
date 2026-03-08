@@ -1,4 +1,72 @@
 ---
+- name: Bootstrap the Kubernetes infrastructure
+  hosts: localhost
+  tags: bootstrap_k8s_infra
+  vars_files:
+    - k8s_apps_versions.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+  tasks:
+    - name: Grab the Kubelet Serving Certificate Approver manifest
+      ansible.builtin.get_url:
+        url:
+          https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/{{
+          kubelet_serving_cert_approver_manifest_version
+          }}/deploy/standalone-install.yaml
+        dest: /tmp/kubelet-serving-cert-approver.yaml
+        checksum: sha256:caa19fca0c90f05c3fa63bf6c0ed1e281834eb84eacd94fd0781f362630ae875
+        mode: "644"
+      register: kubelet_serving_cert_approver_manifest
+
+    - name:
+        Apply the Kubelet Serving Certificate Approver manifest to the
+        Kubernetes cluster
+      kubernetes.core.k8s:
+        src: "{{ kubelet_serving_cert_approver_manifest.dest }}"
+        state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
+    - name: Create the server TLS bootstrap patch file
+      ansible.builtin.copy:
+        dest: /tmp/server-tls-bootstrap-patch.yaml
+        mode: "644"
+        content: |
+          machine:
+            kubelet:
+              extraArgs:
+                rotate-server-certificates: true
+              extraConfig:
+                serverTLSBootstrap: true
+      register: server_tls_bootstrap_patch_file
+
+    - name: Apply the server TLS bootstrap patch to the Talos Linux cluster
+      ansible.builtin.command: >
+        talosctl patch machineconfig --patch "@{{
+        server_tls_bootstrap_patch_file.dest }}"
+      changed_when:
+        "'Apply was skipped: no changes detected.' not in
+        server_tls_bootstrap_patching.stderr"
+      environment:
+        TALOSCONFIG: "{{ talosconfig_path }}"
+      register: server_tls_bootstrap_patching
+
+    - name: Add the Metrics Server Helm repository
+      kubernetes.core.helm_repository:
+        repo_name: metrics-server
+        repo_url: https://kubernetes-sigs.github.io/metrics-server/
+
+    - name: Deploy the Metrics Server Helm chart inside its namespace
+      kubernetes.core.helm:
+        release_name: metrics-server
+        chart_ref: metrics-server/metrics-server
+        chart_version: "{{ metrics_server_chart_version }}"
+        release_namespace: kube-system
+        release_state: present
+      environment:
+        KUBECONFIG: "{{ kubeconfig_path }}"
+
 - name: Gather facts from all NFS servers
   hosts: nfs_servers
   tags: install_k8s_apps

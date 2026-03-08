@@ -1,4 +1,6 @@
 ---
+kubelet_serving_cert_approver_manifest_version: v0.10.3  # manifest version points to app version 0.10.3
+metrics_server_chart_version: 3.13.0  # chart version points to app version 0.8.0
 nginx_gateway_fabric_chart_version: 2.3.0  # chart version points to app version 2.3.0
 cert_manager_chart_version: v1.19.2  # chart version points to app version 1.19.2
 kiwix_serve_image_digest: sha256:9bffd4f940645d4d518f137e87b7865d3d0ef30f6c13fbe4a3b9e747be3cd1ad  # digest points to app version 3.8.1

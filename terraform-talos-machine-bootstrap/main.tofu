@@ -90,12 +90,6 @@ data "talos_machine_configuration" "controlplanes" {
               nodeIP = {
                 validSubnets = [var.k8s_network_subnet]
               }
-              extraArgs = {
-                rotate-server-certificates = true
-              }
-              extraConfig = {
-                serverTLSBootstrap = true
-              }
             }
           }
           cluster = {
@@ -139,10 +133,6 @@ data "talos_machine_configuration" "controlplanes" {
             etcd = {
               advertisedSubnets = [var.k8s_network_subnet]
             }
-            extraManifests = [
-              "https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml",
-              "https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml",
-            ]
           }
         }
       )
@@ -182,12 +172,6 @@ data "talos_machine_configuration" "workers" {
               image = "ghcr.io/siderolabs/kubelet:${local.k8s_version}"
               nodeIP = {
                 validSubnets = [var.k8s_network_subnet]
-              }
-              extraArgs = {
-                rotate-server-certificates = true
-              }
-              extraConfig = {
-                serverTLSBootstrap = true
               }
             }
           }
