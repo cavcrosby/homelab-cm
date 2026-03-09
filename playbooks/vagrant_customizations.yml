@@ -15,7 +15,9 @@
       ansible.builtin.blockinfile:
         state: present
         path: "{{ default_grub_path }}"
-        marker: "# {mark} ANSIBLE MANAGED -- add net.ifnames=1 to GRUB_CMDLINE_LINUX_DEFAULT"
+        marker:
+          "# {mark} ANSIBLE MANAGED -- add net.ifnames=1 to
+          GRUB_CMDLINE_LINUX_DEFAULT"
         prepend_newline: true
         block: |
           GRUB_CMDLINE_LINUX_DEFAULT="${GRUB_CMDLINE_LINUX_DEFAULT} net.ifnames=1"
@@ -43,7 +45,9 @@
               set -eo pipefail
               grub-mkconfig --output "{{ grub_config_path }}"
               sha256sum "{{ grub_config_path }}" | awk -F " " '{ print $1 }'
-          changed_when: current_grub_config_inode.stat.checksum != grub_config_checksum.stdout
+          changed_when:
+            current_grub_config_inode.stat.checksum !=
+            grub_config_checksum.stdout
           become: true
           register: grub_config_checksum
           when:

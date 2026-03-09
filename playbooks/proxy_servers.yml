@@ -21,7 +21,9 @@
       ansible.builtin.file:
         state: link
         path: /usr/local/bin/{{ item }}
-        src: "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}/bin/{{ item }}"
+        src:
+          "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}/bin/{{ item
+          }}"
       become: true
       loop:
         - mitmproxy

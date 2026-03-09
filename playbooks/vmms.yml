@@ -123,13 +123,17 @@
 
     - name: Setup the libvirt environment
       vars:
-        ansible_python_interpreter: "{{ ansible_user_python_virtualenvs_path }}/{{ ansible_user_python_virtualenv_name }}/bin/python"
+        ansible_python_interpreter:
+          "{{ ansible_user_python_virtualenvs_path }}/{{
+          ansible_user_python_virtualenv_name }}/bin/python"
       block:
         - name: Define the homelab network
           community.libvirt.virt_net:
             name: "{{ homelab_network_name }}"
             command: define
-            xml: "{{ lookup('ansible.builtin.template', 'homelab-libvirt-network.xml.j2') }}"
+            xml:
+              "{{ lookup('ansible.builtin.template',
+              'homelab-libvirt-network.xml.j2') }}"
 
         - name: Have the homelab network start up on boot
           community.libvirt.virt_net:
@@ -145,7 +149,9 @@
           community.libvirt.virt_pool:
             command: define
             name: default
-            xml: "{{ lookup('ansible.builtin.template', 'libvirt-pool-default.xml.j2') }}"
+            xml:
+              "{{ lookup('ansible.builtin.template',
+              'libvirt-pool-default.xml.j2') }}"
 
         - name: Start the default pool
           community.libvirt.virt_pool:

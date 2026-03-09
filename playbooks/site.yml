@@ -1,30 +1,30 @@
 ---
-- name: Configure the managed nodes  # noqa tag-plays
+- name: Configure the managed nodes # noqa tag-plays
   ansible.builtin.import_playbook: managed.yml
 
-- name: Configure the on-premises nodes  # noqa tag-plays
+- name: Configure the on-premises nodes # noqa tag-plays
   ansible.builtin.import_playbook: on_prem.yml
 
-- name: Configure the DHCP servers  # noqa tag-plays
+- name: Configure the DHCP servers # noqa tag-plays
   ansible.builtin.import_playbook: dhcp_servers.yml
 
-- name: Configure the DNS servers  # noqa tag-plays
+- name: Configure the DNS servers # noqa tag-plays
   ansible.builtin.import_playbook: dns_servers.yml
 
-- name: Configure the load balancers  # noqa tag-plays
+- name: Configure the load balancers # noqa tag-plays
   ansible.builtin.import_playbook: load_balancers.yml
 
-- name: Configure the NFS servers  # noqa tag-plays
+- name: Configure the NFS servers # noqa tag-plays
   ansible.builtin.import_playbook: nfs_servers.yml
 
-- name: Configure the virtual machine monitors  # noqa tag-plays
+- name: Configure the virtual machine monitors # noqa tag-plays
   ansible.builtin.import_playbook: vmms.yml
 
-- name: Configure the IRC clients  # noqa tag-plays
+- name: Configure the IRC clients # noqa tag-plays
   ansible.builtin.import_playbook: irc_clients.yml
 
-- name: Configure the proxy servers  # noqa tag-plays
+- name: Configure the proxy servers # noqa tag-plays
   ansible.builtin.import_playbook: proxy_servers.yml
 
-- name: Configure the VPN servers  # noqa tag-plays
+- name: Configure the VPN servers # noqa tag-plays
   ansible.builtin.import_playbook: vpn_servers.yml

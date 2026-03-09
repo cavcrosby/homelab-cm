@@ -26,9 +26,13 @@
     # virtualenv setup.
     name: "{{ python_virtualenv_pkgs }}"
     virtualenv: "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}"
-    virtualenv_command: /usr/bin/python3 -m venv "{{ python_virtualenv_path }}/{{ python_virtualenv_name }}"
+    virtualenv_command:
+      /usr/bin/python3 -m venv "{{ python_virtualenv_path }}/{{
+      python_virtualenv_name }}"
 
-- name: Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual environment's site-packages (debian-like)
+- name:
+    Link python3-apt's apt, apt_pkg, apt_inst, and aptsources modules to virtual
+    environment's site-packages (debian-like)
   when: ansible_os_family | lower == "debian"
   block:
     - name: Determine the virtual environment's site-packages directory
@@ -43,13 +47,17 @@
     - name: Link python3-apt's apt
       ansible.builtin.file:
         state: link
-        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt"
+        path:
+          "{{ python_virtualenv_site_packages_find.files[0].path
+          }}/site-packages/apt"
         src: /usr/lib/python3/dist-packages/apt
 
     - name: Link python3-apt's aptsources
       ansible.builtin.file:
         state: link
-        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/aptsources"
+        path:
+          "{{ python_virtualenv_site_packages_find.files[0].path
+          }}/site-packages/aptsources"
         src: /usr/lib/python3/dist-packages/aptsources
 
     - name: Find python3-apt's apt_pkg shared object path
@@ -61,7 +69,9 @@
     - name: Link python3-apt's apt_pkg
       ansible.builtin.file:
         state: link
-        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt_pkg.so"
+        path:
+          "{{ python_virtualenv_site_packages_find.files[0].path
+          }}/site-packages/apt_pkg.so"
         src: "{{ python_virtualenv_apt_pkg_find.files[0].path }}"
 
     - name: Find python3-apt's apt_inst shared object path
@@ -73,5 +83,7 @@
     - name: Link python3-apt's apt_inst
       ansible.builtin.file:
         state: link
-        path: "{{ python_virtualenv_site_packages_find.files[0].path }}/site-packages/apt_inst.so"
+        path:
+          "{{ python_virtualenv_site_packages_find.files[0].path
+          }}/site-packages/apt_inst.so"
         src: "{{ python_virtualenv_apt_inst_find.files[0].path }}"

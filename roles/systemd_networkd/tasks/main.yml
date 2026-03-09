@@ -5,7 +5,9 @@
   become: true
   when: ansible_os_family | lower == "debian"
 
-- name: Install packages required to run the reload-udev-offline script (debian-like)
+- name:
+    Install packages required to run the reload-udev-offline script
+    (debian-like)
   ansible.builtin.apt:
     name:
       - jq
@@ -24,7 +26,8 @@
 - name: Create the reload-udev-offline script
   ansible.builtin.template:
     src: reload-udev-offline.j2
-    dest: "{{ systemd_networkd_admin_managed_libexec_dir.path }}/reload-udev-offline"
+    dest:
+      "{{ systemd_networkd_admin_managed_libexec_dir.path }}/reload-udev-offline"
     mode: "744"
   become: true
   register: systemd_networkd_reload_udev_offline_script

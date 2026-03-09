@@ -57,7 +57,8 @@
 
     - name: Add the WeeChat certificates
       ansible.builtin.copy:
-        dest: "{{ weechat_certs_directory }}/{{ item | ansible.builtin.basename }}"
+        dest:
+          "{{ weechat_certs_directory }}/{{ item | ansible.builtin.basename }}"
         src: "{{ item }}"
         owner: "{{ irc_user }}"
         group: "{{ irc_user }}"
@@ -122,7 +123,8 @@
       become: true
       notify: Restart the sshd service
 
-    - name: Create customizations on top of the default cloud-init configurations
+    - name:
+        Create customizations on top of the default cloud-init configurations
       ansible.builtin.template:
         src: lightsail-cloud-init.cfg.j2
         dest: /etc/cloud/cloud.cfg.d/99_{{ inventory_hostname }}.cfg

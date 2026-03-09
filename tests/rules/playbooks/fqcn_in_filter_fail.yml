@@ -9,7 +9,8 @@
         msg: "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
 
     - name: Print the file using the ansible.builtin.command module
-      ansible.builtin.command: cat "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
+      ansible.builtin.command:
+        cat "{{ ('foo.conf.j2' | splitext)[:-1] | join('.') }}"
       changed_when: false
 
     - name: Print the object file

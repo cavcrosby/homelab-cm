@@ -45,10 +45,17 @@ repos:
         name: prettier
         entry: prettier --write
         language: node
-        # matches docs/foo.md, but not README.md
-        files: ^docs/
-        types:
+        exclude: |
+          (?x)(
+            ansible/\S+
+            |node_modules/\S+
+            |vendor/\S+
+            |.vagrant/\S+
+            |.terraform/\S+
+          )
+        types_or:
           - markdown
+          - yaml
         additional_dependencies:
           - prettier@3.6.2
 

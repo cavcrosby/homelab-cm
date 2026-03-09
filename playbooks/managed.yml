@@ -6,7 +6,8 @@
   tasks:
     - name: Install a custom en_US locale
       block:
-        - name: Create the administrator managed locale definition files directory
+        - name:
+            Create the administrator managed locale definition files directory
           ansible.builtin.file:
             path: /usr/local/share/i18n/locales
             recurse: true

@@ -15,4 +15,6 @@
         KUBECONFIG: /etc/kubernetes/admin.conf
       vars:
         namespace: "{{ namespace_creation.result.metadata.name }}"
-        nfs_export: "{{ (nfs_exports_config | ansible.builtin.from_yaml | community.general.json_query('[?usage==`zims`]'))[0] }}"
+        nfs_export:
+          "{{ (nfs_exports_config | ansible.builtin.from_yaml |
+          community.general.json_query('[?usage==`zims`]'))[0] }}"
