@@ -11,7 +11,7 @@ terraform {
   }
 
   # renovate: datasource=github-releases packageName=opentofu/opentofu versioning=hashicorp
-  required_version = "~> 1.10.0"
+  required_version = "~> 1.11.0"
 }
 
 locals {
