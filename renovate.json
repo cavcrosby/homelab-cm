@@ -117,7 +117,7 @@
             ]
         },
         {
-            "groupName": "lock file maintenance",
+            "groupSlug": "",
             "matchUpdateTypes": [
                 "lockFileMaintenance"
             ]
