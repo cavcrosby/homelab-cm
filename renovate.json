@@ -84,23 +84,21 @@
         {
             "groupName": "development dependencies",
             "matchPackageNames": [
+                "@bitwarden/cli",
                 "ansible-lint",
                 "boto3-stubs",
+                "ipaddress",
+                "markdownlint-cli2",
                 "molecule",
                 "molecule-plugins",
                 "mypy",
                 "pre-commit",
+                "prettier",
                 "pyspellchecker",
                 "pytest",
                 "ruff",
-                "tombi"
-            ]
-        },
-        {
-            "groupName": "development dependencies",
-            "matchManagers": [
-                "bundler",
-                "npm"
+                "tombi",
+                "vagrant-libvirt"
             ]
         },
         {
@@ -114,12 +112,6 @@
             "groupName": "development dependencies",
             "matchPackageNames": [
                 "hashicorp/vagrant"
-            ]
-        },
-        {
-            "groupName": "lock file maintenance",
-            "matchUpdateTypes": [
-                "lockFileMaintenance"
             ]
         },
         {
