@@ -32,18 +32,18 @@ crypto :: \
         $iflabel{ gpt } $reusemethod{ } \
         method{ biosgrub } \
     . \
-    512 512 512 ext4 \
+    500 500 500 ext4 \
         method{ format } format{ } \
         use_filesystem{ } filesystem{ ext4 } \
         mountpoint{ /boot } \
     . \
-    2048 2048 2048 linux-swap \
+    2000 2000 2000 linux-swap \
         $lvmok{ } lv_name{ swap } \
         in_vg { vgos } method{ swap } \
         format{ } \
     . \
 {# -1 indicates unlimited partition size #}
-    10240 10240 -1 ext4 \
+    10000 10000 -1 ext4 \
         $lvmok{ } lv_name{ root } \
         in_vg { vgos } method{ format } \
         format{ } use_filesystem{ } \
