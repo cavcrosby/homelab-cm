@@ -38,13 +38,13 @@ crypto :: \
         mountpoint{ /boot } \
     . \
     2000 2000 2000 linux-swap \
-        $lvmok{ } lv_name{ swap } \
+        $lvmok{ } lv_name{ lvswap } \
         in_vg { vgos } method{ swap } \
         format{ } \
     . \
 {# -1 indicates unlimited partition size #}
     10000 10000 -1 ext4 \
-        $lvmok{ } lv_name{ root } \
+        $lvmok{ } lv_name{ lvroot } \
         in_vg { vgos } method{ format } \
         format{ } use_filesystem{ } \
         filesystem{ ext4 } mountpoint{ / } \
