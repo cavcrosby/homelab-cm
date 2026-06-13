@@ -47,7 +47,7 @@ if echo "${ID_LIKE}" | grep --quiet "debian"; then
         if (( under_version_table )); then
             if (( is_vagrant_upstream_version_entries )); then
                 # 1|100|500|990 come from APT's Default Priority Assignments under apt_preferences(5)
-                if ! echo "${line}" | grep --quiet --extended-regexp '^(1|100|500|990) '; then
+                if ! echo "${line}" | grep --quiet --extended-regexp "^(1|100|500|990) "; then
                     is_vagrant_upstream_version_entries="${FALSE}"
                 else
                     if echo "${line}" | grep --quiet --extended-regexp "^(500|990) .+$(dpkg --print-architecture)"; then

@@ -12,19 +12,19 @@ chown --recursive "ansible:ansible" "/home/ansible/.ssh"
 sed \
     --regexp-extended \
     --in-place \
-    's|^#?PubkeyAuthentication.+|PubkeyAuthentication yes|' \
+    "s|^#?PubkeyAuthentication.+|PubkeyAuthentication yes|" \
     "/etc/ssh/sshd_config"
 
 sed \
     --regexp-extended \
     --in-place \
-    's|^#?PasswordAuthentication.+|PasswordAuthentication no|' \
+    "s|^#?PasswordAuthentication.+|PasswordAuthentication no|" \
     "/etc/ssh/sshd_config"
 
 sed \
     --regexp-extended \
     --in-place \
-    's|^#?AuthorizedKeysFile.+|AuthorizedKeysFile    .ssh/authorized_keys|' \
+    "s|^#?AuthorizedKeysFile.+|AuthorizedKeysFile    .ssh/authorized_keys|" \
     "/etc/ssh/sshd_config"
 
 printf "%s\n" "Defaults:ansible !requiretty" > "/etc/sudoers.d/ansible"
