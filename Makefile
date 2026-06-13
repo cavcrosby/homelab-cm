@@ -90,6 +90,7 @@ MOLECULE = molecule
 MARKDOWNLINT_CLI2 = markdownlint-cli2
 PRETTIER = prettier
 TOFU = tofu
+UUIDGEN = uuidgen
 
 # simply expanded variables
 executables := \
@@ -107,7 +108,8 @@ executables := \
 	${PYTHON}\
 	${NPM}\
 	${CURL}\
-	${TOFU}
+	${TOFU}\
+	${UUIDGEN}
 
 _check_executables := $(foreach exec,${executables},$(if $(shell command -v ${exec}),pass,$(error "No ${exec} in PATH")))
 
@@ -234,7 +236,7 @@ ${PRESEED_CFG}: ./preseed.cfg.j2
 
 .PHONY: ${PRODUCTION}
 ${PRODUCTION}: export ANSIBLE_LOG_PATH = \
-				./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+				./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${PRODUCTION}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 				--inventory "production"\
 				--tags "${ANSIBLE_TAGS}"\
@@ -253,7 +255,7 @@ ${PRODUCTION}:
 
 .PHONY: ${STAGING}
 ${STAGING}: export ANSIBLE_LOG_PATH = \
-				./logs/ansible.log.staging-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+				./logs/ansible.log.staging-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${STAGING}:
 ifneq ($(findstring ${VMS_EXISTS},${TRUTHY_VALUES}),)
 >	${VAGRANT} up \
@@ -276,7 +278,7 @@ endif
 
 .PHONY: ${PRODUCTION_MAINTENANCE}
 ${PRODUCTION_MAINTENANCE}: export ANSIBLE_LOG_PATH = \
-							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${PRODUCTION_MAINTENANCE}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 							--inventory "production"\
 							--tags "${ANSIBLE_TAGS}"
@@ -286,7 +288,7 @@ ${PRODUCTION_MAINTENANCE}:
 
 .PHONY: ${PRODUCTION_LOCALHOST}
 ${PRODUCTION_LOCALHOST}: export ANSIBLE_LOG_PATH = \
-							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${PRODUCTION_LOCALHOST}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 							--inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
@@ -311,7 +313,7 @@ ${PRODUCTION_LOCALHOST}:
 
 .PHONY: ${PRODUCTION_K8S_APPS}
 ${PRODUCTION_K8S_APPS}: export ANSIBLE_LOG_PATH = \
-							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(uuidgen | head --bytes 5)")
+							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${PRODUCTION_K8S_APPS}: ANSIBLE_PLAYBOOK_OPTIONS := --inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
 							--extra-vars '{"network_configs_path":"./network_configs.yml","talosconfig_path":"../prod-k8s-cluster/talosconfig","kubeconfig_path":"../prod-k8s-cluster/kubeconfig"}'
