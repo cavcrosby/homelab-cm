@@ -7,4 +7,4 @@ pre-commit ==4.3.0
 pyspellchecker ==0.8.3
 pytest ==8.4.2
 ruff ==0.14.0
-tombi ==0.6.25
+tombi ==1.1.2
