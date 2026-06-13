@@ -161,7 +161,7 @@ repos:
       - id: tofu_validate
 
   - repo: https://github.com/tombi-toml/tombi-pre-commit.git
-    rev: v0.6.25
+    rev: v1.1.2
     hooks:
       - id: tombi-lint
       - id: tombi-format
