@@ -248,6 +248,9 @@ _EOF_
         domain.memory = machine_attrs["vagrant_vm_memory"]
         domain.machine_virtual_size = machine_attrs["vagrant_vm_libvirt_disk_size"] # GBs
         domain.management_network_mac = machine_attrs["vagrant_vm_mgmt_mac_addr"]
+        if ansible_groups["vmms"].include?(machine_name)
+          domain.nested = true
+        end
 
         if !management_network_defined and @libvirt_management_network_xml.xpath("//host[@name='#{machine_name}']").empty?
           host_entry = Nokogiri::XML::Node.new("host", @libvirt_management_network_xml)
