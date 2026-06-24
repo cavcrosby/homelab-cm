@@ -385,7 +385,11 @@ ifeq (${ANSIBLE_SECRETS_ACTION},${PUT})
 >	${ANSIBLE_VAULT} encrypt "${ANSIBLE_SECRETS_FILE_PATH}"
 >	${NPX} ${BW} delete attachment \
 		"$$(${NPX} ${BW} list items \
-			| ${YQ} '.[] | select(.attachments?).attachments[] | select(.fileName=="${ANSIBLE_SECRETS_FILE}").id' \
+			| ${YQ} ' \
+				.[] \
+				| select(.attachments?).attachments[] \
+				| select(.fileName=="${ANSIBLE_SECRETS_FILE}").id \
+				' \
 		)" \
 		--itemid "${BITWARDEN_ANSIBLE_SECRETS_ITEMID}"
 
