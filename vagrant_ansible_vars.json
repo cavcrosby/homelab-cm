@@ -442,13 +442,10 @@
                         "vg_name": "vgnfs"
                     },
                     {
-                        "name": "lvpkgs",
+                        "name": "lvdebs",
                         "size": "1G",
                         "fstype": "ext4",
-                        "vg_name": "vgnfs",
-                        "dirpaths": [
-                            "deb"
-                        ]
+                        "vg_name": "vgnfs"
                     }
                 ]
             },
@@ -472,7 +469,7 @@
                     ]
                 },
                 {
-                    "device": "/srv/nfs/pkgs",
+                    "device": "/srv/nfs/debs",
                     "hosts": [
                         "talos-*(rw,all_squash)"
                     ]

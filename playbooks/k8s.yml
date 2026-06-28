@@ -270,11 +270,117 @@
           community.general.json_query('[?mount==`' +
           nfs_export_aptly_api.device + '`]'))[0].size_total / one_mib }}Mi"
 
-        nfs_export_pkgs:
+        nfs_export_debs:
           "{{ (nfs_exports_config |
           community.general.json_query('[?usage==`packages`]'))[0] }}"
 
-        nfs_export_size_pkgs:
-          "{{ (hostvars[nfs_export_pkgs.host]['ansible_facts']['mounts'] |
-          community.general.json_query('[?mount==`' + nfs_export_pkgs.device +
+        nfs_export_size_debs:
+          "{{ (hostvars[nfs_export_debs.host]['ansible_facts']['mounts'] |
+          community.general.json_query('[?mount==`' + nfs_export_debs.device +
           '`]'))[0].size_total / one_mib }}Mi"
+
+    - name: Wait for Aptly's API to become reachable
+      ansible.builtin.wait_for:
+        host: aptly-api.{{ homelab_network_domain }}
+        port: 443
+        delay: 10
+
+    - name: Create the any APT repository
+      ansible.builtin.uri:
+        url: https://aptly-api.{{ homelab_network_domain }}/api/repos
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        method: POST
+        body_format: json
+        status_code:
+          - 201
+          - 409
+        body:
+          Name: any
+          DefaultDistribution: any
+      changed_when: create_apt_repo_any.status == 201
+      register: create_apt_repo_any
+
+    - name: Show the published any APT repository's information
+      ansible.builtin.uri:
+        url:
+          https://aptly-api.{{ homelab_network_domain
+          }}/api/publish/filesystem:debs:./any
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        status_code:
+          - 200
+          - 404
+      changed_when: false
+      register: published_info_apt_repo_any
+
+    - name: Publish the any APT repository
+      ansible.builtin.uri:
+        url:
+          https://aptly-api.{{ homelab_network_domain
+          }}/api/publish/filesystem:debs:.
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        method: POST
+        body_format: json
+        status_code:
+          - 201
+        body:
+          Distribution: any
+          SourceKind: local
+          Sources:
+            - Name: any
+          Architectures:
+            - amd64
+          Signing:
+            GpgKey: F933C810420CF3B5
+            Passphrase: "{{ aptly_gpg_key_passphrase_any }}"
+      changed_when: true
+      when: published_info_apt_repo_any.status == 404
+
+    - name: Create the trixie APT repository
+      ansible.builtin.uri:
+        url: https://aptly-api.{{ homelab_network_domain }}/api/repos
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        method: POST
+        body_format: json
+        status_code:
+          - 201
+          - 409
+        body:
+          Name: trixie
+          DefaultDistribution: trixie
+      changed_when: create_apt_repo_trixie.status == 201
+      register: create_apt_repo_trixie
+
+    - name: Show the published trixie APT repository's information
+      ansible.builtin.uri:
+        url:
+          https://aptly-api.{{ homelab_network_domain
+          }}/api/publish/filesystem:debs:./trixie
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        status_code:
+          - 200
+          - 404
+      changed_when: false
+      register: published_apt_repo_trixie
+
+    - name: Publish the trixie APT repository
+      ansible.builtin.uri:
+        url:
+          https://aptly-api.{{ homelab_network_domain
+          }}/api/publish/filesystem:debs:.
+        validate_certs: "{{ validate_certs | ansible.builtin.default(true) }}"
+        method: POST
+        body_format: json
+        status_code:
+          - 201
+        body:
+          Distribution: trixie
+          SourceKind: local
+          Architectures:
+            - amd64
+          Sources:
+            - Name: trixie
+          Signing:
+            GpgKey: 1D8C2F68443B30E7
+            Passphrase: "{{ aptly_gpg_key_passphrase_trixie }}"
+      changed_when: true
+      when: published_apt_repo_trixie.status == 404
