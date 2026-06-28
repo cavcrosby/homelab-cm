@@ -12,8 +12,8 @@ data:
     {
       "rootDir": "/var/lib/aptly-api",
       "FileSystemPublishEndpoints": {
-        "all": {
-          "rootDir": "/mnt/deb",
+        "debs": {
+          "rootDir": "/mnt",
           "linkMethod": "copy"
         }
       }
@@ -26,7 +26,8 @@ metadata:
   name: gpg-keys
   namespace: {{ namespace_ }}
 data:
-  aptly-main.gpg: {{ encoded_aptly_gpg_key_main }}
+  aptly-any.gpg: {{ encoded_aptly_gpg_key_any }}
+  aptly-trixie.gpg: {{ encoded_aptly_gpg_key_trixie }}
 
 ---
 apiVersion: v1
@@ -60,29 +61,29 @@ spec:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: {{ namespace_ }}-pkgs
+  name: {{ namespace_ }}-debs
 spec:
   capacity:
-    storage: {{ nfs_export_size_pkgs }}
+    storage: {{ nfs_export_size_debs }}
   accessModes:
     - ReadWriteMany
   nfs:
-    server: {{ nfs_export_pkgs.host }}
-    path: {{ nfs_export_pkgs.device }}
+    server: {{ nfs_export_debs.host }}
+    path: {{ nfs_export_debs.device }}
 
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pkgs
+  name: debs
   namespace: {{ namespace_ }}
 spec:
-  volumeName: {{ namespace_ }}-pkgs
+  volumeName: {{ namespace_ }}-debs
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: {{ nfs_export_size_pkgs }}
+      storage: {{ nfs_export_size_debs }}
 
 ---
 apiVersion: apps/v1
@@ -107,7 +108,7 @@ spec:
             - name: PORT
               value: "80"
             - name: CONFIG_PATH
-              value: /etc/aptly.conf
+              value: /etc/aptly-api/aptly.conf
           readinessProbe:
             httpGet:
               path: /api/ready
@@ -131,7 +132,7 @@ spec:
           volumeMounts:
             - name: aptly-api
               mountPath: /var/lib/aptly-api
-            - name: pkgs
+            - name: debs
               mountPath: /mnt
             - name: conf
               mountPath: /etc/aptly-api
@@ -141,9 +142,9 @@ spec:
         - name: aptly-api
           persistentVolumeClaim:
             claimName: aptly-api
-        - name: pkgs
+        - name: debs
           persistentVolumeClaim:
-            claimName: pkgs
+            claimName: debs
         - name: conf
           configMap:
             name: aptly-conf
