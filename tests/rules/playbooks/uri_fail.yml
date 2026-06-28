@@ -1,0 +1,24 @@
+---
+- name: Run the play
+  hosts: all
+  tags: run_play
+
+  tasks:
+    - name: Create the any APT repository
+      ansible.builtin.uri:
+        url: https://aptly-api.example.com/api/repos
+        method: POST
+        body_format: json
+        status_code:
+          - 201
+          - 409
+        body:
+          Name: any
+          DefaultDistribution: any
+      # changed_when: create_apt_repo_any.status == 201
+      register: create_apt_repo_any
+
+    - name: Get the webpage content of the www.example.com website
+      ansible.builtin.uri:
+        url: https://www.example.com
+        dest: /tmp/index.html

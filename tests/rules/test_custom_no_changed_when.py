@@ -18,11 +18,22 @@ if TYPE_CHECKING:
     (CustomNoChangedWhenRule,),
     indirect=["rule_runner"],
 )
-def test_custom_no_changed_when_fail(rule_runner: RunFromText) -> None:
-    """Test that custom-no-changed-when finds errors."""
-    errors = rule_runner.run(
-        Path("./tests/rules/playbooks/custom_no_changed_when_fail.yml")
-    )
+def test_command_like_fail(rule_runner: RunFromText) -> None:
+    """Test that custom-no-changed-when[command-like] finds errors."""
+    errors = rule_runner.run(Path("./tests/rules/playbooks/command_like_fail.yml"))
     assert len(errors) == 1
     for error in errors:
-        assert error.tag == "custom-no-changed-when"
+        assert error.tag == "custom-no-changed-when[command-like]"
+
+
+@pytest.mark.parametrize(
+    "rule_runner",
+    (CustomNoChangedWhenRule,),
+    indirect=["rule_runner"],
+)
+def test_uri_fail(rule_runner: RunFromText) -> None:
+    """Test that custom-no-changed-when[uri] finds errors."""
+    errors = rule_runner.run(Path("./tests/rules/playbooks/uri_fail.yml"))
+    assert len(errors) == 1
+    for error in errors:
+        assert error.tag == "custom-no-changed-when[uri]"
