@@ -112,7 +112,7 @@ all:
                     size: 20G
                     fstype: ext4
                     vg_name: vgnfs
-                  - name: lvpkgs
+                  - name: lvdebs
                     size: 20G
                     fstype: ext4
                     vg_name: vgnfs
@@ -128,7 +128,7 @@ all:
                 - device: /srv/nfs/aptly-api
                   hosts:
                     - talos-*(rw,all_squash)
-                - device: /srv/nfs/pkgs
+                - device: /srv/nfs/debs
                   hosts:
                     - talos-*(rw,all_squash)
               systemd_networkd_files:
@@ -193,7 +193,7 @@ all:
           device: /srv/nfs/aptly-api
           usage: aptly-api
         - host: kronk
-          device: /srv/nfs/pkgs
+          device: /srv/nfs/debs
           usage: packages
       zim_jobs_manifest_configs:
         - name: import-wikipedia-zim

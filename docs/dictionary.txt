@@ -11,6 +11,7 @@ apparmour
 apt's
 apt_inst
 apt_pkg
+aptly's
 aptsources
 arptables
 authorized_keys
@@ -77,6 +78,7 @@ sshd
 systemd
 tls
 tmux
+trixie
 udev
 uri
 usa
@@ -87,5 +89,6 @@ weechat
 weechat's
 wikipedia_kiwix_redirect
 wireguard
+www
 xml
 zim
