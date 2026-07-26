@@ -366,22 +366,22 @@ _EOF_
                       {
                         "host" => "vmm1",
                         "device" => "/srv/nfs/zims",
-                        "usage" => "zims",
+                        "name" => "zims",
                       },
                       {
                         "host" => "vmm1",
                         "device" => "/srv/nfs/cache",
-                        "usage" => "cache",
+                        "name" => "cache",
                       },
                       {
                         "host" => "vmm1",
                         "device" => "/srv/nfs/aptly-api",
-                        "usage" => "aptly-api",
+                        "name" => "aptly-api",
                       },
                       {
                         "host" => "vmm1",
                         "device" => "/srv/nfs/debs",
-                        "usage" => "debs",
+                        "name" => "debs",
                       }
                     ],
                     "zim_jobs_manifest_configs" => [
