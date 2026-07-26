@@ -195,7 +195,7 @@
         namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export:
           "{{ (nfs_exports_config |
-          community.general.json_query('[?usage==`zims`]'))[0] }}"
+          community.general.json_query('[?name==`zims`]'))[0] }}"
         nfs_export_size:
           "{{ (hostvars[nfs_export.host]['ansible_facts']['mounts'] |
           community.general.json_query('[?mount==`' + nfs_export.device +
@@ -211,7 +211,7 @@
         namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export:
           "{{ (nfs_exports_config |
-          community.general.json_query('[?usage==`zims`]'))[0] }}"
+          community.general.json_query('[?name==`zims`]'))[0] }}"
         nfs_export_size:
           "{{ (hostvars[nfs_export.host]['ansible_facts']['mounts'] |
           community.general.json_query('[?mount==`' + nfs_export.device +
@@ -237,7 +237,7 @@
         namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export:
           "{{ (nfs_exports_config |
-          community.general.json_query('[?usage==`cache`]'))[0] }}"
+          community.general.json_query('[?name==`cache`]'))[0] }}"
         nfs_export_size:
           "{{ (hostvars[nfs_export.host]['ansible_facts']['mounts'] |
           community.general.json_query('[?mount==`' + nfs_export.device +
@@ -264,7 +264,7 @@
         namespace_: "{{ namespace_creation.result.metadata.name }}"
         nfs_export_aptly_api:
           "{{ (nfs_exports_config |
-          community.general.json_query('[?usage==`aptly-api`]'))[0] }}"
+          community.general.json_query('[?name==`aptly-api`]'))[0] }}"
 
         nfs_export_size_aptly_api:
           "{{ (hostvars[nfs_export_aptly_api.host]['ansible_facts']['mounts'] |
@@ -273,7 +273,7 @@
 
         nfs_export_debs:
           "{{ (nfs_exports_config |
-          community.general.json_query('[?usage==`debs`]'))[0] }}"
+          community.general.json_query('[?name==`debs`]'))[0] }}"
 
         nfs_export_size_debs:
           "{{ (hostvars[nfs_export_debs.host]['ansible_facts']['mounts'] |
