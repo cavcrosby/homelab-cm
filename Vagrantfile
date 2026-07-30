@@ -382,6 +382,11 @@ _EOF_
                         "host" => "vmm1",
                         "device" => "/srv/nfs/debs",
                         "name" => "debs",
+                      },
+                      {
+                        "host" => "vmm1",
+                        "device" => "/srv/nfs/caddy",
+                        "name" => "caddy",
                       }
                     ],
                     "zim_jobs_manifest_configs" => [
