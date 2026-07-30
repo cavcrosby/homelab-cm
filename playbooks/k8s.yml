@@ -280,6 +280,15 @@
           community.general.json_query('[?mount==`' + nfs_export_debs.device +
           '`]'))[0].size_total / one_mib }}Mi"
 
+        nfs_export_caddy:
+          "{{ (nfs_exports_config |
+          community.general.json_query('[?name==`caddy`]'))[0] }}"
+
+        nfs_export_size_caddy:
+          "{{ (hostvars[nfs_export_caddy.host]['ansible_facts']['mounts'] |
+          community.general.json_query('[?mount==`' + nfs_export_caddy.device +
+          '`]'))[0].size_total / one_mib }}Mi"
+
     - name: Create the any APT repository
       ansible.builtin.uri:
         url: https://aptly-api.{{ homelab_network_domain }}/api/repos

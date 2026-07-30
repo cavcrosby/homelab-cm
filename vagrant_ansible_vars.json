@@ -446,6 +446,11 @@
                         "size": "1G",
                         "fstype": "ext4",
                         "vg_name": "vgnfs"
+                    },
+                    {
+                        "name": "lvcaddy",
+                        "fstype": "ext4",
+                        "vg_name": "vgnfs"
                     }
                 ]
             },
@@ -470,6 +475,12 @@
                 },
                 {
                     "device": "/srv/nfs/debs",
+                    "hosts": [
+                        "talos-*(rw,all_squash)"
+                    ]
+                },
+                {
+                    "device": "/srv/nfs/caddy",
                     "hosts": [
                         "talos-*(rw,all_squash)"
                     ]
