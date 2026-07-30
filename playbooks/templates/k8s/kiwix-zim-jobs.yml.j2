@@ -11,6 +11,14 @@ metadata:
 data:
   .dockerconfigjson: {{ encoded_dockerhub_config }}
 
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: default
+  namespace: {{ namespace_ }}
+imagePullSecrets:
+  - name: dockerhub-creds
 
 ---
 apiVersion: v1
