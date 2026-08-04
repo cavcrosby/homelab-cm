@@ -46,7 +46,7 @@ resource "local_file" "talosconfig" {
 
 locals {
   talos_installer_image     = "factory.talos.dev/metal-installer/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515:${local.talos_version}"
-  k8s_kube_apiserver_domain = "kube-api-${substr(sha256(var.k8s_cluster_name), 0, 5)}.${var.k8s_base_domain}"
+  k8s_kube_apiserver_domain = "kube-api.${var.k8s_base_domain}"
   k8s_cluster_endpoint      = "https://${local.k8s_kube_apiserver_domain}:6443"
   k8s_version               = "v1.34.2"
 }
