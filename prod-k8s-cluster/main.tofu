@@ -134,7 +134,7 @@ locals {
 
 module "talos_machine_bootstrap" {
   source           = "../terraform-talos-machine-bootstrap"
-  k8s_cluster_name = "homelab-cm-prod"
+  k8s_cluster_name = "homelab-prod"
   k8s_base_domain  = local.network_configs.homelab_network_domain
   k8s_network_subnet = [
     for network in local.networks : network.configs.addresses[0]
