@@ -74,8 +74,9 @@
   [an associated Trello card](https://trello.com/c/PYAlPypV/37-check-the-consistency-of-variable-values-being-passed-into-ansible-roles).
   1. Host variables in the inventory file.
   2. Group variables in the inventory file.
-  3. Group variables file within the project.
-  4. Role invocation using `vars:` parameters within the project (e.g.
+  3. Host variables file within the project.
+  4. Group variables file within the project.
+  5. Role invocation using `vars:` parameters within the project (e.g.
      playbook).
 
 - Follow this precedence when naming playbooks (an exception to this would be

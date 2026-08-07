@@ -1,0 +1,3 @@
+---
+gateway_name: nginx-gateway
+gateway_namespace: nginx-gateway-fabric

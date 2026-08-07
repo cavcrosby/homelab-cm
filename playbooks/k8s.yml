@@ -3,7 +3,9 @@
   hosts: localhost
   tags: bootstrap_k8s_infra
   vars_files:
+    - "{{ network_configs_path }}"
     - k8s_apps_versions.yml
+    - ansible_secrets.yml
   vars:
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
@@ -67,24 +69,6 @@
       environment:
         KUBECONFIG: "{{ kubeconfig_path }}"
 
-- name: Gather facts from all NFS servers
-  hosts: nfs_servers
-  tags: install_k8s_apps
-
-- name: Install the Kubernetes applications
-  hosts: localhost
-  tags: install_k8s_apps
-  vars_files:
-    - "{{ network_configs_path }}"
-    - k8s_apps_versions.yml
-    - ansible_secrets.yml
-  vars:
-    ansible_python_interpreter: "{{ ansible_playbook_python }}"
-    gateway_name: nginx-gateway
-    gateway_namespace: nginx-gateway-fabric
-    one_mib: 1048576 # mebibyte
-
-  tasks:
     - name: Install the NGINX Gateway Fabric controller
       block:
         - name: Create the NGINX Gateway Fabric namespace
@@ -175,6 +159,22 @@
       vars:
         namespace_: "{{ namespace_creation.result.metadata.name }}"
 
+- name: Gather facts from all NFS servers
+  hosts: nfs_servers
+  tags: install_k8s_apps
+
+- name: Install the Kubernetes application
+  hosts: localhost
+  tags: install_k8s_apps
+  vars_files:
+    - "{{ network_configs_path }}"
+    - k8s_apps_versions.yml
+    - ansible_secrets.yml
+  vars:
+    ansible_python_interpreter: "{{ ansible_playbook_python }}"
+    one_mib: 1048576 # mebibyte
+
+  tasks:
     - name: Create the kiwix-serve namespace in the Kubernetes cluster
       kubernetes.core.k8s:
         api_version: v1
