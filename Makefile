@@ -292,7 +292,7 @@ ${PRODUCTION_LOCALHOST}: export ANSIBLE_LOG_PATH = \
 ${PRODUCTION_LOCALHOST}: ANSIBLE_PLAYBOOK_OPTIONS := --ask-become-pass\
 							--inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
-							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_type":"${ASSOCIATED_NETWORK_INTERFACE_TYPE}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"./network_configs.yml","enable_dhcp":true}'
+							--extra-vars '{"wireguard_privkey_path":"${WIREGUARD_PRIVKEY_PATH}","wireguard_network_interface_name":"${WIREGUARD_NETWORK_INTERFACE_NAME}","associated_network_interface_type":"${ASSOCIATED_NETWORK_INTERFACE_TYPE}","associated_network_interface_name":"${ASSOCIATED_NETWORK_INTERFACE_NAME}","wireguard_server_pubkey":"${WIREGUARD_SERVER_PUBKEY}","network_configs_path":"network_configs.yml","enable_dhcp":true}'
 ${PRODUCTION_LOCALHOST}:
 >	@[ -n "${WIREGUARD_PRIVKEY_PATH}" ] \
 		|| { echo "make: WIREGUARD_PRIVKEY_PATH was not passed into make"; exit 1; }
@@ -316,7 +316,7 @@ ${PRODUCTION_K8S_APPS}: export ANSIBLE_LOG_PATH = \
 							./logs/ansible.log.prod-$(shell date "+%Y-%m-%dT%H:%M:%S-$$(${UUIDGEN} | head --bytes 5)")
 ${PRODUCTION_K8S_APPS}: ANSIBLE_PLAYBOOK_OPTIONS := --inventory "production"\
 							--tags "${ANSIBLE_TAGS}"\
-							--extra-vars '{"network_configs_path":"./network_configs.yml","talosconfig_path":"../prod-k8s-cluster/talosconfig","kubeconfig_path":"../prod-k8s-cluster/kubeconfig"}'
+							--extra-vars '{"network_configs_path":"network_configs.yml","talosconfig_path":"../prod-k8s-cluster/talosconfig","kubeconfig_path":"../prod-k8s-cluster/kubeconfig"}'
 ${PRODUCTION_K8S_APPS}:
 >	${ANSIBLE_PLAYBOOK} ${ANSIBLE_PLAYBOOK_OPTIONS} "./playbooks/k8s.yml"
 
