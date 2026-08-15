@@ -21,6 +21,16 @@ data:
 
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: import-kubectl-pkgs
+  namespace: {{ namespace_ }}
+data:
+  import-kubectl-pkgs: |
+{{ lookup('ansible.builtin.template', 'import-kubectl-pkgs.j2') | indent(4, true) }}
+
+---
+apiVersion: v1
 kind: Secret
 metadata:
   name: gpg-keys
@@ -28,6 +38,15 @@ metadata:
 data:
   aptly-any.gpg: {{ encoded_aptly_gpg_key_any }}
   aptly-trixie.gpg: {{ encoded_aptly_gpg_key_trixie }}
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: gpg-passphrases
+  namespace: {{ namespace_ }}
+stringData:
+  aptly-any: "{{ aptly_gpg_key_passphrase_any }}"
 
 ---
 apiVersion: v1
@@ -368,3 +387,52 @@ spec:
       backendRefs:
         - name: caddy
           port: 80
+
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: import-kubectl-pkgs
+  namespace: {{ namespace_ }}
+spec:
+  schedule: "0 5 30 * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: import-kubectl-pkgs
+              image: cavcrosby/apt-kubectl
+              args:
+                - /mnt/import-kubectl-pkgs
+                - aptly-api.aptly-api.svc.{{ k8s_cluster_domain }}
+                - any
+                - {{ aptly_gpg_keyid_any }}
+              env:
+                - name: GPG_PASSPHRASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: gpg-passphrases
+                      key: aptly-any
+              securityContext:
+                allowPrivilegeEscalation: false
+                runAsNonRoot: true
+                seccompProfile:
+                  type: RuntimeDefault
+                capabilities:
+                  drop:
+                    - ALL
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 10Mi
+              volumeMounts:
+                - name: import-kubectl-pkgs
+                  mountPath: /mnt
+          volumes:
+            - name: import-kubectl-pkgs
+              configMap:
+                name: import-kubectl-pkgs
+                defaultMode: 0755

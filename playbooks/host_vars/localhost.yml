@@ -1,3 +1,4 @@
 ---
 gateway_name: nginx-gateway
 gateway_namespace: nginx-gateway-fabric
+aptly_gpg_keyid_any: F933C810420CF3B5

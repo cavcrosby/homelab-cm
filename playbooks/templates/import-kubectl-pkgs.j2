@@ -1,0 +1,84 @@
+#!/bin/bash
+#
+# {{ ansible_managed }}
+#
+# Imports the kubectl packages into package repositories fronted by Aptly's API.
+
+shopt -s -o errexit pipefail
+
+shopt -s nullglob
+
+# constants
+PROGNAME="$(basename "$0")"
+readonly PROGNAME
+
+aptly_api_host="$1"
+apt_repo_name="$2"
+gpg_keyid="$3"
+
+if ! [ "$(command -v curl)" ]; then
+    printf "%s: %s\n" "${PROGNAME}" "curl cannot be found in the PATH!" >&2
+    exit 1
+fi
+
+if ! [ "$(command -v jq)" ]; then
+    printf "%s: %s\n" "${PROGNAME}" "jq cannot be found in the PATH!" >&2
+    exit 1
+fi
+
+declare -a k8s_pkg_strs
+for k8s_version in $(\
+    curl \
+        --silent "https://endoflife.date/api/kubernetes.json" \
+        | jq --raw-output '.[] | select(.eol > (now | todate)).cycle'
+); do
+    k8s_pkg_strs+=("kubectl=${k8s_version}*")
+done
+
+apt-get download "${k8s_pkg_strs[@]}"
+for pkg_filename in *.deb; do
+    pkg_version="$(dpkg-deb --field "${pkg_filename}" "Version")"
+    if [ \
+        "$(\
+            curl "http://${aptly_api_host}/api/repos/${apt_repo_name}/packages?q=$(\
+                printf \
+                    "%s %s\n" \
+                    "\$Source (kubectl)," \
+                    "\$Version (= ${pkg_version})" \
+                | jq --raw-input --raw-output '@uri' \
+            )" \
+            | jq length \
+        )" = 0 \
+    ]; then
+        printf \
+            "\n%s: %s\n" \
+            "${PROGNAME}" \
+            "uploading kubectl version: ${pkg_version}"
+
+        curl \
+            --request "POST" \
+            --form "file=@./${pkg_filename}" \
+            "http://${aptly_api_host}/api/files/tmp"
+
+        curl \
+            --request "POST" \
+            "http://${aptly_api_host}/api/repos/${apt_repo_name}/file/tmp/${pkg_filename}"
+
+        curl \
+            --request "PUT" \
+            --header "Content-Type: application/json" \
+            --data "{
+                \"Architectures\": [\"amd64\"],
+                \"Distribution\": \"${apt_repo_name}\",
+                \"SourceKind\": \"local\",
+                \"Signing\": {
+                    \"GpgKey\": \"${gpg_keyid}\",
+                    \"Passphrase\": \"${GPG_PASSPHRASE}\"
+                },
+                \"Sources\": [{\"Name\": \"${apt_repo_name}\"}]
+            }" \
+            "http://${aptly_api_host}/api/publish/filesystem:debs:./${apt_repo_name}"
+    fi
+done
+
+exit 0

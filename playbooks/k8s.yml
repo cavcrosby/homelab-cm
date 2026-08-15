@@ -168,6 +168,7 @@
   tags: install_k8s_apps
   vars_files:
     - "{{ network_configs_path }}"
+    - "{{ k8s_configs_path }}"
     - k8s_apps_versions.yml
     - ansible_secrets.yml
   vars:
@@ -334,7 +335,7 @@
           Architectures:
             - amd64
           Signing:
-            GpgKey: F933C810420CF3B5
+            GpgKey: "{{ aptly_gpg_keyid_any }}"
             Passphrase: "{{ aptly_gpg_key_passphrase_any }}"
       changed_when: true
       when: published_info_apt_repo_any.status == 404
