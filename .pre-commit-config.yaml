@@ -170,3 +170,12 @@ repos:
     rev: v0.12.0
     hooks:
       - id: shellcheck
+
+  - repo: https://github.com/cavcrosby/shellcheck-precommit.git
+    rev: v0.12.0
+    hooks:
+      - id: shellcheck
+        name: shellcheck (Jinja templates)
+        files: ^playbooks/templates/import-kubectl-pkgs\.j2
+        types:
+          - jinja

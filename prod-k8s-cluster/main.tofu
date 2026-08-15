@@ -169,6 +169,7 @@ module "talos_machine_bootstrap" {
 resource "local_file" "k8s_configs" {
   filename = "${path.root}/../playbooks/vars/k8s_configs.yml"
   content = yamlencode({
+    k8s_cluster_domain = module.talos_machine_bootstrap.k8s_cluster_domain
     k8s_http_ingresses = [
       for node in local.nodes : node.hostname
     ]

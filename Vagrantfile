@@ -415,7 +415,8 @@ _EOF_
             ansible.extra_vars = {
               network_configs_path: File.join("..", VAGRANT_NETWORK_CONFIGS_PATH[1..VAGRANT_NETWORK_CONFIGS_PATH.length]),
               talosconfig_path: "../localhost-k8s-cluster/talosconfig",
-              kubeconfig_path: "../localhost-k8s-cluster/kubeconfig"
+              kubeconfig_path: "../localhost-k8s-cluster/kubeconfig",
+              k8s_configs_path: "../.vagrant/k8s_configs.yml"
             }.merge(ansible_extra_vars)
           end
         else

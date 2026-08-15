@@ -1,5 +1,6 @@
 locals {
-  talos_version = "v1.11.5"
+  talos_version      = "v1.11.5"
+  k8s_cluster_domain = "k8s.${var.k8s_base_domain}"
   endpoints_addrs = [
     for normalized_node in local.normalized_nodes : normalized_node.mgmt_ipv4_addr
     if normalized_node.type == "controlplane"
@@ -97,7 +98,7 @@ data "talos_machine_configuration" "controlplanes" {
             secret      = talos_machine_secrets.this.machine_secrets.cluster.secret
             clusterName = var.k8s_cluster_name
             network = {
-              dnsDomain      = "k8s.${var.k8s_base_domain}"
+              dnsDomain      = local.k8s_cluster_domain
               podSubnets     = ["172.16.0.0/16"]
               serviceSubnets = ["172.17.0.0/23"]
             }
@@ -180,7 +181,7 @@ data "talos_machine_configuration" "workers" {
             secret      = talos_machine_secrets.this.machine_secrets.cluster.secret
             clusterName = var.k8s_cluster_name
             network = {
-              dnsDomain      = "k8s.${var.k8s_base_domain}"
+              dnsDomain      = local.k8s_cluster_domain
               podSubnets     = ["172.16.0.0/16"]
               serviceSubnets = ["172.17.0.0/23"]
             }
