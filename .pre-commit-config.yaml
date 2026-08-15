@@ -46,7 +46,7 @@ repos:
         entry: prettier --write
         language: node
         exclude: |
-          (?x)(
+          (?x)^(
             ansible/\S+
             |node_modules/\S+
             |vendor/\S+
