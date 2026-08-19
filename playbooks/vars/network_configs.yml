@@ -12,7 +12,7 @@ vpn_network_clients:
     address: 192.168.0.45/24
   - pubkey: jKADq3XliV2+u9pKqBaOYVc+FK3U0EKkJ2xwrkJ6dC0=
     address: 192.168.0.46/24
-  - pubkey: MGi9HXdavU5tR/uj9TbRBxVd2VDebyLww8fOKnv/HiE=
+  - pubkey: i4hfEIdqMm+CSb4vDhSADr26/y9fL8XsyTGGSSc7fDU=
     address: 192.168.0.47/24
   - pubkey: mR1PkypwAOR8QPs49O2D2yecpJTYxn9WmyKO7//R+mk=
     address: 192.168.0.48/24
