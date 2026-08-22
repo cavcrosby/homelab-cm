@@ -47,7 +47,7 @@ spec:
     spec:
       containers:
         - name: kiwix-serve
-          image: ghcr.io/kiwix/kiwix-serve@{{ kiwix_serve_image_digest }}
+          image: ghcr.io/kiwix/kiwix-serve:{{ kiwix_serve_image_version }}
           args:
             - /mnt/*.zim
           env:
