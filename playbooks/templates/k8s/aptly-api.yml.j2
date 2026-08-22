@@ -313,9 +313,8 @@ spec:
     spec:
       containers:
         - name: caddy
-          image: cavcrosby/caddy:{{ caddy_image_version }}
-          command:
-           - caddy
+          image: 11notes/caddy:{{ caddy_image_version }}
+          args:
            - file-server
            - --browse
            - --root
