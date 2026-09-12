@@ -1,0 +1,22 @@
+betterleaksMinVersion = "v1.8.1"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "aptly-header-passphrase"
+confidence = "high"
+regex = '''Passphrase: (.+)'''
+filter = '''
+filter.matchesAny(finding["secret"], [`\{\{.*\}\}`])
+'''
+
+[[rules]]
+id = "aptly-k8s-secret-gpg-key"
+confidence = "high"
+regex = '''\s+key: (.+)|\s+passphrase: (.+)'''
+filter = '''
+filter.entropy(finding["secret"]) < 3.5
+|| filter.tokenRatio(finding["secret"]) >= 2.5
+|| filter.matchesAny(finding["secret"], [`\{\{.*\}\}`])
+'''
