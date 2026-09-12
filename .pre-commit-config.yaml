@@ -83,10 +83,10 @@ repos:
           - ansible-lint ==25.9.2
           - pyspellchecker ==0.8.3
 
-  - repo: https://github.com/gitleaks/gitleaks.git
-    rev: v8.28.0
+  - repo: https://github.com/betterleaks/betterleaks.git
+    rev: v1.8.1
     hooks:
-      - id: gitleaks
+      - id: betterleaks
 
   - repo: https://github.com/pre-commit/mirrors-mypy.git
     rev: v1.18.2

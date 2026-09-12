@@ -33,20 +33,23 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: gpg-keys
+  name: any-gpg-key
   namespace: {{ namespace_ }}
 data:
-  aptly-any.gpg: {{ encoded_aptly_gpg_key_any }}
-  aptly-trixie.gpg: {{ encoded_aptly_gpg_key_trixie }}
+  key: {{ encoded_aptly_gpg_key_any }}
+stringData:
+  passphrase: "{{ aptly_gpg_key_passphrase_any }}"
 
 ---
 apiVersion: v1
 kind: Secret
 metadata:
-  name: gpg-passphrases
+  name: trixie-gpg-key
   namespace: {{ namespace_ }}
+data:
+  key: {{ encoded_aptly_gpg_key_trixie }}
 stringData:
-  aptly-any: "{{ aptly_gpg_key_passphrase_any }}"
+  passphrase: {{ aptly_gpg_key_passphrase_trixie }}
 
 ---
 apiVersion: v1
@@ -243,8 +246,18 @@ spec:
           configMap:
             name: aptly-conf
         - name: gpg-keys
-          secret:
-            secretName: gpg-keys
+          projected:
+            sources:
+              - secret:
+                  name: any-gpg-key
+                  items:
+                    - key: key
+                      path: aptly-any.gpg
+              - secret:
+                  name: trixie-gpg-key
+                  items:
+                    - key: key
+                      path: aptly-trixie.gpg
 
 ---
 apiVersion: v1
@@ -413,8 +426,8 @@ spec:
                 - name: GPG_PASSPHRASE
                   valueFrom:
                     secretKeyRef:
-                      name: gpg-passphrases
-                      key: aptly-any
+                      name: any-gpg-key
+                      key: passphrase
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
