@@ -56,6 +56,7 @@ repos:
         types_or:
           - markdown
           - yaml
+          - json
         additional_dependencies:
           - prettier@3.6.2
 

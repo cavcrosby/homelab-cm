@@ -1,26 +1,21 @@
 {
-    "ansible_host_vars": {
-        "host1": {
-            "host_var1": "foo",
-            "vagrant_config_refs": {
-                "host_var2": "host_var1"
-            }
-        },
-        "host2": {
-            "host_var4": "bar"
-        }
+  "ansible_host_vars": {
+    "host1": {
+      "host_var1": "foo",
+      "vagrant_config_refs": {
+        "host_var2": "host_var1"
+      }
     },
-    "ansible_groups": {
-        "hosts": [
-            "host1",
-            "host2"
-        ],
-        "all:vars": {
-            "ansible_user": "vagrant",
-            "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
-        }
-    },
-    "vms_include": [
-        "host1"
-    ]
+    "host2": {
+      "host_var4": "bar"
+    }
+  },
+  "ansible_groups": {
+    "hosts": ["host1", "host2"],
+    "all:vars": {
+      "ansible_user": "vagrant",
+      "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"
+    }
+  },
+  "vms_include": ["host1"]
 }

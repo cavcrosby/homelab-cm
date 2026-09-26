@@ -1,124 +1,98 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "separateMajorMinor": false,
-    "extends": [
-        "config:recommended"
-    ],
-    "pre-commit": {
-        "enabled": true,
-        "groupName": "lock file maintenance"
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "separateMajorMinor": false,
+  "extends": ["config:recommended"],
+  "pre-commit": {
+    "enabled": true,
+    "groupName": "lock file maintenance"
+  },
+  "lockFileMaintenance": {
+    "enabled": true
+  },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["scripts/chk-vagrant-pkg"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\nreadonly VAGRANT_UPSTREAM_VERSION=\"(?<currentValue>\\S+)\""
+      ]
     },
-    "lockFileMaintenance": {
-        "enabled": true
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/\\S+\\.tofu/"],
+      "matchStrings": [
+        "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
+        "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*version\\s+=\\s+\"(?<currentValue>.+)\""
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "groupName": "development dependencies",
+      "matchManagers": ["pre-commit"]
     },
-    "customManagers": [
-        {
-            "customType": "regex",
-            "managerFilePatterns": [
-                "scripts/chk-vagrant-pkg"
-            ],
-            "matchStrings": [
-                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\nreadonly VAGRANT_UPSTREAM_VERSION=\"(?<currentValue>\\S+)\""
-            ]
-        },
-        {
-            "customType": "regex",
-            "managerFilePatterns": [
-                "/\\S+\\.tofu/"
-            ],
-            "matchStrings": [
-                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*required_version\\s+=\\s+\"(?<currentValue>.+)\"",
-                "# renovate: datasource=(?<datasource>\\S+) packageName=(?<packageName>\\S+) versioning=(?<versioning>\\S+)\\n\\s*version\\s+=\\s+\"(?<currentValue>.+)\""
-            ]
-        }
-    ],
-    "packageRules": [
-        {
-            "groupName": "development dependencies",
-            "matchManagers": [
-                "pre-commit"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "matchPackageNames": [
-                "ansible-core",
-                "boto3",
-                "jmespath",
-                "kubernetes",
-                "libvirt-python",
-                "lxml",
-                "netaddr",
-                "pyyaml"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "matchManagers": [
-                "ansible-galaxy"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "matchPackageNames": [
-                "opentofu/opentofu"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "enabled": false,
-            "matchPackageNames": [
-                "hashicorp/terraform"
-            ]
-        },
-        {
-            "groupName": "dependencies",
-            "registryUrls": [
-                "https://registry.opentofu.org"
-            ],
-            "matchDatasources": [
-                "terraform-provider",
-                "terraform-module"
-            ]
-        },
-        {
-            "groupName": "development dependencies",
-            "matchPackageNames": [
-                "@bitwarden/cli",
-                "ansible-lint",
-                "boto3-stubs",
-                "ipaddress",
-                "markdownlint-cli2",
-                "molecule",
-                "molecule-plugins",
-                "mypy",
-                "pre-commit",
-                "prettier",
-                "pyspellchecker",
-                "pytest",
-                "ruff",
-                "tombi",
-                "vagrant-libvirt"
-            ]
-        },
-        {
-            "groupName": "development dependencies",
-            "matchDatasources": [
-                "node-version",
-                "python-version"
-            ]
-        },
-        {
-            "groupName": "development dependencies",
-            "matchPackageNames": [
-                "hashicorp/vagrant"
-            ]
-        },
-        {
-            "enabled": false,
-            "matchFileNames": [
-                "mitmproxy/requirements-dev.txt"
-            ]
-        }
-    ]
+    {
+      "groupName": "dependencies",
+      "matchPackageNames": [
+        "ansible-core",
+        "boto3",
+        "jmespath",
+        "kubernetes",
+        "libvirt-python",
+        "lxml",
+        "netaddr",
+        "pyyaml"
+      ]
+    },
+    {
+      "groupName": "dependencies",
+      "matchManagers": ["ansible-galaxy"]
+    },
+    {
+      "groupName": "dependencies",
+      "matchPackageNames": ["opentofu/opentofu"]
+    },
+    {
+      "groupName": "dependencies",
+      "enabled": false,
+      "matchPackageNames": ["hashicorp/terraform"]
+    },
+    {
+      "groupName": "dependencies",
+      "registryUrls": ["https://registry.opentofu.org"],
+      "matchDatasources": ["terraform-provider", "terraform-module"]
+    },
+    {
+      "groupName": "development dependencies",
+      "matchPackageNames": [
+        "@bitwarden/cli",
+        "ansible-lint",
+        "boto3-stubs",
+        "ipaddress",
+        "markdownlint-cli2",
+        "molecule",
+        "molecule-plugins",
+        "mypy",
+        "pre-commit",
+        "prettier",
+        "pyspellchecker",
+        "pytest",
+        "ruff",
+        "tombi",
+        "vagrant-libvirt"
+      ]
+    },
+    {
+      "groupName": "development dependencies",
+      "matchDatasources": ["node-version", "python-version"]
+    },
+    {
+      "groupName": "development dependencies",
+      "matchPackageNames": ["hashicorp/vagrant"]
+    },
+    {
+      "enabled": false,
+      "matchFileNames": ["mitmproxy/requirements-dev.txt"]
+    }
+  ]
 }
