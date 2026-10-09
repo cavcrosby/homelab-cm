@@ -380,10 +380,10 @@
         body:
           Distribution: trixie
           SourceKind: local
-          Architectures:
-            - amd64
           Sources:
             - Name: trixie
+          Architectures:
+            - amd64
           Signing:
             GpgKey: 1D8C2F68443B30E7
             Passphrase: "{{ aptly_gpg_key_passphrase_trixie }}"
