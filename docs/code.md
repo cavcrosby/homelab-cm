@@ -31,11 +31,6 @@
 
 ### Vagrant
 
-> It should be noted when spinning up the staging/vagrant environment that the
-> last host within the `ansible_host_vars` variable will not receive its
-> management network IP address. Current theory on this is that this is due to
-> Ruby's lazy loading (see b349d3b).
-
 - `vagrant` is assumed to be installed from HashiCorp's package repositories.
 
 - The `Vagrantfile` was written in a similar fashion as

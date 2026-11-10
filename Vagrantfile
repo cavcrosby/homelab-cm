@@ -2,9 +2,9 @@
 # vi: set ft=ruby :
 require 'json'
 require 'nokogiri'
-require 'tempfile'
 require 'fileutils'
 require 'ipaddress'
+require 'libvirt'
 
 VAGRANTFILE_API_VERSION = 2
 SHELL_VARIABLE_REGEXP = /\$([a-zA-Z_]\w*)|\$\{{1}(\w+)\}{1}/
@@ -175,6 +175,8 @@ ansible_host_vars.each do |machine_name, machine_attrs|
   end
 end
 
+
+conn = Libvirt::open()
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   VAGRANT_LIBVIRT_HOMELAB_NETWORK_NAME = "#{ENV['LIBVIRT_PREFIX']}homelab"
   VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME = "#{ENV['LIBVIRT_PREFIX']}mgmt"
@@ -216,7 +218,12 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 _EOF_
 
   counter = 0
-  management_network_defined = system("virsh net-info --network #{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME} > /dev/null 2>&1")
+  begin
+    net = conn.lookup_network_by_name(VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME)
+  rescue Libvirt::RetrieveError
+    net = conn.define_network_xml(@libvirt_management_network_xml.to_xml)
+  end
+
   ansible_host_vars.each do |machine_name, machine_attrs|
     # specific VM configuration
     config.vm.define "#{machine_name}" do |machine|
@@ -252,14 +259,16 @@ _EOF_
           domain.nested = true
         end
 
-        if !management_network_defined and @libvirt_management_network_xml.xpath("//host[@name='#{machine_name}']").empty?
-          host_entry = Nokogiri::XML::Node.new("host", @libvirt_management_network_xml)
-          host_entry["mac"] = machine_attrs["vagrant_vm_mgmt_mac_addr"]
-          host_entry["name"] = "#{machine_name}"
-          host_entry["ip"] = machine_attrs["vagrant_vm_mgmt_ipv4_addr"]
-
-          dhcp = @libvirt_management_network_xml.at_css("dhcp")
-          dhcp << host_entry
+        begin
+          net.update(
+            Libvirt::Network::NETWORK_UPDATE_COMMAND_ADD_LAST,
+            Libvirt::Network::NETWORK_SECTION_IP_DHCP_HOST,
+            0,
+            "<host mac='#{machine_attrs["vagrant_vm_mgmt_mac_addr"]}' name='#{machine_name}' ip='#{machine_attrs["vagrant_vm_mgmt_ipv4_addr"]}'/>",
+            Libvirt::Network::NETWORK_UPDATE_AFFECT_CONFIG
+          )
+        rescue Libvirt::Error
+          # handle net being updated with duplicate entries
         end
 
         if !disks_config.nil?
@@ -279,15 +288,6 @@ _EOF_
       # taking advantage of Ansible's parallelism. Modified to my liking, for reference:
       # https://www.vagrantup.com/docs/provisioning/ansible#ansible-parallel-execution
       if counter == ansible_host_vars.length
-        if !management_network_defined
-          # associates the vagrant management network xml with libvirt
-          xml = Tempfile.new("libvirt-network-#{VAGRANT_LIBVIRT_MANAGEMENT_NETWORK_NAME}.xml")
-          xml.write(@libvirt_management_network_xml.to_xml)
-          xml.close()
-          system("virsh net-define #{xml.path}")
-          xml.unlink()
-        end
-
         ansible_extra_vars = {}
         if !ENV["ANSIBLE_EXTRA_VARS"].empty?
           ENV["ANSIBLE_EXTRA_VARS"].split(/ |=/).each_slice(2) do |var_name, var_value|
