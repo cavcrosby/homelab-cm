@@ -147,14 +147,15 @@ spec:
           containers:
             - name: yq
               image: mikefarah/yq
+              workingDir: /mnt
               args:
                 - --from-file
                 - /etc/yq/record-sets-blob-filter.yq
                 - --split-exp
-                - '"/mnt/change-resource-record-sets.json"'
+                - '"./change-resource-record-sets.json"'
                 - --output-format
                 - json
-                - /mnt/public-ip-addr.txt
+                - ./public-ip-addr.txt
               securityContext:
                 allowPrivilegeEscalation: false
                 runAsNonRoot: true
