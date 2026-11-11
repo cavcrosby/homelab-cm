@@ -29,7 +29,6 @@ ebtables
 en_us
 etc
 executables
-fail2ban
 filesystem
 filesystems
 foo
@@ -38,7 +37,6 @@ grub_cmdline_linux_default
 haproxy
 homelab
 ifnames
-init
 inode
 ip
 ip6tables
@@ -46,7 +44,6 @@ ipset
 ipsets
 iptables
 ipv4
-irc
 iso
 kiwix
 kubelet
@@ -68,15 +65,12 @@ networkmanager
 nfs
 nginx
 pam_access
-permitrootlogin
 py
 python3
 qemu
 se_kiwix_redirect
-sshd
 systemd
 tls
-tmux
 trixie
 udev
 uri
@@ -84,8 +78,6 @@ usa
 userland
 utf
 vpn
-weechat
-weechat's
 wikipedia_kiwix_redirect
 wireguard
 www

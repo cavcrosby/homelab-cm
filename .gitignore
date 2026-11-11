@@ -15,7 +15,6 @@ __pycache__/
 /playbooks/files/gerald.wg0.key
 /playbooks/files/staging-node1.wg0.key
 /playbooks/files/metal-amd64.iso
-/playbooks/files/certs/
 /localhost-k8s-cluster/kubeconfig
 /localhost-k8s-cluster/talosconfig
 /prod-k8s-cluster/kubeconfig

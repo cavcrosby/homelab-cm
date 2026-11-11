@@ -395,21 +395,10 @@
           "hosts": ["talos-*(rw,all_squash)"]
         }
       ]
-    },
-    "irc-client1": {
-      "vagrant_vm_homelab_ipv4_addr": "192.168.1.100",
-      "vagrant_vm_mgmt_ipv4_addr": "192.168.3.4",
-      "vagrant_vm_homelab_mac_addr": "52:54:00:a9:f3:c5",
-      "vagrant_vm_mgmt_mac_addr": "52:54:00:7f:5d:e5",
-      "vagrant_vm_cpus": 1,
-      "vagrant_vm_memory": 512,
-      "vagrant_vm_libvirt_disk_size": 10,
-      "vagrant_vm_box": "debian/bullseye64"
     }
   },
   "ansible_groups": {
     "on_prem:children": ["bare_metal"],
-    "irc_clients": ["irc-client1"],
     "dhcp_servers": ["staging-node1"],
     "dns_servers": ["staging-node1"],
     "load_balancers": ["staging-node1"],

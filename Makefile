@@ -16,12 +16,6 @@ ANSIBLE_SECRETS_FILE = ansible_secrets.yml
 ANSIBLE_SECRETS_FILE_PATH = ${ANSIBLE_SECRETS_DIR_PATH}/${ANSIBLE_SECRETS_FILE}
 BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 
-BITWARDEN_TLS_CERTS_DIR_PATH = ./playbooks/files/certs
-BITWARDEN_TLS_CERTS_ITEMID = 0857a42d-0d60-4ecc-8c43-ae200066a2b3
-BITWARDEN_TLS_CERTS = \
-	liberachat.pem\
-	oftc.pem
-
 BITWARDEN_WIREGUARD_KEYS_DIR_PATH = ./playbooks/files
 BITWARDEN_WIREGUARD_KEYS_ITEMID = e566965b-5509-4241-ab05-b30801168db3
 BITWARDEN_WIREGUARD_KEYS = \
@@ -403,18 +397,6 @@ else
 		--output "${ANSIBLE_SECRETS_DIR_PATH}/"
 
 >	${ANSIBLE_VAULT} decrypt "${ANSIBLE_SECRETS_FILE_PATH}"
-
->	@for tls_cert in ${BITWARDEN_TLS_CERTS}; do \
-		echo ${NPX} ${BW} get attachment \
-			"$${tls_cert}" \
-			--itemid \"${BITWARDEN_TLS_CERTS_ITEMID}\" \
-			--output \"${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}\"; \
-		\
-		${NPX} ${BW} get attachment \
-			"$${tls_cert}" \
-			--itemid "${BITWARDEN_TLS_CERTS_ITEMID}" \
-			--output "${BITWARDEN_TLS_CERTS_DIR_PATH}/$${tls_cert}"; \
-	done
 
 >	@for wireguard_key in ${BITWARDEN_WIREGUARD_KEYS}; do \
 		echo ${NPX} ${BW} get attachment \

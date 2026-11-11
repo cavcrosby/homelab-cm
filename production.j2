@@ -7,13 +7,6 @@ all:
             bare_metal:
           vars:
             preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-        irc_clients:
-          children:
-            lightsail_instances:
-              hosts:
-                milo:
-                  ansible_host: 35.168.24.181
-                  ansible_user: admin
         dhcp_servers:
           hosts:
             gerald:
