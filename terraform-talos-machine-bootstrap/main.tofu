@@ -229,7 +229,11 @@ resource "talos_cluster_kubeconfig" "this" {
   node                 = local.endpoints_addrs[0]
 }
 
-resource "local_file" "kubeconfig" {
-  filename = "${path.root}/kubeconfig"
+resource "local_file" "kubeconfigs" {
+  for_each = toset([
+    "${path.root}/kubeconfig",
+    pathexpand("~/.kube/${var.k8s_cluster_name}"),
+  ])
+  filename = each.value
   content  = talos_cluster_kubeconfig.this.kubeconfig_raw
 }
