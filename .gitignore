@@ -12,8 +12,8 @@ __pycache__/
 /ansible/
 /playbooks/vars/ansible_secrets.yml
 /playbooks/vars/k8s_configs.yml
-/playbooks/files/gerald.wg0.key
-/playbooks/files/staging-node1.wg0.key
+/playbooks/files/hp-compat-6200-2ua.wg0.key
+/playbooks/files/util-server-iy5.wg0.key
 /playbooks/files/metal-amd64.iso
 /localhost-k8s-cluster/kubeconfig
 /localhost-k8s-cluster/talosconfig

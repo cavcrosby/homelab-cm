@@ -19,8 +19,8 @@ BITWARDEN_ANSIBLE_SECRETS_ITEMID = a50012a3-3685-454c-b480-adf300ec834c
 BITWARDEN_WIREGUARD_KEYS_DIR_PATH = ./playbooks/files
 BITWARDEN_WIREGUARD_KEYS_ITEMID = e566965b-5509-4241-ab05-b30801168db3
 BITWARDEN_WIREGUARD_KEYS = \
-	gerald.wg0.key\
-	staging-node1.wg0.key
+	hp-compat-6200-2ua.wg0.key\
+	util-server-iy5.wg0.key
 
 export PROJECT_VAGRANT_CONFIGURATION_FILE = vagrant_ansible_vars.json
 export ANSIBLE_CONFIG = ./ansible.cfg

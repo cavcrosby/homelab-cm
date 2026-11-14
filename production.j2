@@ -6,19 +6,19 @@ all:
           children:
             bare_metal:
           vars:
-            preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
+            preferred_nameserver: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
         dhcp_servers:
           hosts:
-            gerald:
-              ansible_host: {{ gerald_homelab_ipv4_addr }}
+            hp-compat-6200-2ua:
+              ansible_host: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
               ansible_user: ansible
               dnsmasq_dhcp_config_file_template: prod-dnsmasq-dhcp.conf.j2
               dnsmasq_dns_config_file_template: prod-dnsmasq-dns.conf.j2
-              wireguard_network_interface_name: {{ gerald_wireguard_network_interface_name }}
+              wireguard_network_interface_name: {{ hp_compat_6200_2ua_wireguard_network_interface_name }}
               haproxy_config_file_template: haproxy.cfg.j2
-              dnsmasq_dhcp_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
-              homelab_dnsmasq_dns_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
-              load_balancer_listen_ipv4_addr: {{ gerald_homelab_ipv4_addr }}
+              dnsmasq_dhcp_listen_ipv4_addr: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
+              homelab_dnsmasq_dns_listen_ipv4_addr: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
+              load_balancer_listen_ipv4_addr: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
               wikipedia_zim_name: wikipedia_en_all
               se_domains:
                 - askubuntu.com
@@ -28,26 +28,26 @@ all:
                 - superuser.com
                 - unix.stackexchange.com
               systemd_networkd_files:
-                - filename: 00-{{ gerald_homelab_network_interface_name }}.link
+                - filename: 00-{{ hp_compat_6200_2ua_homelab_network_interface_name }}.link
                   Match:
-                    MACAddress: {{ gerald_homelab_mac_addr }}
+                    MACAddress: {{ hp_compat_6200_2ua_homelab_mac_addr }}
                   Link:
-                    Name: {{ gerald_homelab_network_interface_name }}
-                - filename: 00-{{ gerald_homelab_network_interface_name }}.network
+                    Name: {{ hp_compat_6200_2ua_homelab_network_interface_name }}
+                - filename: 00-{{ hp_compat_6200_2ua_homelab_network_interface_name }}.network
                   Match:
-                    Name: {{ gerald_homelab_network_interface_name }}
+                    Name: {{ hp_compat_6200_2ua_homelab_network_interface_name }}
                   Network:
-                    Address: {{ gerald_homelab_ipv4_addr }}/24
+                    Address: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}/24
                     Gateway: {{ homelab_network_gateway_ipv4_addr }}
                   DHCPv4:
                     UseHostname: false
-                - filename: 00-{{ gerald_wireguard_network_interface_name }}.netdev
+                - filename: 00-{{ hp_compat_6200_2ua_wireguard_network_interface_name }}.netdev
                   NetDev:
-                    Name: {{ gerald_wireguard_network_interface_name }}
+                    Name: {{ hp_compat_6200_2ua_wireguard_network_interface_name }}
                     Kind: wireguard
                   WireGuard:
-                    PrivateKeyFile: /etc/systemd/network/{{ gerald_wireguard_network_interface_name }}.key
-                    ListenPort: {{ gerald_wireguard_server_port }}
+                    PrivateKeyFile: /etc/systemd/network/{{ hp_compat_6200_2ua_wireguard_network_interface_name }}.key
+                    ListenPort: {{ hp_compat_6200_2ua_wireguard_server_port }}
                   WireGuardPeer:
                     - PublicKey: {{ vpn_network_clients[0].pubkey }}
                       AllowedIPs: 192.168.0.45/32
@@ -57,36 +57,36 @@ all:
                       AllowedIPs: 192.168.0.47/32
                     - PublicKey: {{ vpn_network_clients[3].pubkey }}
                       AllowedIPs: 192.168.0.48/32
-                - filename: 00-{{ gerald_wireguard_network_interface_name }}.network
+                - filename: 00-{{ hp_compat_6200_2ua_wireguard_network_interface_name }}.network
                   Match:
-                    Name: {{ gerald_wireguard_network_interface_name }}
+                    Name: {{ hp_compat_6200_2ua_wireguard_network_interface_name }}
                   Network:
-                    Address: {{ gerald_homelab_wireguard_ipv4_addr }}/32
+                    Address: {{ hp_compat_6200_2ua_homelab_wireguard_ipv4_addr }}/32
                   Route:
                     - Scope: link
-                      Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                      Source: {{ hp_compat_6200_2ua_homelab_wireguard_ipv4_addr }}/24
                       Destination: 192.168.0.45/32
                     - Scope: link
-                      Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                      Source: {{ hp_compat_6200_2ua_homelab_wireguard_ipv4_addr }}/24
                       Destination: 192.168.0.46/32
                     - Scope: link
-                      Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                      Source: {{ hp_compat_6200_2ua_homelab_wireguard_ipv4_addr }}/24
                       Destination: 192.168.0.47/32
                     - Scope: link
-                      Source: {{ gerald_homelab_wireguard_ipv4_addr }}/24
+                      Source: {{ hp_compat_6200_2ua_homelab_wireguard_ipv4_addr }}/24
                       Destination: 192.168.0.48/32
         dns_servers:
           hosts:
-            gerald:
+            hp-compat-6200-2ua:
         load_balancers:
           hosts:
-            gerald:
+            hp-compat-6200-2ua:
         vmms:
           hosts:
-            kronk:
-              ansible_host: {{ kronk_homelab_ipv4_addr }}
+            dell-t630-7m0:
+              ansible_host: {{ dell_t630_7m0_homelab_ipv4_addr }}
               ansible_user: ansible
-              homelab_network_bridge_interface_name: {{ kronk_homelab_network_bridge_interface_name }}
+              homelab_network_bridge_interface_name: {{ dell_t630_7m0_homelab_network_bridge_interface_name }}
               lvm_disks_config:
                 vgs:
                   - name: vgnfs
@@ -129,70 +129,70 @@ all:
                   hosts:
                     - talos-*(rw,all_squash)
               systemd_networkd_files:
-                - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.netdev
+                - filename: 00-{{ dell_t630_7m0_homelab_network_bridge_interface_name }}.netdev
                   NetDev:
-                    Name: {{ kronk_homelab_network_bridge_interface_name }}
+                    Name: {{ dell_t630_7m0_homelab_network_bridge_interface_name }}
                     Kind: bridge
                     MACAddress: none
-                - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.link
+                - filename: 00-{{ dell_t630_7m0_homelab_network_bridge_interface_name }}.link
                   Match:
-                    OriginalName: {{ kronk_homelab_network_bridge_interface_name }}
+                    OriginalName: {{ dell_t630_7m0_homelab_network_bridge_interface_name }}
                   Link:
                     MACAddressPolicy: none
-                - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}.network
+                - filename: 00-{{ dell_t630_7m0_homelab_network_bridge_interface_name }}.network
                   Match:
-                    Name: {{ kronk_homelab_network_bridge_interface_name }}
+                    Name: {{ dell_t630_7m0_homelab_network_bridge_interface_name }}
                   Link:
                     RequiredForOnline: routable
                   Network:
                     DHCP: yes
-                - filename: 00-{{ kronk_homelab_network_interface_name }}.link
+                - filename: 00-{{ dell_t630_7m0_homelab_network_interface_name }}.link
                   Match:
-                    MACAddress: {{ kronk_homelab_mac_addr }}
+                    MACAddress: {{ dell_t630_7m0_homelab_mac_addr }}
                   Link:
-                    Name: {{ kronk_homelab_network_interface_name }}
-                - filename: 00-{{ kronk_homelab_network_bridge_interface_name }}-{{ kronk_homelab_network_interface_name }}.network
+                    Name: {{ dell_t630_7m0_homelab_network_interface_name }}
+                - filename: 00-{{ dell_t630_7m0_homelab_network_bridge_interface_name }}-{{ dell_t630_7m0_homelab_network_interface_name }}.network
                   Match:
-                    Name: {{ kronk_homelab_network_interface_name }}
+                    Name: {{ dell_t630_7m0_homelab_network_interface_name }}
                   Network:
-                    Bridge: {{ kronk_homelab_network_bridge_interface_name }}
+                    Bridge: {{ dell_t630_7m0_homelab_network_bridge_interface_name }}
         nfs_servers:
           hosts:
-            kronk:
+            dell-t630-7m0:
         proxy_servers:
           hosts:
-            gerald:
+            hp-compat-6200-2ua:
         vpn_servers:
           hosts:
-            gerald:
+            hp-compat-6200-2ua:
         bare_metal:
           hosts:
-            gerald:
-            kronk:
+            hp-compat-6200-2ua:
+            dell-t630-7m0:
   hosts:
     localhost:
       ansible_host: 127.0.0.1
       ansible_connection: local
       vpn_network_subnet: {{ homelab_network_subnet }}
-      homelab_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-      vpn_preferred_nameserver: {{ gerald_homelab_ipv4_addr }}
-      wireguard_endpoint: vpn.{{ homelab_network_domain }}:{{ gerald_wireguard_server_port }}
+      homelab_preferred_nameserver: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
+      vpn_preferred_nameserver: {{ hp_compat_6200_2ua_homelab_ipv4_addr }}
+      wireguard_endpoint: vpn.{{ homelab_network_domain }}:{{ hp_compat_6200_2ua_wireguard_server_port }}
       cert_manager_secrets_manifest_template: k8s/prod-cert-manager-secrets.yml.j2
       letsencrypt_server_url: https://acme-v02.api.letsencrypt.org/directory
       nfs_exports_config:
-        - host: kronk
+        - host: dell-t630-7m0
           device: /srv/nfs/zims
           name: zims
-        - host: kronk
+        - host: dell-t630-7m0
           device: /srv/nfs/cache
           name: cache
-        - host: kronk
+        - host: dell-t630-7m0
           device: /srv/nfs/aptly-api
           name: aptly-api
-        - host: kronk
+        - host: dell-t630-7m0
           device: /srv/nfs/debs
           name: debs
-        - host: kronk
+        - host: dell-t630-7m0
           device: /srv/nfs/caddy
           name: caddy
       zim_jobs_manifest_configs:

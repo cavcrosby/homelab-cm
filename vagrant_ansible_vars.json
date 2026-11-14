@@ -1,6 +1,6 @@
 {
   "ansible_host_vars": {
-    "staging-node1": {
+    "util-server-iy5": {
       "vagrant_vm_homelab_ipv4_addr": "192.168.1.2",
       "vagrant_vm_mgmt_ipv4_addr": "192.168.3.2",
       "vagrant_vm_vpn_ipv4_addr": "192.168.4.2",
@@ -186,7 +186,7 @@
       },
       "se_domains": ["computergraphics.stackexchange.com"]
     },
-    "vmm1": {
+    "libvirt-server-ot8": {
       "vagrant_vm_homelab_ipv4_addr": "192.168.1.3",
       "vagrant_vm_mgmt_ipv4_addr": "192.168.3.3",
       "vagrant_vm_vpn_ipv4_addr": "192.168.4.4",
@@ -399,14 +399,14 @@
   },
   "ansible_groups": {
     "on_prem:children": ["bare_metal"],
-    "dhcp_servers": ["staging-node1"],
-    "dns_servers": ["staging-node1"],
-    "load_balancers": ["staging-node1"],
-    "vmms": ["vmm1"],
-    "nfs_servers": ["vmm1"],
-    "proxy_servers": ["staging-node1"],
-    "vpn_servers": ["staging-node1"],
-    "bare_metal": ["staging-node1", "vmm1"],
+    "dhcp_servers": ["util-server-iy5"],
+    "dns_servers": ["util-server-iy5"],
+    "load_balancers": ["util-server-iy5"],
+    "vmms": ["libvirt-server-ot8"],
+    "nfs_servers": ["libvirt-server-ot8"],
+    "proxy_servers": ["util-server-iy5"],
+    "vpn_servers": ["util-server-iy5"],
+    "bare_metal": ["util-server-iy5", "libvirt-server-ot8"],
     "all:vars": {
       "ansible_user": "vagrant",
       "ansible_ssh_common_args": "'-o StrictHostKeyChecking=no'"

@@ -32,7 +32,7 @@ locals {
         mode      = "bridge"
       }
       tags = {
-        bridge_interface_name = local.network_configs.kronk_homelab_network_bridge_interface_name
+        bridge_interface_name = local.network_configs.dell_t630_7m0_homelab_network_bridge_interface_name
         k8s_endpoint_vip      = local.network_configs.homelab_network_k8s_endpoint_vip
         is_k8s_network        = false
         is_mgmt_network       = true
@@ -55,12 +55,12 @@ locals {
 }
 
 provider "libvirt" {
-  uri = "qemu+ssh://libvirt@${local.network_configs.kronk_homelab_ipv4_addr}/system"
+  uri = "qemu+ssh://libvirt@${local.network_configs.dell_t630_7m0_homelab_ipv4_addr}/system"
 }
 
 resource "random_string" "domains_suffixes" {
   count   = local.k8s_controlplane_count + local.k8s_worker_count
-  length  = 6
+  length  = 3
   special = false
   upper   = false
 }
@@ -71,7 +71,7 @@ locals {
     for index in range(local.k8s_controlplane_count + local.k8s_worker_count) :
     index => {
       type   = index < local.k8s_controlplane_count ? "controlplane" : "worker"
-      name   = "talos-${substr(random_string.domains_suffixes[index].result, 0, 3)}-${substr(random_string.domains_suffixes[index].result, 3, 3)}"
+      name   = "talos-${index < local.k8s_controlplane_count ? "controlplane" : "worker"}-${random_string.domains_suffixes[index].result}"
       vcpu   = index < local.k8s_controlplane_count ? 4 : 2
       memory = index < local.k8s_controlplane_count ? 4096 : 2048
       size   = local.one_gib * 100
@@ -155,7 +155,7 @@ module "talos_machine_bootstrap" {
           machine = {
             network = {
               nameservers = [
-                local.network_configs.gerald_homelab_ipv4_addr,
+                local.network_configs.hp_compat_6200_2ua_homelab_ipv4_addr,
                 local.network_configs.homelab_network_gateway_ipv4_addr,
               ]
             }

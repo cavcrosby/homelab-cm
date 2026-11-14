@@ -17,17 +17,17 @@ vpn_network_clients:
   - pubkey: mR1PkypwAOR8QPs49O2D2yecpJTYxn9WmyKO7//R+mk=
     address: 192.168.0.48/24
 
-gerald_homelab_network_interface_name: en0
-gerald_wireguard_network_interface_name: wg0
-gerald_wireguard_server_port: 9490
-gerald_homelab_mac_addr: 3C:D9:2B:56:A5:4B
-gerald_homelab_ipv4_addr: 192.168.0.2
-gerald_homelab_wireguard_ipv4_addr: 192.168.0.3
+hp_compat_6200_2ua_homelab_network_interface_name: en0
+hp_compat_6200_2ua_wireguard_network_interface_name: wg0
+hp_compat_6200_2ua_wireguard_server_port: 9490
+hp_compat_6200_2ua_homelab_mac_addr: 3C:D9:2B:56:A5:4B
+hp_compat_6200_2ua_homelab_ipv4_addr: 192.168.0.2
+hp_compat_6200_2ua_homelab_wireguard_ipv4_addr: 192.168.0.3
 
-kronk_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
-kronk_idrac_homelab_ipv4_addr: 192.168.0.4
+dell_t630_7m0_idrac_homelab_mac_addr: 18:66:DA:6B:8D:0D
+dell_t630_7m0_idrac_homelab_ipv4_addr: 192.168.0.4
 
-kronk_homelab_network_interface_name: en0
-kronk_homelab_network_bridge_interface_name: virbr0
-kronk_homelab_mac_addr: 18:66:DA:6B:8D:0B
-kronk_homelab_ipv4_addr: 192.168.0.5
+dell_t630_7m0_homelab_network_interface_name: en0
+dell_t630_7m0_homelab_network_bridge_interface_name: virbr0
+dell_t630_7m0_homelab_mac_addr: 18:66:DA:6B:8D:0B
+dell_t630_7m0_homelab_ipv4_addr: 192.168.0.5

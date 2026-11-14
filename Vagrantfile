@@ -28,7 +28,7 @@ if VAGRANT_CONFIG_JSON.key?("vms_include")
 end
 
 vagrant_homelab_network_configs = {
-  "preferred_nameserver" => ansible_host_vars["staging-node1"]["vagrant_vm_homelab_ipv4_addr"],
+  "preferred_nameserver" => ansible_host_vars["util-server-iy5"]["vagrant_vm_homelab_ipv4_addr"],
   "homelab_network_domain" => VAGRANT_LIBVIRT_HOMELAB_DOMAIN,
   "homelab_network_k8s_endpoint_vip" => "192.168.1.4",
   "homelab_network_subnet" => "192.168.1.0/24",
@@ -295,9 +295,9 @@ _EOF_
           end
         end
 
-        ansible_host_vars["staging-node1"]["se_domains"] = "'#{ansible_host_vars["staging-node1"]["se_domains"].to_json}'"
-        ansible_host_vars["vmm1"]["nfs_exports_config"] = "'#{ansible_host_vars["vmm1"]["nfs_exports_config"].to_json}'"
-        vagrant_homelab_network_configs["vmm1_homelab_network_bridge_interface_name"] = ansible_host_vars["vmm1"]["homelab_network_bridge_interface_name"]
+        ansible_host_vars["util-server-iy5"]["se_domains"] = "'#{ansible_host_vars["util-server-iy5"]["se_domains"].to_json}'"
+        ansible_host_vars["libvirt-server-ot8"]["nfs_exports_config"] = "'#{ansible_host_vars["libvirt-server-ot8"]["nfs_exports_config"].to_json}'"
+        vagrant_homelab_network_configs["libvirt_server_ot8_homelab_network_bridge_interface_name"] = ansible_host_vars["libvirt-server-ot8"]["homelab_network_bridge_interface_name"]
 
         # write out the vagrant network configuration to be consumed by the playbooks
         File.write(VAGRANT_NETWORK_CONFIGS_PATH, vagrant_homelab_network_configs.to_yaml)
@@ -322,9 +322,9 @@ _EOF_
                   "localhost" => {
                     "ansible_host" => "127.0.0.1",
                     "ansible_connection" => "local",
-                    "homelab_preferred_nameserver" => ansible_host_vars["staging-node1"]["homelab_dnsmasq_dns_listen_ipv4_addr"],
-                    "vpn_preferred_nameserver" => ansible_host_vars["staging-node1"]["vpn_dnsmasq_dns_listen_ipv4_addr"],
-                    "wireguard_endpoint" => "vpn.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}:#{ansible_host_vars['staging-node1']['wireguard_server_port']}"
+                    "homelab_preferred_nameserver" => ansible_host_vars["util-server-iy5"]["homelab_dnsmasq_dns_listen_ipv4_addr"],
+                    "vpn_preferred_nameserver" => ansible_host_vars["util-server-iy5"]["vpn_dnsmasq_dns_listen_ipv4_addr"],
+                    "wireguard_endpoint" => "vpn.#{VAGRANT_LIBVIRT_HOMELAB_DOMAIN}:#{ansible_host_vars['util-server-iy5']['wireguard_server_port']}"
                   }
                 }
               }
@@ -364,27 +364,27 @@ _EOF_
                     "validate_certs" => false,
                     "nfs_exports_config" => [
                       {
-                        "host" => "vmm1",
+                        "host" => "libvirt-server-ot8",
                         "device" => "/srv/nfs/zims",
                         "name" => "zims",
                       },
                       {
-                        "host" => "vmm1",
+                        "host" => "libvirt-server-ot8",
                         "device" => "/srv/nfs/cache",
                         "name" => "cache",
                       },
                       {
-                        "host" => "vmm1",
+                        "host" => "libvirt-server-ot8",
                         "device" => "/srv/nfs/aptly-api",
                         "name" => "aptly-api",
                       },
                       {
-                        "host" => "vmm1",
+                        "host" => "libvirt-server-ot8",
                         "device" => "/srv/nfs/debs",
                         "name" => "debs",
                       },
                       {
-                        "host" => "vmm1",
+                        "host" => "libvirt-server-ot8",
                         "device" => "/srv/nfs/caddy",
                         "name" => "caddy",
                       }
