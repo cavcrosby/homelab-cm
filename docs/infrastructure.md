@@ -53,6 +53,19 @@
     machines. Any logs uploaded elsewhere are vetted carefully for secrets. Task
     output is crucial for debugging, making `no_log` undesirable.
 
+## Conventions
+
+- Follow this convention's formats for naming hosts. This convention is outlined
+  from [its associated Trello card](https://trello.com/c/k92M2B7T).
+  - Bare-metal hosts
+    - Format: `<vendor>-<model>-<serial number>`
+      - Example: `hp-compaq-6200-2ua`
+    - Format: `<vendor>-<model>-<serial number>-<oob controller name>`
+      - Example: `dell-t630-7m0-idrac`
+  - Virtual machines
+    - Format: `<meaningful name>-<unique suffix>`
+      - Example: `libvirt-server-ot8`
+
 ## Maintenance
 
 - Follow these instructions for updating system packages across all hosts:

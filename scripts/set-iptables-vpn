@@ -17,13 +17,13 @@ fi
 
 wireguard_server_ipv4_addr="$(\
     yq \
-        '.["ansible_host_vars"]["staging-node1"]["vagrant_vm_homelab_ipv4_addr"]' \
+        '.["ansible_host_vars"]["util-server-iy5"]["vagrant_vm_homelab_ipv4_addr"]' \
         < "./vagrant_ansible_vars.json" \
 )"
 
 wireguard_server_port="$(\
     yq \
-        '.["ansible_host_vars"]["staging-node1"]["wireguard_server_port"]' \
+        '.["ansible_host_vars"]["util-server-iy5"]["wireguard_server_port"]' \
         < "./vagrant_ansible_vars.json" \
 )"
 
