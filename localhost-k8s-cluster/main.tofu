@@ -76,7 +76,7 @@ locals {
 
 resource "random_string" "domains_suffixes" {
   count   = local.k8s_controlplane_count + local.k8s_worker_count
-  length  = 6
+  length  = 3
   special = false
   upper   = false
 }
@@ -87,7 +87,7 @@ locals {
     for index in range(local.k8s_controlplane_count + local.k8s_worker_count) :
     index => {
       type   = index < local.k8s_controlplane_count ? "controlplane" : "worker"
-      name   = "${var.libvirt_prefix}talos-${substr(random_string.domains_suffixes[index].result, 0, 3)}-${substr(random_string.domains_suffixes[index].result, 3, 3)}"
+      name   = "${var.libvirt_prefix}talos-${index < local.k8s_controlplane_count ? "controlplane" : "worker"}-${random_string.domains_suffixes[index].result}"
       vcpu   = index < local.k8s_controlplane_count ? 2 : 1
       memory = index < local.k8s_controlplane_count ? 2048 : 1024
       size   = local.one_gib * 10

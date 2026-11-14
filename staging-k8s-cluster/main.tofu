@@ -26,7 +26,7 @@ locals {
         mode      = "bridge"
       }
       tags = {
-        bridge_interface_name = local.network_configs.vmm1_homelab_network_bridge_interface_name
+        bridge_interface_name = local.network_configs.libvirt_server_ot8_homelab_network_bridge_interface_name
       }
     }
     staging-k8s-cluster = {
@@ -43,12 +43,12 @@ locals {
 }
 
 provider "libvirt" {
-  uri = "qemu+ssh://libvirt@${local.network_configs.vmm1_homelab_ipv4_addr}/system?no_verify=1"
+  uri = "qemu+ssh://libvirt@${local.network_configs.libvirt_server_ot8_homelab_ipv4_addr}/system?no_verify=1"
 }
 
 resource "random_string" "domains_suffixes" {
   count   = local.k8s_controlplane_count + local.k8s_worker_count
-  length  = 6
+  length  = 3
   special = false
   upper   = false
 }
@@ -59,7 +59,7 @@ locals {
     for index in range(local.k8s_controlplane_count + local.k8s_worker_count) :
     index => {
       type   = index < local.k8s_controlplane_count ? "controlplane" : "worker"
-      name   = "talos-${substr(random_string.domains_suffixes[index].result, 0, 3)}-${substr(random_string.domains_suffixes[index].result, 3, 3)}"
+      name   = "talos-${index < local.k8s_controlplane_count ? "controlplane" : "worker"}-${random_string.domains_suffixes[index].result}"
       vcpu   = 1
       memory = 1024
       size   = local.one_gib * 10

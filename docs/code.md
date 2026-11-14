@@ -78,9 +78,9 @@
   those under `./examples/playbooks`). This precedence is derived from
   [an associated Trello card](https://trello.com/c/zfi9zgsR/83-integrate-installing-haproxy-and-keepalived-from-poseidonk8scontrollers-into-loadbalancersyml).
   1. A playbook directly maps to a host's higher purpose via machine hostname
-     (e.g. `vmms.yml` -> `vmm1`).
+     (e.g. `vmms.yml` -> `libvirt-server-ot8`).
   2. A playbook indirectly maps to a host's higher purpose via `ansible` groups
-     (e.g. `load_balancers.yml` -> `staging-node1`).
+     (e.g. `load_balancers.yml` -> `util-server-iy5`).
   3. A playbook does not map to a host's higher purpose (e.g.
      `vagrant_customizations.yml`).
 
