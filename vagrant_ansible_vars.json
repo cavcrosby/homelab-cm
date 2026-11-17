@@ -19,7 +19,7 @@
       "vpn_network_interface_name": "en2",
       "wireguard_network_interface_name": "wg0",
       "haproxy_config_file_template": "haproxy.cfg.j2",
-      "wikipedia_zim_name": "wikipedia_en_simple_all",
+      "wikipedia_zim_name": "wikipedia_en-simple_all",
       "wireguard_server_port": 30324,
       "cacerts_bundle_path": "/etc/ssl/certs/ca-certificates.crt",
       "vagrant_config_refs": {
