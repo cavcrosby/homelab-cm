@@ -392,11 +392,11 @@ _EOF_
                     "zim_jobs_manifest_configs" => [
                       {
                         "name" => "import-wikipedia-zim",
-                        "url" => "https://download.kiwix.org/zim/wikipedia/wikipedia_en_simple_all_mini_2025-11.zim"
+                        "zim" => "wikipedia_en-simple_all_mini.zim"
                       },
                       {
                         "name" => "import-computergraphics-stackexchange-com-zim",
-                        "url" => "https://download.kiwix.org/zim/stack_exchange/computergraphics.stackexchange.com_en_all_2025-07.zim"
+                        "zim" => "computergraphics.stackexchange.com_en_all.zim"
                       }
                     ]
                   }

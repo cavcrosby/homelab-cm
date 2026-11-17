@@ -66,11 +66,10 @@ spec:
           args:
             - --location
             - --skip-existing
-            - --remote-name
             - --fail
-            - --output-dir
-            - /mnt
-            - {{ zims_jobs_manifest_config.url }}
+            - --output
+            - /mnt/{{ zims_jobs_manifest_config.zim }}
+            - https://lb.download.kiwix.org/zim/{{ zims_jobs_manifest_config.zim }}
           securityContext:
             allowPrivilegeEscalation: false
             runAsNonRoot: true
