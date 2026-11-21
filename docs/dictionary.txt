@@ -54,7 +54,6 @@ libvirt
 libvirtd
 localhost
 lockdown
-locpath
 logind
 lvm
 mitmdump
