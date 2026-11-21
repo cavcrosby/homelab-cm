@@ -86,7 +86,7 @@
       when: ansible_os_family | lower == "debian"
 
     - name: Set the locale to glibc's C.UTF-8
-      ansible.builtin.command: localectl set-locale "C.UTF-8"
+      ansible.builtin.command: update-locale LANG="C.UTF-8"
       changed_when: "'C.UTF-8' != ansible_env['LANG']"
       become: true
 

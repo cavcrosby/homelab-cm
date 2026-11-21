@@ -13,8 +13,8 @@
       become: true
       vars:
         python_virtualenv_pkgs:
-          - mitmproxy ==11.0.2
-          - requests ==2.32.3
+          - mitmproxy ==12.3.1
+          - requests ==2.34.2
 
   tasks:
     - name: Link the mitmproxy executables

@@ -7,7 +7,6 @@ ansible_hostname
 ansible_user
 api
 apparmor
-apparmour
 apt's
 apt_inst
 apt_pkg
