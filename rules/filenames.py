@@ -56,7 +56,6 @@ class FileNamesRule(AnsibleLintRule):
             and str(file.path)
             not in (
                 # do not apply rule for these lintables
-                "playbooks/templates/en_US.UTF-8.j2",
                 "playbooks/templates/pam_access.conf.j2",
                 "mitmproxy/templates/se_kiwix_redirect.py.j2",
                 "mitmproxy/templates/wikipedia_kiwix_redirect.py.j2",
