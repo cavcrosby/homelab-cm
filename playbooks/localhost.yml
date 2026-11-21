@@ -138,10 +138,19 @@
     ansible_python_interpreter: "{{ ansible_playbook_python }}"
 
   tasks:
-    - name: Set a local AppArmour profile for newly created libvirt domains
+    - name: Create the local libvirt-qemu AppArmor abstractions directory
+      ansible.builtin.file:
+        path: /etc/apparmor.d/abstractions/libvirt-qemu.d
+        state: directory
+        mode: "755"
+      become: true
+      register: local_libvirt_qemu_apparmor_abstractions_dir
+
+    - name: Set a local AppArmor profile for newly created libvirt domains
       ansible.builtin.template:
         src: libvirt-qemu.j2
-        dest: /etc/apparmor.d/local/abstractions/libvirt-qemu
+        dest:
+          "{{ local_libvirt_qemu_apparmor_abstractions_dir.path }}/libvirt-qemu"
         mode: "644"
       become: true
       notify: Restart the apparmor service
