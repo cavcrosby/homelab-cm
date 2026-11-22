@@ -139,7 +139,7 @@
         - name: Define the homelab network
           community.libvirt.virt_net:
             name: "{{ homelab_network_name }}"
-            command: define
+            state: present
             xml:
               "{{ lookup('ansible.builtin.template',
               'homelab-libvirt-network.xml.j2') }}"
@@ -156,15 +156,14 @@
 
         - name: Define the default pool
           community.libvirt.virt_pool:
-            command: define
             name: default
+            state: present
             xml:
               "{{ lookup('ansible.builtin.template',
               'libvirt-pool-default.xml.j2') }}"
 
         - name: Start the default pool
           community.libvirt.virt_pool:
-            command: start
             name: default
             state: active
 
