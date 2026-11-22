@@ -213,6 +213,9 @@ ${INVENTORY}:
 		"localhost"
 
 ${PRESEED_CFG}: ./preseed.cfg.j2
+>	@[ -n "${HOSTNAME_}" ] \
+		|| { echo "make: HOSTNAME_ was not passed into make"; exit 1; }
+
 >	@[ -n "${DISK_ID}" ] \
 		|| { echo "make: DISK_ID was not passed into make"; exit 1; }
 
@@ -225,7 +228,7 @@ ${PRESEED_CFG}: ./preseed.cfg.j2
 >	${ANSIBLE} \
 		--module-name "ansible.builtin.template" \
 		--args 'src=$< dest=./$@ mode="644"' \
-		--extra-vars '{"disk_id": "${DISK_ID}","encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":true}' \
+		--extra-vars '{"hostname":"${HOSTNAME_}","disk_id":"${DISK_ID}","encrypted_password":"$(value ENCRYPTED_ANSIBLE_USER_PASSWORD)","encryption_passphrase":"$(value ENCRYPTION_PASSPHRASE)","encrypt_disks":true}' \
 		"localhost"
 
 .PHONY: ${PRODUCTION}

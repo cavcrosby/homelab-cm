@@ -3,9 +3,6 @@ d-i debian-installer/language string en
 d-i debian-installer/country string US
 d-i debian-installer/locale string C.UTF-8
 d-i keyboard-configuration/xkb-keymap select us
-d-i netcfg/get_hostname string unassigned-hostname
-d-i netcfg/get_domain string unassigned-domain
-d-i netcfg/wireless_wep string
 d-i mirror/country string manual
 d-i mirror/http/hostname string http.us.debian.org
 d-i mirror/http/directory string /debian
@@ -17,6 +14,7 @@ d-i passwd/user-password-crypted password {{ encrypted_password }}
 d-i clock-setup/utc boolean true
 d-i time/zone string UTC
 d-i clock-setup/ntp boolean true
+d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id }}")"
 d-i partman-auto/method string crypto
 d-i partman-auto-lvm/guided_size string max
 d-i partman-auto-lvm/new_vg_name string vgos
@@ -73,8 +71,9 @@ d-i finish-install/reboot_in_progress note
 d-i preseed/early_command string \
     printf "%s\n" "$(debconf-get preseed/url)" > "/var/run/preseed.last_location";
 
-d-i partman/early_command string debconf-set partman-auto/disk "$(readlink -f "/dev/disk/by-id/{{ disk_id }}")"
 d-i preseed/late_command string \
     preseed_fetch /scripts/late-commands /target/tmp/late-commands; \
     preseed_fetch /playbooks/files/authorized_keys /target/tmp/authorized_keys; \
-    in-target /bin/sh /tmp/late-commands;
+    in-target /bin/sh -c 'printf "%s\n" "{{ hostname }}" > "/etc/hostname"'; \
+    in-target sed --in-place "s/debian/{{ hostname }}/" "/etc/hosts"; \
+    in-target /bin/sh /tmp/late-commands
