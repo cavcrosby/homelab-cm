@@ -4,9 +4,110 @@
   tags: upgrade_all_machines_packages
 
   tasks:
-    - name: Upgrade all packages (debian-like)
+    - name: Update apt's package index (debian-like)
       ansible.builtin.apt:
         update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Upgrade all packages (debian-like)
+      ansible.builtin.apt:
         upgrade: true
       become: true
       when: ansible_os_family | lower == "debian"
+
+- name: Upgrade the non-vmm nodes' Linux kernel packages
+  hosts: managed:!vmms
+  tags: upgrade_non_vmms_nodes_kernel_pkgs
+
+  tasks:
+    - name: Update apt's package index (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Upgrade the Linux kernel packages (debian-like)
+      ansible.builtin.apt:
+        name:
+          - linux-image-amd64
+        state: latest
+        only_upgrade: true
+      become: true
+      notify: Reboot the non-vmm nodes
+      when: ansible_os_family | lower == "debian"
+
+  handlers:
+    # clean up old kernels
+    - name: Remove dependencies that are no longer required (debian-like)
+      ansible.builtin.apt:
+        autoremove: true
+      become: true
+      listen: Reboot the non-vmm nodes
+
+    - name: Reboot hosts
+      ansible.builtin.reboot:
+      become: true
+      listen: Reboot the non-vmm nodes
+
+- name: Upgrade the vmms nodes' Linux kernel packages
+  hosts: vmms
+  tags: upgrade_vmms_nodes_kernel_pkgs
+  vars:
+    ansible_python_interpreter:
+      "{{ ansible_user_python_virtualenvs_path }}/{{
+      ansible_user_python_virtualenv_name }}/bin/python"
+
+  tasks:
+    - name: Update apt's package index (debian-like)
+      ansible.builtin.apt:
+        update_cache: true
+      become: true
+      when: ansible_os_family | lower == "debian"
+
+    - name: Upgrade the Linux kernel packages (debian-like)
+      ansible.builtin.apt:
+        name:
+          - linux-image-amd64
+        state: latest
+        only_upgrade: true
+      become: true
+      notify: Gracefully reboot the vmm nodes
+      when: ansible_os_family | lower == "debian"
+
+  handlers:
+    - name: Get list of currently running domains
+      community.libvirt.virt:
+        command: list_vms
+        state: running
+      register: running_domains
+      listen: Gracefully reboot the vmm nodes
+
+    - name: Shut down each running domain gracefully
+      community.libvirt.virt:
+        name: "{{ item }}"
+        state: shutdown
+      listen: Gracefully reboot the vmm nodes
+      loop: "{{ running_domains.list_vms }}"
+      when: running_domains.list_vms | length > 0
+
+    - name: Wait for domains to have completely powered off
+      community.libvirt.virt:
+        command: list_vms
+        state: running
+      register: remaining_domains
+      listen: Gracefully reboot the vmm nodes
+      until: remaining_domains.list_vms | length == 0
+      retries: 30
+      delay: 10
+
+    - name: Remove dependencies that are no longer required (debian-like)
+      ansible.builtin.apt:
+        autoremove: true
+      become: true
+      listen: Gracefully reboot the vmm nodes
+
+    - name: Reboot hosts
+      ansible.builtin.reboot:
+      become: true
+      listen: Gracefully reboot the vmm nodes
