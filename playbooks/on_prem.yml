@@ -73,7 +73,7 @@
         state: restarted
       become: true
 
-- name: Create the bare-metal node administration account
+- name: Create the bare_metal node administration account
   hosts: bare_metal
   tags: create_bare_metal_admin_account
   vars_files:
